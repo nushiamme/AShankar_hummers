@@ -31,9 +31,6 @@ for(i in 1:n) {
 # Check if it worked
 anco$dbhcl
 
-## calculate SD of distance from stream for RDA class. Delete later.
-sd.anco.stream <- sd(anco$Stream)
-
 # Trying a melt function
 m.anco <- melt(data=anco, id.vars=c("Number", "habitat2", "nestht"),
                measure.vars= "Building", na.rm =T)
@@ -103,7 +100,17 @@ box_anco
 
 ## Statistical Analyses
 
+# Test for normality- shapiro.test()
+shapiro.test(anco$dbh)
+shapiro.test(anco$ht)
+shapiro.test(anco$nestht)
+shapiro.test(anco$Stream) # Not normal
+
 # Two sample t test for distances
 t.test(x=anco$Building[anco$habitat2=="Open"], y=anco$Building[anco$habitat2=="Forest"])
+t.test(anco$dbh[anco$Species=="Mangifera indica"], anco$dbh[anco$Species=="Terminalia bellerica"])
+t.test(x=anco$Stream[anco$habitat2=="Open"], y=anco$Stream[anco$habitat2=="Forest"])
 
-
+# Trying linear models to look at what affects nest choice
+anco.lm <- lm(dbh ~ Stream + Building + habitat2 + nestht, anco)
+anova(anco.lm)
