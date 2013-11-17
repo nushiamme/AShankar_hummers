@@ -46,9 +46,12 @@ habitat_building_box <- ggplot(anco, aes(x=habitat2,y=Building)) + xlab("Habitat
   geom_boxplot(col="darkgreen", size=0.3) + theme_bw()
 habitat_building_box
 
-habitat_building <- ggplot(anco, aes(x=Building,y=habitat2)) + coord_flip() + 
-  geom_point(col="darkgreen", size=3) + theme_bw()
-habitat_building
+## Comparing building and stream distances vs habitat. 
+# Need to add legend- red is building, blue is stream
+habitat_building <- ggplot(anco, aes(x=habitat2,y=Building)) + xlab("Habitat") +
+  ylab("Distance") + geom_point(col="red", size=3) + theme_bw()
+habitat_building + geom_point(aes(x = anco$habitat2, y = anco$Stream), col="blue", size=3) + 
+
 
 ## dbh vs. habitat
 habitat_dbh <- ggplot(anco, aes(x=habitat2,y=dbh)) + xlab("Habitat Type") + 
@@ -110,6 +113,8 @@ shapiro.test(anco$Stream) # Not normal
 t.test(x=anco$Building[anco$habitat2=="Open"], y=anco$Building[anco$habitat2=="Forest"])
 t.test(anco$dbh[anco$Species=="Mangifera indica"], anco$dbh[anco$Species=="Terminalia bellerica"])
 t.test(x=anco$Stream[anco$habitat2=="Open"], y=anco$Stream[anco$habitat2=="Forest"])
+## Useful? What does this mean?
+ks.test(x=anco$Stream, y=anco$Building)
 
 # Trying linear models to look at what affects nest choice
 anco.lm <- lm(dbh ~ Stream + Building + habitat2 + nestht, anco)
