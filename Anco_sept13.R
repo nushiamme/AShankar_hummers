@@ -50,7 +50,7 @@ habitat_building_box
 # Need to add legend- red is building, blue is stream
 habitat_building <- ggplot(anco, aes(x=habitat2,y=Building)) + xlab("Habitat") +
   ylab("Distance") + geom_point(col="red", size=3) + theme_bw()
-habitat_building + geom_point(aes(x = anco$habitat2, y = anco$Stream), col="blue", size=3) + 
+habitat_building + geom_point(data=anco, aes(x = habitat2, y = Stream), col="blue", size=3)
 
 
 ## dbh vs. habitat
