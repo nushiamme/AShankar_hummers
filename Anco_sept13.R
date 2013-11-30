@@ -13,7 +13,7 @@ anco <- read.csv("Ancodata_Sept2013.csv")
 
 ## Cleaning and aggregating data
 
-### Sort dbh's into size classes. Note: Order dataset by increasing dbh first
+### Sort dbh's into size classes. Note: Sort dataset by increasing dbh before doing this.
 anco$dbhcl <- 0
 n <- length(anco$dbh)
 cl <- (max(anco$dbh) - min(anco$dbh))/5
@@ -34,8 +34,8 @@ for(i in 1:n) {
 anco$dbhcl
 
 ## Seeing how to do an Anova with habitat (categorial, factors) as the measure variable
-anco$hab_binary[anco2$habitat2=="Open"] <- 0
-anco$hab_binary[anco2$habitat2=="Forest"] <- 1
+anco$hab_binary[anco$habitat2=="Open"] <- 0
+anco$hab_binary[anco$habitat2=="Forest"] <- 1
 
 ###-------- Plots ---------###
 
@@ -137,3 +137,7 @@ anova(anco.lm)
 
 anco.lm2 <- lm(dbh ~ Species + nestht + ht, anco)
 anova(anco.lm2)
+
+pca_anco <- prcomp(~dbh + ht + nestht + Stream + Road + Building + hab_binary, data=anco, scale=T)
+plot(pca_anco$x[,1], pca_anco$x[,2], cex=0.5, pch=16, xlab="PC1", ylab="PC2")
+text(pca_anco$x[,1], pca_anco$x[,2], labels=(anco$Stream), pos=2, offset=0.3, cex=0.6)
