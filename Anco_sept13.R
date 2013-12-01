@@ -15,9 +15,10 @@ anco <- read.csv("Ancodata_edit.csv")
 ## Cleaning and aggregating data
 
 ## Subset necessary columns
-anco <- anco[,c(1,2,5,6,7,8,10,11,12,16,20,21,22)]
+anco <- anco[,c(1,2,5,6,7,8,9,11,12,13,17,21,22,23,24)]
 
-### Sort dbh's into size classes. Note: Sort dataset by increasing dbh before doing this.
+##### Sort dbh's into size classes. ###### 
+#Note: Sort dataset by increasing dbh before doing this.
 anco$dbhcl <- 0
 n <- length(anco$dbh)
 cl <- (max(anco$dbh) - min(anco$dbh))/5
@@ -37,15 +38,17 @@ for(i in 1:n) {
 # Check if it worked
 anco$dbhcl
 
+##### End sort #####
+
 ## Seeing how to do an Anova with habitat (categorial, factors) as the measure variable
-anco$hab_binary[anco$habitat2=="Open"] <- 0
-anco$hab_binary[anco$habitat2=="Forest"] <- 1
+anco$hab_binary[anco$habitat=="Open"] <- 0
+anco$hab_binary[anco$habitat=="Forest"] <- 1
 
 ###-------- Plots ---------###
 
 ## Nest tree sps vs. dbh
 sps_dbh <- ggplot(anco, aes(x=Species,y=dbh)) + xlab("Tree Species") + 
-  geom_point(col="darkgreen") + theme_bw()+ 
+  geom_point(col="darkgreen") + theme_bw() + 
   theme(axis.text.x=element_text(angle=60, vjust=1, hjust=1))
 sps_dbh
 
@@ -126,9 +129,9 @@ t.test(x=anco$Road, y=anco$Building)
 ks.test(x=anco$Stream, y=anco$Building)
 
 # Trying linear models to look at what affects nest choice
-anco.lm <- lm( ~ Stream + Building + nestht + dbh, anco)
+anco.lm <- lm(dbh ~ Stream + Building + Forest + Elevation_m, anco)
 anova(anco.lm)
 
-pca_anco <- prcomp(~dbh + ht + nestht + Stream + Road + Building, data=anco, scale=T)
+pca_anco <- prcomp(~dbh + Stream + Building + Forest + sp_num, data=anco, scale=T)
 plot(pca_anco$x[,1], pca_anco$x[,2], cex=0.5, pch=16, xlab="PC1", ylab="PC2", xlim=c(-4,5))
 text(pca_anco$x[,1], pca_anco$x[,2], labels=(anco$Number), pos=2, offset=0.3, cex=0.6)
