@@ -178,7 +178,7 @@ nestpts <- ggmap(map, extent='exte') +
 nestpts
 
 # qmap- Best probably
-ancomap <- qmap("Devrukh, India", zoom = 11, legend = "bottomleft", color="bw")
+ancomap <- qmap("Devrukh, India", zoom = 11, legend = "bottomleft", color="color", maptype="hybrid")
 nest_pts <- ancomap +
   geom_point(aes(x = lon, y = lat),
              data = anco, size=4)
