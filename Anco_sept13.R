@@ -1,9 +1,14 @@
 ## Read in packages
-require(ggplot2)
-require(reshape)
-require(plyr)
-require(boot)
-require(stats)
+library(ggplot2)
+library(reshape)
+library(plyr)
+library(boot)
+library(stats)
+library(maps)
+library(mapdata)
+library(maptools)
+library(scales)
+library(RgoogleMaps)
 
 ## Set working directory
 setwd("C://Users//Anusha/Desktop/R scripts/hornbills")
@@ -135,3 +140,28 @@ anova(anco.lm)
 pca_anco <- prcomp(~dbh + Stream + Building + Forest + sp_num, data=anco, scale=T)
 plot(pca_anco$x[,1], pca_anco$x[,2], cex=0.5, pch=16, xlab="PC1", ylab="PC2", xlim=c(-4,5))
 text(pca_anco$x[,1], pca_anco$x[,2], labels=(anco$Number), pos=2, offset=0.3, cex=0.6)
+
+## Map
+## Function to convert degree minute seconds to decimal degrees
+convert <-function(coord){
+  tmp1 <- strsplit(coord,"°")
+  tmp2 <- strsplit(tmp1[[1]][2],"'")
+  tmp3 <- strsplit(tmp2[[1]][2],"\"")
+  dec <- c(as.numeric(tmp1[[1]][1]),as.numeric(tmp2[[1]][1]),as.numeric(tmp3[[1]]))
+  c <-abs(dec[1])+dec[2]/60+dec[3]/3600
+  c <-ifelse(dec[1]<0,-c,c)
+  return(c)
+}
+
+## Run loop to use convert() function
+n <- length(anco$Longitude)
+for(i in 1:n){
+  anco$lat[i] <- convert(as.character(anco$Latitude[i]))
+  anco$lon[i] <- convert(as.character(anco$Longitude[i]))
+}
+
+map("worldHires", "india", xlim=c(73.2,73.9), ylim=c(16,17.5), col="gray95", fill=T)
+points(anco$long, anco$lat, pch=19, col="red", cex=0.5)
+df <- data.frame(x=anco$lon, y = anco$lat)
+map <- get_googlemap(center=c(-111,37), markers=df, scale = 1, maptype="terrain", zoom = 4)
+ggmap(map, extent='device')
