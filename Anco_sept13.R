@@ -139,11 +139,12 @@ ks.test(x=anco$Stream, y=anco$Building)
 anco.lm <- lm(dbh ~ Stream + Building + Forest + Elevation_m, anco)
 anova(anco.lm)
 
+# PCA. Think more.
 pca_anco <- prcomp(~dbh + Stream + Building + Forest + sp_num, data=anco, scale=T)
 plot(pca_anco$x[,1], pca_anco$x[,2], cex=0.5, pch=16, xlab="PC1", ylab="PC2", xlim=c(-4,5))
 text(pca_anco$x[,1], pca_anco$x[,2], labels=(anco$Number), pos=2, offset=0.3, cex=0.6)
 
-## Map
+## Mapping points
 ## Function to convert degree minute seconds to decimal degrees
 convert <-function(coord){
   tmp1 <- strsplit(coord,"°")
@@ -162,15 +163,21 @@ for(i in 1:n){
   anco$lon[i] <- convert(as.character(anco$Longitude[i]))
 }
 
+# Google Map
 df <- data.frame(x=anco$lon, y = anco$lat)
 names(df) <- c("lon","lat")
 map <- get_googlemap(center=c(73.65,17.05), scale = 1, maptype="terrain",
                      zoom = 11, color="bw")
-exte <- drawExtent()
+exte<-drawExtent()
+drawExtent(show=TRUE, col="red")
+dev.off()
+
+# ggmap
 nestpts <- ggmap(map, extent='exte') + 
   geom_point(aes(x = lon, y = lat), data = df, size = 3.5, colour = 'black', pch=17)
 nestpts
 
+# qmap- Best probably
 ancomap <- qmap("Devrukh, India", zoom = 11, legend = "bottomleft", color="bw")
 nest_pts <- ancomap +
   geom_point(aes(x = lon, y = lat),
