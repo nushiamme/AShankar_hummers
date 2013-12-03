@@ -11,6 +11,7 @@ library(scales)
 library(RgoogleMaps)
 library(ggmap)
 library(raster)
+library(rgdal)
 
 ## Set working directory
 setwd("C://Users//Anusha/Desktop/R scripts/hornbills")
@@ -18,6 +19,8 @@ setwd("C://Users//Anusha/Desktop/R scripts/hornbills")
 ## Read in data
 #anco2 <- read.csv("Ancodata_Sept2013.csv")
 anco <- read.csv("Ancodata_edit.csv")
+# Read in ebird data!
+ebird <- read.csv("ebird2_dec13.csv")
 
 ## Cleaning and aggregating data
 
@@ -177,9 +180,24 @@ nestpts <- ggmap(map, extent='exte') +
   geom_point(aes(x = lon, y = lat), data = df, size = 3.5, colour = 'black', pch=17)
 nestpts
 
-# qmap- Best probably
+# qmap- Best probably. 1. For colour
 ancomap <- qmap("Devrukh, India", zoom = 11, legend = "bottomleft", color="color", maptype="hybrid")
 nest_pts <- ancomap +
   geom_point(aes(x = lon, y = lat),
              data = anco, size=4)
 nest_pts
+
+# qmap 2. for bw
+ancomap_bw <- qmap("Devrukh, India", zoom = 11, legend = "bottomleft", color="bw", maptype="terrain")
+nests_bw <- ancomap_bw +
+  geom_point(aes(x = lon, y = lat), data = anco, size=4)
+nests_bw
+
+india <- qmap("Solapur, India", zoom=5, maptype="terrain", color="bw")
+ebird_old <- read.csv("ebird_old.csv")
+ebirdmap <- india + geom_point(aes(x=LONGITUDE, y=LATITUDE), col="red", data=ebird) +
+  geom_point(aes(x=LONGITUDE, y=LATITUDE), col="blue", data=ebird_old)
+
+ebirdmap_old <- india 
+ebirdmap
+ebirdmap_old
