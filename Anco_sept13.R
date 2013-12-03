@@ -21,6 +21,8 @@ setwd("C://Users//Anusha/Desktop/R scripts/hornbills")
 anco <- read.csv("Ancodata_edit.csv")
 # Read in ebird data!
 ebird <- read.csv("ebird2_dec13.csv")
+# Ebird data used for poster
+ebird_old <- read.csv("ebird_old.csv")
 
 ## Cleaning and aggregating data
 
@@ -103,6 +105,11 @@ dbh_building <- ggplot(anco, aes(x=Building,y=dbh)) + xlab("Distance to habitati
   geom_point(col="darkgreen", size=2) + theme_bw()
 dbh_building
 
+### dbh vs. distance to Forest
+dbh_forest <- ggplot(anco, aes(x=dbhcl,y=Forest)) + 
+  geom_bar(stat="identity") + theme_bw()
+dbh_forest
+
 ## Nest tree sps vs. height
 sps_treeht_box <- ggplot(anco, aes(x=Species,y=ht)) + xlab("Tree Species") + 
   geom_boxplot(col="darkgreen", size=0.3) + theme_bw()
@@ -135,8 +142,6 @@ t.test(x=anco$Building[anco$habitat=="Open"], y=anco$Building[anco$habitat=="For
 t.test(anco$dbh[anco$Species=="Mangifera indica"], anco$dbh[anco$Species=="Terminalia bellerica"])
 t.test(x=anco$Stream[anco$habitat=="Open"], y=anco$Stream[anco$habitat=="Forest"])
 t.test(x=anco$Road, y=anco$Building)
-## Useful? What does this mean?
-ks.test(x=anco$Stream, y=anco$Building)
 
 # Trying linear models to look at what affects nest choice
 anco.lm <- lm(dbh ~ Stream + Building + Forest + Elevation_m, anco)
@@ -194,10 +199,7 @@ nests_bw <- ancomap_bw +
 nests_bw
 
 india <- qmap("Solapur, India", zoom=5, maptype="terrain", color="bw")
-ebird_old <- read.csv("ebird_old.csv")
+
 ebirdmap <- india + geom_point(aes(x=LONGITUDE, y=LATITUDE), col="red", data=ebird) +
   geom_point(aes(x=LONGITUDE, y=LATITUDE), col="blue", data=ebird_old)
-
-ebirdmap_old <- india 
 ebirdmap
-ebirdmap_old
