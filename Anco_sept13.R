@@ -1,3 +1,7 @@
+## Anusha Hornbill nest data
+# Updated : December 4th, 2013
+
+
 ## Read in packages
 library(ggplot2)
 library(reshape)
@@ -69,6 +73,29 @@ anco$dbhcl
 anco$hab_binary[anco$habitat=="Open"] <- 0
 anco$hab_binary[anco$habitat=="Forest"] <- 1
 
+## Classify forest distances
+
+forest_class <- function (forest) {
+  for (i in 1:length(forest)) {
+    if (forest[i] <500) {
+      anco$forestclass[i] <- 1
+    } else if (500 <= (forest[i]) & (forest[i]) < 1000) {
+      anco$forestclass[i] <- 2
+    } else if (1000 <= (forest[i]) & (forest[i]) < 1500) {
+      anco$forestclass[i] <- 3
+    } else if (1500 <= (forest[i]) & (forest[i]) < 2000) {
+      anco$forestclass[i] <-4
+    } else if (2000 <= (forest[i])) {
+      anco$forestclass[i] <- 5
+    }
+  }
+  return(anco$forestclass)
+}
+
+anco$forestclass <- forest_class(anco$Forest)
+
+
+
 ###-------- Plots ---------###
 
 ## Nest tree sps vs. dbh
@@ -117,13 +144,17 @@ hab_nesthtbox <- ggplot(anco, aes(x=habitat,y=nestht)) + xlab("Habitat Type") +
 hab_nesthtbox ## Check outlier
 
 ### dbh vs. distance to Building
-dbh_building <- ggplot(anco, aes(x=Building,y=dbh)) + xlab("Distance to habitation") +
-  geom_point(col="darkgreen", size=2) + theme_bw()
+dbh_building <- ggplot(anco, aes(x=Building,y=dbh)) + 
+  xlab("Distance to nearest building") +
+  geom_point(col="darkgreen", size=3) + theme_bw() + ggtitle("dbh by Distance to building") +
+  theme(plot.title = element_text(size=20)) +
+  theme(axis.title.x = element_text(size = rel(1.5))) + theme(axis.title.y = element_text(size = rel(1.5))) +
+  theme(axis.text.x = element_text(size=13)) + theme(axis.text.y = element_text(size=13))
 dbh_building
 
 ### dbh vs. distance to Forest
-dbh_forest <- ggplot(anco, aes(x=dbhcl,y=Forest)) + #stat_smooth(method='lm') +
-  geom_bar(stat="identity") + theme_bw()
+dbh_forest <- ggplot(anco, aes(x=forestclass,y=dbh)) + #stat_smooth(method='lm') +
+  geom_line(mapping=) + theme_bw()
 dbh_forest
 
 ## Nest tree sps vs. height
@@ -152,6 +183,13 @@ shapiro.test(anco$Stream) # Not normal
 
 ## Test for correlations between variables.
 cor.test(anco$Building, anco$Road, method="pearson")
+## For the fun of it,
+t.dbh.ht <- cor.test(anco$dbh, anco$ht)
+c(t.dbh.ht$estimate, t.dbh.ht$p.value)
+t.nestht.ht <- cor.test(anco$nestht, anco$ht)
+c(t.nestht.ht$estimate, t.nestht.ht$p.value)
+t.nestht.dbh <- cor.test(anco$nestht, anco$dbh)
+c(t.nestht.dbh$estimate, t.nestht.dbh$p.value)
 
 # Two sample t test for distances
 t.test(x=anco$Building[anco$habitat=="Open"], y=anco$Building[anco$habitat=="Forest"]) ## Significant
@@ -171,10 +209,6 @@ text(pca_anco$x[,1], pca_anco$x[,2], labels=(anco$Number), pos=2, offset=0.3, ce
 
 # Trying poisson for orientation
 chisq.test(nest.directions)
-x.poi<-rpois(n=200,lambda=2.5) 
-hist(x.poi,main="Poisson distribution") 
-
-
 
 ### ------------- Mapping points
 ## Function to convert degree minute seconds to decimal degrees
