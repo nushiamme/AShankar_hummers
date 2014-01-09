@@ -17,7 +17,7 @@ library(raster)
 library(rgdal)
 
 ## Set working directory
-setwd("C://Users//Anusha/Dropbox/Hornbills/")
+setwd("D://Dropbox/Hornbills/")
 
 ## Read in data
 #anco2 <- read.csv("Ancodata_Sept2013.csv")
