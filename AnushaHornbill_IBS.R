@@ -12,24 +12,24 @@ require(dismo)
 #read in files
 
 #Human Impact Index
-HII<-raster("D:\\Ben\\ExtinctionRisk\\hii_global_geo_grid\\hii_v2geo\\w001001x.adf")
+HII<-raster("D:././././layers/hii_global_geo_grid/hii_v2geo/w001001x.adf")
 
 #Global Landcover
-
-Glob<-raster("D:\\Ben\\ExtinctionRisk\\EnvLayers\\GLOBCOVER_L4_200901_200912_V2_3.bil")
+Glob<-raster("D:././layers/EnvLayers/GLOBCOVER_L4_200901_200912_V2_3.bil")
 
 #Anthropogenic Biomes
-Anthr<-raster("D:\\Ben\\ExtinctionRisk\\anthromes_v1\\w001001x.adf")
+Anthr<-raster("D:././layers/anthromes_v1/w001001x.adf")
 
 #Landscan human population size
-Pop<-raster("D:\\Ben\\ExtinctionRisk\\EnvLayers\\LandScan\\lspop2011.bil")
+Pop<-raster("D:././layers/EnvLayers/LandScan/lspop2011.bil")
 
+## TODO Have to download these
 #Bring in bioclim layers
-bio12<-raster("D:\\Ranges\\bio_30s_esri\\bio\\bio_12\\w001001x.adf")
-bio17<-raster("D:\\Ranges\\bio_30s_esri\\bio\\bio_17\\w001001x.adf")
-bio15<-raster("D:\\Ranges\\bio_30s_esri\\bio\\bio_15\\w001001x.adf")
-bio6<-raster("D:\\Ranges\\bio_30s_esri\\bio\\bio_6\\w001001x.adf")
-bio1<-raster("D:\\Ranges\\bio_30s_esri\\bio\\bio_1\\w001001x.adf")
+bio12<-raster("D:/layers/Bioclim/bio_30s_esri/bio/bio_12/w001001x.adf")
+bio17<-raster("D:/layers/Bioclim/bio_30s_esri/bio/bio_17/w001001x.adf")
+bio15<-raster("D:/layers/Bioclim/bio_30s_esri/bio/bio_15/w001001x.adf")
+bio6<-raster("D:/layers/Bioclim/bio_30s_esri/bio/bio_6/w001001x.adf")
+bio1<-raster("D:/layers/Bioclim/bio_30s_esri/bio/bio_1/w001001x.adf")
 
 #if you wanted a new bioclim
 #bio6<-raster("D:\\Ranges\\bio_30s_esri\\bio\\bio_6\\w001001x.adf")
@@ -37,7 +37,7 @@ bio1<-raster("D:\\Ranges\\bio_30s_esri\\bio\\bio_1\\w001001x.adf")
 
 ##load in the points. 
 #load shapefile
-pts<-readShapePoints("C:\\Users\\Jorge\\Desktop\\shp\\Compiled without nest points.shp")
+pts<-readShapePoints("D:././././Toshiba_Desktop/Hornbill Paper in Stony Brook/Cleaned data/Compiled without nest points.shp")
 
 #If you have XY coordinates, just use SpatialPoints
 
