@@ -1,7 +1,6 @@
 ## Anusha Hornbill nest data
 # Updated : December 4th, 2013
 
-
 ## Read in packages
 library(ggplot2)
 library(reshape)
@@ -18,7 +17,7 @@ library(raster)
 library(rgdal)
 
 ## Set working directory
-setwd("C://Users//Anusha/Documents/Dropbox/Hornbills/")
+setwd("C://Users//Anusha/Dropbox/Hornbills/")
 
 ## Read in data
 #anco2 <- read.csv("Ancodata_Sept2013.csv")
@@ -33,8 +32,8 @@ ebird_old <- read.csv("ebird_old.csv")
 ## Subset necessary columns
 anco <- anco[,c(1,2,5,6,7,8,9,11,12,13,14,17,21,22,23,24)]
 
-# Change direction N-NW to NW
-#anco$Direction[anco$Direction=="N-NW"] <- "NW"
+#Change direction N-NW to NW
+anco$Direction[anco$Direction=="N-NW"] <- "NW"
 
 ## Loop to count number of nests in each direction
 nest.directions <- 0
