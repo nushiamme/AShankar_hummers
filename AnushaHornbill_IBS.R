@@ -1,10 +1,6 @@
 #SDM extractions and data manipulations for Anusha
-#
-
 
 #January 3rd 2013
-#use install.packages("name")
-#load the required libraries
 
 require(raster)
 require(maptools)
@@ -30,10 +26,6 @@ bio17<-raster("D:/layers/Bioclim/bio_30s_esri/bio/bio_17/w001001x.adf")
 bio15<-raster("D:/layers/Bioclim/bio_30s_esri/bio/bio_15/w001001x.adf")
 bio6<-raster("D:/layers/Bioclim/bio_30s_esri/bio/bio_6/w001001x.adf")
 bio1<-raster("D:/layers/Bioclim/bio_30s_esri/bio/bio_1/w001001x.adf")
-
-#if you wanted a new bioclim
-#bio6<-raster("D:\\Ranges\\bio_30s_esri\\bio\\bio_6\\w001001x.adf")
-
 
 ##load in the points. 
 #load shapefile
