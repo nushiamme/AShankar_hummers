@@ -37,26 +37,26 @@ bio1<-raster("D:/layers/Bioclim/bio_30s_esri/bio/bio_1/w001001x.adf")
 
 ##load in the points. 
 #load shapefile
-pts<-readShapePoints("D:././././Toshiba_Desktop/Hornbill Paper in Stony Brook/Cleaned data/Compiled without nest points.shp")
+pts <- readShapePoints("D:././././Toshiba_Desktop/Hornbill Paper in Stony Brook/Cleaned data/Compiled without nest points.shp")
 
 #If you have XY coordinates, just use SpatialPoints
 
 #draw extent
 plot(bio1,ext=extent(pts)*3)
-exte<-drawExtent()
+exte <- drawExtent()
 drawExtent(show=TRUE, col="red")
 dev.off()
 
 #Crop the rasters by the desired spatial extent
-HII.crop<-crop(HII,exte)
-Glob.crop<-crop(Glob,exte)
-Anthr.crop<-crop(Anthr,exte)
-Pop.crop<-crop(Pop,exte)
-bio15.crop<-crop(bio15,exte)
-bio6.crop<-crop(bio6,exte)
-bio12.crop<-crop(bio12,exte)
-bio17.crop<-crop(bio17,exte)
-bio1.crop<-crop(bio1,exte)
+HII.crop <- crop(HII,exte)
+Glob.crop <- crop(Glob,exte)
+Anthr.crop <- crop(Anthr,exte)
+Pop.crop <- crop(Pop,exte)
+bio15.crop <- crop(bio15,exte)
+bio6.crop <- crop(bio6,exte)
+bio12.crop <- crop(bio12,exte)
+bio17.crop <- crop(bio17,exte)
+bio1.crop <- crop(bio1,exte)
 
 #remove the uncropped files to reduce space. 
 rm(bio1,bio6,bio12,bio15,bio17,Pop,Anthr,Glob,HII)
@@ -64,20 +64,20 @@ gc()
 
 
 #resample rasters at the correct extent
-HII.crop<-resample(HII.crop,bio6.crop)
-Glob.crop<-resample(Glob.crop,bio6.crop)
-Anthr.crop<-resample(Anthr.crop,bio6.crop)
-Pop.crop<-resample(Pop.crop,bio6.crop)
+HII.crop <- resample(HII.crop,bio6.crop)
+Glob.crop <- resample(Glob.crop,bio6.crop)
+Anthr.crop <- resample(Anthr.crop,bio6.crop)
+Pop.crop <- resample(Pop.crop,bio6.crop)
 
 
 gc()
 
 
 #Include which layers you want here:
-all.layers<-stack(bio15.crop,bio6.crop,bio12.crop,bio17.crop,bio1.crop,HII.crop,Glob.crop,Anthr.crop,Pop.crop)
+all.layers <- stack(bio15.crop,bio6.crop,bio12.crop,bio17.crop,bio1.crop,HII.crop,Glob.crop,Anthr.crop,Pop.crop)
 
 #names the rasters
-names(all.layers)<-c("bio15","bio6","bio12","bio17","bio1","HII","Glob","Anthro","Pop")
+names(all.layers) <- c("bio15","bio6","bio12","bio17","bio1","HII","Glob","Anthro","Pop")
 
 #bioclim only
 bio.layers<-stack(bio15.crop,bio1.crop,bio6.crop,bio12.crop,bio17.crop)
