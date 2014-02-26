@@ -206,6 +206,10 @@ pca_anco <- prcomp(~dbh + Stream + Building + Forest + sp_num, data=anco, scale=
 plot(pca_anco$x[,1], pca_anco$x[,2], cex=0.5, pch=16, xlab="PC1", ylab="PC2", xlim=c(-4,5))
 text(pca_anco$x[,1], pca_anco$x[,2], labels=(anco$Number), pos=2, offset=0.3, cex=0.6)
 
+## To Do
+prcomp
+
+
 # Trying poisson for orientation
 chisq.test(nest.directions)
 
