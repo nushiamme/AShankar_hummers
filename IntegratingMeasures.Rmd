@@ -19,4 +19,9 @@ output: pdf_document
 
 
 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b. Metabolic rates
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c. Torpor
 
