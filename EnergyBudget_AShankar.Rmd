@@ -4,14 +4,14 @@ author: "Anusha Shankar"
 date: "Sunday, December 28, 2014"
 output: pdf_document
 ---
-Using published and unpublished data from Dr. Don Powers' earlier work, we construct here a preliminary energy budget for a North American species, *Cynanthus latirostris*.
+Using published and unpublished data from Dr. Don Powers' earlier work, we construct here a preliminary energy budget for a North American species, the Broad-billed hummingbird (*Cynanthus latirostris*).
 
 1.  Basal Metabolic Rate (BMR)
 ------------------------------
-This measurement is based on a regression model of metabolic rate measured under BMR conditions (in the dark, fasted, during the sleep phase), below the lower critical temperatures (measured during summer 2012).  The assumptions of these measurements are:
+The BMR measurements here are based on a regression model of metabolic rate measured under BMR conditions (in the dark, fasted, during the sleep phase), below the lower critical temperatures (measured during summer 2012).  The assumptions of these measurements are:
   
   -  35&deg;C is the lower critical temperature and represents the lowest temperature for measurement of BMR. This is consistent with measurements for other hummingbirds (Lasiewski 1963) and data on Costa's Hummingbirds (*Calypte costae*) and broad-tailed hummingbirds (*Selasphorus platycercus*; unpublished, Donald R. Powers).
- -  BMR is assumed a continuous cost for 24 hours except for birds that use torpor.  If torpor is used then BMR is a continuous cost for 24 hours, excluding the hours spent in torpor.  Hours for maximum torpor at the two sites studied were Harshaw Creek (HC) = 6 and at Sonoita Creek (SC) = 4.
+ -  BMR is assumed a continuous cost for 24 hours except when birds use torpor.  If torpor is used then BMR is a continuous cost for 24 hours, excluding the hours spent in torpor.  Hours for maximum torpor at the two sites studied were Harshaw Creek (HC) = 6 and at Sonoita Creek (SC) = 4.
  
 Mean BMR~BBLH~ = 0.204 mL/min (4.1 J/min; 0.0683W)
 
@@ -31,7 +31,7 @@ Where TRE~L~ is the energy spent on thermoregulation below the TNZ. This is calc
 &nbsp;&nbsp;**B.  Above the TNZ** (T~e~ > 35&deg;C)  
 
 Lasiewski's (1963) data suggests that the upper critical temperature for small hummingbirds is ~35-37 &deg;C.  This seems odd considering hummingbirds have a presumed body temperature of ~41 &deg;C.  Even so this appears consistent with all measures we are aware of.  The TNZ of small hummingbirds appears so small that the LCT and upper critical temperature (UCT) are essentially identical Lasiewski (1963).
-The only data we know of for metabolic rate above the upper critical temperature in small hummingbirds is Powers' unpublished data on Costa's.  The slope of this relationship was based on unpublished measurements of Costa's Hummingbird (*Calypte costae*), a similarly sized species.
+The only data we know of for metabolic rate above the upper critical temperature in small hummingbirds are Powers' unpublished data on Costa's.  The slope of this relationship was based on unpublished measurements of Costa's Hummingbird (*Calypte costae*), a similarly sized species.
 
 MR~H~ (mL O~2~/min) = 0.0144 (T~e~) - 0.3623 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Equation 2a**
 
@@ -49,7 +49,7 @@ Little data are available for how much resting metabolic rate (RMR) is elevated 
 
 RMR~Costa~ = 1.21 x BMR
 
-This is consistent with Aschoff & Pohl (1970) which reported data for several bird species suggesting RMR = 1.25 x BMR. The Aschoff & Pohl correction has often been used to estimate RMR but might underestimate true resting costs because the measurements upon which it is based were typically made on birds resting in the dark.  This would eliminate any costs associated with response to light or surrounding events.  Further, we believe that Aschoff & Pohl also fasted birds so the cost of specific dynamic action (i.e. the cost of digestion; SDA) is also not included.  Two years ago Powers made RMR measurements on Calliope hummingbirds (*Selasphorus calliope*; ~2.4 g) while on a perch in an illuminated chamber.  After subtracting thermoregulatory costs RMRCalliope = 0.2835 mL O~2~/min.  BMRCalliope = 0.1843 mL O~2~/min (Lasiewski 1963).  Thus,
+This is consistent with Aschoff & Pohl (1970) which reported data for several bird species suggesting RMR = 1.25 x BMR. The Aschoff & Pohl correction has often been used to estimate RMR but might underestimate true resting costs because the measurements upon which it is based were typically made on birds resting in the dark.  This would eliminate any costs associated with response to light or surrounding events.  Further, we believe that Aschoff & Pohl also fasted birds so the cost of specific dynamic action (i.e. the cost of digestion; SDA) is also not included.  Two years ago Powers made RMR measurements on Calliope hummingbirds (*Selasphorus calliope*; ~2.4 g) while on a perch in an illuminated chamber.  After subtracting thermoregulatory costs RMR~Calliope~ = 0.2835 mL O~2~/min.  BMR~Calliope~ = 0.1843 mL O~2~/min (Lasiewski 1963).  Thus,
 
 RMR~Calliope~ = 1.54 x BMR
 
@@ -98,14 +98,14 @@ Note:  This value might change a bit as we refine the calculations.  Even so thi
 **DEE = (TRE~L~ + TRE~H~) + ACT + NEE**  
 
 Where:
-DEE = Daily energy expenditure
-TRE~L~ = Cost of thermoregulation at lower critical temperatures
-TRE~H~ = Cost of thermoregulation at higher critical temperatures
-ACT = Activity costs (from above)
-NEE = Nighttime energy expenditure
-Note:  If no torpor is used then NEE = 0, and NEE is included in TRE~L~.
+DEE = Daily energy expenditure  
+TRE~L~ = Cost of thermoregulation at lower critical temperatures  
+TRE~H~ = Cost of thermoregulation at higher critical temperatures  
+ACT = Activity costs (from above)  
+NEE = Nighttime energy expenditure  
+Note:  If no torpor is used then NEE = 0, and NEE is included in TRE~L~.  
 
-Model Test Using Sonoita Creek *C. latirostris* values
+Model Test Using Sonoita Creek *C. latirostris* values  
 
 Here, assuming:
 1.  70% of the daytime was spent perching and 30% flying.  Flying was 50% hovering and 50% forward flight.
