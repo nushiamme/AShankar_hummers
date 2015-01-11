@@ -22,7 +22,7 @@ Mean BMR~BBLH~ = 0.204 mL/min (4.1 J/min; 0.0683W)
 MR~L~ (mL  O~2~/min) = 0.9571 - 0.022\*(T~e~) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-**Equation 1a**
 
 
-Where MR~L~ is metabolic rate below the TNZ. This is calculated by subtracting BMR from the result of equation 1a when T~e~ < 35&deg;C.  For simplicity of calculation the result of equation 1a when T~e~ < 35&deg;C included both the cost of BMR and of thermoregulation.
+Where MR~L~ is metabolic rate below the TNZ. This is calculated by subtracting BMR from the result of equation 1a when T~e~ < 35&deg;C.  For simplicity of calculation the result of equation 1a when T~e~ < 35&deg;C is the combined cost of BMR and of thermoregulation.
 
 TRE~L~ (kJ) = $\Sigma$(MR~L~ \* 60) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Equation 1b**
 
@@ -49,7 +49,7 @@ Little data are available for how much resting metabolic rate (RMR) is elevated 
 
 RMR~Costa~ = 1.21 x BMR
 
-This is consistent with Aschoff & Pohl (1970) which reported data for several bird species suggesting RMR = 1.25 x BMR. The Aschoff & Pohl correction has often been used to estimate RMR but might underestimate true resting costs because the measurements upon which it is based were typically made on birds resting in the dark.  This would eliminate any costs associated with response to light or surrounding events.  Further, we believe that Aschoff & Pohl also fasted birds so the cost of specific dynamic action (i.e. the cost of digestion; SDA) is also not included.  Two years ago Powers made RMR measurements on Calliope hummingbirds (*Selasphorus calliope*; ~2.4 g) while on a perch in an illuminated chamber.  After subtracting thermoregulatory costs RMR~Calliope~ = 0.2835 mL O~2~/min.  BMR~Calliope~ = 0.1843 mL O~2~/min (Lasiewski 1963).  Thus,
+This is consistent with Aschoff & Pohl (1970) which reported data for several bird species suggesting RMR = 1.25 x BMR. The Aschoff & Pohl correction has often been used to estimate RMR but might underestimate true resting costs because the measurements upon which it is based were typically made on birds resting in the dark.  This would eliminate any costs associated with response to light or surrounding events.  Further, Aschoff & Pohl fasted birds so the cost of specific dynamic action (i.e. the cost of digestion; SDA) is also not included.  Two years ago Powers made RMR measurements on Calliope hummingbirds (*Selasphorus calliope*; ~2.4 g) on a perch in an illuminated chamber.  After subtracting thermoregulatory costs RMR~Calliope~ = 0.2835 mL O~2~/min.  BMR~Calliope~ = 0.1843 mL O~2~/min (Lasiewski 1963).  Thus,
 
 RMR~Calliope~ = 1.54 x BMR
 
@@ -67,7 +67,7 @@ This value is 10.3 x BMR, which is reasonable.
 
 &nbsp;&nbsp;**C.  Forward flight**  
 
-No measurements of been made on the metabolic cost of forward flight (FLMR) in broad-billed hummingbirds.  If we assume that hummingbirds fly most often at their most efficient speed (6-8 m/s), FLMR can be estimated using data from other hummingbird species.
+No measurements have been made on the metabolic cost of forward flight (FLMR) in broad-billed hummingbirds.  If we assume that hummingbirds fly most often at their most efficient speed (6-8 m/s), FLMR can be estimated using data from other hummingbird species.
 
 FLMR~Calliope~ = 0.53 x HMR
 
