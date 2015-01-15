@@ -8,29 +8,33 @@ Using published and unpublished data from Dr. Don Powers' earlier work, we const
 
 1.  Basal Metabolic Rate (BMR)
 ------------------------------
-The BMR measurements here are based on a regression model of metabolic rate measured under BMR conditions (in the dark, fasted, during the sleep phase), below the lower critical temperatures (measured during summer 2012).  The assumptions of these measurements are:
+The BMR measurements here are based on a regression model of metabolic rate measured under BMR conditions (in the dark, fasted, during the sleep phase; measured during summer 2012).  The assumptions of these measurements are:
   
-  -  35&deg;C is the lower critical temperature and represents the lowest temperature for measurement of BMR. This is consistent with measurements for other hummingbirds (Lasiewski 1963) and data on Costa's Hummingbirds (*Calypte costae*) and broad-tailed hummingbirds (*Selasphorus platycercus*; unpublished, Donald R. Powers).
+  -  These measurements were taken at 35&deg;C, which is the lower critical temperature and represents the lowest temperature for measurement of BMR. This is consistent with measurements for other hummingbirds (Lasiewski 1963) and data on Costa's Hummingbirds (*Calypte costae*) and broad-tailed hummingbirds (*Selasphorus platycercus*; unpublished, Donald R. Powers). 
  -  BMR is assumed a continuous cost for 24 hours except when birds use torpor.  If torpor is used then BMR is a continuous cost for 24 hours, excluding the hours spent in torpor.  Hours for maximum torpor at the two sites studied were Harshaw Creek (HC) = 6 and at Sonoita Creek (SC) = 4.
  
 Mean BMR~BBLH~ = 0.204 mL/min (4.1 J/min; 0.0683W)
 
 2.  Thermoregulation
 ---------------------
-&nbsp;&nbsp;**A.  Below the thermoneutral zone** (TNZ; Operative temperature T~e~ < 35&deg;C)  
+The thermoneutral zone (TNZ) is the optimum range of ambient temperatures over which there are no regulatory changes in metabolic heat production or evaporative heat loss (Kingma et al. 2012). Thermoregulatory costs are calculated separately below and above the TNZ, as the slopes are different for these two regions, and thought to be asymmetric, as seen in Figure 1. We thus retain separate equations for the two even though the TNZ of small hummingbirds appears so small that the lower and upper critical temperatures are essentially identical Lasiewski (1963).
+![Image of TNZ]("E:\\Git\\AShankar_hummers\\TNZ.jpg")
+Figure 1: TNZ = Thermoneutral zone; LCT = lower critical temperature; UCT = upper critical temperature; Tb = body  temperature.  
 
+&nbsp;&nbsp;**A.  Below the TNZ** (Operative temperature T~e~ < 35&deg;C)  
+
+First, hourly averages for metabolic rate across a range of temperatures below the TNZ are measured.
 MR~L~ (mL  O~2~/min) = 0.9571 - 0.022\*(T~e~) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-**Equation 1a**
 
-
-Where MR~L~ is metabolic rate below the TNZ. This is calculated by subtracting BMR from the result of equation 1a when T~e~ < 35&deg;C.  For simplicity of calculation the result of equation 1a when T~e~ < 35&deg;C is the combined cost of BMR and of thermoregulation.
+Here, MR~L~ is metabolic rate when T~e~ < 35&deg;C, and includes both basal metabolic rate costs and thermoregulatory costs. From MR~L~, we calculate TRE~L~, which is the sum of the hourly averages for all hours where mean T~e~ < lower critical temperature.
 
 TRE~L~ (kJ) = $\Sigma$(MR~L~ \* 60) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Equation 1b**
 
-Where TRE~L~ is the energy spent on thermoregulation below the TNZ. This is calculated for hourly averages for all hours where mean T~e~ < LCT and there is no torpor use. Torpor was assumed to be zero because birds rarely entered torpor in Sonoita Creek.
+Thus, TRE~L~ is the total daily energy spent on thermoregulation below the TNZ. Torpor was assumed to be zero because birds rarely entered torpor in Sonoita Creek.
 
 &nbsp;&nbsp;**B.  Above the TNZ** (T~e~ > 35&deg;C)  
 
-Lasiewski's (1963) data suggests that the upper critical temperature for small hummingbirds is ~35-37 &deg;C.  This seems odd considering hummingbirds have a presumed body temperature of ~41 &deg;C.  Even so this appears consistent with all measures we are aware of.  The TNZ of small hummingbirds appears so small that the LCT and upper critical temperature (UCT) are essentially identical Lasiewski (1963).
+Lasiewski's (1963) data suggests that the upper critical temperature for small hummingbirds is ~35-37 &deg;C.  This seems odd considering hummingbirds have a presumed body temperature of ~41 &deg;C.  Even so this appears consistent with all measures we are aware of.
 The only data we know of for metabolic rate above the upper critical temperature in small hummingbirds are Powers' unpublished data on Costa's.  The slope of this relationship was based on unpublished measurements of Costa's Hummingbird (*Calypte costae*), a similarly sized species.
 
 MR~H~ (mL O~2~/min) = 0.0144 (T~e~) - 0.3623 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Equation 2a**
@@ -39,7 +43,7 @@ Where MR~H~ is metabolic rate above upper critical temperatures. This is calcula
 
 TRE~H~ (kJ) = $\Sigma$(MR~H~ \* 60) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Equation 2b**
 
-Calculated for hourly averages for all hours where mean T~e~ > UCT and again, assuming no torpor.
+TRE~H~ is calculated as the sum of hourly averages for all hours where mean T~e~ > upper critical temperature, again assuming no torpor use.
 
 3.  Activity Costs
 ------------------
@@ -49,25 +53,27 @@ Little data are available for how much resting metabolic rate (RMR) is elevated 
 
 RMR~Costa~ = 1.21 x BMR
 
-This is consistent with Aschoff & Pohl (1970) which reported data for several bird species suggesting RMR = 1.25 x BMR. The Aschoff & Pohl correction has often been used to estimate RMR but might underestimate true resting costs because the measurements upon which it is based were typically made on birds resting in the dark.  This would eliminate any costs associated with response to light or surrounding events.  Further, Aschoff & Pohl fasted birds so the cost of specific dynamic action (i.e. the cost of digestion; SDA) is also not included.  Two years ago Powers made RMR measurements on Calliope hummingbirds (*Selasphorus calliope*; ~2.4 g) on a perch in an illuminated chamber.  After subtracting thermoregulatory costs RMR~Calliope~ = 0.2835 mL O~2~/min.  BMR~Calliope~ = 0.1843 mL O~2~/min (Lasiewski 1963).  Thus,
+This is consistent with an Aschoff & Pohl study (1970) which reported data for several bird species suggesting RMR = 1.25 x BMR. The Aschoff & Pohl correction has often been used to estimate RMR but might underestimate true resting costs because the measurements upon which it is based were typically made on birds resting in the dark.  This would eliminate any costs associated with response to light or surrounding events.  Further, Aschoff & Pohl fasted birds so the cost of specific dynamic action (i.e. the cost of digestion; SDA) is also not included.  Two years ago Powers made RMR measurements on Calliope hummingbirds (*Selasphorus calliope*; ~2.4 g) on a perch in an illuminated chamber.  After subtracting thermoregulatory costs RMR~Calliope~ = 0.2835 mL O~2~/min.  BMR~Calliope~ = 0.1843 mL O~2~/min (Lasiewski 1963).  Thus,
 
 RMR~Calliope~ = 1.54 x BMR
 
-In our opinion this more accurately reflects the metabolic rate of a perching hummingbird.  Thus, we can estimate RMR as:
+This is likely to more accurately reflect the metabolic rate of a perching hummingbird in the wild.  Thus, we can estimate RMR as:
   
   RMR = 1.5 x BMR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Equation 3**
 
+This is also a fair assumption to make as the Calliope and broad-billed hummingbirds are behaviorally similar and perch in similar environments.
+
 &nbsp;&nbsp;**B.  Hovering**  
 
-We have measured hovering metabolic rate (HMR) in broad-billed hummingbirds:
+Powers has measured hovering metabolic rate (HMR) in broad-billed hummingbirds:
   
   HMR = 2.1 mL O~2~/min (42.21 J/min; 0.7035W)
 
-This value is 10.3 x BMR, which is reasonable.
+This value is 10.3 x BMR, which is reasonable (similar to findings in Fernandez et al. 2011).
 
 &nbsp;&nbsp;**C.  Forward flight**  
 
-No measurements have been made on the metabolic cost of forward flight (FLMR) in broad-billed hummingbirds.  If we assume that hummingbirds fly most often at their most efficient speed (6-8 m/s), FLMR can be estimated using data from other hummingbird species.
+No measurements have been made on the metabolic cost of forward flight (FLMR) in broad-billed hummingbirds.  If we assume that hummingbirds fly most often at their most efficient speed (6-8 m/s), FLMR can be estimated using data from other hummingbird species. These relationships are well-established from studies on power curves.
 
 FLMR~Calliope~ = 0.53 x HMR
 
