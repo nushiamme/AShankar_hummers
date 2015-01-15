@@ -1,10 +1,10 @@
 ---
 title: "EnergyBudget"
 author: "Anusha Shankar"
-date: "Sunday, December 28, 2014"
+date: "January 14, 2015"
 output: pdf_document
 ---
-Using published and unpublished data from Dr. Don Powers' earlier work, we construct here a preliminary energy budget for a North American species, the Broad-billed hummingbird (*Cynanthus latirostris*).
+Using published and unpublished data from Dr. Don Powers' earlier work, we construct here a preliminary energy budget for a North American species, the Broad-billed hummingbird (BBLH; *Cynanthus latirostris*).
 
 1.  Basal Metabolic Rate (BMR)
 ------------------------------
@@ -18,15 +18,15 @@ Mean BMR~BBLH~ = 0.204 mL/min (4.1 J/min; 0.0683W)
 2.  Thermoregulation
 ---------------------
 The thermoneutral zone (TNZ) is the optimum range of ambient temperatures over which there are no regulatory changes in metabolic heat production or evaporative heat loss (Kingma et al. 2012). Thermoregulatory costs are calculated separately below and above the TNZ, as the slopes are different for these two regions, and thought to be asymmetric, as seen in Figure 1. We thus retain separate equations for the two even though the TNZ of small hummingbirds appears so small that the lower and upper critical temperatures are essentially identical Lasiewski (1963).
-![Image of TNZ]("E:\\Git\\AShankar_hummers\\TNZ.jpg")
+
 Figure 1: TNZ = Thermoneutral zone; LCT = lower critical temperature; UCT = upper critical temperature; Tb = body  temperature.  
 
 &nbsp;&nbsp;**A.  Below the TNZ** (Operative temperature T~e~ < 35&deg;C)  
 
-First, hourly averages for metabolic rate across a range of temperatures below the TNZ are measured.
+First, hourly averages for metabolic rate across a range of temperatures below the TNZ were measured, resulting in this relationship:
 MR~L~ (mL  O~2~/min) = 0.9571 - 0.022\*(T~e~) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-**Equation 1a**
 
-Here, MR~L~ is metabolic rate when T~e~ < 35&deg;C, and includes both basal metabolic rate costs and thermoregulatory costs. From MR~L~, we calculate TRE~L~, which is the sum of the hourly averages for all hours where mean T~e~ < lower critical temperature.
+Here, MR~L~ is metabolic rate when T~e~ < 35&deg;C, and includes both basal metabolic rate costs and thermoregulatory costs. We can then calculate TRE~L~, which is the sum of the hourly averages of MR~L~ for all hours where mean T~e~ < lower critical temperature.
 
 TRE~L~ (kJ) = $\Sigma$(MR~L~ \* 60) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Equation 1b**
 
@@ -34,7 +34,7 @@ Thus, TRE~L~ is the total daily energy spent on thermoregulation below the TNZ. 
 
 &nbsp;&nbsp;**B.  Above the TNZ** (T~e~ > 35&deg;C)  
 
-Lasiewski's (1963) data suggests that the upper critical temperature for small hummingbirds is ~35-37 &deg;C.  This seems odd considering hummingbirds have a presumed body temperature of ~41 &deg;C.  Even so this appears consistent with all measures we are aware of.
+Lasiewski's (1963) data suggests that the upper critical temperature for small hummingbirds is ~35-37 &deg;C. 
 The only data we know of for metabolic rate above the upper critical temperature in small hummingbirds are Powers' unpublished data on Costa's.  The slope of this relationship was based on unpublished measurements of Costa's Hummingbird (*Calypte costae*), a similarly sized species.
 
 MR~H~ (mL O~2~/min) = 0.0144 (T~e~) - 0.3623 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Equation 2a**
@@ -61,11 +61,11 @@ This is likely to more accurately reflect the metabolic rate of a perching hummi
   
   RMR = 1.5 x BMR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Equation 3**
 
-This is also a fair assumption to make as the Calliope and broad-billed hummingbirds are behaviorally similar and perch in similar environments.
+This is a fair relationship to use for broad- billed hummingbirds, as Calliope and Broad-billed hummingbirds are behaviorally similar and perch in similar environments.
 
 &nbsp;&nbsp;**B.  Hovering**  
 
-Powers has measured hovering metabolic rate (HMR) in broad-billed hummingbirds:
+Powers has measured hovering metabolic rate (HMR) in Broad-billed hummingbirds:
   
   HMR = 2.1 mL O~2~/min (42.21 J/min; 0.7035W)
 
@@ -73,7 +73,7 @@ This value is 10.3 x BMR, which is reasonable (similar to findings in Fernandez 
 
 &nbsp;&nbsp;**C.  Forward flight**  
 
-No measurements have been made on the metabolic cost of forward flight (FLMR) in broad-billed hummingbirds.  If we assume that hummingbirds fly most often at their most efficient speed (6-8 m/s), FLMR can be estimated using data from other hummingbird species. These relationships are well-established from studies on power curves.
+No measurements have been made on the metabolic cost of forward flight (FLMR) in Broad-billed hummingbirds.  If we assume that hummingbirds fly most often at their most efficient speed (6-8 m/s), FLMR can be estimated using data from other hummingbird species. These relationships are well-established from studies on power curves in hummingbirds (Tobalske et al. 2003, 2010).
 
 FLMR~Calliope~ = 0.53 x HMR
 
@@ -89,15 +89,17 @@ ACT = ((Time~RMR~ \* (RMR - BMR)) + (Time~HMR~ \* (HMR - BMR) + (Time~FLMR~ \* (
                                                           
 4.  Nighttime Metabolic Rate 
 ----------------------------
+There is a large amount of individual and daily variation in the frequency and duration of torpor use. For the sake of modeling DEE we assume that either torpor is not used at all, or if torpor is used it is used to the full extent observed.  By doing so we can create upper and lower energetic boundaries based on whether or not torpor was used.  
+
 &nbsp;&nbsp;**A.  No torpor**  
-Nighttime metabolic rate (NMR) for normothermic hummingbirds can be calculated using equation 1a.  
+Nighttime metabolic rate (NMR) will be BMR plus the cost of thermoregulation below the lower critical temperatures.  Thus, NMR for normothermic hummingbirds can be calculated using equation 1a. 
 
 &nbsp;&nbsp;**B.  Torpor**  
-For the sake of modeling DEE we will assume that if torpor is used it is used to the full extent.  By doing so we can create energetic boundaries based on whether or not torpor was used.  For birds that used torpor maximally last summer:
+For birds that used torpor maximally last summer:
   
   Nighttime energy expenditure (NEE) = 2 kJ
 
-Note:  This value might change a bit as we refine the calculations.  Even so this is such a small component of DEE that small changes to this value will have little impact on model results.
+Note:  This value can change slightly as we refine the calculations.  Even so this is such a small component of DEE that small changes to this value will have little impact on model results.
 
 5.  DEE Model
 -------------
@@ -105,11 +107,11 @@ Note:  This value might change a bit as we refine the calculations.  Even so thi
 
 Where:
 DEE = Daily energy expenditure  
-TRE~L~ = Cost of thermoregulation at lower critical temperatures  
-TRE~H~ = Cost of thermoregulation at higher critical temperatures  
+TRE~L~ = Metabolic rate below lower critical temperature (including thermoregulation and BMR)  
+TRE~H~ = Metabolic rate above higher critical temperature (including thermoregulation and BMR)  
 ACT = Activity costs (from above)  
 NEE = Nighttime energy expenditure  
-Note:  If no torpor is used then NEE = 0, and NEE is included in TRE~L~.  
+Note:  If no torpor is used then NEE = 0, and NEE is included in TRE~L~. If the species had a broader TNZ, BMR for time spent in the TNZ would be included as an additional term (thermoregultory costs would be 0).
 
 Model Test Using Sonoita Creek *C. latirostris* values  
 
