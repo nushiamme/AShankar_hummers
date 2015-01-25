@@ -12,7 +12,7 @@ Basal metabolic rate is the minimum metabolic rate required for survival. It inc
 Mean BMR~BBLH~ = 0.2385 mL/min (4.8 J/min; 0.0799W; where MR of 1 ml/min = 20.1 Joules/min. 1 Watt is 1 Joule/second)
 
 The assumptions of these measurements are:  
-  -  32&deg;C is the lower critical temperature and represents the lowest temperature for measurement of the basal metabolic rate. A lower critical temperature of 32&deg;C is consistent with measurements for a number of other hummingbirds (Lasiewski 1963 [add more citations]) and data on Costa's Hummingbirds (*Calypte costae*) and broad-tailed hummingbirds (*Selasphorus platycercus*; unpublished, Donald R. Powers).  
+  -  32&deg;C is the lower critical temperature for the Broad-billed hummingbird, and represents the lowest temperature for measurement of the basal metabolic rate. A lower critical temperature of 32&deg;C is consistent with measurements for a number of other hummingbirds (Lasiewski 1963, Lasiewski & Lasiewski 1967, Hiebert 1990, Lopez-Calleja & Bozinovic 1995) and data on Costa's Hummingbirds (*Calypte costae*) and broad-tailed hummingbirds (*Selasphorus platycercus*; unpublished, Donald R. Powers).  
  -  Basal metabolism is assumed as a continuous cost for 24 hours except when birds use torpor.  If torpor is used then BMR is a continuous cost for 24 hours, excluding the hours spent in torpor.  Torpor was used for a maximum of four hours at the Sonoita Creek site where these Broad-billed hummingbirds were studied.
  
 2.  Thermoregulation
