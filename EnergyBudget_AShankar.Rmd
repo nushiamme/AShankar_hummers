@@ -1,32 +1,36 @@
 ---
 title: "EnergyBudget"
 author: "Anusha Shankar"
-date: "January 14, 2015"
 output: pdf_document
 ---
 Using published and unpublished data from Dr. Don Powers' earlier work, we construct here a preliminary energy budget for a North American species, the Broad-billed hummingbird (BBLH; *Cynanthus latirostris*).
 
-1.  Basal Metabolic Rate (BMR)
+1.  Basal Metabolic Rate
 ------------------------------
-The BMR measurements here are based on a regression model of metabolic rate measured under BMR conditions (in the dark, fasted, during the sleep phase; measured during summer 2012).  The assumptions of these measurements are:
-  
-  -  These measurements were taken at 35&deg;C, which is the lower critical temperature and represents the lowest temperature for measurement of BMR. This is consistent with measurements for other hummingbirds (Lasiewski 1963) and data on Costa's Hummingbirds (*Calypte costae*) and broad-tailed hummingbirds (*Selasphorus platycercus*; unpublished, Donald R. Powers). 
- -  BMR is assumed a continuous cost for 24 hours except when birds use torpor.  If torpor is used then BMR is a continuous cost for 24 hours, excluding the hours spent in torpor.  Hours for maximum torpor at the two sites studied were Harshaw Creek (HC) = 6 and at Sonoita Creek (SC) = 4.
- 
-Mean BMR~BBLH~ = 0.204 mL/min (4.1 J/min; 0.0683W)
+Basal metabolic rate is the minimum metabolic rate required for survival. It includes basic body upkeep, and does not include thermoregulation, digestive costs, or any activity costs. The basal metabolic rate measurements here are based on a regression of metabolic rates measured under basal metabolic conditions over a range of temperatures (in the dark, fasted, during the sleep phase; measured during summer 2012).
 
+Mean BMR~BBLH~ = 0.2385 mL/min (4.8 J/min; 0.0799W; where MR of 1 ml/min = 20.1 Joules/min. 1 Watt is 1 Joule/second)
+
+The assumptions of these measurements are:  
+  -  32&deg;C is the lower critical temperature and represents the lowest temperature for measurement of the basal metabolic rate. A lower critical temperature of 32&deg;C is consistent with measurements for a number of other hummingbirds (Lasiewski 1963 [add more citations]) and data on Costa's Hummingbirds (*Calypte costae*) and broad-tailed hummingbirds (*Selasphorus platycercus*; unpublished, Donald R. Powers).  
+ -  Basal metabolism is assumed as a continuous cost for 24 hours except when birds use torpor.  If torpor is used then BMR is a continuous cost for 24 hours, excluding the hours spent in torpor.  Torpor was used for a maximum of four hours at the Sonoita Creek site where these Broad-billed hummingbirds were studied.
+ 
 2.  Thermoregulation
 ---------------------
-The thermoneutral zone (TNZ) is the optimum range of ambient temperatures over which there are no regulatory changes in metabolic heat production or evaporative heat loss (Kingma et al. 2012). Thermoregulatory costs are calculated separately below and above the TNZ, as the slopes are different for these two regions, and thought to be asymmetric, as seen in Figure 1. We thus retain separate equations for the two even though the TNZ of small hummingbirds appears so small that the lower and upper critical temperatures are essentially identical Lasiewski (1963).
+The thermoneutral zone (TNZ) is the optimum range of ambient temperatures over which there are no regulatory changes in metabolic heat production or evaporative heat loss (Kingma et al. 2012). Thermoregulatory costs are calculated separately below and above the TNZ, as the slopes are different and asymmetric for these two regions, as seen in Figure 1. We thus retain separate equations for the two even though the TNZ of small hummingbirds appears so small that the lower and upper critical temperatures are essentially identical Lasiewski (1963).  
 
-Figure 1: TNZ = Thermoneutral zone; LCT = lower critical temperature; UCT = upper critical temperature; Tb = body  temperature.  
+\centering
+![](TNZ.jpg)
+\flushleft
 
-&nbsp;&nbsp;**A.  Below the TNZ** (Operative temperature T~e~ < 35&deg;C)  
+**Figure 1**: The thermoneutral zone (TNZ). T~b~ = Body temperature; LCT = Lower critical temperature; UCT = Upper critical temperature; BMR = Basal metabolic rate
+
+&nbsp;&nbsp;**A.  Below the TNZ** (Operative temperature T~e~ < 32&deg;C)  
 
 First, hourly averages for metabolic rate across a range of temperatures below the TNZ were measured, resulting in this relationship:
-MR~L~ (mL  O~2~/min) = 0.9571 - 0.022\*(T~e~) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-**Equation 1a**
+MR~L~ (mL  O~2~/min) = 0.9530 - 0.0223\*(T~e~) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-**Equation 1a**
 
-Here, MR~L~ is metabolic rate when T~e~ < 35&deg;C, and includes both basal metabolic rate costs and thermoregulatory costs. We can then calculate TRE~L~, which is the sum of the hourly averages of MR~L~ for all hours where mean T~e~ < lower critical temperature.
+Here, MR~L~ is metabolic rate when T~e~ < 32&deg;C, and includes both basal metabolic rate costs and thermoregulatory costs. We can then calculate TRE~L~, which is the sum of the hourly averages of MR~L~ for all hours where mean T~e~ < lower critical temperature.
 
 TRE~L~ (kJ) = $\Sigma$(MR~L~ \* 60) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Equation 1b**
 
@@ -35,9 +39,9 @@ Thus, TRE~L~ is the total daily energy spent on thermoregulation below the TNZ. 
 &nbsp;&nbsp;**B.  Above the TNZ** (T~e~ > 35&deg;C)  
 
 Lasiewski's (1963) data suggests that the upper critical temperature for small hummingbirds is ~35-37 &deg;C. 
-The only data we know of for metabolic rate above the upper critical temperature in small hummingbirds are Powers' unpublished data on Costa's.  The slope of this relationship was based on unpublished measurements of Costa's Hummingbird (*Calypte costae*), a similarly sized species.
+The only data we know of for metabolic rate above the upper critical temperature in small hummingbirds are Powers' unpublished data on Costa's. These data also show an upper critical temperature of 35&deg;C. The slope of the relationship below was based on unpublished measurements of Costa's Hummingbird (*Calypte costae*), a similarly sized species. The intercept of the equation below was obtained by substituting the Broad-billed hummingbird's BMR and an operative temperature of 35&deg;C into the Costa's regression equation.
 
-MR~H~ (mL O~2~/min) = 0.0144 (T~e~) - 0.3623 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Equation 2a**
+MR~H~ (mL O~2~/min) = 0.214 (T~e~) - 7.2515 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Equation 2a**
 
 Where MR~H~ is metabolic rate above upper critical temperatures. This is calculated by subtracting BMR from the result of equation 2a.  Again, for simplicity of calculation the result of equation 2a is the combined cost of BMR and thermoregulation.
 
@@ -63,13 +67,16 @@ This is likely to more accurately reflect the metabolic rate of a perching hummi
 
 This is a fair relationship to use for broad- billed hummingbirds, as Calliope and Broad-billed hummingbirds are behaviorally similar and perch in similar environments.
 
+Thus,
+  RMR~BBLH~ = 1.5*(0.2385) ml/min = 0.3578 ml/min (7.1908J/min; 0.1198W)
+
 &nbsp;&nbsp;**B.  Hovering**  
 
 Powers has measured hovering metabolic rate (HMR) in Broad-billed hummingbirds:
   
   HMR = 2.1 mL O~2~/min (42.21 J/min; 0.7035W)
 
-This value is 10.3 x BMR, which is reasonable (similar to findings in Fernandez et al. 2011).
+This value is 8.8 x BMR, which is reasonable (similar to findings in Fernandez et al. 2011).
 
 &nbsp;&nbsp;**C.  Forward flight**  
 
@@ -82,6 +89,8 @@ FLMR~Rufous~ = 0.49 x HMR
 Thus, we can estimate FLMR to be:
   
   FLMR = 0.5 x HMR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Equation 4**
+  
+  FLMR = 0.5*2.1 ml/min = 1.05 ml/min (21.11 J/min; 0.3518W)
 
 &nbsp;&nbsp;**D.  Total activity costs**  
 
@@ -120,12 +129,12 @@ Here, assuming:
 
 2.  No torpor (this is realistic for SC).
 
-3. Respiratory quotient (RQ) = 0.85 (for conversion of oxygen consumption to CO~2~ production)
+3.  Respiratory quotient (RQ) = 0.85 (for conversion of oxygen consumption to CO~2~ production)
 
 4.  14/10 photoperiod.
 
 Results:
-Mean Measured DEE (DLW) = 51.3 mL CO~2~/h
+Mean Measured DEE (DLW) = 51.3 +- 6.6 mL CO~2~/h (range 39.5-58.6)
 Model Estimate = 43.2 mL CO~2~/h
 
 The model estimate is 16% lower than the measured value but is within the range of measured values (albeit at the low end). We are very encouraged by this considering that this model is likely biased low since costs of molt and reproduction are not specifically considered.
