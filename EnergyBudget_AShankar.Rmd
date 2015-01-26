@@ -62,7 +62,8 @@ This is likely to more accurately reflect the metabolic rate of a perching hummi
   RMR = 1.5 x BMR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Equation 3**
 
 This is a fair relationship to use for broad- billed hummingbirds, as Calliope and Broad-billed hummingbirds are behaviorally similar and perch in similar environments.Thus,  
-  RMR~BBLH~ = 1.5*(0.2385) ml/min = 0.3578 ml/min (7.1908J/min; 0.1198W)
+  
+  RMR~BBLH~ = `r 1.5*(0.2385)` ml/min (7.1908J/min; 0.1198W)
 
 &nbsp;&nbsp;**B.  Hovering**  
 
@@ -89,7 +90,7 @@ Thus, I can estimate FLMR for Broad-billed hummingbirds to be:
 &nbsp;&nbsp;**D.  Total activity costs**  
 
 ACT = ((Time~RMR~ \* (RMR - BMR)) + (Time~HMR~ \* (HMR - BMR) + (Time~FLMR~ \* (FLMR - BMR)										 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Equation 5**
-                                                          
+                                                      
 4.  Nighttime Metabolic Rate 
 ----------------------------
 There is a large amount of individual and daily variation in the frequency and duration of torpor use. For the sake of modeling DEE I assume that either torpor is not used at all, or if torpor is used, it is used to the full extent observed at the site.  By doing so I can create upper and lower energetic boundaries based on whether or not torpor was used.  
@@ -114,13 +115,13 @@ BMR = Basal metabolic rate for time spent within the TNZ
 TRE~L~ = Metabolic rate below lower critical temperature (including thermoregulation and BMR)  
 TRE~H~ = Metabolic rate above higher critical temperature (including thermoregulation and BMR)  
 ACT = Activity costs (from above)  
-NEE = Nighttime energy expenditure  
+NEE = Nighttime energy expenditure   
 Note:  If no torpor is used then NEE = 0, and NEE is included in TRE~L~. If the species had a broader TNZ, BMR for time spent in the TNZ would be included as an additional term (thermoregultory costs would be 0).
 
 Model Test Using Sonoita Creek *C. latirostris* values  
 
 Here, assuming:
-1.  70% of the daytime was spent perching and 30% flying.  Flying was 50% hovering and 50% forward flight.
+1.  70% of the daytime was spent perching and 30% flying.  Flying was 50% hovering and 50% forward flight [**add citations**].
 
 2.  No torpor (this is realistic for SC).
 
@@ -129,7 +130,35 @@ Here, assuming:
 4.  14/10 photoperiod.
 
 Results:
-Mean Measured DEE (DLW) = 51.3 +- 6.6 mL CO~2~/h (range 39.5-58.6)
+
+``` {r}
+## DEE = BMR + (TRE~L~ + TRE~H~) + ACT + NEE
+
+## Basal metabolic rate for time spent within the TNZ in 24 non-torpor hours
+bmr <- 14.3
+
+## TRE~H~ from SC 24-hour temperature data and broad-bill equation
+tre_h <- 135.8
+
+## TRE~L~ from SC 24-hour temperature data and broad-bill equation
+tre_l <-121.3
+
+## Total energy spent on BMR + thermoregulation
+tre_total <- tre_h + tre_l + bmr
+
+## NEE in ml O2/h
+nee <- 218.9
+
+## Metabolic rates in ml O~2~/h
+bmr <- 0.2385*60
+rmr <- 1.5*bmr
+hmr <- 10.3*bmr
+flmr <- 0.5*hmr
+ACT <- (0.7*14*(rmr-bmr)) + (0.15*14*(hmr-bmr)) + (0.15*14*(flmr-bmr))
+ACT
+
+```
+Mean Measured DEE (DLW) = 51.3 $\pm$ 6.6 mL CO~2~/h (range 39.5-58.6)
 Model Estimate = 43.2 mL CO~2~/h
 
 The model estimate is 16% lower than the measured value but is within the range of measured values (albeit at the low end). I am very encouraged by this considering that this model is likely biased low since costs of molt and reproduction are not specifically considered.
