@@ -46,3 +46,10 @@ DEE_model
 ## To get a per hour CO2 estimate, multiply by RQ and divide by 24
 DEE_model_hr <- DEE_model*0.85/24
 DEE_model_hr
+
+## Measured estimate of DEE from DLW
+dlw <- 51.3
+
+## Percentage the model is off from the mean DLW estimate
+per.off <- ((dlw - DEE_model_hr)/dlw)*100
+per.off
