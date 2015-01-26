@@ -1,12 +1,22 @@
 ## Below all for broad-billed hummingbirds
 ## Anusha Shankar January 21, 2015
 
-
 ## Thermoregulatory equations
 ## tre_h = 0.0144*Te - 0.2655; intercept got by substituting BMR~BBLH~ 
 ## in equation with Costa's slope, and UCT = 35&deg;C
 ## tre_l = 0.9530 - 0.0223*Te, assuming LCT is 32&deg;C
 ## Tb from the tre_l equation   
+
+library(reshape)
+
+## Set wd and read in file
+setwd("E://Git/AShankar_hummers/AZ")
+sc_temp <- read.csv("SonoitaCreek_Temperatures_S1.csv")
+
+## Melt
+m.sc <- melt(sc_temp, id.vars = c("Time", "Mean_Ta"), measure.vars = "MR_ml.h")
+m.sc <- m.sc[,c(1,2,4)]
+names(m.sc) <- c("Time", "Mean_Ta", "MR_ml_h" )
 
 ## Metabolic rates in ml O~2~/h
 bmr <- 0.2385*60
@@ -14,8 +24,8 @@ rmr <- 1.5*bmr
 hmr <- 10.3*bmr
 flmr <- 0.5*hmr
 
-## From SC daytime temperature data and broad-bill equation (in csv)
-tre_h <- 135.8
+## TRE_H (i.e. MR measured above 35&deg;C) from SC daytime temperature data and broad-bill equation
+tre_h <- sum(m.sc$MR_ml_h[m.sc$Mean_Ta > 35])
 
 ## From SC daytime temperature data and broad-bill equation (in csv)
 tre_l <-121.3

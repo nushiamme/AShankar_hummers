@@ -109,64 +109,66 @@ Note:  This value can change slightly as I refine the calculations.  Even so, th
 -------------
 **DEE = BMR + (TRE~L~ + TRE~H~) + ACT + NEE**  
 
-Where:
+Where:  
 DEE = Daily energy expenditure  
-BMR = Basal metabolic rate for time spent within the TNZ
+BMR = Basal metabolic rate for time spent within the TNZ  
 TRE~L~ = Metabolic rate below lower critical temperature (including thermoregulation and BMR)  
 TRE~H~ = Metabolic rate above higher critical temperature (including thermoregulation and BMR)  
 ACT = Activity costs (from above)  
 NEE = Nighttime energy expenditure   
 Note:  If no torpor is used then NEE = 0, and NEE is included in TRE~L~. If the species had a broader TNZ, BMR for time spent in the TNZ would be included as an additional term (thermoregultory costs would be 0).
 
-Model Test Using Sonoita Creek *C. latirostris* values  
+**Model test using Sonoita Creek _C. latirostris_ values**
 
-Here, assuming:
-1.  70% of the daytime was spent perching and 30% flying.  Flying was 50% hovering and 50% forward flight [**add citations**].
+Here, assuming:  
+  
+1.  70% of the daytime was spent perching and 30% flying.  Flying was 50% hovering and 50% forward flight [**add citations**].  
+  
+2.  No torpor (this is realistic for SC).  
+  
+3.  Respiratory quotient (RQ) = 0.85 (for conversion of oxygen consumption to CO~2~ production)  
+  
+4.  14/10 photoperiod.  
 
-2.  No torpor (this is realistic for SC).
-
-3.  Respiratory quotient (RQ) = 0.85 (for conversion of oxygen consumption to CO~2~ production)
-
-4.  14/10 photoperiod.
-
-Results:
+**Results:**
 
 ``` {r}
-## DEE = BMR + (TRE~L~ + TRE~H~) + ACT + NEE
+## DEE = BMR + (TRE_L + TRE_H) + ACT + NEE
 
-## Basal metabolic rate for time spent within the TNZ in 24 non-torpor hours
+## Basal metabolic rate for time spent within the TNZ in 14 daytime hours (5am-7pm)
 bmr <- 14.3
 
-## TRE~H~ from SC 24-hour temperature data and broad-bill equation
+## TRE_H from SC 14-hour temperature data and broad-bill equation
 tre_h <- 135.8
 
-## TRE~L~ from SC 24-hour temperature data and broad-bill equation
-tre_l <-121.3
+## TRE_L from SC 14-hour temperature data and broad-bill equation
+tre_l <- 121.3
 
-## Total energy spent on BMR + thermoregulation in 24 hours
+## Total energy spent on BMR + thermoregulation in 14 daytime hours
 tre_total <- tre_h + tre_l + bmr
 
-## Nighttime energy expenditure in ml O2/h
+## Nighttime energy expenditure in ml O2/h from broad-bill data, 10 hour night (7pm-5am)
 nee <- 218.9
 
-## Metabolic rates in ml O~2~/h
+## Metabolic rates in ml O2/h
 bmr <- 0.2385*60
 rmr <- 1.5*bmr
 hmr <- 10.3*bmr
 flmr <- 0.5*hmr
 
-## Total energy spent on daytime activities in ml O~2~/h. 
+## Total energy spent on daytime activities in ml O2/h. 
 ## Assuming ACT = 70% resting + 15% hovering + 15% flying; 14 daylight hours
 ACT <- (0.7*14*(rmr-bmr)) + (0.15*14*(hmr-bmr)) + (0.15*14*(flmr-bmr))
 
-## Model estimate in ml O~2~ in 24 hours
+## Model estimate in ml O2 per 24h
 DEE_model <- ACT + nee + tre_total
 
-## To get a per hour CO~2~ estimate, multiply by RQ (0.85) and divide by 24
+## To get a per hour CO2 estimate, multiply by RQ (0.85) and divide by 24
 DEE_model_hr <- DEE_model*0.85/24
-DEE_model_hr
+
 ```
-Mean Measured DEE (DLW) = 51.3 $\pm$ 6.6 mL CO~2~/h (range 39.5-58.6)
-Model Estimate = 43.2 mL CO~2~/h
+Mean Measured DEE (DLW) = 51.3 $\pm$ 6.6 mL CO~2~/h (range 39.5-58.6)  
+  
+Model Estimate = `r DEE_model_hr ` CO~2~/h
 
 The model estimate is 16% lower than the measured value but is within the range of measured values (albeit at the low end). I am very encouraged by this considering that this model is likely biased low since costs of molt and reproduction are not specifically considered.
