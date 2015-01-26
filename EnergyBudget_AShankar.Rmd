@@ -74,17 +74,17 @@ Going from these values and from past studies (Fernandez et al. 2011),
 
 &nbsp;&nbsp;**C.  Forward flight**  
 
-No measurements have been made on the metabolic cost of forward flight (FLMR) in Broad-billed hummingbirds.  If I assume that hummingbirds fly most often at their most efficient speed (6-8 m/s), FLMR can be estimated using data from other hummingbird species. These relationships are well-established from studies on power curves in hummingbirds (Tobalske et al. 2003, 2010).
+No measurements have been made on the metabolic cost of forward flight (FLMR) in Broad-billed hummingbirds. Assuming that hummingbirds fly most often at their most efficient speed (6-8 m/s), FLMR can be estimated using data from other hummingbird species. These relationships are well-established from studies on power curves in hummingbirds (Tobalske et al. 2003, 2010).
 
 FLMR~Calliope~ = 0.53 x HMR
 
 FLMR~Rufous~ = 0.49 x HMR
 
-Thus, I can estimate FLMR to be:
+Thus, I can estimate FLMR for Broad-billed hummingbirds to be:
   
   FLMR = 0.5 x HMR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Equation 4**
   
-  FLMR = 0.5*2.1 ml/min = 1.05 ml/min (21.11 J/min; 0.3518W)
+  FLMR~BBLH~ = 0.5*2.1 ml/min = 1.05 ml/min (21.11 J/min; 0.3518W)
 
 &nbsp;&nbsp;**D.  Total activity costs**  
 
@@ -92,7 +92,7 @@ ACT = ((Time~RMR~ \* (RMR - BMR)) + (Time~HMR~ \* (HMR - BMR) + (Time~FLMR~ \* (
                                                           
 4.  Nighttime Metabolic Rate 
 ----------------------------
-There is a large amount of individual and daily variation in the frequency and duration of torpor use. For the sake of modeling DEE I assume that either torpor is not used at all, or if torpor is used it is used to the full extent observed.  By doing so I can create upper and lower energetic boundaries based on whether or not torpor was used.  
+There is a large amount of individual and daily variation in the frequency and duration of torpor use. For the sake of modeling DEE I assume that either torpor is not used at all, or if torpor is used, it is used to the full extent observed at the site.  By doing so I can create upper and lower energetic boundaries based on whether or not torpor was used.  
 
 &nbsp;&nbsp;**A.  No torpor**  
 Nighttime metabolic rate (NMR) will be BMR plus the cost of thermoregulation below the lower critical temperatures.  Thus, NMR for normothermic hummingbirds can be calculated using equation 1a. 
@@ -102,7 +102,7 @@ For birds that used torpor maximally last summer:
   
   Nighttime energy expenditure (NEE) = 2 kJ
 
-Note:  This value can change slightly as I refine the calculations.  Even so this is such a small component of DEE that small changes to this value will have little impact on model results.
+Note:  This value can change slightly as I refine the calculations.  Even so, this is such a small component of DEE that small changes to this value will have little impact on model results.
 
 5.  DEE Model
 -------------
