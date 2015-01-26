@@ -3,7 +3,8 @@
 
 
 ## Thermoregulatory equations
-## tre_h = 0.0144*Te - 0.2655; intercept got by substituting BMR~BBLH~ in equation with Costa's slope, and UCT = 35&deg;C
+## tre_h = 0.0144*Te - 0.2655; intercept got by substituting BMR~BBLH~ 
+## in equation with Costa's slope, and UCT = 35&deg;C
 ## tre_l = 0.9530 - 0.0223*Te, assuming LCT is 32&deg;C
 ## Tb from the tre_l equation   
 
@@ -33,3 +34,4 @@ DEE_model
 
 ## To get a per hour CO2 estimate, multiply by RQ and divide by 24
 DEE_model_hr <- DEE_model*0.85/24
+DEE_model_hr

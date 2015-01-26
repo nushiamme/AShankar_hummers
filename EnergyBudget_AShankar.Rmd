@@ -53,30 +53,24 @@ TRE~H~ is calculated as the sum of hourly averages for all hours where mean T~e~
 ------------------
 &nbsp;&nbsp;**A.  Resting (perching)**  
 
-Little data are available for how much resting metabolic rate (RMR) is elevated above BMR in hummingbirds.  In the late 1980's Powers measured RMR for Costa's (3.66 mL O~2~ g$^{-1} h^{-1}$; unpublished).  Lasiewski (1963) measured BMR for Costa's (3.025 mL O~2~ g$^{-1} h^{-1}$).  Thus, 
+Little data are available for how much resting metabolic rate (RMR) is elevated above BMR in hummingbirds.  An Aschoff & Pohl study (1970) reported data for several bird species suggesting RMR = 1.25 x BMR. The Aschoff & Pohl correction has often been used to estimate RMR but might underestimate true resting costs because the measurements upon which it is based were typically made on birds resting in the dark.  This would eliminate any costs associated with response to light or surrounding events.  Further, Aschoff & Pohl fasted birds so the cost of specific dynamic action (i.e. the cost of digestion; SDA) is also not included.  Two years ago Powers made RMR measurements on Calliope hummingbirds (*Selasphorus calliope*; ~2.4 g) on a perch in an illuminated chamber.  After subtracting thermoregulatory costs RMR~Calliope~ = 0.2835 mL O~2~/min.  BMR~Calliope~ = 0.1843 mL O~2~/min (Lasiewski 1963).  Thus,  
 
-RMR~Costa~ = 1.21 x BMR
-
-This is consistent with an Aschoff & Pohl study (1970) which reported data for several bird species suggesting RMR = 1.25 x BMR. The Aschoff & Pohl correction has often been used to estimate RMR but might underestimate true resting costs because the measurements upon which it is based were typically made on birds resting in the dark.  This would eliminate any costs associated with response to light or surrounding events.  Further, Aschoff & Pohl fasted birds so the cost of specific dynamic action (i.e. the cost of digestion; SDA) is also not included.  Two years ago Powers made RMR measurements on Calliope hummingbirds (*Selasphorus calliope*; ~2.4 g) on a perch in an illuminated chamber.  After subtracting thermoregulatory costs RMR~Calliope~ = 0.2835 mL O~2~/min.  BMR~Calliope~ = 0.1843 mL O~2~/min (Lasiewski 1963).  Thus,
-
-RMR~Calliope~ = 1.54 x BMR
+  RMR~Calliope~ = 1.54 x BMR
 
 This is likely to more accurately reflect the metabolic rate of a perching hummingbird in the wild.  Thus, I can estimate RMR as:
   
   RMR = 1.5 x BMR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Equation 3**
 
-This is a fair relationship to use for broad- billed hummingbirds, as Calliope and Broad-billed hummingbirds are behaviorally similar and perch in similar environments.
-
-Thus,
+This is a fair relationship to use for broad- billed hummingbirds, as Calliope and Broad-billed hummingbirds are behaviorally similar and perch in similar environments.Thus,  
   RMR~BBLH~ = 1.5*(0.2385) ml/min = 0.3578 ml/min (7.1908J/min; 0.1198W)
 
 &nbsp;&nbsp;**B.  Hovering**  
 
-Powers has measured hovering metabolic rate (HMR) in Broad-billed hummingbirds:
-  
-  HMR = 2.1 mL O~2~/min (42.21 J/min; 0.7035W)
+Powers has measured hovering metabolic rates (HMR) in Broad-billed hummingbirds. Mean HMR~BBLH~ = 2.1 mL O~2~/min, with values ranging from 0.764 to 5.771 ml O~2~/min.
 
-This value is 8.8 x BMR, which is reasonable (similar to findings in Fernandez et al. 2011).
+Going from these values and from past studies (Fernandez et al. 2011),
+
+  HMR~BBLH~ = 10.3 x BMR
 
 &nbsp;&nbsp;**C.  Forward flight**  
 
