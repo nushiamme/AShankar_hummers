@@ -133,22 +133,41 @@ Here, assuming:
 **Results:**
 
 ``` {r}
+## Energy Budget for Broad-billed hummingbirds
+## Anusha Shankar, January 21, 2015
+
+## Thermoregulatory equations
+## tre_h = 0.0144*Te - 0.2655; intercept obtained by substituting BMR_BBLH
+## in equation with Costa's slope, and UCT = 35&deg;C
+## tre_l = 0.9530 - 0.0223*Te, assuming LCT is 32&deg;C
+## Body temperature can be obtained by taking the X intercept from the tre_l equation   
+library(reshape)
+
+## Set wd and read in file
+setwd("E://Git/AShankar_hummers/AZ")
+sc_temp <- read.csv("SonoitaCreek_Temperatures_S1.csv")
+
+## Melt
+m.sc <- melt(sc_temp, id.vars = c("Time", "Mean_Ta"), measure.vars = "MR_ml.h")
+m.sc <- m.sc[,c(1,2,4)]
+names(m.sc) <- c("Time", "Mean_Ta", "MR_ml_h" )
+
 ## DEE = BMR + (TRE_L + TRE_H) + ACT + NEE
 
 ## Basal metabolic rate for time spent within the TNZ in 14 daytime hours (5am-7pm)
-bmr <- 14.3
+t_bmr <- sum(m.sc$MR_ml_h[32 < m.sc$Mean_Ta & m.sc$Mean_Ta < 35 & 4 < m.sc$Time & m.sc$Time < 20])
 
 ## TRE_H from SC 14-hour temperature data and broad-bill equation
-tre_h <- 135.8
+tre_h <- sum(m.sc$MR_ml_h[m.sc$Mean_Ta > 35 & 4 < m.sc$Time & m.sc$Time < 20])
 
 ## TRE_L from SC 14-hour temperature data and broad-bill equation
-tre_l <- 121.3
+tre_l <- sum(m.sc$MR_ml_h[m.sc$Mean_Ta < 32 & 4 < m.sc$Time & m.sc$Time < 20])
 
 ## Total energy spent on BMR + thermoregulation in 14 daytime hours
-tre_total <- tre_h + tre_l + bmr
+tre_total <- tre_h + tre_l + t_bmr
 
 ## Nighttime energy expenditure in ml O2/h from broad-bill data, 10 hour night (7pm-5am)
-nee <- 218.9
+nee <- sum(m.sc$MR_ml_h[m.sc$Time < 5 | m.sc$Time > 18])
 
 ## Metabolic rates in ml O2/h
 bmr <- 0.2385*60
@@ -157,18 +176,24 @@ hmr <- 10.3*bmr
 flmr <- 0.5*hmr
 
 ## Total energy spent on daytime activities in ml O2/h. 
-## Assuming ACT = 70% resting + 15% hovering + 15% flying; 14 daylight hours
-ACT <- (0.7*14*(rmr-bmr)) + (0.15*14*(hmr-bmr)) + (0.15*14*(flmr-bmr))
+## Assuming ACT = 70% resting + 20% hovering + 10% flying; 14 daylight hours
+ACT <- (0.7*14*(rmr-bmr)) + (0.2*14*(hmr-bmr)) + (0.1*14*(flmr-bmr))
 
 ## Model estimate in ml O2 per 24h
-DEE_model <- ACT + nee + tre_total
+DEE_model <- tre_total + ACT + nee
 
-## To get a per hour CO2 estimate, multiply by RQ (0.85) and divide by 24
+## To get a per hour CO2 estimate, I multiply by RQ (assumed to be 0.85) and divide by 24
 DEE_model_hr <- DEE_model*0.85/24
+
+## Measured estimate of DEE from DLW
+dlw <- 51.3
+
+## Percentage the model is off from the mean DLW estimate
+per.off <- ((dlw - DEE_model_hr)/dlw)*100
 
 ```
 Mean Measured DEE (DLW) = 51.3 $\pm$ 6.6 mL CO~2~/h (range 39.5-58.6)  
   
 Model Estimate = `r DEE_model_hr ` CO~2~/h
 
-The model estimate is 16% lower than the measured value but is within the range of measured values (albeit at the low end). I am very encouraged by this considering that this model is likely biased low since costs of molt and reproduction are not specifically considered.
+The model estimate is `r per.off`% lower than the measured value. I am encouraged by this considering that this model is likely biased low since costs of molt and reproduction are not specifically considered, and since the higher thermoregulatory slope is taken from a desert-adapted species.
