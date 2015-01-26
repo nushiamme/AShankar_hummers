@@ -18,22 +18,23 @@ m.sc <- melt(sc_temp, id.vars = c("Time", "Mean_Ta"), measure.vars = "MR_ml.h")
 m.sc <- m.sc[,c(1,2,4)]
 names(m.sc) <- c("Time", "Mean_Ta", "MR_ml_h" )
 
-## Metabolic rates in ml O~2~/h
+## Metabolic rates in ml O~2~/h (bmr calculated in "costa_MR_temperature.R")
 bmr <- 0.2385*60
 rmr <- 1.5*bmr
 hmr <- 10.3*bmr
 flmr <- 0.5*hmr
 
 ## TRE_H (i.e. MR measured above 35&deg;C) from SC daytime temperature data and broad-bill equation
-tre_h <- sum(m.sc$MR_ml_h[m.sc$Mean_Ta > 35])
+tre_h <- sum(m.sc$MR_ml_h[m.sc$Mean_Ta > 35 & 4 < m.sc$Time & m.sc$Time < 20])
 
 ## From SC daytime temperature data and broad-bill equation (in csv)
-tre_l <-121.3
-bmr <- 14.3
-tre_total <- (tre_h+tre_l+bmr)
+tre_l <- sum(m.sc$MR_ml_h[m.sc$Mean_Ta < 32 & 4 < m.sc$Time & m.sc$Time < 20])
+
+t_bmr <- sum(m.sc$MR_ml_h[32 < m.sc$Mean_Ta & m.sc$Mean_Ta < 35 & 4 < m.sc$Time & m.sc$Time < 20])
+tre_total <- (tre_h + tre_l + t_bmr)
 
 ## NEE in ml O2/h
-nee <- 218.9
+nee <- sum(m.sc$MR_ml_h[m.sc$Time < 5 | m.sc$Time > 18])
 
 ## ACT = 70% resting + 15% hovering + 15% flying; assuming 14 daylight hours, in ml O~2~/h
 ACT <- (0.7*14*(rmr-bmr)) + (0.15*14*(hmr-bmr)) + (0.15*14*(flmr-bmr))
