@@ -143,10 +143,10 @@ tre_h <- 135.8
 ## TRE~L~ from SC 24-hour temperature data and broad-bill equation
 tre_l <-121.3
 
-## Total energy spent on BMR + thermoregulation
+## Total energy spent on BMR + thermoregulation in 24 hours
 tre_total <- tre_h + tre_l + bmr
 
-## NEE in ml O2/h
+## Nighttime energy expenditure in ml O2/h
 nee <- 218.9
 
 ## Metabolic rates in ml O~2~/h
@@ -154,9 +154,17 @@ bmr <- 0.2385*60
 rmr <- 1.5*bmr
 hmr <- 10.3*bmr
 flmr <- 0.5*hmr
-ACT <- (0.7*14*(rmr-bmr)) + (0.15*14*(hmr-bmr)) + (0.15*14*(flmr-bmr))
-ACT
 
+## Total energy spent on daytime activities in ml O~2~/h. 
+## Assuming ACT = 70% resting + 15% hovering + 15% flying; 14 daylight hours
+ACT <- (0.7*14*(rmr-bmr)) + (0.15*14*(hmr-bmr)) + (0.15*14*(flmr-bmr))
+
+## Model estimate in ml O~2~ in 24 hours
+DEE_model <- ACT + nee + tre_total
+
+## To get a per hour CO~2~ estimate, multiply by RQ (0.85) and divide by 24
+DEE_model_hr <- DEE_model*0.85/24
+DEE_model_hr
 ```
 Mean Measured DEE (DLW) = 51.3 $\pm$ 6.6 mL CO~2~/h (range 39.5-58.6)
 Model Estimate = 43.2 mL CO~2~/h
