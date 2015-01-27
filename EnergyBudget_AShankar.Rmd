@@ -130,7 +130,7 @@ Here, assuming:
   
 4.  14/10 photoperiod.  
 
-**Results:**
+**Calculation of Results:**
 
 ``` {r}
 ## Energy Budget for Broad-billed hummingbirds
@@ -192,8 +192,9 @@ dlw <- 51.3
 per.off <- ((dlw - DEE_model_hr)/dlw)*100
 
 ```
+
 Mean Measured DEE (DLW) = 51.3 $\pm$ 6.6 mL CO~2~/h (range 39.5-58.6)  
   
-Model Estimate = `r DEE_model_hr ` CO~2~/h
-
+Model Estimate = `r DEE_model_hr ` CO~2~/h  
+  
 The model estimate is `r per.off`% lower than the measured value. I am encouraged by this considering that this model is likely biased low since costs of molt and reproduction are not specifically considered, and since the higher thermoregulatory slope is taken from a desert-adapted species.
