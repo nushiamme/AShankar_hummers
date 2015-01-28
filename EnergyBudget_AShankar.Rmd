@@ -1,5 +1,5 @@
 ---
-title: "EnergyBudget"
+title: "Hummingbird Energy Budget"
 author: "Anusha Shankar"
 output: pdf_document
 ---
