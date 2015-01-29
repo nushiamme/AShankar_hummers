@@ -1,0 +1,27 @@
+---
+title: "Integrating Measures"
+author: "Anusha Shankar"
+date: "Friday, January 02, 2015"
+output: pdf_document
+---
+
+1. Temperature
+-----------
+
+
+2. Resource availability
+---------------------
+
+
+3. Physiology
+----------
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a. Daily energy expenditure
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;b. Metabolic rates
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;c. Torpor
+
