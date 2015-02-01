@@ -10,7 +10,7 @@
 library(reshape)
 
 ## Set wd and read in file
-setwd("E://Git/AShankar_hummers/AZ")
+setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha_personal\\Thesis proposal\\R_csv\\AZ")
 sc_temp <- read.csv("SonoitaCreek_Temperatures_S1.csv")
 
 ## Melt

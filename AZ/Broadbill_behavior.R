@@ -1,5 +1,5 @@
 ## Set working directory
-setwd("E:\\Git\\AShankar_hummers\\AZ")
+setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha_personal\\Thesis proposal\\R_csv\\AZ")
 
 ## Read in the file
 bblh <- read.csv("Broadbill_behavior.csv")

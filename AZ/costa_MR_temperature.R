@@ -1,7 +1,7 @@
 library(reshape)
 library(ggplot2)
 
-setwd("E:\\Git\\AShankar_hummers\\AZ")
+setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha_personal\\Thesis proposal\\R_csv\\AZ")
 
 costa <- read.csv("Costa1986_Don.csv")
 costaVO2 <- read.csv("Costa1986_DonVO2.csv")
