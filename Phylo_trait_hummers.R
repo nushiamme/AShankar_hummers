@@ -20,6 +20,8 @@ rownames(humdata) <- make.names(humdata$Species_Name, unique = T)
 drops <- "Species_Name"
 humdata <- humdata[,!(names(humdata) %in% drops)]
 
+#humdata <- humdata[complete.cases(humdata),]
+
 ## Replace "." with _ and then Remove all the unnecessary stuff from the tip labels, to try to match to trait data
 humtree$tip.label <- gsub("\\.","_", humtree$tip.label)
 humtree$tip.label <- gsub("'","", humtree$tip.label)
@@ -27,13 +29,15 @@ humtree$tip.label <- sub("(.*?_.*?)_.*", "\\1", humtree$tip.label)
 head(humtree$tip.label) # check
 
 ## Use only traits which have matching tips on the phylogeny, and remove NA's
-match.phylo.data(humtree, humdata)
 
-humdata <- na.omit(humdata[match(humtree$tip.label,humdata$Species_Name),])
-head(humdata) # check
+##########****************** THIS IS GIVING PROBLEMS STILL ************************###############
+newhum <- match.phylo.data(humtree, humdata)
+
+#humdata <- na.omit(humdata[match(humtree$tip.label,humdata$Species_Name),])
+#head(humdata) # check
 
 ## Prune the tree to include only species which we have traits for
-humtree <- na.omit(humtree[match(humdata$Species_Name, humtree$tip.label),])
+#humtree <- na.omit(humtree[match(humdata$Species_Name, humtree$tip.label),])
 
 ## Save the traits you want as separate vectors
 hmass <- humdata$mass_meangr
