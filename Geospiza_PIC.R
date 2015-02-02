@@ -7,12 +7,6 @@ setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha_personal\\Thesis proposal\\R_csv")
 gtree <- read.nexus("Geospiza.nex")
 gtip <- read.table("Geospiza.txt")
 
-#### Trying this for hummingbirds
-humtree <- read.nexus("humtree.nex")
-humdata <- read.csv("Grahamtraits.csv")
-
-humdata <- humdata[match(humtree$tip.label,rownames(humdata)),]
-
 ## Drop one tip in the Geospiza tree, because it is not used later
 gtree <- drop.tip(gtree, "olivacea")
 
@@ -20,25 +14,14 @@ gtree <- drop.tip(gtree, "olivacea")
 wingL <- gtip$wingL
 tarsusL <- gtip$tarsusL
 
-#### For hummers
-hmass <- humdata$mass_meangr
-hwchord <- humdata$wchord_meanmm
-
 ## Rename these numeric vectors with species names from the same database
 names(wingL) <- row.names(gtip)
 names(tarsusL) <- row.names(gtip)
-
-#### For hummers
-names(hmass) <- row.names(humdata)
-names(hwchord) <- row.names(humdata)
 
 ## Calculate contrasts- the tree (.nex file) contains expected variances which you can scale the contrasts with.
 ## var.contrasts = T gives you the expected variances along with the contrasts
 ConstrastwingL.var <- pic(wingL, gtree, var.contrasts = T)
 ConstrasttarsusL.var <- pic(tarsusL, gtree, var.contrasts = T)
-
-#### For hummers
-hcontrastmass.var <- pic(hmass, humtree, var.contrasts=T)
 
 ## If you want the contrasts unscaled by expected variances
 ContrastwingL <- pic(wingL, gtree, scaled=T)
