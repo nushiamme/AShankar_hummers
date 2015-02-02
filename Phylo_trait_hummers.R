@@ -28,10 +28,12 @@ humtree$tip.label <- gsub("'","", humtree$tip.label)
 humtree$tip.label <- sub("(.*?_.*?)_.*", "\\1", humtree$tip.label)
 head(humtree$tip.label) # check
 
-## Use only traits which have matching tips on the phylogeny, and remove NA's
+## Use only traits which have matching tips on the phylogeny, and vice versa
+matchhum <- match.phylo.data(humtree, humdata)
 
-##########****************** THIS IS GIVING PROBLEMS STILL ************************###############
-newhum <- match.phylo.data(humtree, humdata)
+## Replace old data with matched data
+htree <- matchhum$phy
+hdata <- matchhum$data 
 
 #humdata <- na.omit(humdata[match(humtree$tip.label,humdata$Species_Name),])
 #head(humdata) # check
@@ -40,15 +42,45 @@ newhum <- match.phylo.data(humtree, humdata)
 #humtree <- na.omit(humtree[match(humdata$Species_Name, humtree$tip.label),])
 
 ## Save the traits you want as separate vectors
-hmass <- humdata$mass_meangr
-hwchord <- humdata$wchord_meanmm
+hmass <- hdata$mass_meangr
+hwchord <- hdata$wchord_meanmm
 
 #### Make the species names the column names for each of these vectors
-names(hmass) <- row.names(humdata)
-names(hwchord) <- row.names(humdata)
+names(hmass) <- row.names(hdata)
+names(hwchord) <- row.names(hdata)
 
 #### Calculate PIC for the traits
-hcontrastmass.var <- pic(hmass, humtree, var.contrasts=T)
+hcontrastmass.var <- pic(hmass, htree, var.contrasts=T)
+hcontrastwchord.var <- pic(hwchord, htree, var.contrasts=T)
 
-row.names(humdata)
-row.names(humdata) <- humdata$Species_Name
+## If you want the contrasts unscaled by expected variances
+hcontrastmass <- pic(hmass, humtree, scaled=F)
+hcontrastwchord <- pic(hwchord, humtree, scaled=F)
+
+## To calculate the contrasts for several variables, create a matrix with the variables in columns, and then use apply
+contrasts.htip <- apply(hdata, 2, pic, htree)
+
+## To see the contrasts of wingL, both with and without variances. 
+## ???????? I don't understand- the contrasts are the same in both cases
+hcontrastmass.var
+hcontrastmass
+
+## See contrasts plotted at the appropriate nodes
+## plotting just the contrasts, i.e. the first column of the ContrastwingL.var, to 3 decimal places
+## adj specifies the position on the plot, frame = "y" would put the numbers in boxes. I added colors to separate the traits
+plot(htree)
+nodelabels(round(hcontrastmass.var[,1], 3), adj = c(0, -0.5), frame="n", col="blue")
+nodelabels(round(hcontrastwchord.var[,1], 3), adj = c(0, 1), frame="n", col="red")
+
+## Do a linear regression on the wing contrasts without extracting the variances.
+## -1 constrains the regression to go through the origin
+regresswchordmass <- lm(hcontrastwchord~hcontrastmass -1)
+
+## Look at regression stats
+summary.lm(regresswchordmass)
+
+## Plot to check the assumption that there is a linear relationship between the two variables
+plot(hcontrastmass, hcontrastwchord)
+
+## Add regression line
+abline(regressTarsusWing)
