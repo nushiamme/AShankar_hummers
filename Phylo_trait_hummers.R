@@ -35,12 +35,6 @@ matchhum <- match.phylo.data(humtree, humdata)
 htree <- matchhum$phy
 hdata <- matchhum$data 
 
-#humdata <- na.omit(humdata[match(humtree$tip.label,humdata$Species_Name),])
-#head(humdata) # check
-
-## Prune the tree to include only species which we have traits for
-#humtree <- na.omit(humtree[match(humdata$Species_Name, humtree$tip.label),])
-
 ## Save the traits you want as separate vectors
 hmass <- hdata$mass_meangr
 hwchord <- hdata$wchord_meanmm
