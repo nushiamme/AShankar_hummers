@@ -43,7 +43,7 @@ Lasiewski's (1963) data suggests that the upper critical temperature for small h
 
 MR~H~ (mL O~2~/min) = 0.214 (T~e~) - 7.2515 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Equation 2a**
 
-Where MR~H~ is metabolic rate at temperatures above upper critical temperature. Pure thermoregulatory costs above the upper critical temperature can be calculated by subtracting BMR from the result of equation 2a.  Again, for simplicity of calculation the result of equation 2a is the combined cost of BMR and thermoregulation.
+Where MR~H~ is metabolic rate at temperatures above upper critical temperature. Thermoregulatory costs above the upper critical temperature can be calculated by subtracting BMR from the result of equation 2a.  Again, the result of equation 2a is the combined cost of BMR and thermoregulation as time spent thermoregulating will also always include BMR.
 
 TRE~H~ (kJ) = $\Sigma$(MR~H~ \* 60) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Equation 2b**
 
