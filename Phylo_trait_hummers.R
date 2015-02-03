@@ -33,23 +33,26 @@ matchhum <- match.phylo.data(humtree, humdata)
 
 ## Replace old data with matched data
 htree <- matchhum$phy
-hdata <- matchhum$data 
+hdata <- matchhum$data
+
+all.equal(rownames(hdata), rownames(htree))
 
 ## Save the traits you want as separate vectors
-hmass <- hdata$mass_meangr
-hwchord <- hdata$wchord_meanmm
+hmass <- as.numeric(hdata$mass_meangr)
+hwchord <- as.numeric(hdata$wchord_meanmm)
 
 #### Make the species names the column names for each of these vectors
 names(hmass) <- row.names(hdata)
 names(hwchord) <- row.names(hdata)
+###############match2 <- match.phylo.data(htree, hdata)
 
 #### Calculate PIC for the traits
 hcontrastmass.var <- pic(hmass, htree, var.contrasts=T)
 hcontrastwchord.var <- pic(hwchord, htree, var.contrasts=T)
 
 ## If you want the contrasts unscaled by expected variances
-hcontrastmass <- pic(hmass, humtree, scaled=F)
-hcontrastwchord <- pic(hwchord, humtree, scaled=F)
+hcontrastmass <- pic(hmass, htree, scaled=F)
+hcontrastwchord <- pic(hwchord, htree, scaled=F)
 
 ## To calculate the contrasts for several variables, create a matrix with the variables in columns, and then use apply
 contrasts.htip <- apply(hdata, 2, pic, htree)
@@ -77,4 +80,13 @@ summary.lm(regresswchordmass)
 plot(hcontrastmass, hcontrastwchord)
 
 ## Add regression line
-abline(regressTarsusWing)
+abline(regresswchordmass)
+
+## Plot phylogeny with traits as points scaled on the tips
+plot(htree, direction = "up", show.tip.label = T, show.node.label = TRUE, 
+     cex = 0.7)
+# Plot leaf area on the phylogeny. cex argument scales symbol size by trait
+# value.
+#tiplabels(pch = 19, col = "black", cex = 3 * (hwchord/max(hwchord)))
+tiplabels(pch = 18, col = "red", cex = 3 * (hmass/max(hmass)))
+
