@@ -17,7 +17,7 @@ The assumptions of these measurements are:
  
 2.  Thermoregulation
 ---------------------
-The thermoneutral zone (TNZ) is the optimum range of ambient temperatures over which there are no regulatory changes in metabolic heat production or evaporative heat loss (Kingma et al. 2012). Thermoregulatory costs are calculated separately below and above the TNZ, as the slopes are different and asymmetric for these two regions, as seen in Figure 1. I thus retain separate equations for the two even though the TNZ of small hummingbirds appears so small that the lower and upper critical temperatures are essentially identical Lasiewski (1963).  
+The thermoneutral zone (TNZ) is the optimum range of ambient temperatures over which there are no regulatory changes in metabolic heat production or evaporative heat loss (Kingma et al. 2012). Thermoregulatory costs are calculated separately below and above the TNZ, as the slopes are different and asymmetric for these two regions, as seen in Figure 1. The TNZ of small hummingbirds appears so small that the lower and upper critical temperatures are essentially identical (Lasiewski 1963).  
 
 \centering
 ![](TNZ.jpg)
@@ -27,15 +27,15 @@ The thermoneutral zone (TNZ) is the optimum range of ambient temperatures over w
 
 &nbsp;&nbsp;**A.  Below the TNZ** (Operative temperature T~e~ < 32&deg;C)  
 
-First, hourly averages for metabolic rate across a range of temperatures below the TNZ were measured. By regressing metabolic rate on temperature below the lower critical temperature, we get this equation:  
+First, hourly averages for metabolic rate across a range of temperatures below the TNZ were measured under basal conditions (as described for BMR measurements) in the summer of 2012. Operative temperature data was collected from the landscape using copper spheres. By regressing metabolic rate on temperature below the lower critical temperature, the following equation is obtained:  
 
 MR~L~ (mL  O~2~/min) = 0.9530 - 0.0223\*(T~e~) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;-**Equation 1a**
 
-Here, MR~L~ is metabolic rate when T~e~ < 32&deg;C. I then calculate TRE~L~, which is the sum of the hourly averages of MR~L~ for all hours where mean T~e~ < lower critical temperature. Pure thermoregulatory costs below the lower critical temperature can be calculated by subtracting BMR from the result of equation 1a, but for simplicity of calculation, TRE~L~ includes both basal metabolic costs and thermoregulatory costs.
+Here, MR~L~ is metabolic rate when T~e~ < 32&deg;C. I then calculate TRE~L~, which is the sum of the hourly averages of MR~L~ for all hours where mean T~e~ < lower critical temperature. Thermoregulatory costs alone can be calculated by subtracting BMR from the result of equation 1a, but as time spent thermoregulating will always involve basal metabolic costs, TRE~L~ includes both basal metabolic costs and thermoregulatory costs.
 
 TRE~L~ (kJ) = $\Sigma$(MR~L~ \* 60) &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Equation 1b**
 
-Thus, TRE~L~ is the total daily energy spent on thermoregulation and basal metabolism below the TNZ. Torpor was assumed to be zero because birds rarely entered torpor in Sonoita Creek.
+Thus, the hourly average MR~L~ is multiplied by 60 to convert it to a per-hour metabolic rate. The sum of the per-hour metabolic rates over 24 hours then yield TRE~L~, which is the daily energy spent on thermoregulation and basal metabolism below the TNZ. Torpor was assumed to be zero because birds rarely entered torpor in Sonoita Creek.
 
 &nbsp;&nbsp;**B.  Above the TNZ** (T~e~ > 35&deg;C)  
 
