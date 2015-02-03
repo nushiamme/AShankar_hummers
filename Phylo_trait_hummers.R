@@ -35,7 +35,8 @@ matchhum <- match.phylo.data(humtree, humdata)
 htree <- matchhum$phy
 hdata <- matchhum$data
 
-all.equal(rownames(hdata), rownames(htree))
+## Make the tree and the trait data have the same order of species
+hdata <- hdata[htree$tip.label, ]
 
 ## Save the traits you want as separate vectors
 hmass <- as.numeric(hdata$mass_meangr)
@@ -44,7 +45,6 @@ hwchord <- as.numeric(hdata$wchord_meanmm)
 #### Make the species names the column names for each of these vectors
 names(hmass) <- row.names(hdata)
 names(hwchord) <- row.names(hdata)
-###############match2 <- match.phylo.data(htree, hdata)
 
 #### Calculate PIC for the traits
 hcontrastmass.var <- pic(hmass, htree, var.contrasts=T)
@@ -58,7 +58,6 @@ hcontrastwchord <- pic(hwchord, htree, scaled=F)
 contrasts.htip <- apply(hdata, 2, pic, htree)
 
 ## To see the contrasts of wingL, both with and without variances. 
-## ???????? I don't understand- the contrasts are the same in both cases
 hcontrastmass.var
 hcontrastmass
 
@@ -90,3 +89,21 @@ plot(htree, direction = "up", show.tip.label = T, show.node.label = TRUE,
 #tiplabels(pch = 19, col = "black", cex = 3 * (hwchord/max(hwchord)))
 tiplabels(pch = 18, col = "red", cex = 3 * (hmass/max(hmass)))
 
+# GLS of wing chord as a function of mass - non-phylogenetic model
+masswchord.gls <- gls(hwchord~hmass)
+anova(masswchord.gls)
+
+##################### has to be fixed ##################
+# Phylogenetic GLS - adds effect of phylogeny to the model
+root.pgls <- gls(hwchord ~ hmass, correlation = corBrownian(value = 1, htree))
+anova(root.pgls)
+
+# plot relationship
+plot(hmass ~ SRL, data = traits, xlab = "SRL (specific root length)", 
+     ylab = "Root tissue density")
+# add model fit lines - coef is the model fit coefficients, lwd increases
+# line width
+abline(coef(root.gls), lwd = 2, col = "black")
+abline(coef(root.pgls), lwd = 2, col = "red")
+legend("bottomleft", legend = c("GLS fit", "Phylogenetic GLS fit"), lwd = 2, 
+       col = c("black", "red"))
