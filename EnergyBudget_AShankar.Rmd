@@ -7,7 +7,7 @@ Using published and unpublished data from Dr. Don Powers' earlier work, I constr
 
 1.  Basal Metabolic Rate
 ------------------------------
-Basal metabolic rate is the minimum metabolic rate required for survival. It includes basic body upkeep, and does not include thermoregulation, digestive costs, or any activity costs. The basal metabolic rate measurements here are based on a regression of metabolic rates measured under basal metabolic conditions over a range of temperatures (in the dark, fasted, during the sleep phase; measured during summer 2012).
+Basal metabolic rate is the minimum metabolic rate required for survival. It includes basic body upkeep, and does not include thermoregulation, digestive costs, or any activity costs. The basal metabolic rate measurements here are based on a regression of metabolic rates measured under basal metabolic conditions over a range of temperatures (in the dark, fasted, during the sleep phase; measured during summer 2012, n = 8).
 
 Mean BMR~BBLH~ = 0.2385 mL/min (4.8 J/min; 0.0799W; where MR of 1 ml/min = 20.1 Joules/min. 1 Watt is 1 Joule/second)
 
@@ -61,13 +61,13 @@ This is likely to more accurately reflect the metabolic rate of a perching hummi
   
   RMR = 1.5 x BMR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Equation 3**
 
-This is a fair relationship to use for broad- billed hummingbirds, as Calliope and Broad-billed hummingbirds are behaviorally similar and perch in similar environments.Thus,  
+This is a fair relationship to use for broad- billed hummingbirds, as Calliope and Broad-billed hummingbirds are about the same weight (both around 3g), are behaviorally similar and perch in similar environments. Thus,  
   
   RMR~BBLH~ = `r 1.5*(0.2385)` ml/min (7.1908J/min; 0.1198W)
 
 &nbsp;&nbsp;**B.  Hovering**  
 
-Powers has measured hovering metabolic rates (HMR) in Broad-billed hummingbirds. Mean HMR~BBLH~ = 2.1 mL O~2~/min, with values ranging from 0.764 to 5.771 ml O~2~/min.
+Powers has measured hovering metabolic rates (HMR) in Broad-billed hummingbirds. Mean HMR~BBLH~ = 2.1 mL O~2~/min, with values ranging from 0.764 to 3.309 ml O~2~/min.
 
 Going from these values and from past studies (Fernandez et al. 2011),
 

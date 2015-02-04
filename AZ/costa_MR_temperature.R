@@ -9,7 +9,7 @@ bblh <- read.csv("BroadBill.csv")
 hmr <- read.csv("HMR_AZ_11_20.csv")
 names(hmr) <- c("Rufous", "Broad-billed", "Black-chinned")
 
-m.hmr <- melt(hmr,na.rm = T)
+m.hmr <- melt(hmr, na.rm = T)
 names(m.hmr) <- c("Species", "HMR")
 
 ## Below LCT for broadbills
