@@ -93,13 +93,13 @@ ACT = ((Time~RMR~ \* (RMR - BMR)) + (Time~HMR~ \* (HMR - BMR) + (Time~FLMR~ \* (
                                                       
 4.  Nighttime Metabolic Rate 
 ----------------------------
-There is a large amount of individual and daily variation in the frequency and duration of torpor use. For the sake of modeling DEE I assume that either torpor is not used at all, or if torpor is used, it is used to the full extent observed at the site.  By doing so I can create upper and lower energetic boundaries based on whether or not torpor was used.  
+There is a large amount of individual and daily variation in the frequency and duration of torpor use. For the sake of modeling DEE I assume that either torpor is not used at all, or if torpor is used, it is used to the full extent observed at the site.  By doing so I can create upper and lower energetic boundaries based on whether or not torpor was used. As it is difficult to predict the frequency and duration of torpor use for any given individual, having upper and lower bounds is more useful for the energy budget than using a continuous variable of torpor use.  
 
 &nbsp;&nbsp;**A.  No torpor**  
-Nighttime metabolic rate (NMR) will be BMR plus the cost of thermoregulation below the lower critical temperatures.  Thus, NMR for normothermic hummingbirds can be calculated using equation 1a. 
+Nighttime metabolic rate (NMR) will be BMR plus the cost of thermoregulation below the lower critical temperatures (i.e. TRE~L~).  Thus, NMR for normothermic hummingbirds can be calculated using equation 1a and nighttime temperature data. NMR calculated this way was verified to be the same as nighttime energy expenditure data from birds which did not use torpor at all.
 
 &nbsp;&nbsp;**B.  Torpor**  
-For birds that used torpor maximally last summer:
+For birds that used torpor maximally last summer, total nighttime energy expenditure was measured as:
   
   Nighttime energy expenditure (NEE) = 2 kJ
 
@@ -122,9 +122,9 @@ Note:  If no torpor is used then NEE = 0, and NEE is included in TRE~L~. If the 
 
 Here, assuming:  
   
-1.  70% of the daytime was spent perching and 30% flying.  Flying was 50% hovering and 50% forward flight [**add citations**].  
+1.  70% of the daytime was spent resting and 30% flying.  Flying was 50% hovering and 50% forward flight [**add citations**].  
   
-2.  No torpor (this is realistic for SC).  
+2.  No torpor (this is realistic for Sonoita Creek).  
   
 3.  Respiratory quotient (RQ) = 0.85 (for conversion of oxygen consumption to CO~2~ production)  
   
@@ -197,4 +197,4 @@ Mean Measured DEE (DLW) = 51.3 $\pm$ 6.6 mL CO~2~/h (range 39.5-58.6)
   
 Model Estimate = `r DEE_model_hr ` CO~2~/h  
   
-The model estimate is `r per.off`% lower than the measured value. I am encouraged by this considering that this model is likely biased low since costs of molt and reproduction are not specifically considered, and since the higher thermoregulatory slope is taken from a desert-adapted species.
+The model estimate is `r per.off`% lower than the measured value. I am encouraged by this considering that this model is likely biased low since costs of agonistic behavior and reproduction (mating displays) are not specifically considered, and since the higher thermoregulatory slope is taken from a desert-adapted species (*Calypte costae*).
