@@ -3,6 +3,8 @@
 library(ape)
 library(picante)
 library(stringr)
+library(ggplot2)
+
 ## This script uses the pic() function from ape. pic = phylogenetically independent contrasts
 
 setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha_personal\\Thesis proposal\\R_csv")
@@ -99,8 +101,7 @@ root.pgls <- gls(hwchord ~ hmass, correlation = corBrownian(value = 1, htree))
 anova(root.pgls)
 
 # plot relationship
-plot(hmass ~ SRL, data = traits, xlab = "SRL (specific root length)", 
-     ylab = "Root tissue density")
+ggplot(aes(hwchord,hmass)) + ggpoint() + xlab("Mass") + ylab("Wing chord")
 # add model fit lines - coef is the model fit coefficients, lwd increases
 # line width
 abline(coef(root.gls), lwd = 2, col = "black")
