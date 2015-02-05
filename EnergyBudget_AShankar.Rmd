@@ -197,4 +197,4 @@ Mean Measured DEE (DLW) = 51.3 $\pm$ 6.6 mL CO~2~/h (range 39.5-58.6)
   
 Model Estimate = `r DEE_model_hr ` CO~2~/h  
   
-The model estimate is `r per.off`% lower than the measured value. I am encouraged by this considering that this model is likely biased low since costs of agonistic behavior and reproduction (mating displays) are not specifically considered, and since the higher thermoregulatory slope is taken from a desert-adapted species (*Calypte costae*).
+The model estimate is `r per.off`% lower than the measured value. I am encouraged by this considering that this model is likely biased low since costs of agonistic behavior and reproduction (mating displays, increased territoriality) are not specifically considered, and since the higher thermoregulatory slope is taken from a desert-adapted species (*Calypte costae*).
