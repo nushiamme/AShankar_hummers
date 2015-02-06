@@ -67,9 +67,9 @@ This is a fair relationship to use for broad- billed hummingbirds, as Calliope a
 
 &nbsp;&nbsp;**B.  Hovering**  
 
-Powers has measured hovering metabolic rates (HMR) in Broad-billed hummingbirds. Mean HMR~BBLH~ = 2.1 mL O~2~/min, with values ranging from 0.764 to 3.309 ml O~2~/min.
+Powers has measured hovering metabolic rates (HMR) in Broad-billed hummingbirds. I use only the upper two-third of these measurements, as the method was biased to underestimate HMR. Mean HMR~BBLH~ = 2.4 mL O~2~/min.
 
-Going from these values and from past studies (Fernandez et al. 2011),
+Going from these values and from past studies (Fernandez et al. 2011), we know that HMR is a constant multiple of BMR.
 
   HMR~BBLH~ = 10.3 x BMR
 
