@@ -12,6 +12,11 @@ names(hmr) <- c("Rufous", "Broad-billed", "Black-chinned")
 m.hmr <- melt(hmr, na.rm = T)
 names(m.hmr) <- c("Species", "HMR")
 
+## HMR
+hmr.bblh <- m.hmr$HMR[m.hmr$Species=="Broad-billed"]
+q.hmr <- quantile(hmr.bblh,probs=seq(0.33,1))
+mean(hmr.bblh[hmr.bblh>q.hmr])
+
 ## Below LCT for broadbills
 lm.below <- lm(bblh$Normothermic~bblh$TempC)
 
