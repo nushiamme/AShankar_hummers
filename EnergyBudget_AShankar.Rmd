@@ -17,7 +17,7 @@ The assumptions of these measurements are:
  
 2.  Thermoregulation
 ---------------------
-The thermoneutral zone (TNZ) is the optimum range of ambient temperatures over which there are no regulatory changes in metabolic heat production or evaporative heat loss (Kingma et al. 2012). Thermoregulatory costs are calculated separately below and above the TNZ, as the slopes are different and asymmetric for these two regions, as seen in Figure 1. The TNZ of small hummingbirds appears so small that the lower and upper critical temperatures are essentially identical (Lasiewski 1963).  
+The thermoneutral zone (TNZ) is the optimum range of ambient temperatures over which there are no regulatory changes in metabolic heat production or evaporative heat loss (Kingma et al. 2012). Thermoregulatory costs are calculated separately below and above the TNZ, as the slopes are different and asymmetric for these two regions, as seen in Figure 1 (Lasiewski 1963).  
 
 \centering
 ![](TNZ.jpg)
@@ -69,7 +69,7 @@ This is a fair relationship to use for broad- billed hummingbirds, as Calliope a
 
 Powers has measured hovering metabolic rates (HMR) in Broad-billed hummingbirds. I use only the upper two-third of these measurements, as the method was biased to underestimate HMR. Mean HMR~BBLH~ = 2.4 mL O~2~/min.
 
-Going from these values and from past studies (Fernandez et al. 2011), we know that HMR is a constant multiple of BMR.
+Going from these values and from past studies (Fernandez et al. 2011), we know that HMR is:  
 
   HMR~BBLH~ = 10.3 x BMR
 
@@ -91,12 +91,12 @@ Thus, I can estimate FLMR for Broad-billed hummingbirds to be:
 
 ACT = ((Time~RMR~ \* (RMR - BMR)) + (Time~HMR~ \* (HMR - BMR) + (Time~FLMR~ \* (FLMR - BMR)										 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Equation 5**
                                                       
-4.  Nighttime Metabolic Rate 
+4.  Nighttime Energy Expenditure 
 ----------------------------
 There is a large amount of individual and daily variation in the frequency and duration of torpor use. For the sake of modeling DEE I assume that either torpor is not used at all, or if torpor is used, it is used to the full extent observed at the site.  By doing so I can create upper and lower energetic boundaries based on whether or not torpor was used. As it is difficult to predict the frequency and duration of torpor use for any given individual, having upper and lower bounds is more useful for the energy budget than using a continuous variable of torpor use.  
 
 &nbsp;&nbsp;**A.  No torpor**  
-Nighttime metabolic rate (NMR) will be BMR plus the cost of thermoregulation below the lower critical temperatures (i.e. TRE~L~).  Thus, NMR for normothermic hummingbirds can be calculated using equation 1a and nighttime temperature data. NMR calculated this way was verified to be the same as nighttime energy expenditure data from birds which did not use torpor at all.
+When no torpor is used, nighttime energy expenditure (NEE) comprises BMR and the cost of thermoregulation below the lower critical temperatures (i.e. TRE~L~).  Thus, NEE for normothermic hummingbirds can be calculated using equation 1a and nighttime temperature data. NEE calculated this way can be verified to be the same as nighttime energy expenditure data measured from birds which did not use torpor at all.
 
 &nbsp;&nbsp;**B.  Torpor**  
 For birds that used torpor maximally last summer, total nighttime energy expenditure was measured as:

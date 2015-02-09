@@ -84,8 +84,11 @@ plot(hcontrastmass, hcontrastwchord)
 abline(regresswchordmass)
 
 ## Plot phylogeny with traits as points scaled on the tips
+op <- par(oma=c(5,7,1,1)) ## Save default par to reset to later
+par(mar = rep(2, 4)) ## To make plot bigger
 plot(htree, direction = "up", show.tip.label = T, show.node.label = TRUE, 
      cex = 0.7)
+par(op) ## Reset to default par
 # Plot leaf area on the phylogeny. cex argument scales symbol size by trait
 # value.
 #tiplabels(pch = 19, col = "black", cex = 3 * (hwchord/max(hwchord)))
