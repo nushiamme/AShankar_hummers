@@ -136,6 +136,10 @@ Here, assuming:
 ## Energy Budget for Broad-billed hummingbirds
 ## Anusha Shankar, January 21, 2015
 
+######### To DO ################
+## Think about sensitivity analyses for all the variables- think of running a simulation model with a range of parameter estimates and coming up with hypotheses for each possible output.
+#########
+
 ## Thermoregulatory equations
 ## tre_h = 0.0144*Te - 0.2655; intercept obtained by substituting BMR_BBLH
 ## in equation with Costa's slope, and UCT = 35&deg;C
