@@ -23,7 +23,8 @@ The thermoneutral zone (TNZ) is the optimum range of ambient temperatures over w
 ![](TNZ.jpg)
 \flushleft
 
-**Figure 1**: The thermoneutral zone (TNZ). T~b~ = Body temperature; LCT = Lower critical temperature; UCT = Upper critical temperature; BMR = Basal metabolic rate
+**Figure 1**: The thermoneutral zone (TNZ). Tb = Body temperature; LCT = Lower critical temperature;
+UCT = Upper critical temperature; BMR = Basal metabolic rate
 
 &nbsp;&nbsp;**A.  Below the TNZ** (Operative temperature T~e~ < 32&deg;C)  
 
@@ -61,7 +62,9 @@ This is likely to more accurately reflect the metabolic rate of a perching hummi
   
   RMR = 1.5 x BMR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Equation 3**
 
-This is a fair relationship to use for broad- billed hummingbirds, as Calliope and Broad-billed hummingbirds are about the same weight (both around 3g), are behaviorally similar and perch in similar environments. Thus,  
+This is a fair relationship to use for broad- billed hummingbirds, as Calliope and Broad-billed hummingbirds are about the same weight (both around 3g), are behaviorally similar and perch in similar environments.   
+  
+Thus,  
   
   RMR~BBLH~ = `r 1.5*(0.2385)` ml/min (7.1908J/min; 0.1198W)
 
@@ -89,7 +92,7 @@ Thus, I can estimate FLMR for Broad-billed hummingbirds to be:
 
 &nbsp;&nbsp;**D.  Total activity costs**  
 
-ACT = ((Time~RMR~ \* (RMR - BMR)) + (Time~HMR~ \* (HMR - BMR) + (Time~FLMR~ \* (FLMR - BMR)										 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Equation 5**
+**ACT = ((Time~RMR~ \* (RMR - BMR)) + (Time~HMR~ \* (HMR - BMR) + (Time~FLMR~ \* (FLMR - BMR)**										 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Equation 5**
                                                       
 4.  Nighttime Energy Expenditure 
 ----------------------------
@@ -104,6 +107,8 @@ For birds that used torpor maximally last summer, total nighttime energy expendi
   Nighttime energy expenditure (NEE) = 2 kJ
 
 Note:  This value can change slightly as I refine the calculations.  Even so, this is such a small component of DEE that small changes to this value will have little impact on model results.
+
+\newpage
 
 5.  DEE Model
 -------------
@@ -122,7 +127,7 @@ Note:  If no torpor is used then NEE = 0, and NEE is included in TRE~L~. If the 
 
 Here, assuming:  
   
-1.  70% of the daytime was spent resting and 30% flying.  Flying was 50% hovering and 50% forward flight [**add citations**].  
+1.  70% of the daytime was spent resting and 30% flying.  Flying was 50% hovering and 50% forward flight (Lasiewski 1963; Bartholomew and Lighton 1986).  
   
 2.  No torpor (this is realistic for Sonoita Creek).  
   
@@ -135,10 +140,6 @@ Here, assuming:
 ``` {r}
 ## Energy Budget for Broad-billed hummingbirds
 ## Anusha Shankar, January 21, 2015
-
-######### To DO ################
-## Think about sensitivity analyses for all the variables- think of running a simulation model with a range of parameter estimates and coming up with hypotheses for each possible output.
-#########
 
 ## Thermoregulatory equations
 ## tre_h = 0.0144*Te - 0.2655; intercept obtained by substituting BMR_BBLH
@@ -159,7 +160,8 @@ names(m.sc) <- c("Time", "Mean_Ta", "MR_ml_h" )
 ## DEE = BMR + (TRE_L + TRE_H) + ACT + NEE
 
 ## Basal metabolic rate for time spent within the TNZ in 14 daytime hours (5am-7pm)
-t_bmr <- sum(m.sc$MR_ml_h[32 < m.sc$Mean_Ta & m.sc$Mean_Ta < 35 & 4 < m.sc$Time & m.sc$Time < 20])
+t_bmr <- sum(m.sc$MR_ml_h[32 < m.sc$Mean_Ta & 
+                            m.sc$Mean_Ta < 35 & 4 < m.sc$Time & m.sc$Time < 20])
 
 ## TRE_H from SC 14-hour temperature data and broad-bill equation
 tre_h <- sum(m.sc$MR_ml_h[m.sc$Mean_Ta > 35 & 4 < m.sc$Time & m.sc$Time < 20])
