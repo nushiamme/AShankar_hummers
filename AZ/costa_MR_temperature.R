@@ -34,7 +34,8 @@ yinterceptBBLH <- (lm.abovecosta$coefficients[2]*35)-bmrBBLH
 yinterceptBBLH <- (0.0144*35)-bmrBBLH
 
 ## hmr unscaled by body mass
-hmr_comparison <- ggplot(m.hmr, aes(x=Species, y=HMR)) + geom_point() + geom_boxplot(outlier.colour="red") + theme_bw()
+hmr_comparison <- ggplot(m.hmr, aes(x=Species, y=HMR)) + geom_point() + 
+  geom_boxplot(outlier.colour="red") + theme_bw()
 hmr_comparison
 
 ## Plot temperatures
