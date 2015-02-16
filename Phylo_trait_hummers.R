@@ -7,6 +7,9 @@ library(ggplot2)
 
 ## This script uses the pic() function from ape. pic = phylogenetically independent contrasts
 
+####### TO DO #######
+## Try using relatedness as measured by molecular cophenetic distance from picante (Ben's selectivity paper)
+
 setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha_personal\\Thesis proposal\\R_csv")
 
 ## Read in tree and data files
