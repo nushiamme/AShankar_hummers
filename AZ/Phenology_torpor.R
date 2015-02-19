@@ -32,7 +32,7 @@ HC_fruits <- sum(m.phen$value[m.phen$variable=="TotalFruits" & m.phen$Site=="HC"
 HC_flowers/HC_fruits
 
 ## Calculate phenological variables for PL/SC
-PLSC_flowers <- sum(m.phen$value[m.phen$variable=="TotalFlowers" & m.phen$Site=="PL/SC"])
+PLSC_flowers <- mean(m.phen$value[m.phen$variable=="TotalFlowers" & m.phen$Site=="PL/SC"])
 PLSC_buds <- sum(m.phen$value[m.phen$variable=="TotalBuds" & m.phen$Site=="PL/SC"])
 PLSC_fruits <- sum(m.phen$value[m.phen$variable=="TotalFruits" & m.phen$Site=="PL/SC"])
 
