@@ -23,21 +23,22 @@ PLSC_sp.richness <- length(unique(sp.phen$value[m.phen$Site=="PL/SC"]))
 HC_sp.richness
 PLSC_sp.richness
 
-## Calculate phenology for HC
-HC_flowers <- sum(m.phen$value[m.phen$variable=="TotalFlowers" & m.phen$Site=="HC"])
+## Calculate phenological variables for HC
+HC_flowers <- mean(m.phen$value[m.phen$variable=="TotalFlowers" & m.phen$Site=="HC"])
 HC_buds <- sum(m.phen$value[m.phen$variable=="TotalBuds" & m.phen$Site=="HC"])
 HC_fruits <- sum(m.phen$value[m.phen$variable=="TotalFruits" & m.phen$Site=="HC"])
 
 ## HC Flowers/Fruits ratio
 HC_flowers/HC_fruits
 
-## Calculate phenology for HC
+## Calculate phenological variables for PL/SC
 PLSC_flowers <- sum(m.phen$value[m.phen$variable=="TotalFlowers" & m.phen$Site=="PL/SC"])
 PLSC_buds <- sum(m.phen$value[m.phen$variable=="TotalBuds" & m.phen$Site=="PL/SC"])
 PLSC_fruits <- sum(m.phen$value[m.phen$variable=="TotalFruits" & m.phen$Site=="PL/SC"])
 
-## Flowers in HC and PL/SC in the torpor measurement period
-HC_flowers
+## Flowers in HC and PL/SC in the torpor measurement period per transect
+HC_no.obs <- length((m.phen$value[m.phen$variable=="TotalFlowers" & m.phen$Site=="HC"])) 
+HC_flowers/HC_no.obs
 PLSC_flowers
 
 ## Flowers/Fruits ratio
