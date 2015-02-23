@@ -1,7 +1,7 @@
 library(reshape)
 library(ggplot2)
 
-setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha_personal\\Thesis proposal\\R_csv\\AZ")
+setwd("C://Users//ANUSHA//Dropbox//Anusha_personal//Thesis_proposal//R_csv//AZ")
 
 costa <- read.csv("Costa1986_Don.csv")
 costaVO2 <- read.csv("Costa1986_DonVO2.csv")
@@ -42,3 +42,7 @@ hmr_comparison
 ggplot(costa, aes(Temperature, MR)) + geom_point() + theme_bw()
 plot(costa$BelowLCT~costa$Temperature)
 plot(costa$AboveUCT~costa$Temperature)
+
+## Fitting a glm
+glm(below$BelowLCT~below$Temperature)
+
