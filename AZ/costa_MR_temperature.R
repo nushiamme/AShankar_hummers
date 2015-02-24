@@ -44,5 +44,5 @@ plot(costa$BelowLCT~costa$Temperature)
 plot(costa$AboveUCT~costa$Temperature)
 
 ## Fitting a glm
-glm(below$BelowLCT~below$Temperature)
-
+below.glm <- glm(below$BelowLCT~below$Temperature)
+hist(below.glm$residuals)
