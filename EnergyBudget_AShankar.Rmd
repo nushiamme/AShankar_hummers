@@ -78,17 +78,23 @@ From these values and from past studies (Fernandez et al. 2011), we know that HM
 
 &nbsp;&nbsp;**C.  Forward flight**  
 
-No measurements have been made on the metabolic cost of forward flight (FLMR) in Broad-billed hummingbirds. Assuming that hummingbirds fly most often at their most efficient speed (6-8 m/s), FLMR can be estimated using data from other hummingbird species. These relationships are well-established from studies on power curves in hummingbirds (Tobalske et al. 2003, 2010).
+No measurements have been made on the metabolic cost of forward flight (FLMR) in Broad-billed hummingbirds. FLMR can be estimated using data from other hummingbird species (shown in Figure 2 below). These relationships are well-established from studies on power curves in hummingbirds (Tobalske et al. 2003, 2010; Warrick et al. 2012).
+
+\centering
+![](Flight_Tobalske_etal_2010_2.jpg)
+\flushleft
+
+**Figure 2**: Power curves from multiple species, from Warrick et al. 2012.
 
 FLMR~Calliope~ = 0.53 x HMR
 
 FLMR~Rufous~ = 0.49 x HMR
 
-Thus, I can estimate FLMR for Broad-billed hummingbirds to be:
+Given the mass of Broad-billed hummingbirds and their estimated pectoralis mass-specific power, I assume that Broad-billed hummingbirds will fly at their most efficient speed (6-8m/s). I can estimate FLMR for Broad-billed hummingbirds to be:
   
   FLMR = 0.5 x HMR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Equation 4**
   
-  FLMR~BBLH~ = 0.5*2.1 ml/min = 1.05 ml/min (21.11 J/min; 0.3518W)
+  FLMR~BBLH~ = 0.5*2.1 ml/min = 1.05 ml/min (21.11 J/min; 0.3518W)  
 
 &nbsp;&nbsp;**D.  Total activity costs**  
 
