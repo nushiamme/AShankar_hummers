@@ -3,7 +3,7 @@ title: "Hummingbird Energy Budget"
 author: "Anusha Shankar"
 output: pdf_document
 ---
-Using published and unpublished data from Dr. Don Powers' earlier work, I construct here a preliminary energy budget for a North American species, the Broad-billed hummingbird (BBLH; *Cynanthus latirostris*).
+Using published and unpublished data from Dr. Don Powers' earlier work, I construct here a preliminary energy budget for a North American species, the Broad-billed hummingbird (BBLH; *Cynanthus latirostris*). I will do the same with the data I collect in Ecuador. Daily energy expenditure (DEE) is measured using the doubly-labeled water method. The individual components of the daytime and nighttime activity budgets are measured separately using open-flow respirometry. The goal here is to build the energy budget using the component behaviors, and compare DEE calculated this way to direct measures of DEE. If these two numbers are close, my energy budget is accurate. If not, I can further test what components are missing.
 
 1.  Basal Metabolic Rate
 ------------------------------
