@@ -86,7 +86,7 @@ No measurements have been made on the metabolic cost of forward flight (FLMR) in
 
 **Figure 2**: Power curves from multiple bird species, from Warrick et al. 2012.
 
-Assuming that Broad-billed hummingbirds will fly at their most efficient speed (6-8m/s) and that the power curves for Ecuadorian hummingbirds are similar to those measured for other species, I can estimate FLMR for Broad-billed hummingbirds to be:
+Assuming that the power curves for Ecuadorian hummingbirds are similar to those measured for other species, and that Broad-billed hummingbirds will fly at their most efficient speed (6-8m/s), I can estimate FLMR for Broad-billed hummingbirds to be:
   
   FLMR = 0.5 x HMR &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Equation 4**
   
