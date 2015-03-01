@@ -94,7 +94,7 @@ Assuming that the power curves for Ecuadorian hummingbirds are similar to those 
 
 &nbsp;&nbsp;**D.  Total activity costs**  
 
-**ACT = ((Time~RMR~ \* (RMR - BMR)) + (Time~HMR~ \* (HMR - BMR) + (Time~FLMR~ \* (FLMR - BMR)**										 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Equation 5**
+**ACT = (Time~RMR~ \* (RMR - BMR)) + (Time~HMR~ \* (HMR - BMR)) + (Time~FLMR~ \* (FLMR - BMR))**										 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- **Equation 5**
                                                       
 4.  Nighttime Energy Expenditure 
 ----------------------------
