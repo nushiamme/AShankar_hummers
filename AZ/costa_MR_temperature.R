@@ -8,9 +8,14 @@ costaVO2 <- read.csv("Costa1986_DonVO2.csv")
 bblh <- read.csv("BroadBill.csv")
 hmr <- read.csv("HMR_AZ_11_20.csv")
 names(hmr) <- c("Rufous", "Broad-billed", "Black-chinned")
+## Read data from Pearson's 1954 paper on "The daily energy requirements of a wild Anna hummingbird"
+budget <- read.csv("TimeEnergyBudget_pearson1954.csv")
 
 m.hmr <- melt(hmr, na.rm = T)
 names(m.hmr) <- c("Species", "HMR")
+
+m.budget <- melt(budget, id.vars = c("Activity", "Subactivity"),
+                 measure.vars = c("Time", "With_torpor", "Without_torpor"))
 
 ## HMR
 hmr.bblh <- m.hmr$HMR[m.hmr$Species=="Broad-billed"]
@@ -46,3 +51,9 @@ plot(costa$AboveUCT~costa$Temperature)
 ## Fitting a glm
 below.glm <- glm(below$BelowLCT~below$Temperature)
 hist(below.glm$residuals)
+
+
+m.budget$value <- as.numeric(m.budget$value)
+ggplot(m.budget, aes(variable, value, fill=Activity)) + 
+  geom_bar(stat="identity") + theme_bw() + scale_fill_brewer(palette = 1)
+sum((m.budget$value[m.budget$value=="With_torpor"]))
