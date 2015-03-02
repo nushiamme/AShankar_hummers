@@ -14,8 +14,9 @@ budget <- read.csv("TimeEnergyBudget_pearson1954.csv")
 m.hmr <- melt(hmr, na.rm = T)
 names(m.hmr) <- c("Species", "HMR")
 
+names(budget) <- c("Activity", "Subactivity", "Time", "Energy_Torpor", "Energy_noTorpor")
 m.budget <- melt(budget, id.vars = c("Activity", "Subactivity"),
-                 measure.vars = c("Time", "With_torpor", "Without_torpor"))
+                 measure.vars = c("Time", "Energy_Torpor", "Energy_noTorpor"))
 
 ## HMR
 hmr.bblh <- m.hmr$HMR[m.hmr$Species=="Broad-billed"]
@@ -54,6 +55,10 @@ hist(below.glm$residuals)
 
 
 m.budget$value <- as.numeric(m.budget$value)
-ggplot(m.budget, aes(variable, value, fill=Activity)) + 
-  geom_bar(stat="identity") + theme_bw() + scale_fill_brewer(palette = 1)
-sum((m.budget$value[m.budget$value=="With_torpor"]))
+ggplot(m.budget, aes(variable, value, fill=Activity)) + xlab("Type of budget") + ylab("Percentage") + 
+    geom_bar(stat="identity") + theme_bw() + scale_fill_brewer(type = "qual",palette = 6) +
+  theme(axis.title.x = element_text(size=16), axis.text.x = element_text(angle=10, family = "Times",
+                                                                         vjust=0.5, hjust = 0.5, size=13),
+        axis.title.y = element_text(size=16), axis.text.y = element_text(size=13),
+        legend.title = element_text(size=16), legend.text = element_text(size = 16))
+
