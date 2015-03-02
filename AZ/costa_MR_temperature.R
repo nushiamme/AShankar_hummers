@@ -1,5 +1,8 @@
 library(reshape)
 library(ggplot2)
+library(stringr)
+library(extrafont)
+library(ggplot2)
 
 setwd("C://Users//ANUSHA//Dropbox//Anusha_personal//Thesis_proposal//R_csv//AZ")
 
@@ -14,9 +17,9 @@ budget <- read.csv("TimeEnergyBudget_pearson1954.csv")
 m.hmr <- melt(hmr, na.rm = T)
 names(m.hmr) <- c("Species", "HMR")
 
-names(budget) <- c("Activity", "Subactivity", "Time", "Energy_Torpor", "Energy_noTorpor")
+names(budget) <- c("Activity", "Subactivity", "Time", "Energy with Torpor", "Energy without Torpor")
 m.budget <- melt(budget, id.vars = c("Activity", "Subactivity"),
-                 measure.vars = c("Time", "Energy_Torpor", "Energy_noTorpor"))
+                 measure.vars = c("Time", "Energy with Torpor", "Energy without Torpor"))
 
 ## HMR
 hmr.bblh <- m.hmr$HMR[m.hmr$Species=="Broad-billed"]
@@ -53,12 +56,19 @@ plot(costa$AboveUCT~costa$Temperature)
 below.glm <- glm(below$BelowLCT~below$Temperature)
 hist(below.glm$residuals)
 
+## Adding extra font
+font_import("Trebuchet MS")
 
+## Plot Time/Energy budgets from Pearson 1954 data
 m.budget$value <- as.numeric(m.budget$value)
 ggplot(m.budget, aes(variable, value, fill=Activity)) + xlab("Type of budget") + ylab("Percentage") + 
-    geom_bar(stat="identity") + theme_bw() + scale_fill_brewer(type = "qual",palette = 6) +
-  theme(axis.title.x = element_text(size=16), axis.text.x = element_text(angle=10, family = "Times",
-                                                                         vjust=0.5, hjust = 0.5, size=13),
-        axis.title.y = element_text(size=16), axis.text.y = element_text(size=13),
-        legend.title = element_text(size=16), legend.text = element_text(size = 16))
+    geom_bar(stat="identity") + theme_bw() +
+  theme(text=element_text(family="sans"), axis.title.x = element_text(size=16, vjust=0.2, face="bold"), 
+       axis.text.x = element_text(size=12, face="bold"),
+       axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=12),
+        legend.title = element_text(size=16), legend.text = element_text(size = 16)) +
+  scale_x_discrete(labels = function(variable) str_wrap(variable, width = 14)) + 
+  scale_fill_brewer(type = "qual",palette = 6,breaks=c("Torpor/Sleep","Flying","Perching"))
+
+
 
