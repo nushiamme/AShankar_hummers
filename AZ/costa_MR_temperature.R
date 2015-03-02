@@ -56,8 +56,6 @@ plot(costa$AboveUCT~costa$Temperature)
 below.glm <- glm(below$BelowLCT~below$Temperature)
 hist(below.glm$residuals)
 
-## Adding extra font
-font_import("Trebuchet MS")
 
 ## Plot Time/Energy budgets from Pearson 1954 data
 m.budget$value <- as.numeric(m.budget$value)
@@ -69,6 +67,3 @@ ggplot(m.budget, aes(variable, value, fill=Activity)) + xlab("Type of budget") +
         legend.title = element_text(size=16), legend.text = element_text(size = 16)) +
   scale_x_discrete(labels = function(variable) str_wrap(variable, width = 14)) + 
   scale_fill_brewer(type = "qual",palette = 6,breaks=c("Torpor/Sleep","Flying","Perching"))
-
-
-
