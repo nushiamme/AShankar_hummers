@@ -18,9 +18,9 @@ budget <- read.csv("TimeEnergyBudget_pearson1954.csv")
 m.hmr <- melt(hmr, na.rm = T)
 names(m.hmr) <- c("Species", "HMR")
 
-names(budget) <- c("Activity", "Subactivity", "Time", "Energy with Torpor", "Energy without Torpor")
+names(budget) <- c("Activity", "Subactivity", "Activity budget", "Energy with Torpor", "Energy without Torpor")
 m.budget <- melt(budget, id.vars = c("Activity", "Subactivity"),
-                 measure.vars = c("Time", "Energy with Torpor", "Energy without Torpor"))
+                 measure.vars = c("Activity budget", "Energy with Torpor", "Energy without Torpor"))
 
 ## HMR
 hmr.bblh <- m.hmr$HMR[m.hmr$Species=="Broad-billed"]
@@ -61,13 +61,15 @@ hist(below.glm$residuals)
 ## Plot Time/Energy budgets from Pearson 1954 data
 m.budget$value <- as.numeric(m.budget$value)
 my.cols <- brewer.pal(3, "Paired")
-my.cols[1] <- ("#8dd3c7")
+my.cols <- c("#91cf60","#1c9099", "#e34a33")
+
+
 budget_plot <- ggplot(m.budget, aes(variable, value, fill=Activity)) + xlab("Type of budget") + ylab("Percentage") + 
     geom_bar(stat="identity") + theme_bw() +
   theme(text=element_text(family="sans"), axis.title.x = element_text(size=16, vjust=0.2, face="bold"), 
         axis.text.x = element_text(size=13, face="bold"),
        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=13),
         legend.title = element_text(size=16), legend.text = element_text(size = 12, face="bold")) +
-  scale_x_discrete(labels = function(variable) str_wrap(variable, width = 14)) + 
+  scale_x_discrete(labels = function(variable) str_wrap(variable, width = 16)) + 
   scale_fill_manual(values = my.cols, breaks=c("Torpor/Sleep","Flying","Perching"))
 budget_plot
