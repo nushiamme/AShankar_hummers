@@ -127,7 +127,6 @@ DEE_Cal <- DEE_kJ_day*0.239
 ## In contrast, humans expend about 1700 Calories per day, i.e.humans spend:
 1700/DEE_Cal ##times the energy that a ~3g hummingbird spends
 
-
 ## Measured estimate of DEE from DLW
 dlw <- 51.3
 
