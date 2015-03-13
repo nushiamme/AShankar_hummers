@@ -74,3 +74,52 @@ budget_plot <- ggplot(m.budget, aes(variable, value, fill=Act)) + xlab("Type of 
   scale_x_discrete(labels = function(variable) str_wrap(variable, width = 16)) + 
   scale_fill_manual(values = my.cols, breaks=c("Torpor/Sleep","Flying","Perching"))
 budget_plot
+
+
+##### Energy budget model ########
+sc_temp <- read.csv("SonoitaCreek_Temperatures_S1.csv")
+
+## Melt
+m.sc <- melt(sc_temp, id.vars = c("Time", "Mean_Ta"), measure.vars = "MR_ml.h")
+m.sc <- m.sc[,c(1,2,4)]
+names(m.sc) <- c("Time", "Mean_Ta", "MR_ml_h" )
+
+## DEE = BMR + (TRE_L + TRE_H) + ACT + NEE
+
+## Basal metabolic rate for time spent within the TNZ in 14 daytime hours (5am-7pm)
+t_bmr <- sum(m.sc$MR_ml_h[32 < m.sc$Mean_Ta & 
+                            m.sc$Mean_Ta < 35 & 4 < m.sc$Time & m.sc$Time < 20])
+
+## TRE_H from SC 14-hour temperature data and broad-bill equation
+tre_h <- sum(m.sc$MR_ml_h[m.sc$Mean_Ta > 35 & 4 < m.sc$Time & m.sc$Time < 20])
+
+## TRE_L from SC 14-hour temperature data and broad-bill equation
+tre_l <- sum(m.sc$MR_ml_h[m.sc$Mean_Ta < 32 & 4 < m.sc$Time & m.sc$Time < 20])
+
+## Total energy spent on BMR + thermoregulation in 14 daytime hours
+tre_total <- tre_h + tre_l + t_bmr
+
+## Nighttime energy expenditure in ml O2/h from broad-bill data, 10 hour night (7pm-5am)
+nee <- sum(m.sc$MR_ml_h[m.sc$Time < 5 | m.sc$Time > 18])
+
+## Metabolic rates in ml O2/h
+bmr <- 0.2385*60
+rmr <- 1.5*bmr
+hmr <- 10.3*bmr
+flmr <- 0.5*hmr
+
+## Total energy spent on daytime activities in ml O2/h. 
+## Assuming ACT = 70% resting + 20% hovering + 10% flying; 14 daylight hours
+ACT <- (0.7*14*(rmr-bmr)) + (0.2*14*(hmr-bmr)) + (0.1*14*(flmr-bmr))
+
+## Model estimate in ml O2 per 24h
+DEE_model <- tre_total + ACT + nee
+
+## To get a per hour CO2 estimate, I multiply by RQ (assumed to be 0.85) and divide by 24
+DEE_model_hr <- DEE_model*0.85/24
+
+## Measured estimate of DEE from DLW
+dlw <- 51.3
+
+## Percentage the model is off from the mean DLW estimate
+per.off <- ((dlw - DEE_model_hr)/dlw)*100
