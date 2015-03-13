@@ -118,6 +118,16 @@ DEE_model <- tre_total + ACT + nee
 ## To get a per hour CO2 estimate, I multiply by RQ (assumed to be 0.85) and divide by 24
 DEE_model_hr <- DEE_model*0.85/24
 
+## In kJ consumption per day, that's O2 consumption (converted from mL to L) 
+## times kJ estimate assuming 0.85 RQ
+DEE_kJ_day <- DEE_model/1000*20.35
+
+## In food Calories (thermal calories are with lowercase 'c'), that's:
+DEE_Cal <- DEE_kJ_day*0.239
+## In contrast, humans expend about 1700 Calories per day, i.e.humans spend:
+1700/DEE_Cal ##times the energy that a ~3g hummingbird spends
+
+
 ## Measured estimate of DEE from DLW
 dlw <- 51.3
 
