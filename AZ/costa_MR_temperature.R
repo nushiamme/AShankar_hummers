@@ -52,6 +52,8 @@ hmr_comparison
 ggplot(costa, aes(Temperature, MR)) + geom_point() + theme_bw()
 plot(costa$BelowLCT~costa$Temperature)
 plot(costa$AboveUCT~costa$Temperature)
+## All of curve
+plot(costa$MR~costa$Temperature)
 
 ## Fitting a glm
 below.glm <- glm(below$BelowLCT~below$Temperature)
