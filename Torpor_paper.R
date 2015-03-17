@@ -8,5 +8,5 @@ torpor$sc <- c(0,0,0,1,1,2,4,4)
 
 m.tor <- melt(torpor, measure.vars = c("hc", "sc"))
 names(m.tor) <- c("Site", "Hours")
-ggplot(m.tor, aes(x = Site, y = Hours)) + theme_bw() + geom_boxplot() + geom_point(aes(col = Site)) + 
-  scale_fill_brewer(type = "qual",palette = 3)
+ggplot(m.tor, aes(x = Site, y = Hours)) + theme_bw() + geom_boxplot() + 
+  geom_point(aes(col = Site, pch = 18))
