@@ -16,7 +16,7 @@ names(tor) <- c("Site", "Energy", "Hours_torpor")
 energy_plot <- ggplot(tor, aes(Site,Energy)) + theme_bw() + geom_boxplot() + 
   geom_point(aes(col=Site, size=2)) + scale_size(guide = 'none') + scale_shape_identity() +
   scale_color_manual(values = c("grey60", "black"), guide = FALSE) + 
-  ylab("Nighttime energy expenditure (kcal)") + 
+  ylab("Nighttime energy expenditure (kJ)") + 
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14))
