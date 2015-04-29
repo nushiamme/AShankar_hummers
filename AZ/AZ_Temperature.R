@@ -18,9 +18,8 @@ m.Max <- m.AZta[m.AZta$variable=="Max_Ta",]
 m.Min <- m.AZta[m.AZta$variable=="Min_Ta",]
 
 ## Plots
-AZ_TaPlot <- ggplot(m.Max, aes(as.numeric(Time), value)) + stat_smooth() + geom_point() + theme_bw() + facet_grid(.~Site)
-AZ_TaPlot2 <- ggplot(m.Max, aes(as.numeric(Time), value)) + geom_point() + theme_bw() + facet_grid(.~Site)
-AZ_TaPlot2
+AZ_TaPlot <- ggplot(m.Max, aes(as.numeric(Time), value, col=Date)) + stat_smooth() + 
+  geom_point() + theme_bw() + facet_grid(.~Site)
 AZ_TaPlot
 
 #geom_smooth(model=lm, aes(group=1))
