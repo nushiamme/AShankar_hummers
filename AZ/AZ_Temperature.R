@@ -27,11 +27,15 @@ AZ_TaPlot <- ggplot(m.Mean, aes(as.numeric(Time), value)) + stat_smooth() +
   theme_bw() + facet_wrap(Date~Site)
 AZ_TaPlot
 
+blank_data <- data.frame(group = c("A", "A", "B", "B", "C", "C"), x = 0, y = c(0, 8, 0, 40, 0, 50))
+
+
 Ta_HC <- ggplot(m.Mean[m.Mean$Date==c("6/27/2013","6/28/2013"),], 
                 aes(as.numeric(Time), value)) + stat_smooth() + geom_point(colour="red", size=3) + xlab ("Time") + 
   scale_x_discrete(breaks=c("0", "500", "1000", "1500", "2000"),
                    labels=c("00:00", "05:00", "10:00", "15:00", "20:00")) + 
-  theme_bw() + facet_grid(Site~Date) + theme(legend.position = "none")
+  theme_bw(base_size=12) + facet_grid(Site~Date) + theme(legend.position = "none")
+
 Ta_HC
 
 Ta_SC <- ggplot(m.Mean[m.Mean$Date==c("7/2/2013","7/3/2013"),], 
