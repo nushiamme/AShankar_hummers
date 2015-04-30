@@ -11,15 +11,36 @@ setwd("C://Users//ANUSHA//Dropbox//Hummingbird energetics//AZ temperature 2")
 AZ_ta <- read.csv("AZ_Temp_toPlot.csv")
 
 ##Melt AZ_ta
-m.AZta <- melt(AZ_ta, id.vars = c("Site", "Date", "Time"), measure.vars = c("Min_Ta", "Max_Ta", "Average"))
+m.AZta <- melt(AZ_ta, id.vars = c("Site", "Date", "Time"), 
+               measure.vars = c("Min_Ta", "Max_Ta", "Average"))
 
 m.Mean <- m.AZta[m.AZta$variable=="Average",]
 m.Max <- m.AZta[m.AZta$variable=="Max_Ta",]
 m.Min <- m.AZta[m.AZta$variable=="Min_Ta",]
 
+time <- c("00:00", "05:00", "10:00", "15:00", "20:00")
 ## Plots
-AZ_TaPlot <- ggplot(m.Max, aes(as.numeric(Time), value, col=Date)) + stat_smooth() + 
-  geom_point() + theme_bw() + facet_grid(.~Site)
-AZ_TaPlot
+AZ_TaPlot <- ggplot(m.Mean, aes(as.numeric(Time), value)) + stat_smooth() + 
+  geom_point() + xlab ("Time") + 
+  scale_x_discrete(breaks=c("0", "500", "1000", "1500", "2000"),
+                   labels=c("00:00", "05:00", "10:00", "15:00", "20:00")) + 
+  theme_bw() + facet_wrap(Date~Site)
+AZ_TaPlot + geom_step(subset=.(Date=="6/27/2013"))
 
+Ta_HC <- ggplot(m.Mean[m.Mean$Date==c("6/27/2013","6/28/2013"),], aes(as.numeric(Time), value)) +
+  stat_smooth() + geom_point() + xlab ("Time") + 
+  scale_x_discrete(breaks=c("0", "500", "1000", "1500", "2000"),
+                   labels=c("00:00", "05:00", "10:00", "15:00", "20:00")) + 
+  theme_bw() + facet_grid(Site~Date)
+Ta_HC
+
+Ta_SC <- ggplot(m.Mean[m.Mean$Date==c("7/2/2013","7/3/2013"),], aes(as.numeric(Time), value)) + 
+  stat_smooth() + geom_point() + xlab ("Time") + 
+  scale_x_discrete(breaks=c("0", "500", "1000", "1500", "2000"),
+                   labels=c("00:00", "05:00", "10:00", "15:00", "20:00")) + 
+  theme_bw() + facet_grid(Site~Date)
+Ta_SC
+
+
+grid.arrange(Ta_HC, Ta_SC, nrow=2)
 #geom_smooth(model=lm, aes(group=1))
