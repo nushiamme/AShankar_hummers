@@ -15,9 +15,12 @@ library(RgoogleMaps)
 library(ggmap)
 library(raster)
 library(rgdal)
+library(jpeg)
 
 ## Set working directory
-setwd("D://Dropbox/Hornbills/")
+## setwd("D://Dropbox/Hornbills/")
+setwd("C://Users//ANUSHA//SkyDrive//Hornbills")
+
 
 ## Read in data
 #anco2 <- read.csv("Ancodata_Sept2013.csv")
@@ -26,6 +29,8 @@ anco <- read.csv("Ancodata_edit.csv")
 ebird <- read.csv("ebird2_dec13.csv")
 # Ebird data used for poster
 ebird_old <- read.csv("ebird_old.csv")
+
+readJPEG("")
 
 ## Cleaning and aggregating data
 
@@ -68,9 +73,35 @@ anco$dbhcl
 
 ##### End sort #####
 
+## Calculate mean and s.e. for nest site characters
+av.dbh <- mean(anco$dbh)
+av.dbh
+se.dbh <- sd(anco$dbh)/sqrt(length(anco$dbh))
+sd.dbh <- sd(anco$dbh, na.rm=T)
+sd.dbh
+
+
+av.ht <- mean(anco$ht, na.rm=T)
+av.ht
+se.ht <- sd(anco$ht, na.rm=T)/sqrt(length(anco$ht))
+sd.ht <- sd(anco$ht, na.rm=T)
+sd.ht
+
+av.nestht <- mean(anco$nestht, na.rm=T)
+av.nestht
+se.nestht <- sd(anco$nestht, na.rm=T)/sqrt(length(anco$nestht))
+sd.nestht <- sd(anco$nestht, na.rm=T)
+sd.nestht
+
 ## Seeing how to do an Anova with habitat (categorial, factors) as the measure variable
 anco$hab_binary[anco$habitat=="Open"] <- 0
 anco$hab_binary[anco$habitat=="Forest"] <- 1
+
+## Nest site parameters by forest type
+mean(anco$dbh[anco$hab_binary==0]) # open
+mean(anco$dbh[anco$hab_binary==1]) # forest
+sd(anco$dbh[anco$hab_binary==0]) # open
+sd(anco$dbh[anco$hab_binary==1]) # forest
 
 ## Classify forest distances
 
@@ -92,6 +123,8 @@ forest_class <- function (forest) {
 }
 
 anco$forestclass <- forest_class(anco$Forest)
+
+## Logistic regression
 
 
 
