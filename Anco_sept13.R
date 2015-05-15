@@ -15,7 +15,7 @@ library(RgoogleMaps)
 library(ggmap)
 library(raster)
 library(rgdal)
-library(jpeg)
+## library(jpeg)
 
 ## Set working directory
 ## setwd("D://Dropbox/Hornbills/")
@@ -29,8 +29,6 @@ anco <- read.csv("Ancodata_edit.csv")
 ebird <- read.csv("ebird2_dec13.csv")
 # Ebird data used for poster
 ebird_old <- read.csv("ebird_old.csv")
-
-readJPEG("")
 
 ## Cleaning and aggregating data
 
@@ -225,6 +223,7 @@ c(t.nestht.dbh$estimate, t.nestht.dbh$p.value)
 
 # Two sample t test for distances
 t.test(x=anco$Building[anco$habitat=="Open"], y=anco$Building[anco$habitat=="Forest"]) ## Significant
+t.test(x=anco$dbh[anco$habitat=="Open"], y=anco$dbh[anco$habitat=="Forest"])
 t.test(anco$dbh[anco$Species=="Mangifera indica"], anco$dbh[anco$Species=="Terminalia bellerica"])
 t.test(x=anco$Stream[anco$habitat=="Open"], y=anco$Stream[anco$habitat=="Forest"])
 t.test(x=anco$Road, y=anco$Building)
