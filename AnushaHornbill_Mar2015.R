@@ -5,6 +5,7 @@
 require(raster)
 require(maptools)
 require(dismo)
+require(SDMTools)
 #read in files
 
 #Human Impact Index
@@ -15,7 +16,7 @@ HII <- raster("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/HI
 Glob<-raster("D:././layers/EnvLayers/GLOBCOVER_L4_200901_200912_V2_3.bil")
 
 #Anthropogenic Biomes
-Anthr<-raster("D:././layers/anthromes_v1/w001001x.adf")
+Anthr<-raster("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/anthromes_2_ESRI_GRID/a2000/anthro2_a2000/w001001x.adf")
 
 #Landscan human population size
 Pop<-raster("D:././layers/EnvLayers/LandScan/lspop2011.bil")
