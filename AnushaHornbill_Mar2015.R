@@ -11,21 +11,20 @@ require(SDMTools)
 setwd("E:/")
 #Human Impact Index
 ## Old file path HII<-raster("D:././././layers/hii_global_geo_grid/hii_v2geo/w001001x.adf")
-HII <- raster("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/HII/hii_asia_geo_grid/hii_asia/w001001x.adf")
+HII <- raster("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/layers/hii_asia_geo_grid/hii_asia/w001001x.adf")
 
 #Global Landcover
 ## Old file path Glob<-raster("D:././layers/EnvLayers/GLOBCOVER_L4_200901_200912_V2_3.bil")
-Glob <- raster("E:/layers/EnvLayers/GLOBCOVER_L4_200901_200912_V2_3.bil")
+Glob <- raster("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/layers/GlobCover_2009/GLOBCOVER_L4_200901_200912_V2_3.bil")
 
 #Anthropogenic Biomes
 ## Old file path Anthr<-raster("D:././layers/anthromes_v1/w001001x.adf")
-Anthr<-raster("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/anthromes_2_ESRI_GRID/a2000/anthro2_a2000/w001001x.adf")
+Anthr<-raster("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/layers/anthromes_2_ESRI_GRID/a2000/anthro2_a2000/w001001x.adf")
 
 #Landscan human population size
 ## Old file path Pop<-raster("D:././layers/EnvLayers/LandScan/lspop2011.bil")
-Pop <- raster("E:/layers/EnvLayers/LandScan/lspop2011.bil")
+Pop <- raster("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/layers/LandScan/lspop2011.bil")
 
-## TODO Have to download these
 #Bring in bioclim layers
 bio12<-raster("E:/layers/Bioclim/bio_30s_esri/bio/bio_12/w001001x.adf")
 bio17<-raster("E:/layers/Bioclim/bio_30s_esri/bio/bio_17/w001001x.adf")
@@ -35,7 +34,8 @@ bio1<-raster("E:/layers/Bioclim/bio_30s_esri/bio/bio_1/w001001x.adf")
 
 ##load in the points. 
 #load shapefile
-pts <- readShapePoints("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Cleaned data/Compiled without nest points.shp")
+pts <- readShapePoints("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Cleaned data/
+                       Compiled without nest points.shp")
 
 #If you have XY coordinates, just use SpatialPoints
 
@@ -72,7 +72,8 @@ gc()
 
 
 #Include which layers you want here:
-all.layers <- stack(bio15.crop,bio6.crop,bio12.crop,bio17.crop,bio1.crop,HII.crop,Glob.crop,Anthr.crop,Pop.crop)
+all.layers <- stack(bio15.crop,bio6.crop,bio12.crop,bio17.crop,bio1.crop,HII.crop,
+                    Glob.crop,Anthr.crop,Pop.crop)
 
 #names the rasters
 names(all.layers) <- c("bio15","bio6","bio12","bio17","bio1","HII","Glob","Anthro","Pop")
