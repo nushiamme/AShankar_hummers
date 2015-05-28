@@ -6,6 +6,7 @@ require(raster)
 require(maptools)
 require(dismo)
 require(SDMTools)
+require(jpeg)
 #read in files
 
 ## Setwd for Anusha's laptop
@@ -72,7 +73,7 @@ HII.crop <- resample(HII.crop,bio6.crop)
 Glob.crop <- resample(Glob.crop,bio6.crop)
 Anthr.crop <- resample(Anthr.crop,bio6.crop)
 Pop.crop <- resample(Pop.crop,bio6.crop)
-
+plot(HII.crop)
 gc()
 
 #Include which layers you want here:
@@ -86,10 +87,19 @@ names(all.layers) <- c("bio15","bio6","bio12","bio17","bio1","HII","Glob","Anthr
 bio.layers<-stack(bio15.crop,bio1.crop,bio6.crop,bio12.crop,bio17.crop)
 names(bio.layers)<-c("bio15","bio6","bio12","bio17","bio1")
 
+#Landuse layers only
+land.layers <- stack(HII.crop,Glob.crop,Anthr.crop,Pop.crop)
+names(land.layers) <- c("HII", "Glob", "Anthr", "Pop")
+
+
 #remove the stacked objects
 rm(bio15.crop,bio6.crop,bio12.crop,bio17.crop,bio1.crop,HII.crop,Glob.crop,Anthr.crop,Pop.crop)
 
 gc()
+
+## Download maxent.jar file from "http://www.cs.princeton.edu/~schapire/maxent/" to
+## C:/Users/Anusha/Documents/R/win-library/3.2/dismo/java/maxent.jar
+## install.packages("rJava")
 
 # fit model, set which are categorical is a categorical variable
 #the input for maxent, just wants the coordinates, which are in the first two columns
@@ -99,23 +109,26 @@ me.all <- maxent(all.layers, coordinates(pts)[,1:2],factors='Glob')
 #for bioclim layers only
 me.bio <- maxent(bio.layers, coordinates(pts)[,1:2])
 
+me.land <- maxent(land.layers, coordinates(pts)[,1:2])
 #predict data
 # predict to entire dataset
 r.bio <- predict(me.bio, bio.layers, progress='window') 
 
-
 #predict to all layers
 r.all <- predict(me.all, all.layers, progress='window') 
 
-#write rasters to file"
-writeRaster(r.bio,"C:\\Users\\Jorge\\Desktop\\shp\\SuitabilityBioclim.tif",overwrite=TRUE)
-writeRaster(r.all,"C:\\Users\\Jorge\\Desktop\\shp\\SuitabilityAlllayers.tif",overwrite=TRUE)
+#predict to landuse layers
+r.land <- predict(me.land, land.layers, progress='window')
 
+#write rasters to file"
+writeRaster(r.bio,"C:\\Users\\Anusha\\Desktop\\Anusha_Hornbill_Files\\shp_results\\SuitabilityBioclim.tif",overwrite=TRUE)
+writeRaster(r.all,"C:\\Users\\Anusha\\Desktop\\Anusha_Hornbill_Files\\shp_results\\SuitabilityAlllayers.tif",overwrite=TRUE)
+writeRaster(r.land, "C:\\Users\\Anusha\\Desktop\\Anusha_Hornbill_Files\\shp_results\\SuitabilityLandlayers.tif",overwrite=TRUE)
 
 #view the outputs
 
 #variable contributions
-jpeg("C:\\Users\\Jorge\\Desktop\\shp\\variablecontribution_bioclim2.jpeg",res=300)
+jpeg("C:\\Users\\Anusha\\Desktop\\Anusha_Hornbill_Files\\shp_results\\variablecontribution_bioclim2.jpeg",res=300)
 plot(me.bio)
 dev.off()
 
