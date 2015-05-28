@@ -8,6 +8,7 @@ require(dismo)
 require(SDMTools)
 #read in files
 
+setwd("E:/")
 #Human Impact Index
 ## Old file path HII<-raster("D:././././layers/hii_global_geo_grid/hii_v2geo/w001001x.adf")
 HII <- raster("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/HII/hii_asia_geo_grid/hii_asia/w001001x.adf")
