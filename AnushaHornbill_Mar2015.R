@@ -34,8 +34,7 @@ bio1<-raster("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/lay
 
 ##load in the points. 
 #load shapefile
-pts <- readShapePoints("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Cleaned data/
-                       Compiled without nest points.shp")
+pts <- readShapePoints("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/Cleaned data/Compiled without nest points.shp")
 
 #If you have XY coordinates, just use SpatialPoints
 
