@@ -8,33 +8,40 @@ require(dismo)
 require(SDMTools)
 #read in files
 
-setwd("E:/")
+## Setwd for Anusha's laptop
+wdlaptop <- setwd("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/")
+wdlaptop
+
+## Setwd for Sarah's computer
+wdsarahcomp <- setwd("C:/Users/Anusha/Desktop/Anusha_Hornbill_Files")
+wdsarahcomp
+
 #Human Impact Index
 ## Old file path HII<-raster("D:././././layers/hii_global_geo_grid/hii_v2geo/w001001x.adf")
-HII <- raster("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/layers/hii_asia_geo_grid/hii_asia/w001001x.adf")
+HII <- raster("layers/hii_asia_geo_grid/hii_asia/w001001x.adf")
 
 #Global Landcover
 ## Old file path Glob<-raster("D:././layers/EnvLayers/GLOBCOVER_L4_200901_200912_V2_3.bil")
-Glob <- raster("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/layers/GlobCover_2009/GLOBCOVER_L4_200901_200912_V2_3.bil")
+Glob <- raster("layers/GlobCover_2009/GLOBCOVER_L4_200901_200912_V2_3.bil")
 
 #Anthropogenic Biomes
 ## Old file path Anthr<-raster("D:././layers/anthromes_v1/w001001x.adf")
-Anthr<-raster("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/layers/anthromes_2_ESRI_GRID/a2000/anthro2_a2000/w001001x.adf")
+Anthr<-raster("layers/anthromes_2_ESRI_GRID/a2000/anthro2_a2000/w001001x.adf")
 
 #Landscan human population size
 ## Old file path Pop<-raster("D:././layers/EnvLayers/LandScan/lspop2011.bil")
-Pop <- raster("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/layers/LandScan/lspop2011.bil")
+Pop <- raster("layers/LandScan/lspop2011.bil")
 
 #Bring in bioclim layers
-bio12<-raster("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/layers/Bioclim/bio_30s_esri/bio/bio_12/w001001x.adf")
-bio17<-raster("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/layers/Bioclim/bio_30s_esri/bio/bio_17/w001001x.adf")
-bio15<-raster("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/layers/Bioclim/bio_30s_esri/bio/bio_15/w001001x.adf")
-bio6<-raster("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/layers/Bioclim/bio_30s_esri/bio/bio_6/w001001x.adf")
-bio1<-raster("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/layers/Bioclim/bio_30s_esri/bio/bio_1/w001001x.adf")
+bio12<-raster("layers/Bioclim/bio_30s_esri/bio/bio_12/w001001x.adf")
+bio17<-raster("layers/Bioclim/bio_30s_esri/bio/bio_17/w001001x.adf")
+bio15<-raster("layers/Bioclim/bio_30s_esri/bio/bio_15/w001001x.adf")
+bio6<-raster("layers/Bioclim/bio_30s_esri/bio/bio_6/w001001x.adf")
+bio1<-raster("layers/Bioclim/bio_30s_esri/bio/bio_1/w001001x.adf")
 
 ##load in the points. 
 #load shapefile
-pts <- readShapePoints("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/Cleaned data/Compiled without nest points.shp")
+pts <- readShapePoints("Cleaned data/Compiled without nest points.shp")
 
 #If you have XY coordinates, just use SpatialPoints
 
