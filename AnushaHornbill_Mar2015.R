@@ -26,11 +26,11 @@ Anthr<-raster("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/la
 Pop <- raster("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/layers/LandScan/lspop2011.bil")
 
 #Bring in bioclim layers
-bio12<-raster("E:/layers/Bioclim/bio_30s_esri/bio/bio_12/w001001x.adf")
-bio17<-raster("E:/layers/Bioclim/bio_30s_esri/bio/bio_17/w001001x.adf")
-bio15<-raster("E:/layers/Bioclim/bio_30s_esri/bio/bio_15/w001001x.adf")
-bio6<-raster("E:/layers/Bioclim/bio_30s_esri/bio/bio_6/w001001x.adf")
-bio1<-raster("E:/layers/Bioclim/bio_30s_esri/bio/bio_1/w001001x.adf")
+bio12<-raster("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/layers/Bioclim/bio_30s_esri/bio/bio_12/w001001x.adf")
+bio17<-raster("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/layers/Bioclim/bio_30s_esri/bio/bio_17/w001001x.adf")
+bio15<-raster("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/layers/Bioclim/bio_30s_esri/bio/bio_15/w001001x.adf")
+bio6<-raster("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/layers/Bioclim/bio_30s_esri/bio/bio_6/w001001x.adf")
+bio1<-raster("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/layers/Bioclim/bio_30s_esri/bio/bio_1/w001001x.adf")
 
 ##load in the points. 
 #load shapefile
