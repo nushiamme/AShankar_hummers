@@ -9,16 +9,16 @@ require(SDMTools)
 #read in files
 
 ## Setwd for Anusha's laptop
-wdlaptop <- setwd("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/")
-wdlaptop
+#wdlaptop <- setwd("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/")
+#wdlaptop
 
 ## Setwd for Sarah's computer
-wdsarahcomp <- setwd("C:/Users/Anusha/Desktop/Anusha_Hornbill_Files")
+wdsarahcomp <- setwd("C:/Users/Anusha/Desktop/Anusha_Hornbill_Files/")
 wdsarahcomp
 
 #Human Impact Index
 ## Old file path HII<-raster("D:././././layers/hii_global_geo_grid/hii_v2geo/w001001x.adf")
-HII <- raster("layers/hii_asia_geo_grid/hii_asia/w001001x.adf")
+HII <- raster("layers/HII/hii_asia_geo_grid/hii_asia/w001001x.adf")
 
 #Global Landcover
 ## Old file path Glob<-raster("D:././layers/EnvLayers/GLOBCOVER_L4_200901_200912_V2_3.bil")
@@ -46,10 +46,11 @@ pts <- readShapePoints("Cleaned data/Compiled without nest points.shp")
 #If you have XY coordinates, just use SpatialPoints
 
 #draw extent
-plot(bio1,ext=extent(pts)*3)
-exte <- drawExtent()
-drawExtent(show=TRUE, col="red")
-dev.off()
+exte <- c(67, 89, 5, 26)
+#plot(bio1,ext=extent(pts)*3)
+#exte <- drawExtent()
+#drawExtent(show=TRUE, col="red")
+#dev.off()
 
 #Crop the rasters by the desired spatial extent
 HII.crop <- crop(HII,exte)
@@ -66,16 +67,13 @@ bio1.crop <- crop(bio1,exte)
 rm(bio1,bio6,bio12,bio15,bio17,Pop,Anthr,Glob,HII)
 gc()
 
-
 #resample rasters at the correct extent
 HII.crop <- resample(HII.crop,bio6.crop)
 Glob.crop <- resample(Glob.crop,bio6.crop)
 Anthr.crop <- resample(Anthr.crop,bio6.crop)
 Pop.crop <- resample(Pop.crop,bio6.crop)
 
-
 gc()
-
 
 #Include which layers you want here:
 all.layers <- stack(bio15.crop,bio6.crop,bio12.crop,bio17.crop,bio1.crop,HII.crop,
