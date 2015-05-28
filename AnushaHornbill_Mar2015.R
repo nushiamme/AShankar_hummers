@@ -7,6 +7,9 @@ require(maptools)
 require(dismo)
 require(SDMTools)
 require(jpeg)
+require(ggplot2)
+require(gridExtra)
+
 #read in files
 
 ## Setwd for Anusha's laptop
@@ -164,21 +167,20 @@ eval.all <- evaluate(me.all, p=coordinates(occtest)[,1:2], a=bg, x=all.layers)
 eval.land <- evaluate(me.land, p=coordinates(occtest)[,1:2], a=bg, x=land.layers)
 
 #Ok for images, not rasters
-tiff(filename = "shp_results\\mapwithoutnests_all.tif", overwrite=TRUE)
-dev.off()
+#tiff(filename = "shp_results\\mapwithoutnests_all.tif", overwrite=TRUE)
+#dev.off()
 
 #WriteRaster- correct code
 rf <- writeRaster(r.bio, filename="shp_results\\mapwithout_bio.tif", format="GTiff", overwrite=TRUE)
 dev.off()
 
-
-#see auc scores
-c("AUC Bio", eval.bio, "AUC All", eval.all, "AUC Landuse", eval.land)
-
 #Reciever operating curve
-ebio <- plot(eval.bio,"ROC")
-eall <- plot(eval.all,"ROC")
-eland <- plot(eval.land,"ROC")
+par(mfrow=c(2,2))
+ebio <- plot(eval.bio,"ROC") + title(main = "Bio",outer=T)
+eall <- plot(eval.all,"ROC") + title(main ="All", outer=T)
+eland <- plot(eval.land,"ROC") + title(main ="Land", outer=T)
+
+
 
 #see model evaluation
 
