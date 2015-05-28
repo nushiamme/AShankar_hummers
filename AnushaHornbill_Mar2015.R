@@ -121,14 +121,14 @@ r.all <- predict(me.all, all.layers, progress='window')
 r.land <- predict(me.land, land.layers, progress='window')
 
 #write rasters to file"
-writeRaster(r.bio,"C:\\Users\\Anusha\\Desktop\\Anusha_Hornbill_Files\\shp_results\\SuitabilityBioclim.tif",overwrite=TRUE)
-writeRaster(r.all,"C:\\Users\\Anusha\\Desktop\\Anusha_Hornbill_Files\\shp_results\\SuitabilityAlllayers.tif",overwrite=TRUE)
-writeRaster(r.land, "C:\\Users\\Anusha\\Desktop\\Anusha_Hornbill_Files\\shp_results\\SuitabilityLandlayers.tif",overwrite=TRUE)
+writeRaster(r.bio,"shp_results\\SuitabilityBioclim.tif",overwrite=TRUE)
+writeRaster(r.all,"shp_results\\SuitabilityAlllayers.tif",overwrite=TRUE)
+writeRaster(r.land, "shp_results\\SuitabilityLandlayers.tif",overwrite=TRUE)
 
 #view the outputs
 
 #variable contributions
-jpeg("C:\\Users\\Anusha\\Desktop\\Anusha_Hornbill_Files\\shp_results\\variablecontribution_bioclim2.jpeg",res=300)
+jpeg("shp_results\\variablecontribution_bioclim2.jpeg",res=300)
 plot(me.bio)
 dev.off()
 
@@ -159,22 +159,26 @@ occtest <- pts[fold == 1, ]
 occtrain <- pts[fold != 1, ]
 
 #This will take a second
-e1 = evaluate(me.bio, p=coordinates(occtest)[,1:2], a=bg, x=bio.layers)
+eval.bio <-  evaluate(me.bio, p=coordinates(occtest)[,1:2], a=bg, x=bio.layers)
+eval.all <- evaluate(me.all, p=coordinates(occtest)[,1:2], a=bg, x=all.layers)
+eval.land <- evaluate(me.land, p=coordinates(occtest)[,1:2], a=bg, x=land.layers)
 
 #Ok for images, not rasters
-tiff(filename = "C:\\Users\\Jorge\\Desktop\\shp\\mapwithoutnests_all.tif", overwrite=TRUE)
+tiff(filename = "shp_results\\mapwithoutnests_all.tif", overwrite=TRUE)
 dev.off()
 
 #WriteRaster- correct code
-rf <- writeRaster(r.bio, filename="C:\\Users\\Jorge\\Desktop\\shp\\mapwithout_bio.tif", format="GTiff", overwrite=TRUE)
+rf <- writeRaster(r.bio, filename="shp_results\\mapwithout_bio.tif", format="GTiff", overwrite=TRUE)
 dev.off()
 
 
-#see auc score
-e1
+#see auc scores
+c("AUC Bio", eval.bio, "AUC All", eval.all, "AUC Landuse", eval.land)
 
 #Reciever operating curve
-plot(e1,"ROC")
+ebio <- plot(eval.bio,"ROC")
+eall <- plot(eval.all,"ROC")
+eland <- plot(eval.land,"ROC")
 
 #see model evaluation
 
