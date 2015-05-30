@@ -179,10 +179,31 @@ par(mfrow=c(2,2))
 ebio <- plot(eval.bio,"ROC") + title(main = "Bio",outer=T)
 eall <- plot(eval.all,"ROC") + title(main ="All", outer=T)
 eland <- plot(eval.land,"ROC") + title(main ="Land", outer=T)
+dev.off()
 
+## Get proportion of map suitable
 
+## For Bioclim-only model
+plot(r.bio)
+bio.suit <- length(r.bio[r.bio >= 0.6])
+tot.bio.suit <- length(r.bio[r.bio >= 0.01])
+prop.bio <- bio.suit/tot.bio.suit
+prop.bio
 
-#see model evaluation
+## For all-model
+plot(r.all)
+all.suit <- length(r.all[r.all >= 0.6])
+tot.all.suit <- length(r.all[r.all >= 0.01])
+prop.all <- all.suit/tot.all.suit
+prop.all
 
+## For land-model
+plot(r.land)
+land.suit <- length(r.land[r.land >= 0.6])
+tot.land.suit <- length(r.land[r.land >= 0.01])
+prop.land <- land.suit/tot.land.suit
+prop.land
 
-#save to file
+print(c("Bioclim-only model", "AUC", ebio, "Proportion suitable bioclim", prop.bio,
+      "Bio+land model", "AUC", eall, "Proportion suitable all", prop.all,
+      "Landuse-only model", "AUC", eland, "Proportion suitable land", prop.land))
