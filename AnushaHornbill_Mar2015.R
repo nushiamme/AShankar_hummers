@@ -121,17 +121,24 @@ me.landNest <- maxent(land.layers, coordinates(ptsWnest)[,1:2])
 #predict data
 # predict to entire dataset
 r.bio <- predict(me.bio, bio.layers, progress='window') 
+r.bioNest <- predict(me.bioNest, bio.layers, progress='window')
 
 #predict to all layers
 r.all <- predict(me.all, all.layers, progress='window') 
+r.allNest <- predict(me.allNest, all.layers, progress='window') 
 
 #predict to landuse layers
 r.land <- predict(me.land, land.layers, progress='window')
+r.landNest <- predict(me.landNest, land.layers, progress='window')
 
 #write rasters to file"
 writeRaster(r.bio,"shp_results\\SuitabilityBioclim.tif",overwrite=TRUE)
 writeRaster(r.all,"shp_results\\SuitabilityAlllayers.tif",overwrite=TRUE)
 writeRaster(r.land, "shp_results\\SuitabilityLandlayers.tif",overwrite=TRUE)
+
+writeRaster(r.bioNest,"shp_results\\SuitabilityBioclimNest.tif",overwrite=TRUE)
+writeRaster(r.allNest,"shp_results\\SuitabilityAlllayersNest.tif",overwrite=TRUE)
+writeRaster(r.landNest, "shp_results\\SuitabilityLandlayersNest.tif",overwrite=TRUE)
 
 #view the outputs
 
@@ -158,8 +165,6 @@ bg <- randomPoints(bio.layers, 500)
 
 points(bg,"red")
 
-#evaluate model performance
-
 #withold points for testing
 
 fold <- kfold(pts, k=5)
@@ -170,6 +175,12 @@ occtrain <- pts[fold != 1, ]
 eval.bio <-  evaluate(me.bio, p=coordinates(occtest)[,1:2], a=bg, x=bio.layers)
 eval.all <- evaluate(me.all, p=coordinates(occtest)[,1:2], a=bg, x=all.layers)
 eval.land <- evaluate(me.land, p=coordinates(occtest)[,1:2], a=bg, x=land.layers)
+
+#With nest points included
+eval.bioNest <-  evaluate(me.bioNest, p=coordinates(occtest)[,1:2], a=bg, x=bio.layers)
+eval.allNest <- evaluate(me.allNest, p=coordinates(occtest)[,1:2], a=bg, x=all.layers)
+eval.landNest <- evaluate(me.landNest, p=coordinates(occtest)[,1:2], a=bg, x=land.layers)
+
 
 #Ok for images, not rasters
 #tiff(filename = "shp_results\\mapwithoutnests_all.tif", overwrite=TRUE)
