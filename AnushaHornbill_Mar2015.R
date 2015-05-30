@@ -46,6 +46,7 @@ bio1<-raster("layers/Bioclim/bio_30s_esri/bio/bio_1/w001001x.adf")
 ##load in the points. 
 #load shapefile
 pts <- readShapePoints("Cleaned data/Compiled without nest points.shp")
+ptsWnest <- readShapePoints("with nests/Compiled2.shp")
 
 #If you have XY coordinates, just use SpatialPoints
 
@@ -108,11 +109,15 @@ gc()
 #the input for maxent, just wants the coordinates, which are in the first two columns
 #for all layers
 me.all <- maxent(all.layers, coordinates(pts)[,1:2],factors='Glob')
+me.allNest <- maxent(all.layers, coordinates(ptsWnest)[,1:2],factors='Glob')
 
 #for bioclim layers only
 me.bio <- maxent(bio.layers, coordinates(pts)[,1:2])
+me.bioNest <- maxent(bio.layers, coordinates(ptsWnest)[,1:2])
 
 me.land <- maxent(land.layers, coordinates(pts)[,1:2])
+me.landNest <- maxent(land.layers, coordinates(ptsWnest)[,1:2])
+
 #predict data
 # predict to entire dataset
 r.bio <- predict(me.bio, bio.layers, progress='window') 
