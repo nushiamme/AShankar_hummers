@@ -195,9 +195,12 @@ dev.off()
 #Reciever operating curve
 jpeg("Model evals without nests.jpg", width = 6, height = 6,units = "in", res=500)
 par(mfrow=c(2,2))
-ebio <- plot(eval.bio,"ROC") + title(main = "Bio",outer=T)
-eall <- plot(eval.all,"ROC") + title(main ="All", outer=T)
-eland <- plot(eval.land,"ROC") + title(main ="Land", outer=T)
+ebio <- plot(eval.bio, "ROC")
+legend("bottomright", "Bio",bty = "n")
+eall <- plot(eval.all,"ROC")
+legend("bottomright", "All",bty = "n")
+eland <- plot(eval.land,"ROC")
+legend("bottomright", "Land",bty = "n")
 dev.off()
 
 ## Get proportion of map suitable
