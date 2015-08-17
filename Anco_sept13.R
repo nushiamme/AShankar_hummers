@@ -1,5 +1,5 @@
 ## Anusha Hornbill nest data
-# Updated : December 4th, 2013
+# Updated : May 15, 2015
 
 ## Read in packages
 library(ggplot2)
@@ -25,10 +25,10 @@ setwd("C://Users//ANUSHA//SkyDrive//Hornbills")
 ## Read in data
 #anco2 <- read.csv("Ancodata_Sept2013.csv")
 anco <- read.csv("Ancodata_edit.csv")
-# Read in ebird data!
+## Read in ebird data!
 ebird <- read.csv("ebird2_dec13.csv")
-# Ebird data used for poster
-ebird_old <- read.csv("ebird_old.csv")
+## Ebird data used for poster
+# ebird_old <- read.csv("ebird_old.csv")
 
 ## Cleaning and aggregating data
 

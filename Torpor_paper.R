@@ -2,6 +2,7 @@
 ## Torpor paper, A. Shankar, R. Schroeder et al.
 library(ggplot2)
 library(reshape)
+library(gridExtra)
 
 ## setwd and read in file
 setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Arizona Torpor")

@@ -1,6 +1,7 @@
 #SDM extractions and data manipulations for Anusha
 
 #January 3rd 2013
+## Modified June 1, 2015
 
 require(raster)
 require(maptools)
@@ -13,12 +14,12 @@ require(gridExtra)
 #read in files
 
 ## Setwd for Anusha's laptop
-#wdlaptop <- setwd("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/")
-#wdlaptop
+wdlaptop <- setwd("E:/Toshiba_Desktop/Hornbill Paper in Stony Brook/Landcoverdata/")
+wdlaptop
 
 ## Setwd for Sarah's computer
-wdsarahcomp <- setwd("C:/Users/Anusha/Desktop/Anusha_Hornbill_Files/")
-wdsarahcomp
+#wdsarahcomp <- setwd("C:/Users/Anusha/Desktop/Anusha_Hornbill_Files/")
+#wdsarahcomp
 
 #Human Impact Index
 ## Old file path HII<-raster("D:././././layers/hii_global_geo_grid/hii_v2geo/w001001x.adf")
