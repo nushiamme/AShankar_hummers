@@ -172,6 +172,8 @@ fold <- kfold(pts, k=5)
 occtest <- pts[fold == 1, ]
 occtrain <- pts[fold != 1, ]
 
+### Make greyscale maps
+
 #This will take a second
 eval.bio <-  evaluate(me.bio, p=coordinates(occtest)[,1:2], a=bg, x=bio.layers)
 eval.all <- evaluate(me.all, p=coordinates(occtest)[,1:2], a=bg, x=all.layers)
@@ -192,10 +194,14 @@ rf <- writeRaster(r.bio, filename="shp_results\\mapwithout_bio.tif", format="GTi
 dev.off()
 
 #Reciever operating curve
+jpeg("Model evals without nests.jpg", width = 6, height = 6,units = "in", res=500)
 par(mfrow=c(2,2))
-ebio <- plot(eval.bio,"ROC") + title(main = "Bio",outer=T)
-eall <- plot(eval.all,"ROC") + title(main ="All", outer=T)
-eland <- plot(eval.land,"ROC") + title(main ="Land", outer=T)
+ebio <- plot(eval.bio, "ROC")
+legend("bottomright", "Bio",bty = "n")
+eall <- plot(eval.all,"ROC")
+legend("bottomright", "All",bty = "n")
+eland <- plot(eval.land,"ROC")
+legend("bottomright", "Land",bty = "n")
 dev.off()
 
 ## Get proportion of map suitable
@@ -206,6 +212,8 @@ bio.suit <- length(r.bio[r.bio >= 0.6])
 tot.bio.suit <- length(r.bio[r.bio >= 0.01])
 prop.bio <- bio.suit/tot.bio.suit
 prop.bio
+
+###### TODO Either justify 0.6 as expert opinion or choose minimum presence value, or choose 95% minimum presence
 
 ## For all-model
 plot(r.all)
@@ -224,3 +232,4 @@ prop.land
 print(c("Bioclim-only model", "AUC", ebio, "Proportion suitable bioclim", prop.bio,
       "Bio+land model", "AUC", eall, "Proportion suitable all", prop.all,
       "Landuse-only model", "AUC", eland, "Proportion suitable land", prop.land))
+
