@@ -5,7 +5,7 @@ library(reshape)
 library(gridExtra)
 
 ## setwd and read in file
-setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Arizona Torpor")
+setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Torpor\\Arizona Torpor")
 torpor <- read.csv("Torpor_summary.csv")
 
 ## Rename columns, remove spaces
