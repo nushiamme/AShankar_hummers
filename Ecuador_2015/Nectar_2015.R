@@ -13,6 +13,7 @@ nectar.orgr <- melt(orgr, id.vars = c("TimeSlot", "Day", "Month"), measure.vars 
 
 BRIX.orgr <- melt(orgr, id.vars = c("TimeSlot", "Day", "Month"), measure.vars = "BRIX", na.omit=T)
 
+
 plot.nec.orgr <- ggplot(nectar.orgr, aes(TimeSlot, value)) + theme_bw() + geom_boxplot() + 
   ylab(label = "Nectar length") + scale_x_discrete(limits=c("6 - 8 am", "9 - 11 am", "12 - 2 pm",
                                                             "3 - 5 pm", "6 - 7 pm"))
