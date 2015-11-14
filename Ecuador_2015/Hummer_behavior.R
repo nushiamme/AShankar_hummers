@@ -21,9 +21,9 @@ m.beh_aug <- melt(beh_aug, id.vars = c("Observer", "Time", "Species", "Month"),
 m.beh_mainsp <- m.beh[m.beh$Species==c("AGCU","COIR","METY","HEVI"),]
 
 ##Checking old file
-Total_FL_aug <- sum(as.numeric(m.beh_aug$value[m.beh_aug$variable=="FL"])) # adding total spent flying
-Total_Hov_aug <- sum(as.numeric(m.beh_aug$value[m.beh_aug$variable=="Hov"]))
-Total_perch_aug <- sum(as.numeric(m.beh_aug$value[m.beh_aug$variable=="Perch"]))
+# Total_FL_aug <- sum(as.numeric(m.beh_aug$value[m.beh_aug$variable=="FL"])) # adding total spent flying
+# Total_Hov_aug <- sum(as.numeric(m.beh_aug$value[m.beh_aug$variable=="Hov"]))
+# Total_perch_aug <- sum(as.numeric(m.beh_aug$value[m.beh_aug$variable=="Perch"]))
 
 Total_FL <- sum(as.numeric(m.beh$value[m.beh$variable=="FL"])) # adding total spent flying
 Total_Hov <- sum(as.numeric(m.beh$value[m.beh$variable=="Hov"]))
@@ -44,4 +44,5 @@ length(Hov_not_1)
 
 ## Plots
 beh_by_month <- ggplot(m.beh, aes(variable, value)) + geom_bar(stat="identity") + theme_bw() +
-  facet_grid(~Month)
+  facet_grid(~Month) + xlab("Behavior") + ylab("Time (seconds)")
+beh_by_month
