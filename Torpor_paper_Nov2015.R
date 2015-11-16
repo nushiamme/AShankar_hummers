@@ -23,6 +23,7 @@ give.n <- function(Species){
   return(c(y = mean(Species), label = length(Species)))
 }
 
+## Plot for Nighttime energy expenditure, by species
 energy_plot <- ggplot(torpor, aes(Species, NEE_kJ)) +  theme_bw() +
   geom_boxplot() + facet_grid(.~Site_new, scale="free_x", space="free") + 
   ylab("Nighttime energy expenditure (kJ)") + 
@@ -32,6 +33,7 @@ energy_plot <- ggplot(torpor, aes(Species, NEE_kJ)) +  theme_bw() +
   stat_summary(fun.data = give.n, geom = "text")
 energy_plot
 
+## Plot for hours spent torpid
 hours_plot <- ggplot(torpor, aes(Species, Hours_torpid)) +  theme_bw() +
   geom_boxplot() + facet_grid(.~Site_new, scale="free_x", space="free") + 
   ylab("Hours Torpid") + 
@@ -41,7 +43,19 @@ hours_plot <- ggplot(torpor, aes(Species, Hours_torpid)) +  theme_bw() +
 hours_plot
 grid.arrange(energy_plot, hours_plot, nrow=1, ncol=2)
 
-temp <- ggplot(torpor, aes(Daytime_Ta_mean_C,Day)) + geom_point() + theme_bw()
+## NEE plot by temperature, facet by species and color by site
+ggplot(transform(torpor$Tc_mean_C, Discrete=cut(torpor$Tc_mean_C, seq(0,35,5), include.lowest=T)))
+energy_temp <- ggplot(torpor, aes(Tc_mean_C, NEE_kJ)) +  theme_bw() +
+  geom_point() + facet_grid(.~Species,scale="free",space="free") + 
+  ylab("Nighttime energy expenditure (kJ)") + 
+  theme(axis.title.x = element_text(size=16, face="bold"),
+        axis.text.x = element_text(size=14),
+        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
+energy_temp
+
+temp <- ggplot(torpor, aes(Daytime_Ta_mean_C,Day)) + geom_point() + theme_bw() #+
+  #facet_grid(.~Month, scale="free_x", space ="free_x")
+temp
 geom_boxplot(aes(Species, Hours_torpid)) + geom_point
 
 ##To subset variables within melted data frame and plot in ggplot, 
