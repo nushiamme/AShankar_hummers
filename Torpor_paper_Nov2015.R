@@ -5,6 +5,7 @@ library(ggplot2)
 library(reshape)
 library(gridExtra)
 
+
 ## setwd and read in file
 setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
 torpor <- read.csv("Torpor_table_plot.csv")
@@ -43,19 +44,30 @@ hours_plot <- ggplot(torpor, aes(Species, Hours_torpid)) +  theme_bw() +
 hours_plot
 grid.arrange(energy_plot, hours_plot, nrow=1, ncol=2)
 
-## NEE plot by temperature, facet by species and color by site
+## NEE plot by temperature
 energy_temp <- ggplot(torpor, aes(Tc_mean_C, NEE_kJ)) +  theme_bw() +
-  geom_point(aes(col=Species)) + #facet_grid(Site~Species,space="free", scale="free") + 
+  geom_point(aes(col=Species), size=3) + scale_color_brewer(palette = "Set1") +
+  facet_grid(.~Site_new,space="free") + 
   ylab("Nighttime energy expenditure (kJ)") + 
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
 energy_temp
 
+## NEE plot by temperature, facet by site and color by species
+energy_temp2 <- ggplot(torpor, aes(Tc_mean_C, NEE_kJ)) +  theme_bw() +
+  geom_point(aes(col=Species), size=3) + scale_color_brewer(palette = "Set1") +
+  #facet_grid(.~Site,space="free") + 
+  ylab("Nighttime energy expenditure (kJ)") + 
+  theme(axis.title.x = element_text(size=16, face="bold"),
+        axis.text.x = element_text(size=14),
+        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
+energy_temp2
+
 temp <- ggplot(torpor, aes(Daytime_Ta_mean_C,Day)) + geom_point() + theme_bw() #+
   #facet_grid(.~Month, scale="free_x", space ="free_x")
 temp
-geom_boxplot(aes(Species, Hours_torpid)) + geom_point
+geom_boxplot(aes(Species, Hours_torpid)) + geom_point()
 
 ##To subset variables within melted data frame and plot in ggplot, 
 ##add to ggplot(x=,*,subset=.(variable=="NEE_kJ")*)
