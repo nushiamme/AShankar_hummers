@@ -16,19 +16,47 @@ m.tor <- melt(torpor, id.vars = c("Site","Species","Day","Month","Year","Daytime
 ##"Min_EE_torpid","Min_EE_normo",
 ##m.NEE <- m.tor[m.tor$variable=="NEE_kJ",]
 
-energy_plot <- ggplot(torpor, aes(Species, NEE_kJ)) + theme_bw() + geom_boxplot() + 
-  facet_grid(Site~.) + geom_line(aes(m.tor[m.tor$variable=="Hours_torpid",])) +
-  #scale_size(guide = 'none') + 
-  #geom_point(aes(col=Site, size=2)) + scale_shape_identity() + scale_color_manual(values = c("grey60", "black"), guide = FALSE) + 
+# Line to arrange Site facets in sensible order
+torpor$Site_new = factor(torpor$Site, levels=c('HC','SC','SWRS','MQ','SL'))
+
+give.n <- function(Species){
+  return(c(y = mean(Species), label = length(Species)))
+}
+
+energy_plot <- ggplot(torpor, aes(Species, NEE_kJ)) +  theme_bw() +
+  geom_boxplot() + facet_grid(.~Site_new, scale="free_x", space="free") + 
   ylab("Nighttime energy expenditure (kJ)") + 
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
-        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14))
+        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) +
+  stat_summary(fun.data = give.n, geom = "text")
 energy_plot
-hours_torpor_plot <- ggplot(tor, aes(Site, Hours_torpor)) + theme_bw() + geom_boxplot() +
-  geom_point(aes(col=Site, size=2)) + scale_size(guide = 'none') + scale_shape_identity() +
-  scale_color_manual(values = c("grey60", "black"), guide = FALSE) + 
+
+hours_plot <- ggplot(torpor, aes(Species, Hours_torpid)) +  theme_bw() +
+  geom_boxplot() + facet_grid(.~Site_new, scale="free_x", space="free") + 
+  ylab("Hours Torpid") + 
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14))
-grid.arrange(energy_plot, hours_torpor_plot, nrow=1, ncol=2)
+hours_plot
+grid.arrange(energy_plot, hours_plot, nrow=1, ncol=2)
+
+temp <- ggplot(torpor, aes(Daytime_Ta_mean_C,Day)) + geom_point() + theme_bw()
+geom_boxplot(aes(Species, Hours_torpid)) + geom_point
+
+##To subset variables within melted data frame and plot in ggplot, 
+##add to ggplot(x=,*,subset=.(variable=="NEE_kJ")*)
+
+##+ geom_point(aes(y=Daytime_Ta_mean_C, col=Daytime_Ta_mean_C))
+#scale_size(guide = 'none') + 
+#geom_point(aes(col=Site, size=2)) + scale_shape_identity() + 
+#scale_color_manual(values = c("grey60", "black"), guide = FALSE) + 
+  
+hours_torpor_plot <- ggplot(torpor, aes(Site, NEE_kJ)) + theme_bw() + geom_boxplot() +
+  geom_point(aes(col=Site, size=2)) + #scale_size(guide = 'none') + scale_shape_identity() +
+  #scale_color_manual(values = c("grey60", "black"), guide = FALSE) + 
+  theme(axis.title.x = element_text(size=16, face="bold"),
+        axis.text.x = element_text(size=14),
+        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14))
+hours_torpor_plot
+
