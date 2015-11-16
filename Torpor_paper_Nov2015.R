@@ -65,8 +65,8 @@ energy_temp2 <- ggplot(torpor, aes(Tc_mean_C, NEE_kJ)) +  theme_bw() +
 energy_temp2
 
 ## Min normo EE by Tc
-min_normo_EE <- ggplot(torpor, aes(Tc_mean_C, Min_EE_normo)) +  theme_bw() +
-  geom_point(aes(col=Species), size=3) +
+min_normo_EE <- ggplot(torpor, aes(Tc_mean_C, Min_EE_normo)) +  theme_bw() + 
+  geom_point(aes(col=Species), size=3) + theme(legend.position="none") +
   scale_color_brewer(palette = "Set1") +
   #facet_grid(.~Site,space="free") + 
   ylab("Min EE normothermic") + 
@@ -76,7 +76,7 @@ min_normo_EE <- ggplot(torpor, aes(Tc_mean_C, Min_EE_normo)) +  theme_bw() +
 min_normo_EE
 
 ## Min torpid EE by Tc
-min_torpid_EE <- ggplot(torpor, aes(Tc_mean_C, Min_EE_torpid)) +  theme_bw() + coord_flip() +
+min_torpid_EE <- ggplot(torpor, aes(Tc_mean_C, Min_EE_torpid)) +  theme_bw() + 
   geom_point(aes(col=Species), size=3) + scale_color_brewer(palette = "Set1") +
   #facet_grid(.~Site,space="free") + 
   ylab("Min EE torpid") + 
@@ -85,8 +85,8 @@ min_torpid_EE <- ggplot(torpor, aes(Tc_mean_C, Min_EE_torpid)) +  theme_bw() + c
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
 min_torpid_EE
 grid.arrange(min_normo_EE, min_torpid_EE, nrow=2, ncol=1)
-temp <- ggplot(torpor, aes(Daytime_Ta_mean_C,Day)) + geom_point() + theme_bw() #+
-  #facet_grid(.~Month, scale="free_x", space ="free_x")
+
+temp <- ggplot(torpor, aes(Daytime_Ta_mean_C,Day)) + geom_point() + theme_bw()
 temp
 geom_boxplot(aes(Species, Hours_torpid)) + geom_point()
 
