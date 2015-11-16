@@ -44,9 +44,8 @@ hours_plot
 grid.arrange(energy_plot, hours_plot, nrow=1, ncol=2)
 
 ## NEE plot by temperature, facet by species and color by site
-ggplot(transform(torpor$Tc_mean_C, Discrete=cut(torpor$Tc_mean_C, seq(0,35,5), include.lowest=T)))
 energy_temp <- ggplot(torpor, aes(Tc_mean_C, NEE_kJ)) +  theme_bw() +
-  geom_point() + facet_grid(.~Species,scale="free",space="free") + 
+  geom_point(aes(col=Species)) + #facet_grid(Site~Species,space="free", scale="free") + 
   ylab("Nighttime energy expenditure (kJ)") + 
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
