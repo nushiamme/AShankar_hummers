@@ -54,7 +54,7 @@ energy_temp <- ggplot(torpor, aes(Tc_mean_C, NEE_kJ)) +  theme_bw() +
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
 energy_temp
 
-## NEE plot by temperature, facet by site and color by species
+## NEE plot by chamber temperature, facet by site and color by species
 energy_temp2 <- ggplot(torpor, aes(Tc_mean_C, NEE_kJ)) +  theme_bw() +
   geom_point(aes(col=Species), size=3) + scale_color_brewer(palette = "Set1") +
   #facet_grid(.~Site,space="free") + 
@@ -64,6 +64,27 @@ energy_temp2 <- ggplot(torpor, aes(Tc_mean_C, NEE_kJ)) +  theme_bw() +
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
 energy_temp2
 
+## Min normo EE by Tc
+min_normo_EE <- ggplot(torpor, aes(Tc_mean_C, Min_EE_normo)) +  theme_bw() +
+  geom_point(aes(col=Species), size=3) +
+  scale_color_brewer(palette = "Set1") +
+  #facet_grid(.~Site,space="free") + 
+  ylab("Min EE normothermic") + 
+  theme(axis.title.x = element_text(size=16, face="bold"),
+        axis.text.x = element_text(size=14),
+        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
+min_normo_EE
+
+## Min torpid EE by Tc
+min_torpid_EE <- ggplot(torpor, aes(Tc_mean_C, Min_EE_torpid)) +  theme_bw() + coord_flip() +
+  geom_point(aes(col=Species), size=3) + scale_color_brewer(palette = "Set1") +
+  #facet_grid(.~Site,space="free") + 
+  ylab("Min EE torpid") + 
+  theme(axis.title.x = element_text(size=16, face="bold"),
+        axis.text.x = element_text(size=14),
+        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
+min_torpid_EE
+grid.arrange(min_normo_EE, min_torpid_EE, nrow=2, ncol=1)
 temp <- ggplot(torpor, aes(Daytime_Ta_mean_C,Day)) + geom_point() + theme_bw() #+
   #facet_grid(.~Month, scale="free_x", space ="free_x")
 temp
@@ -71,6 +92,8 @@ geom_boxplot(aes(Species, Hours_torpid)) + geom_point()
 
 ##To subset variables within melted data frame and plot in ggplot, 
 ##add to ggplot(x=,*,subset=.(variable=="NEE_kJ")*)
+
+#geom_point(aes(Tc_mean_C, Min_EE_torpid), col=Species) + scale_shape(solid=FALSE) +
 
 ##+ geom_point(aes(y=Daytime_Ta_mean_C, col=Daytime_Ta_mean_C))
 #scale_size(guide = 'none') + 
