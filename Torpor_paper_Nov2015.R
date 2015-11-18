@@ -11,8 +11,8 @@ setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
 torpor <- read.csv("Torpor_table_plot2.csv")
 names(torpor)
 
-m.tor <- melt(torpor, id.vars = c("Site","Species","Day","Month","Year","Daytime_Ta_mean_C"), 
-              measure.vars = c("NEE_kJ","Hours_torpid"))
+#m.tor <- melt(torpor, id.vars = c("Site","Species","Day","Month","Year","Daytime_Ta_mean_C"), 
+#               measure.vars = c("NEE_kJ","Hours_torpid"))
 ##"Time_of_entry","Hours_torpid","Hours_normo","Nighttime_Ta_mean_C","Tc_mean_C",
 ##"Min_EE_torpid","Min_EE_normo",
 ##m.NEE <- m.tor[m.tor$variable=="NEE_kJ",]
@@ -42,21 +42,27 @@ hours_plot
 grid.arrange(energy_plot, hours_plot, nrow=1, ncol=2)
 
 ## NEE plot by temperature
-energy_temp <- ggplot(torpor, aes(Tc_mean_C, NEE_kJ)) +  theme_bw() +
-  geom_point(aes(col=Species), size=3) + scale_color_brewer(palette = "Set1") +
-  facet_grid(.~Site_new,space="free") + 
+energy_temp <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_kJ)) + 
+  geom_point(aes(shape = factor(Species)), size=4) + 
+  scale_shape_manual(values=1:nlevels(torpor$Species)) +
+  labs(shape='Species') +
+  scale_color_brewer(palette = "Set1") + theme_bw() + 
+    geom_text(aes(label=Torpid_not, hjust=2, col=factor(Torpid_not)), size=5) +
+  #facet_grid(.~Site_new,space="free") +
   ylab("Nighttime energy expenditure (kJ)") + 
+  xlab("Chamber Temperature deg. C") +
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
 energy_temp
 
 ## NEE plot by chamber temperature, facet by site and color by species
-energy_temp2 <- ggplot(torpor, aes(Tc_mean_C, NEE_kJ)) +  theme_bw() +
-  geom_point(aes(col=Species), size=3) + scale_color_brewer(palette = "Set1") +
-  stat_summary(fun.data = give.n, geom = "text")
-  #facet_grid(.~Site,space="free") + 
+energy_temp2 <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_kJ)) +  theme_bw() +
+  geom_point(aes(col=Species, label=Torpid_not), size=3) + scale_color_brewer(palette = "Set1") +
+  #stat_summary(fun.data = give.n, geom = "text") +
+  facet_grid(.~Site,space="free") + 
   ylab("Nighttime energy expenditure (kJ)") + 
+  xlab("Chamber Temperature deg. C") +
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
