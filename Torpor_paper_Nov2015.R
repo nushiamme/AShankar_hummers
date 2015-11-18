@@ -57,16 +57,19 @@ energy_temp <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_kJ)) +
 energy_temp
 
 ## NEE plot by chamber temperature, facet by site and color by species
-energy_temp2 <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_kJ)) +  theme_bw() +
-  geom_point(aes(col=Species, label=Torpid_not), size=3) + scale_color_brewer(palette = "Set1") +
-  #stat_summary(fun.data = give.n, geom = "text") +
-  facet_grid(.~Site,space="free") + 
+energy_temp_site <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_kJ)) + 
+  geom_point(aes(shape = factor(Species)), size=4) + 
+  scale_shape_manual(values=1:nlevels(torpor$Species)) +
+  labs(shape='Species') + xlim(-5, 35) +
+  scale_color_brewer(palette = "Set1") + theme_bw() + 
+  geom_text(aes(label=Torpid_not, hjust=2, col=factor(Torpid_not)), size=5) +
+  facet_grid(.~Site_new, scale=) +
   ylab("Nighttime energy expenditure (kJ)") + 
   xlab("Chamber Temperature deg. C") +
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
-energy_temp2
+energy_temp_site
 
 ## Min normo EE by Tc
 min_normo_EE <- ggplot(torpor, aes(Tc_mean_C, Min_EE_normo)) +  theme_bw() + 
