@@ -5,13 +5,14 @@ library(ggplot2)
 library(reshape)
 library(gridExtra)
 library(grid)
-library(maptools)
+library(wq)
+
 
 
 ## setwd and read in file
 setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
 torpor <- read.csv("Torpor_table_plot2.csv")
-names(torpor)
+#names(torpor)
 
 #m.tor <- melt(torpor, id.vars = c("Site","Species","Day","Month","Year","Daytime_Ta_mean_C"), 
 #               measure.vars = c("NEE_kJ","Hours_torpid"))
@@ -21,6 +22,19 @@ names(torpor)
 
 # Line to arrange Site facets in sensible order
 torpor$Site_new = factor(torpor$Site, levels=c('HC','SC','SWRS','MQ','SL'))
+
+## Function to arrange plots
+lay_out = function(...) {    
+  x <- list(...)
+  n <- max(sapply(x, function(x) max(x[[2]])))
+  p <- max(sapply(x, function(x) max(x[[3]])))
+  grid::pushViewport(grid::viewport(layout = grid::grid.layout(n, p)))    
+  
+  for (i in seq_len(length(x))) {
+    print(x[[i]][[1]], vp = grid::viewport(layout.pos.row = x[[i]][[2]], 
+                                           layout.pos.col = x[[i]][[3]]))
+  }
+} 
 
 ## Plot for Nighttime energy expenditure, by species
 energy_plot <- ggplot(torpor, aes(Species, NEE_kJ)) +  theme_bw() +
@@ -45,13 +59,13 @@ grid.arrange(energy_plot, hours_plot, nrow=1, ncol=2)
 
 ## NEE plot by temperature
 energy_temp <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_kJ)) + 
-  geom_point(aes(shape = factor(Species)), size=4) + 
-  scale_shape_manual(values=1:nlevels(torpor$Species)) +
-  labs(shape='Species') + theme(legend.position="right") +
+  geom_point(aes(shape = factor(Species)), size=4, show_guide=F) + 
+  scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
+  #scale_shape_manual(values=1:nlevels(torpor$Species)) +
+  labs(shape='Species') + xlim(-7, 39) +
   scale_color_brewer(palette = "Set1") + theme_bw() + 
-    geom_text(aes(label=Torpid_not, hjust=2, col=factor(Torpid_not)), size=5, show_guide=F) +
-  geom_text(aes(label = c("Normo", "Torpid"), col = factor(Torpid_not)), 
-            data.frame(x=1, y=c(-0.75, -1), show_guide=FALSE)) +
+  geom_text(aes(label=Torpid_not, hjust=2), size=5, show_guide=F,
+            fontface="bold") +
   ylab("Nighttime energy expenditure (kJ)") + 
   xlab("Chamber Temperature deg. C") +
   theme(axis.title.x = element_text(size=16, face="bold"),
@@ -62,38 +76,29 @@ energy_temp
 ## NEE plot by chamber temperature, facet by site and color by species
 energy_temp_site <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_kJ)) + 
   geom_point(aes(shape = factor(Species)), size=4) + 
-  scale_shape_manual(values=1:nlevels(torpor$Species)) +
-  labs(shape='Species') + xlim(-5, 35) +
+  scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
+  #scale_shape_manual(values=1:nlevels(torpor$Species)) +
+  labs(shape='Species') + xlim(-7, 39) +
   scale_color_brewer(palette = "Set1") + theme_bw() + 
-  geom_text(aes(label=Torpid_not, hjust=2, col=factor(Torpid_not)), size=5) +
-  facet_grid(.~Site_new, scale=) +
+  geom_text(aes(label=Torpid_not, hjust=2, fontface="bold"),size=5) +
+  facet_grid(.~Site_new) +
   ylab("Nighttime energy expenditure (kJ)") + 
   xlab("Chamber Temperature deg. C") +
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
+energy_temp_site
 
-#Making combined legend for energy-temp plots
-g_legend<-function(energy_temp){
-  tmp <- ggplot_gtable(ggplot_build(energy_temp))
-  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
-  legend <- tmp$grobs[[leg]]
-  return(legend)}
+## Plot both energy_temp plots together
+lay_out(list(energy_temp, 1, 1), 
+       list(energy_temp_site, 1, 2))
 
-mylegend<-g_legend(energy_temp)
-grid.arrange(arrangeGrob(energy_temp + theme(legend.position="none"),
-                         energy_temp_site + theme(legend.position="none"), nrow=1, ncol=2))
-
-             
-grid.arrange(arrangeGrob(p1 + theme(legend.position="none"),
-                         p2 + theme(legend.position="none"),
-                         nrow=1),
-             mylegend, nrow=2,heights=c(10, 1))
 
 ## Min normo EE by Tc
-min_normo_EE <- ggplot(torpor, aes(Tc_mean_C, Min_EE_normo)) +  theme_bw() + 
-  geom_point(aes(col=Species), size=3) + theme(legend.position="none") +
-  scale_color_brewer(palette = "Set1") +
+min_normo_EE <- ggplot(torpor, aes(as.numeric(Tc_mean_C), Min_EE_normo)) +  theme_bw() + 
+  geom_point(aes(shape = factor(Species)), size=4) + 
+  scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
+  scale_color_brewer(palette = "Set1") + xlim(-7, 35) +
   #facet_grid(.~Site,space="free") + 
   ylab("Min EE normothermic") + 
   theme(axis.title.x = element_text(size=16, face="bold"),
@@ -101,9 +106,10 @@ min_normo_EE <- ggplot(torpor, aes(Tc_mean_C, Min_EE_normo)) +  theme_bw() +
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
 min_normo_EE
 
-avg_normo_EE <- ggplot(torpor, aes(Tc_mean_C, EE_per_hour_normo)) +  theme_bw() + 
-  geom_point(aes(col=Species), size=3) + theme(legend.position="none") +
-  scale_color_brewer(palette = "Set1") +
+avg_normo_EE <- ggplot(torpor, aes(as.numeric(Tc_mean_C), EE_per_hour_normo)) +  theme_bw() + 
+  geom_point(aes(shape = factor(Species)), size=4) + 
+  scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
+  scale_color_brewer(palette = "Set1")  + xlim(-7, 35) +
   #facet_grid(.~Site,space="free") +
   ylab("Avg EE normothermic") + xlab("Tc mean (C)") +
   theme(axis.title.x = element_text(size=16, face="bold"),
