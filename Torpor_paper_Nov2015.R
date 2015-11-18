@@ -4,6 +4,8 @@
 library(ggplot2)
 library(reshape)
 library(gridExtra)
+library(grid)
+library(maptools)
 
 
 ## setwd and read in file
@@ -45,16 +47,17 @@ grid.arrange(energy_plot, hours_plot, nrow=1, ncol=2)
 energy_temp <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_kJ)) + 
   geom_point(aes(shape = factor(Species)), size=4) + 
   scale_shape_manual(values=1:nlevels(torpor$Species)) +
-  labs(shape='Species') +
+  labs(shape='Species') + theme(legend.position="right") +
   scale_color_brewer(palette = "Set1") + theme_bw() + 
-    geom_text(aes(label=Torpid_not, hjust=2, col=factor(Torpid_not)), size=5) +
-  #facet_grid(.~Site_new,space="free") +
+    geom_text(aes(label=Torpid_not, hjust=2, col=factor(Torpid_not)), size=5, show_guide=F) +
+  geom_text(aes(label = c("Normo", "Torpid"), col = factor(Torpid_not)), 
+            data.frame(x=1, y=c(-0.75, -1), show_guide=FALSE)) +
   ylab("Nighttime energy expenditure (kJ)") + 
   xlab("Chamber Temperature deg. C") +
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
-energy_temp
+energy_temp 
 
 ## NEE plot by chamber temperature, facet by site and color by species
 energy_temp_site <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_kJ)) + 
@@ -69,7 +72,23 @@ energy_temp_site <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_kJ)) +
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
-energy_temp_site
+
+#Making combined legend for energy-temp plots
+g_legend<-function(energy_temp){
+  tmp <- ggplot_gtable(ggplot_build(energy_temp))
+  leg <- which(sapply(tmp$grobs, function(x) x$name) == "guide-box")
+  legend <- tmp$grobs[[leg]]
+  return(legend)}
+
+mylegend<-g_legend(energy_temp)
+grid.arrange(arrangeGrob(energy_temp + theme(legend.position="none"),
+                         energy_temp_site + theme(legend.position="none"), nrow=1, ncol=2))
+
+             
+grid.arrange(arrangeGrob(p1 + theme(legend.position="none"),
+                         p2 + theme(legend.position="none"),
+                         nrow=1),
+             mylegend, nrow=2,heights=c(10, 1))
 
 ## Min normo EE by Tc
 min_normo_EE <- ggplot(torpor, aes(Tc_mean_C, Min_EE_normo)) +  theme_bw() + 
