@@ -62,7 +62,7 @@ energy_temp <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_kJ)) +
   geom_point(aes(shape = factor(Species)), size=4, show_guide=F) + 
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
   #scale_shape_manual(values=1:nlevels(torpor$Species)) +
-  labs(shape='Species') + xlim(-7, 39) +
+  labs(shape='Species') + xlim(-2, 45) +
   scale_color_brewer(palette = "Set1") + theme_bw() + 
   geom_text(aes(label=Torpid_not, hjust=2), size=5, show_guide=F,
             fontface="bold") +
@@ -78,9 +78,9 @@ energy_temp_site <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_kJ)) +
   geom_point(aes(shape = factor(Species)), size=4) + 
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
   #scale_shape_manual(values=1:nlevels(torpor$Species)) +
-  labs(shape='Species') + xlim(-7, 39) +
+  labs(shape='Species') + xlim(-7, 45) +
   scale_color_brewer(palette = "Set1") + theme_bw() + 
-  geom_text(aes(label=Torpid_not, hjust=2, fontface="bold"),size=5) +
+  geom_text(aes(label=Torpid_not, hjust=1.75, fontface="bold"),size=5) +
   facet_grid(.~Site_new) +
   ylab("Nighttime energy expenditure (kJ)") + 
   xlab("Chamber Temperature deg. C") +
