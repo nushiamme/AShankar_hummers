@@ -67,6 +67,19 @@ hours_plot <- ggplot(torpor, aes(Species, Hours_torpid)) +  theme_bw() +
 hours_plot
 grid.arrange(energy_plot, hours_plot, nrow=1, ncol=2)
 
+## Plot for Mass-corrected Nighttime energy expenditure, by species
+energyM_plot <- ggplot(torpor, aes(Species, NEE_MassCorrected)) +  theme_bw() +
+  geom_boxplot(aes(col=Species)) + facet_grid(.~Site_new, scale="free_x", space="free") + 
+  ylab("Nighttime energy expenditure per 2/3 gram (kJ/g)") + theme(legend.position="none") +
+  theme(axis.title.x = element_text(size=16, face="bold"),
+        axis.text.x = element_text(size=14),
+        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) +
+  stat_summary(fun.data = give.n, geom = "text")
+energyM_plot
+
+## Comparing energy plots with and without mass-correction
+grid.arrange(energy_plot, energyM_plot, nrow=1, ncol=2)
+
 ## NEE plot by temperature
 energy_temp <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_kJ)) + 
   geom_point(aes(shape = factor(Species)), size=4, show_guide=F) + 
@@ -103,6 +116,43 @@ energy_temp_site
 lay_out(list(energy_temp, 1, 1), 
        list(energy_temp_site, 1, 2))
 
+## Plot for mass-corrected NEE by temperature
+energyM_temp <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_MassCorrected)) + 
+  geom_point(aes(shape = factor(Species)), size=4, show_guide=F) + 
+  scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
+  #scale_shape_manual(values=1:nlevels(torpor$Species)) +
+  labs(shape='Species') + xlim(-2, 45) +
+  scale_color_brewer(palette = "Set1") + theme_bw() + 
+  geom_text(aes(label=Torpid_not, hjust=2), size=5, show_guide=F,
+            fontface="bold") +
+  ylab("Nighttime energy expenditure per 2/3g (kJ/g)") + 
+  xlab("Chamber Temperature deg. C") +
+  theme(axis.title.x = element_text(size=16, face="bold"),
+        axis.text.x = element_text(size=14),
+        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
+energyM_temp 
+
+## NEE plot by chamber temperature, facet by site and color by species
+energyM_temp_site <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_MassCorrected)) + 
+  geom_point(aes(shape = factor(Species)), size=4) + 
+  scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
+  #scale_shape_manual(values=1:nlevels(torpor$Species)) +
+  labs(shape='Species') + xlim(-7, 45) +
+  scale_color_brewer(palette = "Set1") + theme_bw() + 
+  geom_text(aes(label=Torpid_not, hjust=1.75, fontface="bold"),size=5) +
+  facet_grid(.~Site_new) +
+  ylab("Nighttime energy expenditure (kJ)") + 
+  xlab("Chamber Temperature deg. C") +
+  theme(axis.title.x = element_text(size=16, face="bold"),
+        axis.text.x = element_text(size=14),
+        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
+energyM_temp_site
+
+## Plot both energy_temp with and without mass-correction together. i.e. 4 plots
+lay_out(list(energy_temp, 1, 1), 
+        list(energy_temp_site, 1, 2),
+        list(energyM_temp, 2, 1),
+        list(energyM_temp_site, 2, 2))
 
 ## Min normo EE by Tc
 min_normo_EE <- ggplot(torpor, aes(as.numeric(Tc_mean_C), Min_EE_normo)) +  theme_bw() + 
