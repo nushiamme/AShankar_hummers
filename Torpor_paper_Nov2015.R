@@ -14,11 +14,21 @@ setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
 torpor <- read.csv("Torpor_table_plot2.csv")
 #names(torpor)
 
+## Melting file
 #m.tor <- melt(torpor, id.vars = c("Site","Species","Day","Month","Year","Daytime_Ta_mean_C"), 
 #               measure.vars = c("NEE_kJ","Hours_torpid"))
 ##"Time_of_entry","Hours_torpid","Hours_normo","Nighttime_Ta_mean_C","Tc_mean_C",
 ##"Min_EE_torpid","Min_EE_normo",
 ##m.NEE <- m.tor[m.tor$variable=="NEE_kJ",]
+
+## Adding column dividing NEE by 2/3*Mass to correct for mass with allometric scaling
+torpor$NEE_MassCorrected<- torpor$NEE_kJ/((2/3)*torpor$Mass)
+
+## Adding columns to correct for mass in Avg EE normo, Min EE normo, torpid, etc.
+torpor$AvgEE_normo_MassCorrected<- torpor$EE_per_hour_normo/((2/3)*torpor$Mass)
+torpor$MinEE_normo_MassCorrected<- torpor$Min_EE_normo/((2/3)*torpor$Mass)
+torpor$AvgEE_torpid_MassCorrected<- torpor$EE_per_hour_torpid/((2/3)*torpor$Mass)
+torpor$MinEE_torpid_MassCorrected<- torpor$EE_per_hour_torpid/((2/3)*torpor$Mass)
 
 # Line to arrange Site facets in sensible order
 torpor$Site_new = factor(torpor$Site, levels=c('HC','SC','SWRS','MQ','SL'))
