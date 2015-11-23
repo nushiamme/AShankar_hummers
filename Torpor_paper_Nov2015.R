@@ -7,8 +7,6 @@ library(gridExtra)
 library(grid)
 library(wq)
 
-
-
 ## setwd and read in file
 setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
 torpor <- read.csv("Torpor_table_plot2.csv")
@@ -53,7 +51,7 @@ energy_plot <- ggplot(torpor, aes(Species, NEE_kJ)) +  theme_bw() +
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) +
-  stat_summary(fun.data = give.n, geom = "text")
+  stat_summary(fun.data = give.n, geom = "text", vjust=-6)
 energy_plot
 
 ## Plot for hours spent torpid
@@ -63,7 +61,7 @@ hours_plot <- ggplot(torpor, aes(Species, Hours_torpid)) +  theme_bw() +
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) +
-  stat_summary(fun.data = give.n, geom = "text")
+  stat_summary(fun.data = give.n, geom = "text", vjust=-4.75)
 hours_plot
 grid.arrange(energy_plot, hours_plot, nrow=1, ncol=2)
 
