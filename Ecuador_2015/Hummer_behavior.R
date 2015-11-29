@@ -46,3 +46,4 @@ length(Hov_not_1)
 beh_by_month <- ggplot(m.beh, aes(variable, value)) + geom_bar(stat="identity") + theme_bw() +
   facet_grid(~Month) + xlab("Behavior") + ylab("Time (seconds)")
 beh_by_month
+

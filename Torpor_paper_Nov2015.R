@@ -31,7 +31,9 @@ torpor$MinEE_torpid_MassCorrected<- torpor$EE_per_hour_torpid/((2/3)*torpor$Mass
 # Line to arrange Site facets in sensible order
 torpor$Site_new = factor(torpor$Site, levels=c('HC','SC','SWRS','MQ','SL'))
 
-## Function to arrange plots
+##To subset variables within melted data frame and plot in ggplot, 
+##add to ggplot(x=,*,subset=.(variable=="NEE_kJ")*)## Function to arrange plots
+
 lay_out = function(...) {    
   x <- list(...)
   n <- max(sapply(x, function(x) max(x[[2]])))
@@ -209,20 +211,9 @@ lay_out(list(avg_normo_EE, 1, 1),
         list(min_normo_EE, 2, 1), 
         list(min_torpid_EE, 2, 2))
 
-
 temp <- ggplot(torpor, aes(Daytime_Ta_mean_C,Day)) + geom_point() + theme_bw()
 temp
 geom_boxplot(aes(Species, Hours_torpid)) + geom_point()
-
-##To subset variables within melted data frame and plot in ggplot, 
-##add to ggplot(x=,*,subset=.(variable=="NEE_kJ")*)
-
-#geom_point(aes(Tc_mean_C, Min_EE_torpid), col=Species) + scale_shape(solid=FALSE) +
-
-##+ geom_point(aes(y=Daytime_Ta_mean_C, col=Daytime_Ta_mean_C))
-#scale_size(guide = 'none') + 
-#geom_point(aes(col=Site, size=2)) + scale_shape_identity() + 
-#scale_color_manual(values = c("grey60", "black"), guide = FALSE) + 
   
 hours_torpor_plot <- ggplot(torpor, aes(Site, NEE_kJ)) + theme_bw() + geom_boxplot() +
   geom_point(aes(col=Site, size=2)) + #scale_size(guide = 'none') + scale_shape_identity() +
