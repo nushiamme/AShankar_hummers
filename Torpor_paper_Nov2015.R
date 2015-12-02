@@ -69,7 +69,6 @@ hours_plot <- ggplot(torpor, aes(Species, Hours_torpid)) +  theme_bw() +
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) +
   stat_summary(fun.data = give.n, geom = "text", vjust=-4.75)
 hours_plot
-grid.arrange(energyM_plot, hours_plot, nrow=1, ncol=2)
 
 ## Plot for Mass-corrected Nighttime energy expenditure, by species
 energyM_plot <- ggplot(torpor, aes(Species, NEE_MassCorrected)) +  theme_bw() +
@@ -80,13 +79,14 @@ energyM_plot <- ggplot(torpor, aes(Species, NEE_MassCorrected)) +  theme_bw() +
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) +
   stat_summary(fun.data = give.n, geom = "text", vjust=-5)
 energyM_plot
+grid.arrange(energyM_plot, hours_plot, nrow=1, ncol=2)
 
 ## Comparing energy plots with and without mass-correction
 grid.arrange(energy_plot, energyM_plot, nrow=1, ncol=2)
 
 ## NEE plot by temperature
 energy_temp <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_kJ)) + 
-  geom_point(aes(shape = factor(Species)), size=4, show_guide=F) + 
+  geom_point(aes(shape = factor(Species)), size=4) + 
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
   labs(shape='Species') + xlim(4, 30) +
   scale_color_brewer(palette = "Set1") + theme_bw() + 
@@ -101,7 +101,7 @@ energy_temp
 
 ## Mass-corrected NEE plot by temperature
 energyM_temp <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_MassCorrected)) + 
-  geom_point(aes(shape = factor(Species)), size=4, show_guide=F) + 
+  geom_point(aes(shape = factor(Species)), size=4) + 
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
   #scale_shape_manual(values=1:nlevels(torpor$Species)) +
   labs(shape='Species') + xlim(0, 30) +
@@ -242,13 +242,3 @@ lay_out(list(avg_normo_EE, 1, 1),
 
 temp <- ggplot(torpor, aes(Daytime_Ta_mean_C,Day)) + geom_point() + theme_bw()
 temp
-geom_boxplot(aes(Species, Hours_torpid)) + geom_point()
-  
-hours_torpor_plot <- ggplot(torpor, aes(Site, Hours_torpid)) + theme_bw() + geom_boxplot() +
-  geom_point(aes(col=Site, size=2)) + #scale_size(guide = 'none') + scale_shape_identity() +
-  #scale_color_manual(values = c("grey60", "black"), guide = FALSE) + 
-  theme(axis.title.x = element_text(size=16, face="bold"),
-        axis.text.x = element_text(size=14),
-        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14))
-hours_torpor_plot
-
