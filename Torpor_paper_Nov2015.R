@@ -12,13 +12,6 @@ setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
 torpor <- read.csv("Torpor_table_plot_updated_BBLH.csv")
 #names(torpor)
 
-## Melting file
-#m.tor <- melt(torpor, id.vars = c("Site","Species","Day","Month","Year","Daytime_Ta_mean_C"), 
-#               measure.vars = c("NEE_kJ","Hours_torpid"))
-##"Time_of_entry","Hours_torpid","Hours_normo","Nighttime_Ta_mean_C","Tc_mean_C",
-##"Min_EE_torpid","Min_EE_normo",
-##m.NEE <- m.tor[m.tor$variable=="NEE_kJ",]
-
 ## Adding column dividing NEE by 2/3*Mass to correct for mass with allometric scaling
 torpor$NEE_MassCorrected<- torpor$NEE_kJ/((2/3)*torpor$Mass)
 
