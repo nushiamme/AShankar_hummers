@@ -8,10 +8,10 @@ library(grid)
 library(wq)
 
 ## setwd and read in file
-wdMac<- setwd("/Users/anushashankar/Dropbox/Hummingbird energetics/Tables_for_paper")
-wdMac
-#wdMS <- setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
-#wdMS
+#wdMac<- setwd("/Users/anushashankar/Dropbox/Hummingbird energetics/Tables_for_paper")
+#wdMac
+wdMS <- setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
+wdMS
 torpor <- read.csv("Torpor_table_plot2.csv")
 #names(torpor)
 
@@ -46,6 +46,11 @@ lay_out = function(...) {
                                            layout.pos.col = x[[i]][[3]]))
   }
 } 
+
+## Function to return sample sizes
+give.n <- function(x){
+  return(c(y = mean(x), label = length(x)))
+}
 
 ## Plot for Nighttime energy expenditure, by species
 energy_plot <- ggplot(torpor, aes(Species, NEE_kJ)) +  theme_bw() +
