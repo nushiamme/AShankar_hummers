@@ -371,7 +371,7 @@ m_BBLH_avgEE_normo_Tcmin_eqn <- m_BBLH_avgEE_normo_Tcmin +
                                              BBLH_torpor$Tc_min_C), parse=T)
 m_BBLH_avgEE_normo_Tcmin_eqn
 
-## BBLH Avg mass-corrected hourly torpid EE vs. min Tc
+## BBLH Avg mass-corrected hourly torpid EE vs. min Tc with regression line
 m_BBLH_avgEE_torpid_Tcmin <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C), 
                                                      AvgEE_torpid_MassCorrected)) + 
   theme_bw() + geom_point() + geom_smooth(method=lm) +
@@ -388,6 +388,42 @@ m_BBLH_avgEE_torpid_Tcmin_eqn <- m_BBLH_avgEE_torpid_Tcmin +
   geom_text(x = 14, y = 0.07, label = lm_eqn(BBLH_torpor, BBLH_torpor$AvgEE_torpid_MassCorrected, 
                                              BBLH_torpor$Tc_min_C), parse=T, size=6)
 m_BBLH_avgEE_torpid_Tcmin_eqn
+
+## BBLH Min mass-corrected hourly normothermic EE vs. min Tc with regression line
+m_BBLH_minEE_normo_Tcmin <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C), 
+                                                    MinEE_normo_MassCorrected)) + 
+  theme_bw() + geom_point() + geom_smooth(method=lm, color="black") +
+  scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
+  scale_color_brewer(palette = "Set1") + #xlim(0, 30) +
+  geom_text(aes(label=Torpid_not, hjust=1.75, fontface="bold"),size=5) +
+  ylab("Minimum BBLH normothermic EE (kJ/g)") + xlab(Tc_min.xlab) +
+  theme(axis.title.x = element_text(size=16, face="bold"),
+        axis.text.x = element_text(size=14),
+        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
+m_BBLH_minEE_normo_Tcmin
+
+m_BBLH_minEE_normo_Tcmin_eqn <- m_BBLH_minEE_normo_Tcmin + 
+  geom_text(x = 16, y = 15, label = lm_eqn(BBLH_torpor, BBLH_torpor$MinEE_normo_MassCorrected, 
+                                             BBLH_torpor$Tc_min_C), parse=T)
+m_BBLH_minEE_normo_Tcmin_eqn
+
+## BBLH Min mass-corrected hourly torpid EE vs. min Tc with regression line
+m_BBLH_minEE_torpid_Tcmin <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C), 
+                                                     MinEE_torpid_MassCorrected)) + 
+  theme_bw() + geom_point() + geom_smooth(method=lm) +
+  scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
+  scale_color_brewer(palette = "Set1") + #xlim(0, 30) +
+  geom_text(aes(label=Torpid_not, hjust=1.75, fontface="bold"),size=5) +
+  ylab("Minimum BBLH EE torpid (kJ/g)") + xlab(Tc_min.xlab) +
+  theme(axis.title.x = element_text(size=16, face="bold"),
+        axis.text.x = element_text(size=14),
+        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
+m_BBLH_minEE_torpid_Tcmin
+
+m_BBLH_minEE_torpid_Tcmin_eqn <- m_BBLH_minEE_torpid_Tcmin + 
+  geom_text(x = 14, y = 8, label = lm_eqn(BBLH_torpor, BBLH_torpor$MinEE_torpid_MassCorrected, 
+                                             BBLH_torpor$Tc_min_C), parse=T, size=6)
+m_BBLH_minEE_torpid_Tcmin_eqn
 
 
 #### Statistics ####
