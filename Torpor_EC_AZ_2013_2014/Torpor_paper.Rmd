@@ -1,0 +1,49 @@
+---
+title: "Torpor paper graphs"
+author: "Anusha Shankar, Rebecca Schroeder"
+date: "Wednesday, December 09, 2015"
+output: pdf_document
+---
+These are results or a cross-continent study of torpor in hummingbirds. Data were collected from a total of eight individuals across five sites, with three species in Arizona, USA, and five species in the Andes of Ecuador.
+
+```{r echo=FALSE}
+knitr::source('Torpor_paper_Nov2015.R')
+```
+
+**Nighttime energy expenditure plots**
+
+
+
+**Average hourly energy expenditure plots**
+
+
+
+**Minimum hourly energy expenditure plots**
+
+
+
+**Comparing average and minimum energy expenditure**
+
+
+
+**Species- or site-specific plots with regression lines**
+
+
+
+**Statistical tests**
+
+
+
+```{r}
+summary(cars)
+```
+**Figure 1**: The thermoneutral zone (TNZ). Tb = Body temperature; LCT = Lower critical temperature;
+UCT = Upper critical temperature; BMR = Basal metabolic rate
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+plot(cars)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
