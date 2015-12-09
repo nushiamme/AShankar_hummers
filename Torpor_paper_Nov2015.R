@@ -42,6 +42,7 @@ lay_out = function(...) {
   }
 } 
 
+# Function to return sample sizes
 give.n <- function(x){
   return(c(y = mean(x), label = length(x)))
 }
@@ -75,6 +76,7 @@ energyM_plot <- ggplot(torpor, aes(Species, NEE_MassCorrected)) +  theme_bw() +
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) +
   stat_summary(fun.data = give.n, geom = "text", vjust=-5)
 energyM_plot
+## Comparing NEE and hours plots
 grid.arrange(energyM_plot, hours_plot, nrow=1, ncol=2)
 
 ## Comparing energy plots with and without mass-correction
@@ -160,7 +162,7 @@ lay_out(list(energy_temp, 1, 1),
 min_normo_EE <- ggplot(torpor, aes(as.numeric(Tc_mean_C), Min_EE_normo)) +  theme_bw() + 
   geom_point(aes(shape = factor(Species)), size=4) + 
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
-  scale_color_brewer(palette = "Set1") + #xlim(-7, 50) +
+  scale_color_brewer(palette = "Set1") + #xlim(-2, 35) +
   #facet_grid(.~Site,space="free") + 
   ylab("Min EE normothermic") + 
   theme(axis.title.x = element_text(size=16, face="bold"),
