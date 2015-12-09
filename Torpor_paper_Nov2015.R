@@ -12,17 +12,17 @@ library(wq)
 #wdMac
 wdMS <- setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
 wdMS
-torpor <- read.csv("Torpor_table_plot_updated_BBLH.csv")
+torpor <- read.csv("Torpor_table_plot_Dec9.csv")
 #names(torpor)
 
 ## Adding column dividing NEE by 2/3*Mass to correct for mass with allometric scaling
 torpor$NEE_MassCorrected<- torpor$NEE_kJ/((2/3)*torpor$Mass)
 
 ## Adding columns to correct for mass in Avg EE normo, Min EE normo, torpid, etc.
-torpor$AvgEE_normo_MassCorrected<- torpor$EE_per_hour_normo/((2/3)*torpor$Mass)
-torpor$MinEE_normo_MassCorrected<- torpor$Min_EE_normo/((2/3)*torpor$Mass)
-torpor$AvgEE_torpid_MassCorrected<- torpor$EE_per_hour_torpid/((2/3)*torpor$Mass)
-torpor$MinEE_torpid_MassCorrected<- torpor$EE_per_hour_torpid/((2/3)*torpor$Mass)
+torpor$AvgEE_normo_MassCorrected <- torpor$Avg_EE_hourly_normo/((2/3)*torpor$Mass)
+torpor$MinEE_normo_MassCorrected <- as.numeric(torpor$Min_EE_normo)/((2/3)*torpor$Mass)
+torpor$AvgEE_torpid_MassCorrected <- torpor$Avg_EE_hourly_torpid/((2/3)*torpor$Mass)
+torpor$MinEE_torpid_MassCorrected <- as.numeric(torpor$Min_EE_torpid)/((2/3)*torpor$Mass)
 
 # Line to arrange Site facets in sensible order
 torpor$Site_new <- factor(torpor$Site, levels=c('HC','SC','SWRS','MQ','SL'))
@@ -46,6 +46,10 @@ lay_out = function(...) {
 give.n <- function(x){
   return(c(y = mean(x), label = length(x)))
 }
+
+#code for including degree symbol in axis labels
+Tc.xlab = expression(atop(paste("Chamber Temperature (", degree,"C)")))
+Ta.xlab = expression(atop(paste("Ambient Temperature (", degree,"C)")))
 
 ## Plot for Nighttime energy expenditure, by species
 energy_plot <- ggplot(torpor, aes(Species, NEE_kJ)) +  theme_bw() +
@@ -76,6 +80,7 @@ energyM_plot <- ggplot(torpor, aes(Species, NEE_MassCorrected)) +  theme_bw() +
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) +
   stat_summary(fun.data = give.n, geom = "text", vjust=-5)
 energyM_plot
+
 ## Comparing NEE and hours plots
 grid.arrange(energyM_plot, hours_plot, nrow=1, ncol=2)
 
@@ -90,8 +95,7 @@ energy_temp <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_kJ)) +
   scale_color_brewer(palette = "Set1") + theme_bw() + 
   geom_text(aes(label=Torpid_not, hjust=2), size=5, show_guide=F,
             fontface="bold") +
-  ylab("Nighttime energy expenditure (kJ)") + 
-  xlab("Chamber Temperature deg. C") +
+  ylab("Nighttime energy expenditure (kJ)") + xlab(Tc.xlab) +
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
@@ -106,8 +110,7 @@ energyM_temp <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_MassCorrected)) +
   scale_color_brewer(palette = "Set1") + theme_bw() + 
   geom_text(aes(label=Torpid_not, hjust=2), size=5, show_guide=F,
             fontface="bold") +
-  ylab("Nighttime energy expenditure Mass-corrected (kJ/g)") + 
-  xlab("Chamber Temperature deg. C") +
+  ylab("Nighttime energy expenditure Mass-corrected (kJ/g)") + xlab(Tc.xlab) +
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
@@ -125,8 +128,7 @@ energy_temp_site <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_kJ)) +
   scale_color_brewer(palette = "Set1") + theme_bw() + 
   geom_text(aes(label=Torpid_not, hjust=1.75, fontface="bold"),size=5) +
   facet_grid(.~Site_new) +
-  ylab("Nighttime energy expenditure (kJ)") + 
-  xlab("Chamber Temperature deg. C") +
+  ylab("Nighttime energy expenditure (kJ)") + xlab(Tc.xlab) +
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
@@ -145,8 +147,7 @@ energyM_temp_site <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_MassCorrected
   scale_color_brewer(palette = "Set1") + theme_bw() + 
   geom_text(aes(label=Torpid_not, hjust=1.75, fontface="bold"),size=5) +
   facet_grid(.~Site_new) +
-  ylab("Nighttime energy expenditure Mass-corrected (kJ/g)") + 
-  xlab("Chamber Temperature deg. C") +
+  ylab("Nighttime energy expenditure Mass-corrected (kJ/g)") + xlab(Tc.xlab) +
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
@@ -158,60 +159,111 @@ lay_out(list(energy_temp, 1, 1),
         list(energyM_temp, 2, 1),
         list(energyM_temp_site, 2, 2))
 
+#### Non-mass-corrected min and avg graphs ####
 ## Min normo EE by Tc
-min_normo_EE <- ggplot(torpor, aes(as.numeric(Tc_mean_C), Min_EE_normo)) +  theme_bw() + 
-  geom_point(aes(shape = factor(Species)), size=4) + 
+min_normo_EE <- ggplot(torpor, aes(as.numeric(Tc_mean_C), as.numeric(Min_EE_normo))) +  theme_bw() + 
+  geom_point(aes(shape = factor(Species)), size=4) +  labs(shape ='Species') +
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
-  scale_color_brewer(palette = "Set1") + #xlim(-2, 35) +
-  #facet_grid(.~Site,space="free") + 
-  ylab("Min EE normothermic") + 
+  scale_color_brewer(palette = "Set1") + xlim(5, 32) +
+  geom_text(aes(label=Torpid_not, hjust=1.75, fontface="bold"),size=5) +
+  ylab("Min EE normothermic") + xlab(Tc.xlab) +
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
 min_normo_EE
 
-min_torpid_EE <- ggplot(torpor, aes(as.numeric(Tc_mean_C), Min_EE_torpid)) +  theme_bw() + 
-  geom_point(aes(shape = factor(Species)), size=4) + 
+## Minimum hourly energy expenditure while torpid by Tc
+min_torpid_EE <- ggplot(torpor, aes(as.numeric(Tc_mean_C), as.numeric(Min_EE_torpid))) + theme_bw() + 
+  geom_point(aes(shape = factor(Species)), size=4) + labs(shape ='Species') +
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
   scale_color_brewer(palette = "Set1") + #xlim(-7, 50) +
-  #facet_grid(.~Site,space="free") + 
-  ylab("Min EE torpid") + 
+  ylab("Min EE torpid") + xlab(Tc.xlab) +
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
 min_torpid_EE
 
-avg_normo_EE <- ggplot(torpor, aes(as.numeric(Tc_mean_C), EE_per_hour_normo)) +  theme_bw() + 
-  geom_point(aes(shape = factor(Species)), size=4) + 
+## Average hourly energy expenditure while normothermic by Tc
+#avg_normo_EE <- ggplot(torpor, aes(as.numeric(Tc_mean_C), Avg_EE_hourly_normo)) +  theme_bw() + 
+#  geom_point(aes(shape = factor(Species)), size=4) + labs(shape ='Species') +
+#  scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
+#  scale_color_brewer(palette = "Set1")  + #xlim(-7, 35) +
+#  ylab("Avg EE normothermic") + xlab(Tc.xlab) +
+#  theme(axis.title.x = element_text(size=16, face="bold"),
+#        axis.text.x = element_text(size=14),
+#        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
+#avg_normo_EE
+
+## Avg EE normo, with points labeled as Normo or Torpid birds; to see if overall EE is lower or
+## higher for birds that tend to go into torpor
+avg_normo_EE <- ggplot(torpor, aes(as.numeric(Tc_mean_C), Avg_EE_hourly_normo)) +  theme_bw() + 
+  geom_point(aes(shape = factor(Species)), size=4) + labs(shape ='Species') +
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
-  scale_color_brewer(palette = "Set1")  + #xlim(-7, 35) +
+  scale_color_brewer(palette = "Set1") + xlim(5, 30) +
   #facet_grid(.~Site,space="free") +
-  ylab("Avg EE normothermic") + xlab("Tc mean (C)") +
+  geom_text(aes(label=Torpid_not, hjust=1.75, fontface="bold"),size=5) +
+  ylab("Avg EE normothermic") + xlab(Tc.xlab) +
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
 avg_normo_EE
 
-## Avg EE normo, with points labeled as Normo or Torpid birds; to see if overall EE is lower or
-## higher for birds that tend to go into torpor
-avg_normo_EE_labeled <- ggplot(torpor, aes(as.numeric(Tc_mean_C), EE_per_hour_normo)) +  theme_bw() + 
-  geom_point(aes(shape = factor(Species)), size=4) + 
+## Average hourly energy expenditure while torpid
+avg_torpid_EE <- ggplot(torpor, aes(Tc_mean_C, Avg_EE_hourly_torpid)) +  theme_bw() + 
+  geom_point(aes(shape = factor(Species)), size=4) + labs(shape ='Species') +
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
   scale_color_brewer(palette = "Set1") + #xlim(5, 30) +
   #facet_grid(.~Site,space="free") +
-  geom_text(aes(label=Torpid_not, hjust=1.75, fontface="bold"),size=5) +
-  ylab("Avg EE normothermic") + xlab("Tc mean (C)") +
+  ylab("Avg EE torpid") + xlab(Tc.xlab) +
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
-avg_normo_EE_labeled
+avg_torpid_EE
 
-avg_torpid_EE <- ggplot(torpor, aes(Tc_mean_C, EE_per_hour_torpid)) +  theme_bw() + 
-  geom_point(aes(shape = factor(Species)), size=4) + #theme(legend.position="none") +
+######### Mass-corrected Min and avg graphs ####
+## Mass-corrected Min normo EE by Tc
+m_min_normo_EE <- ggplot(torpor, aes(as.numeric(Tc_mean_C), as.numeric(Min_EE_normo))) +  theme_bw() + 
+  geom_point(aes(shape = factor(Species)), size=4) +  labs(shape ='Species') +
+  scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
+  scale_color_brewer(palette = "Set1") + xlim(5, 32) +
+  geom_text(aes(label=Torpid_not, hjust=1.75, fontface="bold"),size=5) +
+  ylab("Min EE normothermic (kJ/g)") + xlab(Tc.xlab) +
+  theme(axis.title.x = element_text(size=16, face="bold"),
+        axis.text.x = element_text(size=14),
+        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
+m_min_normo_EE
+
+## Mass-corrected Minimum hourly energy expenditure while torpid by Tc
+m_min_torpid_EE <- ggplot(torpor, aes(as.numeric(Tc_mean_C), as.numeric(Min_EE_torpid))) + theme_bw() + 
+  geom_point(aes(shape = factor(Species)), size=4) + labs(shape ='Species') +
+  scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
+  scale_color_brewer(palette = "Set1") + #xlim(-7, 50) +
+  ylab("Min EE torpid (kJ/g)") + xlab(Tc.xlab) +
+  theme(axis.title.x = element_text(size=16, face="bold"),
+        axis.text.x = element_text(size=14),
+        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
+min_torpid_EE
+
+## Average hourly energy expenditure while normothermic
+m_avg_normo_EE <- ggplot(torpor, aes(as.numeric(Tc_mean_C), AvgEE_normo_MassCorrected)) +  theme_bw() + 
+  geom_point(aes(shape = factor(Species)), size=4) + labs(shape ='Species') +
+  scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
+  scale_color_brewer(palette = "Set1") + xlim(5, 30) +
+  #facet_grid(.~Site,space="free") +
+  geom_text(aes(label=Torpid_not, hjust=1.75, fontface="bold"),size=5) +
+  ylab("Avg EE normothermic (kJ/g)") + xlab(Tc.xlab) +
+  theme(axis.title.x = element_text(size=16, face="bold"),
+        axis.text.x = element_text(size=14),
+        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
+avg_normo_EE
+
+## Average hourly energy expenditure while torpid
+m_avg_torpid_EE <- ggplot(torpor, aes(Tc_mean_C, AvgEE_torpid_MassCorrected)) +  theme_bw() + 
+  geom_point(aes(shape = factor(Species)), size=4) + labs(shape ='Species') +
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
   scale_color_brewer(palette = "Set1") + #xlim(5, 30) +
   #facet_grid(.~Site,space="free") +
-  ylab("Avg EE torpid") + xlab("Tc mean (C)") +
+  ylab("Avg EE torpid (kJ/g)") + xlab(Tc.xlab) +
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
@@ -222,21 +274,10 @@ grid.arrange(avg_normo_EE_labeled, avg_torpid_EE,
 lay_out(list(avg_normo_EE_labeled, 1, 1), 
         list(avg_torpid_EE, 2, 1)) # Only average EEs
 
-## Min torpid EE by Tc
-min_torpid_EE <- ggplot(torpor, aes(Tc_mean_C, Min_EE_torpid)) +  theme_bw() + 
-  geom_point(aes(col=Species), size=3) + scale_color_brewer(palette = "Set1") +
-  #facet_grid(.~Site,space="free") + 
-  ylab("Min EE torpid") + 
-  theme(axis.title.x = element_text(size=16, face="bold"),
-        axis.text.x = element_text(size=14),
-        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
-min_torpid_EE
-grid.arrange(min_normo_EE, min_torpid_EE, nrow=2, ncol=2)
-
 lay_out(list(avg_normo_EE, 1, 1),
         list(avg_torpid_EE, 1, 2),
         list(min_normo_EE, 2, 1), 
         list(min_torpid_EE, 2, 2))
 
-temp <- ggplot(torpor, aes(Daytime_Ta_mean_C,Day)) + geom_point() + theme_bw()
-temp
+#temp <- ggplot(torpor, aes(Daytime_mean_Ta_C,Day)) + geom_point() + theme_bw()
+#temp
