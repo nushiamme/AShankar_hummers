@@ -353,10 +353,8 @@ m_BBLH_avgEE_normo_Tcmin <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C), AvgEE_
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
 m_BBLH_avgEE_normo_Tcmin
 
-lm_eqn <- function(BBLH_torpor){
-  y <- torpor$AvgEE_normo_MassCorrected
-  x <- torpor$Tc_min_C
-  m <- lm(y ~ x, BBLH_torpor);
+lm_eqn <- function(table, y, x){
+  m <- lm(y ~ x, table);
   eq <- substitute(italic(y) == 
                      a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
                    list(a = format(coef(m)[1], digits = 2), 
@@ -366,7 +364,8 @@ lm_eqn <- function(BBLH_torpor){
 }
 
 m_BBLH_avgEE_normo_Tcmin_eqn <- m_BBLH_avgEE_normo_Tcmin + 
-  geom_text(x = 18, y = 0.38, label = lm_eqn(BBLH_torpor), parse=T)
+  geom_text(x = 16, y = 0.38, label = lm_eqn(BBLH_torpor, BBLH_torpor$AvgEE_normo_MassCorrected, 
+                                             BBLH_torpor$Tc_min_C), parse=T)
 m_BBLH_avgEE_normo_Tcmin_eqn
 
 ## BBLH Avg mass-corrected hourly torpid EE vs. min Tc
