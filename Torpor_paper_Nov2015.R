@@ -8,7 +8,10 @@ library(grid)
 library(wq)
 
 ## setwd and read in file
-setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
+#wdMac<- setwd("/Users/anushashankar/Dropbox/Hummingbird energetics/Tables_for_paper")
+#wdMac
+wdMS <- setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
+wdMS
 torpor <- read.csv("Torpor_table_plot_updated_BBLH.csv")
 #names(torpor)
 
