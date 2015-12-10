@@ -134,6 +134,23 @@ energyM_temp <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_MassCorrected)) +
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
 energyM_temp 
 
+## Mass-corrected NEE plot by MINIMUM Tc
+energyM_Tcmin <- ggplot(torpor, aes(as.numeric(Tc_min_C), NEE_MassCorrected)) + 
+  geom_point(aes(shape = factor(Species)), size=4) + 
+  scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
+  geom_smooth(method=lm, color="black") +
+  geom_text(x = 16, y = 4.5, label = lm_eqn(torpor, torpor$NEE_MassCorrected, 
+                                            torpor$Tc_min_C), parse=T) +
+  labs(shape='Species') + xlim(0, 30) +
+  scale_color_brewer(palette = "Set1") + theme_bw() + 
+  geom_text(aes(label=Torpid_not, hjust=2), size=5, show_guide=F,
+            fontface="bold") +
+  ylab("Nighttime energy expenditure Mass-corrected (kJ/g)") + xlab(Tc_min.xlab) +
+  theme(axis.title.x = element_text(size=16, face="bold"),
+        axis.text.x = element_text(size=14),
+        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
+energyM_Tcmin
+
 ## NEE vs. temp, with and without mass-correction
 grid.arrange(energy_temp, energyM_temp, nrow=1, ncol=2)
 
@@ -240,11 +257,9 @@ avg_torpid_EE
 
 ######### Mass-corrected Min and avg graphs ####
 ## Mass-corrected Min normo EE by Tc
-m_min_normo_EE_eq <- ggplot(torpor, aes(as.numeric(Tc_mean_C), as.numeric(Min_EE_normo))) +  
+m_min_normo_EE <- ggplot(torpor, aes(as.numeric(Tc_mean_C), 
+                                     as.numeric(MinEE_normo_MassCorrected))) +  
   theme_bw() + geom_point(aes(shape = factor(Species)), size=4) +  labs(shape ='Species') +
-  geom_smooth(method=lm, color="black") +
-  geom_text(x = 16, y = 0.6, label = lm_eqn(torpor, torpor$Min_EE_normo, 
-                                            torpor$Tc_mean_C), parse=T) +
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
   scale_color_brewer(palette = "Set1") + xlim(5, 32) +
   geom_text(aes(label=Torpid_not, hjust=1.75, fontface="bold"),size=5) +
@@ -252,10 +267,11 @@ m_min_normo_EE_eq <- ggplot(torpor, aes(as.numeric(Tc_mean_C), as.numeric(Min_EE
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
-m_min_normo_EE_eq
+m_min_normo_EE
 
 ## Mass-corrected Minimum hourly energy expenditure while torpid by Tc
-m_min_torpid_EE <- ggplot(torpor, aes(as.numeric(Tc_mean_C), as.numeric(Min_EE_torpid))) + 
+m_min_torpid_EE <- ggplot(torpor, aes(as.numeric(Tc_mean_C), 
+                                      as.numeric(MinEE_torpid_MassCorrected))) + 
   theme_bw() + geom_point(aes(shape = factor(Species)), size=4) + labs(shape ='Species') +
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
   geom_smooth(method=lm, color="black") +
@@ -304,10 +320,14 @@ lay_out(list(m_avg_normo_EE, 1, 1),
         list(m_min_normo_EE, 2, 1), 
         list(m_min_torpid_EE, 2, 2))
 
-#### Mass-corrected mins and avgs, plotted against Tc min instead of Tc mean ####
+#### Mass-corrected mins and avgs, plotted against Tc min instead of Tc mean with regressions ####
 ## Mass-corrected Min normo EE by Tc min
-m_min_normo_EE_Tcmin <- ggplot(torpor, aes(as.numeric(Tc_min_C), as.numeric(Min_EE_normo))) +  
+m_min_normo_EE_Tcmin_eq <- ggplot(torpor, aes(as.numeric(Tc_min_C), 
+                                              as.numeric(MinEE_normo_MassCorrected))) +  
   theme_bw() + geom_point(aes(shape = factor(Species)), size=4) +  labs(shape ='Species') +
+  geom_smooth(method=lm, color="black") +
+  geom_text(x = 19, y = 0.38, label = lm_eqn(torpor, torpor$MinEE_normo_MassCorrected, 
+                                            torpor$Tc_min_C), parse=T) +
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
   scale_color_brewer(palette = "Set1") + xlim(0, 32) +
   geom_text(aes(label=Torpid_not, hjust=1.75, fontface="bold"),size=5) +
@@ -315,22 +335,29 @@ m_min_normo_EE_Tcmin <- ggplot(torpor, aes(as.numeric(Tc_min_C), as.numeric(Min_
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
-m_min_normo_EE_Tcmin
+m_min_normo_EE_Tcmin_eq
 
 ## Mass-corrected Minimum hourly energy expenditure while torpid by Tc
-m_min_torpid_EE_Tcmin <- ggplot(torpor, aes(as.numeric(Tc_min_C), as.numeric(Min_EE_torpid))) + 
+m_min_torpid_EE_Tcmin_eq <- ggplot(torpor, aes(as.numeric(Tc_min_C), 
+                                               as.numeric(MinEE_torpid_MassCorrected))) + 
   theme_bw() + geom_point(aes(shape = factor(Species)), size=4) + labs(shape ='Species') +
+  geom_smooth(method=lm, color="black") +
+  geom_text(x = 15, y = 0.06, label = lm_eqn(torpor, torpor$MinEE_torpid_MassCorrected, 
+                                            torpor$Tc_min_C), parse=T) +
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
   scale_color_brewer(palette = "Set1") + #xlim(-7, 50) +
   ylab("Min EE torpid (kJ/g)") + xlab(Tc_min.xlab) +
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
-m_min_torpid_EE_Tcmin
+m_min_torpid_EE_Tcmin_eq
 
 ## Mass-corrected Average hourly energy expenditure while normothermic
-m_avg_normo_EE_Tcmin <- ggplot(torpor, aes(as.numeric(Tc_min_C), AvgEE_normo_MassCorrected)) + 
+m_avg_normo_EE_Tcmin_eq <- ggplot(torpor, aes(as.numeric(Tc_min_C), AvgEE_normo_MassCorrected)) + 
   theme_bw() + geom_point(aes(shape = factor(Species)), size=4) + labs(shape ='Species') +
+  geom_smooth(method=lm, color="black") +
+  geom_text(x = 16, y = 0.6, label = lm_eqn(torpor, torpor$AvgEE_normo_MassCorrected, 
+                                            torpor$Tc_min_C), parse=T) +
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
   scale_color_brewer(palette = "Set1") + xlim(0, 30) +
   #facet_grid(.~Site,space="free") +
@@ -339,11 +366,14 @@ m_avg_normo_EE_Tcmin <- ggplot(torpor, aes(as.numeric(Tc_min_C), AvgEE_normo_Mas
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
-m_avg_normo_EE_Tcmin
+m_avg_normo_EE_Tcmin_eq
 
 ## Mass-corrected Average hourly energy expenditure while torpid
-m_avg_torpid_EE_Tcmin <- ggplot(torpor, aes(Tc_min_C, AvgEE_torpid_MassCorrected)) +  theme_bw() + 
+m_avg_torpid_EE_Tcmin_eq <- ggplot(torpor, aes(Tc_min_C, AvgEE_torpid_MassCorrected)) +  theme_bw() + 
   geom_point(aes(shape = factor(Species)), size=4) + labs(shape ='Species') +
+  geom_smooth(method=lm, color="black") +
+  geom_text(x = 13, y = 0.095, label = lm_eqn(torpor, torpor$AvgEE_torpid_MassCorrected, 
+                                            torpor$Tc_min_C), parse=T) +
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
   scale_color_brewer(palette = "Set1") + 
   #facet_grid(.~Site,space="free") +
@@ -351,13 +381,13 @@ m_avg_torpid_EE_Tcmin <- ggplot(torpor, aes(Tc_min_C, AvgEE_torpid_MassCorrected
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
-m_avg_torpid_EE_Tcmin
+m_avg_torpid_EE_Tcmin_eq
 
 ## Arranging mass-corrected vs. Tc min graphs
-lay_out(list(m_avg_normo_EE_Tcmin, 1, 1),
-        list(m_avg_torpid_EE_Tcmin, 1, 2),
-        list(m_min_normo_EE_Tcmin, 2, 1), 
-        list(m_min_torpid_EE_Tcmin, 2, 2))
+lay_out(list(m_avg_normo_EE_Tcmin_eq, 1, 1),
+        list(m_avg_torpid_EE_Tcmin_eq, 1, 2),
+        list(m_min_normo_EE_Tcmin_eq, 2, 1), 
+        list(m_min_torpid_EE_Tcmin_eq, 2, 2))
 
 #### Overall regressions ####
 
@@ -379,9 +409,11 @@ m_AvgEE_normo_Tcmin_eq
 
 #### Species- specific graphs ####
 ## BBLH Avg mass-corrected hourly normothermic EE vs. min Tc with regression line
-m_BBLH_avgEE_normo_Tcmin <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C), 
+m_BBLH_avgEE_normo_Tcmin_eq <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C), 
                                                     AvgEE_normo_MassCorrected)) + 
   theme_bw() + geom_point() + geom_smooth(method=lm, color="black") +
+  geom_text(x = 16, y = 0.38, label = lm_eqn(BBLH_torpor, BBLH_torpor$AvgEE_normo_MassCorrected, 
+                                             BBLH_torpor$Tc_min_C), parse=T) +
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
   scale_color_brewer(palette = "Set1") + #xlim(0, 30) +
   geom_text(aes(label=Torpid_not, hjust=1.75, fontface="bold"),size=5) +
@@ -389,17 +421,14 @@ m_BBLH_avgEE_normo_Tcmin <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C),
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
-m_BBLH_avgEE_normo_Tcmin
-
-m_BBLH_avgEE_normo_Tcmin_eqn <- m_BBLH_avgEE_normo_Tcmin + 
-  geom_text(x = 16, y = 0.38, label = lm_eqn(BBLH_torpor, BBLH_torpor$AvgEE_normo_MassCorrected, 
-                                             BBLH_torpor$Tc_min_C), parse=T)
-m_BBLH_avgEE_normo_Tcmin_eqn
+m_BBLH_avgEE_normo_Tcmin_eq
 
 ## BBLH Avg mass-corrected hourly torpid EE vs. min Tc with regression line
-m_BBLH_avgEE_torpid_Tcmin <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C), 
+m_BBLH_avgEE_torpid_Tcmin_eq <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C), 
                                                      AvgEE_torpid_MassCorrected)) + 
   theme_bw() + geom_point() + geom_smooth(method=lm) +
+  geom_text(x = 14, y = 0.07, label = lm_eqn(BBLH_torpor, BBLH_torpor$AvgEE_torpid_MassCorrected, 
+                                             BBLH_torpor$Tc_min_C), parse=T, size=6) +
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
   scale_color_brewer(palette = "Set1") + #xlim(0, 30) +
   geom_text(aes(label=Torpid_not, hjust=1.75, fontface="bold"),size=5) +
@@ -407,17 +436,14 @@ m_BBLH_avgEE_torpid_Tcmin <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C),
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
-m_BBLH_avgEE_torpid_Tcmin
-
-m_BBLH_avgEE_torpid_Tcmin_eqn <- m_BBLH_avgEE_torpid_Tcmin + 
-  geom_text(x = 14, y = 0.07, label = lm_eqn(BBLH_torpor, BBLH_torpor$AvgEE_torpid_MassCorrected, 
-                                             BBLH_torpor$Tc_min_C), parse=T, size=6)
-m_BBLH_avgEE_torpid_Tcmin_eqn
+m_BBLH_avgEE_torpid_Tcmin_eq
 
 ## BBLH Min mass-corrected hourly normothermic EE vs. min Tc with regression line
-m_BBLH_minEE_normo_Tcmin <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C), 
+m_BBLH_minEE_normo_Tcmin_eq <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C), 
                                                     MinEE_normo_MassCorrected)) + 
   theme_bw() + geom_point() + geom_smooth(method=lm, color="black") +
+  geom_text(x = 16, y = 0.32, label = lm_eqn(BBLH_torpor, BBLH_torpor$MinEE_normo_MassCorrected, 
+                                           BBLH_torpor$Tc_min_C), parse=T) +
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
   scale_color_brewer(palette = "Set1") + #xlim(0, 30) +
   geom_text(aes(label=Torpid_not, hjust=1.75, fontface="bold"),size=5) +
@@ -425,17 +451,14 @@ m_BBLH_minEE_normo_Tcmin <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C),
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
-m_BBLH_minEE_normo_Tcmin
-
-m_BBLH_minEE_normo_Tcmin_eqn <- m_BBLH_minEE_normo_Tcmin + 
-  geom_text(x = 16, y = 15, label = lm_eqn(BBLH_torpor, BBLH_torpor$MinEE_normo_MassCorrected, 
-                                             BBLH_torpor$Tc_min_C), parse=T)
-m_BBLH_minEE_normo_Tcmin_eqn
+m_BBLH_minEE_normo_Tcmin_eq
 
 ## BBLH Min mass-corrected hourly torpid EE vs. min Tc with regression line
-m_BBLH_minEE_torpid_Tcmin <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C), 
+m_BBLH_minEE_torpid_Tcmin_eq <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C), 
                                                      MinEE_torpid_MassCorrected)) + 
   theme_bw() + geom_point() + geom_smooth(method=lm) +
+  geom_text(x = 14, y = 0.024, label = lm_eqn(BBLH_torpor, BBLH_torpor$MinEE_torpid_MassCorrected, 
+                                          BBLH_torpor$Tc_min_C), parse=T, size=6) +
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
   scale_color_brewer(palette = "Set1") + #xlim(0, 30) +
   geom_text(aes(label=Torpid_not, hjust=1.75, fontface="bold"),size=5) +
@@ -443,12 +466,12 @@ m_BBLH_minEE_torpid_Tcmin <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C),
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
-m_BBLH_minEE_torpid_Tcmin
+m_BBLH_minEE_torpid_Tcmin_eq
 
-m_BBLH_minEE_torpid_Tcmin_eqn <- m_BBLH_minEE_torpid_Tcmin + 
-  geom_text(x = 14, y = 8, label = lm_eqn(BBLH_torpor, BBLH_torpor$MinEE_torpid_MassCorrected, 
-                                             BBLH_torpor$Tc_min_C), parse=T, size=6)
-m_BBLH_minEE_torpid_Tcmin_eqn
+lay_out(list(m_BBLH_avgEE_normo_Tcmin_eq, 1, 1),
+        list(m_BBLH_avgEE_torpid_Tcmin_eq, 1, 2),
+        list(m_BBLH_minEE_normo_Tcmin_eq, 2, 1), 
+        list(m_BBLH_minEE_torpid_Tcmin_eq, 2, 2))
 
 
 #### Statistics ####
@@ -463,8 +486,23 @@ anova(multiple_regression_NEE) # anova table
 vcov(multiple_regression_NEE) # covariance matrix for model parameters 
 influence(multiple_regression_NEE) # regression diagnostics
 
-### WEIRD- mean Tc and Mass have a significant effect on Average mass-corrected normo hourly EE
+## Avg normo EE anova (non-mass-corrected)
+mul_regr_AvgEEnormo <- lm(Avg_EE_hourly_normo ~ Tc_mean_C + Tc_min_C + Mass, data=torpor)
+anova(mul_regr_AvgEEnormo)
+
+##### WEIRD- mean Tc and Mass have a significant effect on Average mass-corrected normo hourly EE
 mul_regr_m_AvgEEnormo <- lm(AvgEE_normo_MassCorrected ~ Tc_mean_C + Tc_min_C + Mass, data=torpor)
+anova(mul_regr_m_AvgEEnormo)
+
+## Avg non-mass-corrected normo EE for BBLH anova
+mul_regr_m_AvgEEnormo_BBLH <- lm(AvgEE_normo_MassCorrected ~ Tc_mean_C + Tc_min_C + 
+                                   Mass, data=BBLH_torpor)
+anova(mul_regr_m_AvgEEnormo_BBLH)
+
+## Avg non-mass-corrected torpid EE for BBLH anova
+mul_regr_m_AvgEEtorpid_BBLH <- lm(AvgEE_torpid_MassCorrected ~ Tc_mean_C + Tc_min_C + 
+                                    Mass, data=BBLH_torpor)
+anova(mul_regr_m_AvgEEtorpid_BBLH)
 
 #temp <- ggplot(torpor, aes(Daytime_mean_Ta_C,Day)) + geom_point() + theme_bw()
 #temp
