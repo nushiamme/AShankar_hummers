@@ -141,7 +141,7 @@ energyM_Tcmin <- ggplot(torpor, aes(as.numeric(Tc_min_C), NEE_MassCorrected)) +
   geom_smooth(method=lm, color="black") +
   geom_text(x = 16, y = 4.5, label = lm_eqn(torpor, torpor$NEE_MassCorrected, 
                                             torpor$Tc_min_C), parse=T) +
-  labs(shape='Species') + xlim(0, 30) +
+  labs(shape='Species') + #xlim(5, 25) +
   scale_color_brewer(palette = "Set1") + theme_bw() + 
   geom_text(aes(label=Torpid_not, hjust=2), size=5, show_guide=F,
             fontface="bold") +
