@@ -33,6 +33,7 @@ BBLH_torpor <- subset(torpor, Species=="BBLH")
 ##To subset variables within melted data frame and plot in ggplot, 
 ##add to ggplot(x=,*,subset=.(variable=="NEE_kJ")*)## Function to arrange plots
 
+#### General functions ####
 lay_out = function(...) {    
   x <- list(...)
   n <- max(sapply(x, function(x) max(x[[2]])))
@@ -48,6 +49,18 @@ lay_out = function(...) {
 # Function to return sample sizes
 give.n <- function(x){
   return(c(y = mean(x), label = length(x)))
+}
+
+## Function for adding a regression equation to graphs
+## (Where table= the file name, y= column name for y in the equation and x= column name for x)
+lm_eqn <- function(table, y, x){
+  m <- lm(y ~ x, table);
+  eq <- substitute(italic(y) == 
+                     a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
+                   list(a = format(coef(m)[1], digits = 2), 
+                        b = format(coef(m)[2], digits = 2), 
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));                 
 }
 
 #code for including degree symbol in axis labels
@@ -227,8 +240,11 @@ avg_torpid_EE
 
 ######### Mass-corrected Min and avg graphs ####
 ## Mass-corrected Min normo EE by Tc
-m_min_normo_EE <- ggplot(torpor, aes(as.numeric(Tc_mean_C), as.numeric(Min_EE_normo))) +  
+m_min_normo_EE_eq <- ggplot(torpor, aes(as.numeric(Tc_mean_C), as.numeric(Min_EE_normo))) +  
   theme_bw() + geom_point(aes(shape = factor(Species)), size=4) +  labs(shape ='Species') +
+  geom_smooth(method=lm, color="black") +
+  geom_text(x = 16, y = 0.6, label = lm_eqn(torpor, torpor$Min_EE_normo, 
+                                            torpor$Tc_mean_C), parse=T) +
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
   scale_color_brewer(palette = "Set1") + xlim(5, 32) +
   geom_text(aes(label=Torpid_not, hjust=1.75, fontface="bold"),size=5) +
@@ -236,12 +252,15 @@ m_min_normo_EE <- ggplot(torpor, aes(as.numeric(Tc_mean_C), as.numeric(Min_EE_no
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
-m_min_normo_EE
+m_min_normo_EE_eq
 
 ## Mass-corrected Minimum hourly energy expenditure while torpid by Tc
 m_min_torpid_EE <- ggplot(torpor, aes(as.numeric(Tc_mean_C), as.numeric(Min_EE_torpid))) + 
   theme_bw() + geom_point(aes(shape = factor(Species)), size=4) + labs(shape ='Species') +
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
+  geom_smooth(method=lm, color="black") +
+  geom_text(x = 16, y = 0.6, label = lm_eqn(torpor, torpor$AvgEE_normo_MassCorrected, 
+                                            torpor$Tc_min_C), parse=T) +
   scale_color_brewer(palette = "Set1") + #xlim(-7, 50) +
   ylab("Min EE torpid (kJ/g)") + xlab(Tc.xlab) +
   theme(axis.title.x = element_text(size=16, face="bold"),
@@ -340,19 +359,25 @@ lay_out(list(m_avg_normo_EE_Tcmin, 1, 1),
         list(m_min_normo_EE_Tcmin, 2, 1), 
         list(m_min_torpid_EE_Tcmin, 2, 2))
 
-#### Species- specific graphs ####
-## Function for adding a regression equation to graphs
-## (Where table= the file name, y= column name for y in the equation and x= column name for x)
-lm_eqn <- function(table, y, x){
-  m <- lm(y ~ x, table);
-  eq <- substitute(italic(y) == 
-                     a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
-                   list(a = format(coef(m)[1], digits = 2), 
-                        b = format(coef(m)[2], digits = 2), 
-                        r2 = format(summary(m)$r.squared, digits = 3)))
-  as.character(as.expression(eq));                 
-}
+#### Overall regressions ####
 
+## All species, Avg normo vs Tc regression
+m_AvgEE_normo_Tcmin_eq <- ggplot(torpor, aes(as.numeric(Tc_mean_C), AvgEE_normo_MassCorrected)) + 
+  theme_bw() + geom_point(aes(shape = factor(Species)), size=4) + labs(shape ='Species') +
+  geom_smooth(method=lm, color="black") +
+  geom_text(x = 16, y = 0.6, label = lm_eqn(torpor, torpor$AvgEE_normo_MassCorrected, 
+                                            torpor$Tc_min_C), parse=T) +
+  scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
+  scale_color_brewer(palette = "Set1") + xlim(7, 30) +
+  geom_text(aes(label=Torpid_not, hjust=1.75, fontface="bold"),size=5) +
+  ylab("Avg EE normothermic (kJ/g)") + xlab(Tc.xlab) +
+  theme(axis.title.x = element_text(size=16, face="bold"),
+        axis.text.x = element_text(size=14),
+        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
+m_AvgEE_normo_Tcmin_eq
+
+
+#### Species- specific graphs ####
 ## BBLH Avg mass-corrected hourly normothermic EE vs. min Tc with regression line
 m_BBLH_avgEE_normo_Tcmin <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C), 
                                                     AvgEE_normo_MassCorrected)) + 
