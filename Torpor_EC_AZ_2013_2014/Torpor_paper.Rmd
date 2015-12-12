@@ -6,17 +6,75 @@ output: pdf_document
 ---
 These are results or a cross-continent study of torpor in hummingbirds. Data were collected from a total of eight individuals across five sites, with three species in Arizona, USA, and five species in the Andes of Ecuador.
 
-```{r echo=FALSE}
+```{r, echo=FALSE}
 library(knitr)
 library(ggplot2)
 library(reshape)
 library(gridExtra)
 library(grid)
 library(wq)
-read_chunk('Torpor_paper_Nov2015.R')
-<<energyM_plot>>
+gitpath <- "E:\\Git\\AShankar_hummers\\Torpor_EC_AZ_2013_2014"
+setwd(gitpath)
+droppath <- "C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper\\"
+torpor <-read.csv(paste(droppath,"Torpor_table_plot_Dec9.csv", sep=""), header=T)
 ```
 
+
+```{r Mass, echo=FALSE}
+## Adding column dividing NEE by 2/3*Mass to correct for mass with allometric scaling
+torpor$NEE_MassCorrected<- torpor$NEE_kJ/((2/3)*torpor$Mass)
+
+## Adding columns to correct for mass in Avg EE normo, Min EE normo, torpid, etc.
+torpor$AvgEE_normo_MassCorrected <- torpor$Avg_EE_hourly_normo/((2/3)*torpor$Mass)
+torpor$MinEE_normo_MassCorrected <- as.numeric(torpor$Min_EE_normo)/((2/3)*torpor$Mass)
+torpor$AvgEE_torpid_MassCorrected <- torpor$Avg_EE_hourly_torpid/((2/3)*torpor$Mass)
+torpor$MinEE_torpid_MassCorrected <- as.numeric(torpor$Min_EE_torpid)/((2/3)*torpor$Mass)
+
+# Line to arrange Site facets in sensible order
+torpor$Site_new <- factor(torpor$Site, levels=c('HC','SC','SWRS','MQ','SL'))
+
+## Subset just BBLH data
+BBLH_torpor <- subset(torpor, Species=="BBLH")
+```
+
+
+```{r, echo=FALSE}
+#### General functions ####
+lay_out = function(...) {    
+  x <- list(...)
+  n <- max(sapply(x, function(x) max(x[[2]])))
+  p <- max(sapply(x, function(x) max(x[[3]])))
+  grid::pushViewport(grid::viewport(layout = grid::grid.layout(n, p)))    
+  
+  for (i in seq_len(length(x))) {
+    print(x[[i]][[1]], vp = grid::viewport(layout.pos.row = x[[i]][[2]], 
+                                           layout.pos.col = x[[i]][[3]]))
+  }
+} 
+
+# Function to return sample sizes
+give.n <- function(x){
+  return(c(y = mean(x), label = length(x)))
+}
+
+## Function for adding a regression equation to graphs
+## (Where table= the file name, y= column name for y in the equation and x= column name for x)
+lm_eqn <- function(table, y, x){
+  m <- lm(y ~ x, table);
+  eq <- substitute(italic(y) == 
+                     a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
+                   list(a = format(coef(m)[1], digits = 2), 
+                        b = format(coef(m)[2], digits = 2), 
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));                 
+}
+
+#code for including degree symbol in axis labels
+Tc.xlab <- expression(atop(paste("Chamber Temperature (", degree,"C)")))
+Ta.xlab <- expression(atop(paste("Ambient Temperature (", degree,"C)")))
+Tc_min.xlab <- expression(atop(paste("Minimum Chamber Temperature (", degree,"C)")))
+
+```
 **Nighttime energy expenditure plots**
 
 
