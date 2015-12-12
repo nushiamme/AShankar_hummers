@@ -4,7 +4,7 @@ author: "Anusha Shankar, Rebecca Schroeder"
 date: "Wednesday, December 09, 2015"
 output: pdf_document
 ---
-These are results or a cross-continent study of torpor in hummingbirds. Data were collected from a total of eight individuals across five sites, with three species in Arizona, USA, and five species in the Andes of Ecuador.
+These are results or a cross-continent study of torpor in hummingbirds. Data were collected from a total of 42 individuals of eight species across five sites, with three species in Arizona, USA, and five species in the Andes of Ecuador.
 
 ```{r, echo=FALSE}
 library(knitr)
