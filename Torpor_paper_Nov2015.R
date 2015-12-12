@@ -12,7 +12,7 @@ library(wq)
 #wdMac
 wdMS <- setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
 wdMS
-torpor <- read.csv("Torpor_table_plot_Dec9.csv")
+torpor <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper\\Torpor_table_plot_Dec9.csv")
 #names(torpor)
 
 ## Adding column dividing NEE by 2/3*Mass to correct for mass with allometric scaling
