@@ -99,6 +99,20 @@ energyM_plot <- ggplot(torpor, aes(Species, NEE_MassCorrected)) +  theme_bw() +
   stat_summary(fun.data = give.n, geom = "text", vjust=-5)
 energyM_plot
 
+## Energy vs. hours torpid, species labeled
+energyM_hours <- ggplot(torpor, aes(Hours_torpid, NEE_MassCorrected)) +  theme_bw() +
+  geom_point(aes(shape = factor(Species)), size=4) + 
+  scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
+  geom_smooth(method=lm, color="black") +
+  geom_text(x = 6, y = 4.5, label = lm_eqn(torpor, torpor$NEE_MassCorrected, 
+                                             torpor$Hours_torpid), parse=T) +
+  labs(shape='Species') + scale_color_brewer(palette = "Set1") + theme_bw() +
+  ylab("Nighttime energy expenditure Mass-corrected (kJ/g)") + xlab("Hours torpid") +
+  theme(axis.title.x = element_text(size=16, face="bold"),
+        axis.text.x = element_text(size=14),
+        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14))
+energyM_hours
+
 ## Comparing NEE and hours plots
 grid.arrange(energyM_plot, hours_plot, nrow=1, ncol=2)
 

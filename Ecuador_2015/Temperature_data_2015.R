@@ -21,3 +21,4 @@ Temp_plot <- ggplot(Ta_TillNov, aes(Time,Temperature)) + theme_bw() + geom_point
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=12))
 Temp_plot
 max(Ta_TillNov$Temperature)
+
