@@ -30,6 +30,9 @@ torpor$Site_new <- factor(torpor$Site, levels=c('HC','SC','SWRS','MQ','SL'))
 ## Subset just BBLH data
 BBLH_torpor <- subset(torpor, Species=="BBLH")
 
+## Subset just GCB data
+GCB_torpor <- subset(torpor, Species=="GCB")
+
 ##To subset variables within melted data frame and plot in ggplot, 
 ##add to ggplot(x=,*,subset=.(variable=="NEE_kJ")*)## Function to arrange plots
 
@@ -452,6 +455,13 @@ m_BBLH_avgEE_torpid_Tcmin_eq <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
 m_BBLH_avgEE_torpid_Tcmin_eq
 
+m_GCB_avgEE_torpid_Tcmin_eq <- ggplot(GCB_torpor, aes(as.numeric(Tc_min_C), AvgEE_torpid_MassCorrected)) +
+  theme_bw() + geom_point() + geom_smooth(method=lm) +
+  geom_text(x=21, y=0.09, label=lm_eqn(GCB_torpor, GCB_torpor$AvgEE_torpid_MassCorrected,
+                                       GCB_torpor$Tc_min_C), parse=T,size=6) +
+  
+
+
 ## BBLH Min mass-corrected hourly normothermic EE vs. min Tc with regression line
 m_BBLH_minEE_normo_Tcmin_eq <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C), 
                                                     MinEE_normo_MassCorrected)) + 
@@ -486,6 +496,8 @@ lay_out(list(m_BBLH_avgEE_normo_Tcmin_eq, 1, 1),
         list(m_BBLH_avgEE_torpid_Tcmin_eq, 1, 2),
         list(m_BBLH_minEE_normo_Tcmin_eq, 2, 1), 
         list(m_BBLH_minEE_torpid_Tcmin_eq, 2, 2))
+
+## GCB
 
 
 #### Statistics ####
