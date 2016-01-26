@@ -107,13 +107,13 @@ energyM_hours <- ggplot(torpor, aes(Hours_torpid, NEE_MassCorrected)) +  theme_b
   geom_point(aes(shape = factor(Species)), size=4) + 
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
   geom_smooth(method=lm, color="black") +
-  geom_text(x = 6, y = 4.5, label = lm_eqn(torpor, torpor$NEE_MassCorrected, 
-                                             torpor$Hours_torpid), parse=T) +
+  geom_text(x = 5, y = 4.5, label = lm_eqn(torpor, torpor$NEE_MassCorrected, 
+                                             torpor$Hours_torpid), parse=T, size=7) +
   labs(shape='Species') + scale_color_brewer(palette = "Set1") + theme_bw() +
   ylab("Nighttime energy expenditure Mass-corrected (kJ/g)") + xlab("Hours torpid") +
-  theme(axis.title.x = element_text(size=16, face="bold"),
-        axis.text.x = element_text(size=14),
-        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14))
+  theme(axis.title.x = element_text(size=18, face="bold"),
+        axis.text.x = element_text(size=16),
+        axis.title.y = element_text(size=18, face="bold"), axis.text.y = element_text(size=16))
 energyM_hours
 
 ## Comparing NEE and hours plots
@@ -374,15 +374,15 @@ m_avg_normo_EE_Tcmin_eq <- ggplot(torpor, aes(as.numeric(Tc_min_C), AvgEE_normo_
   theme_bw() + geom_point(aes(shape = factor(Species)), size=4) + labs(shape ='Species') +
   geom_smooth(method=lm, color="black") +
   geom_text(x = 16, y = 0.6, label = lm_eqn(torpor, torpor$AvgEE_normo_MassCorrected, 
-                                            torpor$Tc_min_C), parse=T) +
+                                            torpor$Tc_min_C), parse=T, size=7) +
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
   scale_color_brewer(palette = "Set1") + xlim(0, 30) +
   #facet_grid(.~Site,space="free") +
   geom_text(aes(label=Torpid_not, hjust=1.75, fontface="bold"),size=5) +
   ylab("Avg EE normothermic (kJ/g)") + xlab(Tc_min.xlab) +
-  theme(axis.title.x = element_text(size=16, face="bold"),
-        axis.text.x = element_text(size=14),
-        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
+  theme(axis.title.x = element_text(size=18, face="bold"),
+        axis.text.x = element_text(size=16),
+        axis.title.y = element_text(size=18, face="bold"), axis.text.y = element_text(size=16)) 
 m_avg_normo_EE_Tcmin_eq
 
 ## Mass-corrected Average hourly energy expenditure while torpid
