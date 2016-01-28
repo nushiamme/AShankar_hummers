@@ -502,6 +502,9 @@ m_GCB_avgEE_torpid_Tcmin_eq <- ggplot(GCB_torpor, aes(as.numeric(Tc_min_C), AvgE
 m_GCB_avgEE_torpid_Tcmin_eq
 
 #### Statistics ####
+
+## Linear and non-linear models
+## Regressions
 multiple_regression_NEE <- lm(NEE_kJ ~ Tc_mean_C + Tc_min_C + Mass, data=torpor)
 summary(multiple_regression_NEE) # show results
 # Other useful functions 
@@ -531,5 +534,5 @@ mul_regr_m_AvgEEtorpid_BBLH <- lm(AvgEE_torpid_MassCorrected ~ Tc_mean_C + Tc_mi
                                     Mass, data=BBLH_torpor)
 anova(mul_regr_m_AvgEEtorpid_BBLH)
 
-#temp <- ggplot(torpor, aes(Daytime_mean_Ta_C,Day)) + geom_point() + theme_bw()
-#temp
+## GAMs
+gam(torpor)
