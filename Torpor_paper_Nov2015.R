@@ -6,6 +6,7 @@ library(reshape)
 library(gridExtra)
 library(grid)
 library(wq)
+library(gam)
 
 ## setwd and read in file
 #wdMac<- setwd("/Users/anushashankar/Dropbox/Hummingbird energetics/Tables_for_paper")
@@ -535,4 +536,8 @@ mul_regr_m_AvgEEtorpid_BBLH <- lm(AvgEE_torpid_MassCorrected ~ Tc_mean_C + Tc_mi
 anova(mul_regr_m_AvgEEtorpid_BBLH)
 
 ## GAMs
-gam(torpor)
+torpor$Tc_min_C_sq <- (torpor$Tc_min_C)^2
+quad_avgEE_torpid <- lm(AvgEE_torpid_MassCorrected ~ Tc_min_C + Tc_min_C_sq, torpor)
+quad_avgEE_torpid
+
+
