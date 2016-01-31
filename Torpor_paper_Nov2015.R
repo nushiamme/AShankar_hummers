@@ -536,8 +536,19 @@ mul_regr_m_AvgEEtorpid_BBLH <- lm(AvgEE_torpid_MassCorrected ~ Tc_mean_C + Tc_mi
 anova(mul_regr_m_AvgEEtorpid_BBLH)
 
 ## GAMs
-torpor$Tc_min_C_sq <- (torpor$Tc_min_C)^2
-quad_avgEE_torpid <- lm(AvgEE_torpid_MassCorrected ~ Tc_min_C + Tc_min_C_sq, torpor)
-quad_avgEE_torpid
+attach(torpor)
+torpor$Tc_min_C_sq <- (Tc_min_C)^2
+##lm
+quad_avgEE_torpid <- lm(AvgEE_torpid_MassCorrected ~ Tc_min_C + Tc_min_C_sq)
+predictedEE <- predict(quad_avgEE_torpid,list(Temp=Tc_min_C, Temp2=Tc_min_C^2))
+summary(quad_avgEE_torpid)
 
+plot(Tc_min_C, AvgEE_torpid_MassCorrected, pch=16, xlab = "Time (s)", 
+     ylab = "Avg EE Mass-corrected", cex.lab = 1.3, col = "blue")
+lines(Tc_min_C, predictedEE, col = "darkgreen", lwd = 3)
+lines(sort(Tc_min_C), predictedEE[order(Tc_min_C)], col='red', type='b') 
+detach(torpor)
 
+nls_fit <- nls(y ~ a + b * x^(-c), Data, start = list(a = 80, b = 20, 
+                                                      c = 0.2))
+lines(Tc_min_C, predictedEE, col = "red")
