@@ -550,11 +550,11 @@ summary(fit2b)
 fit3b <- lm(torpor$AvgEE_torpid_MassCorrected ~ poly(torpor$Tc_min_C, 3, raw=TRUE))
 summary(fit3b)
 ## Plot data points
-plot(Tc_min_C, AvgEE_torpid_MassCorrected, pch=16, xlab = "Temp (deg C)", 
+plot(torpor$Tc_min_C, torpor$AvgEE_torpid_MassCorrected, pch=16, xlab = "Temp (deg C)", 
      ylab = "Avg torpid EE Mass-corrected", cex.lab = 1.3, col = "blue")
-lines(Tc_min_C, predictedEE, col = "darkgreen", lwd = 3)
-lines(sort(Tc_min_C), predictedEE[order(Tc_min_C)], col='red', type='b') 
+lines(sort(torpor$Tc_min_C), predictedEE[order(torpor$Tc_min_C)], col='red', type='b') 
 
+## Interesting useless graph that made me think if there were two separate things happening
 plot(torpor$Tc_min_C, torpor$AvgEE_torpid_MassCorrected, type="l", lwd=3)
 
 ## Separating torpor data by AvgEE_torpid_MassCorrected curve break
@@ -569,10 +569,12 @@ summary(quad_avgEE_torpidLCT)
 quad_avgEE_torpidUCT <- lm(AvgEE_torpid_MassCorrected ~ Tc_min_C + I(Tc_min_C_sq), torpor_UCT)
 summary(quad_avgEE_torpidUCT)
 
-# Regression with same slope but different intercepts for each Gender
-fm1 <- lm(formula=torpor$AvgEE_torpid_MassCorrected~torpor$Tc_min_C, data=df3)
-fm1s <- summary(fm1)
-df3 = cbind(df3, pred = predict(fm1))
+## Plot avg normo EE vs. mean and min temperatures
+plot(torpor$Tc_min_C, torpor$AvgEE_normo_MassCorrected, pch=16, xlab = "Temp (deg C)", 
+     ylab = "Avg normo EE Mass-corrected", cex.lab = 1.3, col = "blue")
+plot(torpor$Tc_min_C, torpor$AvgEE_normo_MassCorrected, pch=16, xlab = "Temp (deg C)", 
+     ylab = "Avg normo EE Mass-corrected", cex.lab = 1.3, col = "blue")
 
-ggplot(data=df3, mapping=aes(x=Income, y=Consumption, color=Gender)) + geom_point() + 
-  geom_line(mapping=aes(y=pred))
+
+quad_avgEE_torpid <- lm(torpor$AvgEE_torpid_MassCorrected ~ Tc_min_C + I(Tc_min_C_sq))
+predictedEE <- predict(quad_avgEE_torpid,list(Temp=Tc_min_C, Temp2=Tc_min_C^2))
