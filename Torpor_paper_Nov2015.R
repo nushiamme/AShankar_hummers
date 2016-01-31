@@ -536,19 +536,43 @@ mul_regr_m_AvgEEtorpid_BBLH <- lm(AvgEE_torpid_MassCorrected ~ Tc_mean_C + Tc_mi
 anova(mul_regr_m_AvgEEtorpid_BBLH)
 
 ## GAMs
-attach(torpor)
 torpor$Tc_min_C_sq <- (Tc_min_C)^2
 ##lm
-quad_avgEE_torpid <- lm(AvgEE_torpid_MassCorrected ~ Tc_min_C + Tc_min_C_sq)
+quad_avgEE_torpid <- lm(torpor$AvgEE_torpid_MassCorrected ~ Tc_min_C + I(Tc_min_C_sq))
 predictedEE <- predict(quad_avgEE_torpid,list(Temp=Tc_min_C, Temp2=Tc_min_C^2))
 summary(quad_avgEE_torpid)
 
-plot(Tc_min_C, AvgEE_torpid_MassCorrected, pch=16, xlab = "Time (s)", 
-     ylab = "Avg EE Mass-corrected", cex.lab = 1.3, col = "blue")
+## Using the poly function
+fit1 <- lm(torpor$AvgEE_torpid_MassCorrected ~ torpor$Tc_min_C)
+summary(fit1)
+fit2b <- lm(torpor$AvgEE_torpid_MassCorrected ~ poly(torpor$Tc_min_C, 2, raw=TRUE))
+summary(fit2b)
+fit3b <- lm(torpor$AvgEE_torpid_MassCorrected ~ poly(torpor$Tc_min_C, 3, raw=TRUE))
+summary(fit3b)
+## Plot data points
+plot(Tc_min_C, AvgEE_torpid_MassCorrected, pch=16, xlab = "Temp (deg C)", 
+     ylab = "Avg torpid EE Mass-corrected", cex.lab = 1.3, col = "blue")
 lines(Tc_min_C, predictedEE, col = "darkgreen", lwd = 3)
 lines(sort(Tc_min_C), predictedEE[order(Tc_min_C)], col='red', type='b') 
-detach(torpor)
 
-nls_fit <- nls(y ~ a + b * x^(-c), Data, start = list(a = 80, b = 20, 
-                                                      c = 0.2))
-lines(Tc_min_C, predictedEE, col = "red")
+plot(torpor$Tc_min_C, torpor$AvgEE_torpid_MassCorrected, type="l", lwd=3)
+
+## Separating torpor data by AvgEE_torpid_MassCorrected curve break
+torpor_LCT <- torpor[torpor$Tc_min_C<=18,]
+torpor_UCT <- torpor[torpor$Tc_min_C>18,]
+
+## Regression equation for temperatures <= 18 deg C. Good fit! R squared is 0.57
+quad_avgEE_torpidLCT <- lm(AvgEE_torpid_MassCorrected ~ Tc_min_C + I(Tc_min_C_sq), torpor_LCT)
+summary(quad_avgEE_torpidLCT)
+
+## Regression equation for temperatures above 18 deg C. Not much of a fit, R squared is 0.20
+quad_avgEE_torpidUCT <- lm(AvgEE_torpid_MassCorrected ~ Tc_min_C + I(Tc_min_C_sq), torpor_UCT)
+summary(quad_avgEE_torpidUCT)
+
+# Regression with same slope but different intercepts for each Gender
+fm1 <- lm(formula=torpor$AvgEE_torpid_MassCorrected~torpor$Tc_min_C, data=df3)
+fm1s <- summary(fm1)
+df3 = cbind(df3, pred = predict(fm1))
+
+ggplot(data=df3, mapping=aes(x=Income, y=Consumption, color=Gender)) + geom_point() + 
+  geom_line(mapping=aes(y=pred))
