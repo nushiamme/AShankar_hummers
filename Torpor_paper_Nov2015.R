@@ -552,8 +552,8 @@ summary(fit2b)
 fit3b <- lm(torpor$AvgEE_torpid_MassCorrected ~ poly(torpor$Tc_min_C, 3, raw=TRUE))
 summary(fit3b)
 ## Plot data points
-plot(torpor$Tc_min_C, torpor$AvgEE_torpid_MassCorrected, pch=16, xlab = "Temp (deg C)", 
-     ylab = "Avg torpid EE Mass-corrected", cex.lab = 1.3, col = "blue")
+plot(torpor$Tc_min_C, torpor$AvgEE_torpid_MassCorrected, pch=16, xlab = "Min Temp (deg C)", 
+     ylab = "Avg torpid EE Mass-corrected", cex.lab = 1.6, col = "blue")
 lines(sort(torpor$Tc_min_C), predictedEE[order(torpor$Tc_min_C)], col='red', type='b') 
 
 ## Interesting useless graph that made me think if there were two separate things happening
@@ -563,7 +563,8 @@ plot(torpor$Tc_min_C, torpor$AvgEE_torpid_MassCorrected, type="l", lwd=3)
 torpor_LCT <- torpor[torpor$Tc_min_C<=18,]
 torpor_UCT <- torpor[torpor$Tc_min_C>18,]
 
-## Quadratic Regression equation for temperatures <= 18 deg C. Good fit! R squared is 0.57
+## Quadratic Regression equation for temperatures <= 18 deg C. Good fit! R squared is 0.57. See later, without squared
+## term is better fit
 quad_avgEE_torpidLCT <- lm(AvgEE_torpid_MassCorrected ~ Tc_min_C + I(Tc_min_C_sq), torpor_LCT)
 summary(quad_avgEE_torpidLCT)
 
@@ -578,35 +579,31 @@ summary(lm_avgEE_torpidLCT)
 lm_avgEE_torpidUCT <- lm(AvgEE_torpid_MassCorrected ~ Tc_min_C, torpor_UCT)
 summary(lm_avgEE_torpidUCT)
 
-fit_avgEE_torpidLCT <- lm(AvgEE_torpid_MassCorrected ~ Tc_min_C, torpor_LCT)
-coefficients(fit_avgEE_torpidLCT) # model coefficients
-confint(fit_avgEE_torpidLCT, level=0.95) # CIs for model parameters 
-fitted(fit_avgEE_torpidLCT) # predicted values
-residuals(fit_avgEE_torpidLCT) # residuals
-anova(fit_avgEE_torpidLCT) # anova table 
-vcov(fit_avgEE_torpidLCT) # covariance matrix for model parameters 
-influence(fit_avgEE_torpidLCT) # regression diagnostics
-summary(fit_avgEE_torpidLCT)
+## Mean and min Tc fit equally well; both have R2 of about 0.61
+lm_avgEE_torpidLCT_Tc_mean <- lm(AvgEE_torpid_MassCorrected ~ Tc_mean_C, torpor_LCT)
+summary(lm_avgEE_torpidLCT)
 
-plot(torpor$Tc_mean_C, torpor$AvgEE_normo_MassCorrected, pch=16, xlab = "Temp (deg C)", 
+plot(torpor_LCT$Tc_min_C, torpor_LCT$AvgEE_torpid_MassCorrected, pch=16, xlab = "Min Temp (deg C)", 
      ylab = "Avg normo EE Mass-corrected", cex.lab = 1.3, col = "blue")
+predic_TorporLCT <- lm(torpor_LCT$AvgEE_torpid_MassCorrected~torpor_LCT$Tc_min_C)
+lines(torpor_LCT$Tc_min_C, predict(predic_TorporLCT))
 
 ## lm() With min Tc
 quad_avgEE_normo <- lm(torpor$AvgEE_normo_MassCorrected ~ torpor$Tc_min_C + I(torpor$Tc_min_C_sq))
 predictedEE_normo <- predict(quad_avgEE_normo,list(Temp=torpor$Tc_min_C, Temp2=torpor$Tc_min_C_sq))
 ## Plot avg normo EE vs. min temperatures
-plot(torpor$Tc_min_C, torpor$AvgEE_normo_MassCorrected, pch=16, xlab = "Temp (deg C)", 
+plot(torpor$Tc_min_C, torpor$AvgEE_normo_MassCorrected, pch=16, xlab = "Min Temp (deg C)", 
      ylab = "Avg normo EE Mass-corrected", cex.lab = 1.3, col = "blue")
 lines(sort(torpor$Tc_min_C), predictedEE_normo[order(torpor$Tc_min_C)], col='red', type='b') 
 
 ## lm() With mean Tc
 torpor$Tc_mean_C_sq <- (torpor$Tc_mean_C)^2
 lm_normo_Tc_mean <- lm(torpor$AvgEE_normo_MassCorrected ~ torpor$Tc_mean_C)
-summary(lm_normo_Tc_mean)
+plot(lm_normo_Tc_mean)
 lines(torpor$Tc_mean_C, predict(lm_normo_Tc_mean), col='red', type='b')
 quad_avgEE_normo_Tcmean <- lm(torpor$AvgEE_normo_MassCorrected ~ torpor$Tc_mean_C) + I(torpor$Tc_mean_C_sq))
 predictedEE_normo_Tcmean <- predict(quad_avgEE_normo,list(Temp=torpor$Tc_mean_C, Temp2=torpor$Tc_mean_C_sq))
 ## Plot avg normo EE vs. mean temperatures
-plot(torpor$Tc_mean_C, torpor$AvgEE_normo_MassCorrected, pch=16, xlab = "Temp (deg C)", 
+plot(torpor$Tc_mean_C, torpor$AvgEE_normo_MassCorrected, pch=16, xlab = "Mean Temp (deg C)", 
      ylab = "Avg normo EE Mass-corrected", cex.lab = 1.3, col = "blue")
 lines(sort(torpor$Tc_mean_C), predictedEE_normo[order(torpor$Tc_mean_C)], col='red', type='b') 
