@@ -18,6 +18,7 @@ wdMS
 torpor <- read.csv("Torpor_table_plot_Dec9.csv")
 #names(torpor)
 
+### NOTE TO ANUSHA- use theme_classic() instead of theme_bw() for publications
 ## Adding column dividing NEE by 2/3*Mass to correct for mass with allometric scaling
 torpor$NEE_MassCorrected<- torpor$NEE_kJ/((2/3)*torpor$Mass)
 
@@ -111,12 +112,11 @@ energyM_hours <- ggplot(torpor, aes(Hours_torpid, NEE_MassCorrected)) +  theme_b
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
   geom_smooth(method=lm, color="black") +
   geom_text(x = 5, y = 4.5, label = lm_eqn(torpor, torpor$NEE_MassCorrected, 
-                                             torpor$Hours_torpid), parse=T, size=7) +
-  labs(shape='Species') + scale_color_brewer(palette = "Set1") + theme_bw() +
-  ylab("Nighttime energy expenditure Mass-corrected (kJ/g)") + xlab("Hours torpid") +
-  theme(axis.title.x = element_text(size=18, face="bold"),
-        axis.text.x = element_text(size=16),
-        axis.title.y = element_text(size=18, face="bold"), axis.text.y = element_text(size=16))
+                                             torpor$Hours_torpid), parse=T, size=10) +
+  labs(shape='Species') + scale_color_brewer(palette = "Set1") + theme_bw(base_size=30) +
+  ylab("Nighttime energy expenditure (kJ/g)") + xlab("Hours torpid") +
+  theme(axis.title.x = element_text(face="bold", vjust=-0.5),
+        axis.title.y = element_text(size=28, face="bold", vjust=1.5), legend.key.height=unit(3,"line"))
 energyM_hours
 
 ## Comparing NEE and hours plots
@@ -431,32 +431,31 @@ m_AvgEE_normo_Tcmin_eq
 ## BBLH Avg mass-corrected hourly normothermic EE vs. min Tc with regression line
 m_BBLH_avgEE_normo_Tcmin_eq <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C), 
                                                     AvgEE_normo_MassCorrected)) + 
-  theme_bw() + geom_point() + geom_smooth(method=lm, color="black") +
+  theme_bw() + geom_point(size=4) + geom_smooth(method=lm, color="black") +
   geom_text(x = 16, y = 0.38, label = lm_eqn(BBLH_torpor, BBLH_torpor$AvgEE_normo_MassCorrected, 
-                                             BBLH_torpor$Tc_min_C), parse=T) +
+                                             BBLH_torpor$Tc_min_C), parse=T, size=8) +
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
   scale_color_brewer(palette = "Set1") + #xlim(0, 30) +
   geom_text(aes(label=Torpid_not, hjust=1.75, fontface="bold"),size=5) +
   ylab("Avg BBLH normothermic EE (kJ/g)") + xlab(Tc_min.xlab) +
-  theme(axis.title.x = element_text(size=16, face="bold"),
-        axis.text.x = element_text(size=14),
-        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
+  theme(axis.title.x = element_text(size=24, face="bold"),
+        axis.text.x = element_text(size=22),
+        axis.title.y = element_text(size=24, face="bold"), axis.text.y = element_text(size=24)) 
 m_BBLH_avgEE_normo_Tcmin_eq
 
 ## BBLH Avg mass-corrected hourly torpid EE vs. min Tc with regression line
 m_BBLH_avgEE_torpid_Tcmin_eq <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C), 
                                                      AvgEE_torpid_MassCorrected)) + 
-  theme_bw() + geom_point() + geom_smooth(method=lm) +
+  theme_bw() + geom_point(size=4) + geom_smooth(method=lm) +
   geom_text(x = 14, y = 0.07, label = lm_eqn(BBLH_torpor, BBLH_torpor$AvgEE_torpid_MassCorrected, 
-                                             BBLH_torpor$Tc_min_C), parse=T, size=6) +
-  #scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
-  #scale_color_brewer(palette = "Set1") + #xlim(0, 30) +
-  #geom_text(aes(label=Torpid_not, hjust=1.75, fontface="bold"),size=5) +
+                                             BBLH_torpor$Tc_min_C), parse=T, size=8) +
   ylab("Avg BBLH EE torpid (kJ/g)") + xlab(Tc_min.xlab) +
-  theme(axis.title.x = element_text(size=16, face="bold"),
-        axis.text.x = element_text(size=14),
-        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
+  theme(axis.title.x = element_text(size=24, face="bold"),
+        axis.text.x = element_text(size=22),
+        axis.title.y = element_text(size=24, face="bold"), axis.text.y = element_text(size=14)) 
 m_BBLH_avgEE_torpid_Tcmin_eq
+
+grid.arrange(m_BBLH_avgEE_normo_Tcmin_eq, m_BBLH_avgEE_torpid_Tcmin_eq, nrow=1, ncol=2)
 
 ## BBLH Min mass-corrected hourly normothermic EE vs. min Tc with regression line
 m_BBLH_minEE_normo_Tcmin_eq <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C), 
@@ -494,15 +493,27 @@ lay_out(list(m_BBLH_avgEE_normo_Tcmin_eq, 1, 1),
         list(m_BBLH_minEE_torpid_Tcmin_eq, 2, 2))
 
 ## GCB
+m_GCB_avgEE_normo_Tcmin_eq <- ggplot(GCB_torpor, aes(as.numeric(Tc_min_C), AvgEE_normo_MassCorrected)) +
+  theme_bw() + geom_point(size=4) + geom_smooth(method=lm) +
+  geom_text(x=21, y=0.32, label=lm_eqn(GCB_torpor, GCB_torpor$AvgEE_normo_MassCorrected,
+                                       GCB_torpor$Tc_min_C), parse=T,size=8) +
+  ylab("Avg GCB EE normo (kJ/g)") + xlab(Tc_min.xlab) +
+  theme(axis.title.x = element_text(size=24, face="bold"),
+        axis.text.x = element_text(size=22),
+        axis.title.y = element_text(size=24, face="bold"), axis.text.y = element_text(size=22)) 
+m_GCB_avgEE_normo_Tcmin_eq
+
 m_GCB_avgEE_torpid_Tcmin_eq <- ggplot(GCB_torpor, aes(as.numeric(Tc_min_C), AvgEE_torpid_MassCorrected)) +
-  theme_bw() + geom_point() + geom_smooth(method=lm) +
+  theme_bw() + geom_point(size=4) + geom_smooth(method=lm) +
   geom_text(x=21, y=0.10, label=lm_eqn(GCB_torpor, GCB_torpor$AvgEE_torpid_MassCorrected,
-                                       GCB_torpor$Tc_min_C), parse=T,size=6) +
+                                       GCB_torpor$Tc_min_C), parse=T,size=8) +
   ylab("Avg GCB EE torpid (kJ/g)") + xlab(Tc_min.xlab) +
-  theme(axis.title.x = element_text(size=16, face="bold"),
-        axis.text.x = element_text(size=14),
-        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
+  theme(axis.title.x = element_text(size=24, face="bold"),
+        axis.text.x = element_text(size=22),
+        axis.title.y = element_text(size=24, face="bold"), axis.text.y = element_text(size=22)) 
 m_GCB_avgEE_torpid_Tcmin_eq
+
+grid.arrange(m_GCB_avgEE_normo_Tcmin_eq, m_GCB_avgEE_torpid_Tcmin_eq, nrow=1, ncol=2)
 
 #### Statistics ####
 
@@ -553,18 +564,20 @@ fit3b <- lm(torpor$AvgEE_torpid_MassCorrected ~ poly(torpor$Tc_min_C, 3, raw=TRU
 summary(fit3b)
 ## Plot data points
 plot(torpor$Tc_min_C, torpor$AvgEE_torpid_MassCorrected, pch=16, xlab = "Min Temp (deg C)", 
-     ylab = "Avg torpid EE Mass-corrected", cex.lab = 1.6, col = "blue")
-lines(sort(torpor$Tc_min_C), predictedEE[order(torpor$Tc_min_C)], col='red', type='b') 
+     ylab = "Avg torpid EE Mass-corrected", cex.lab = 1.6, cex.axis=1.6, col = "blue")
+lines(sort(torpor$Tc_min_C), predictedEE[order(torpor$Tc_min_C)], col='red', type='b', lwd=3) 
 
 ## Interesting useless graph that made me think if there were two separate things happening
 plot(torpor$Tc_min_C, torpor$AvgEE_torpid_MassCorrected, type="l", lwd=3)
 
-## Separating torpor data by AvgEE_torpid_MassCorrected curve break
+## Separating torpor data by AvgEE_torpid_MassCorrected curve break.
+###### NOTE: NOT ACTUALLY LCT AND UCT. Using those terms just for short convenience. Just temps above and
+## below 18 dec C
 torpor_LCT <- torpor[torpor$Tc_min_C<=18,]
 torpor_UCT <- torpor[torpor$Tc_min_C>18,]
 
-## Quadratic Regression equation for temperatures <= 18 deg C. Good fit! R squared is 0.57. See later, without squared
-## term is better fit
+## Quadratic Regression equation for temperatures <= 18 deg C. Good fit! R squared is 0.57. 
+## See later, without squared ## term is better fit
 quad_avgEE_torpidLCT <- lm(AvgEE_torpid_MassCorrected ~ Tc_min_C + I(Tc_min_C_sq), torpor_LCT)
 summary(quad_avgEE_torpidLCT)
 
@@ -583,10 +596,35 @@ summary(lm_avgEE_torpidUCT)
 lm_avgEE_torpidLCT_Tc_mean <- lm(AvgEE_torpid_MassCorrected ~ Tc_mean_C, torpor_LCT)
 summary(lm_avgEE_torpidLCT)
 
-plot(torpor_LCT$Tc_min_C, torpor_LCT$AvgEE_torpid_MassCorrected, pch=16, xlab = "Min Temp (deg C)", 
-     ylab = "Avg normo EE Mass-corrected", cex.lab = 1.3, col = "blue")
-predic_TorporLCT <- lm(torpor_LCT$AvgEE_torpid_MassCorrected~torpor_LCT$Tc_min_C)
-lines(torpor_LCT$Tc_min_C, predict(predic_TorporLCT))
+AvgEE_torpidLCT_Tc_min <- ggplot(torpor_LCT, aes(Tc_min_C, AvgEE_torpid_MassCorrected)) +  theme_bw() + 
+  geom_point(aes(shape = factor(Species)), size=4) + labs(shape ='Species') +
+  geom_smooth(method=lm, color="black") +
+  geom_text(x = 11, y = 0.092, label = lm_eqn(torpor_LCT, torpor_LCT$AvgEE_torpid_MassCorrected, 
+                                              torpor_LCT$Tc_min_C), parse=T, size=8) +
+  scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
+  scale_color_brewer(palette = "Set1") + 
+  #facet_grid(.~Site,space="free") +
+  ylab("Avg EE torpid (kJ/g)") + xlab(Tc_min.xlab) +
+  theme(axis.title.x = element_text(size=24, face="bold"),
+        axis.text.x = element_text(size=22),
+        axis.title.y = element_text(size=24, face="bold"), axis.text.y = element_text(size=22)) 
+AvgEE_torpidLCT_Tc_min
+
+AvgEE_torpidUCT_Tc_min <- ggplot(torpor_UCT, aes(Tc_min_C, AvgEE_torpid_MassCorrected)) +  theme_bw() + 
+  geom_point(aes(shape = factor(Species)), size=4) + labs(shape ='Species') +
+  geom_smooth(method=lm, color="black") +
+  geom_text(x = 21, y = 0.094, label = lm_eqn(torpor_UCT, torpor_UCT$AvgEE_torpid_MassCorrected, 
+                                              torpor_UCT$Tc_min_C), parse=T, size=8) +
+  scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
+  scale_color_brewer(palette = "Set1") + 
+  #facet_grid(.~Site,space="free") +
+  ylab("Avg EE torpid (kJ/g)") + xlab(Tc_min.xlab) +
+  theme(axis.title.x = element_text(size=24, face="bold"),
+        axis.text.x = element_text(size=22),
+        axis.title.y = element_text(size=24, face="bold"), axis.text.y = element_text(size=22)) 
+AvgEE_torpidUCT_Tc_min
+
+grid.arrange(AvgEE_torpidLCT_Tc_min, AvgEE_torpidUCT_Tc_min, nrow=1, ncol=2)
 
 ## lm() With min Tc
 quad_avgEE_normo <- lm(torpor$AvgEE_normo_MassCorrected ~ torpor$Tc_min_C + I(torpor$Tc_min_C_sq))
