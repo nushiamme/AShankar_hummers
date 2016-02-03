@@ -41,6 +41,7 @@ GCB_torpor <- subset(torpor, Species=="GCB")
 ##add to ggplot(x=,*,subset=.(variable=="NEE_kJ")*)## Function to arrange plots
 
 #### General functions ####
+## To arrange graphs
 lay_out = function(...) {    
   x <- list(...)
   n <- max(sapply(x, function(x) max(x[[2]])))
@@ -107,7 +108,7 @@ energyM_plot <- ggplot(torpor, aes(Species, NEE_MassCorrected)) +  theme_bw() +
 energyM_plot
 
 ## Energy vs. hours torpid, species labeled
-energyM_hours <- ggplot(torpor, aes(Hours_torpid, NEE_MassCorrected)) +  theme_bw() +
+energyM_hours <- ggplot(torpor, aes(Hours_torpid, NEE_MassCorrected)) +  
   geom_point(aes(shape = factor(Species)), size=4) + 
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
   geom_smooth(method=lm, color="black") +
@@ -374,18 +375,17 @@ m_min_torpid_EE_Tcmin_eq
 
 ## Mass-corrected Average hourly energy expenditure while normothermic
 m_avg_normo_EE_Tcmin_eq <- ggplot(torpor, aes(as.numeric(Tc_min_C), AvgEE_normo_MassCorrected)) + 
-  theme_bw() + geom_point(aes(shape = factor(Species)), size=4) + labs(shape ='Species') +
+  theme_bw(base_size=30) + geom_point(aes(shape = factor(Species)), size=4) + labs(shape ='Species') +
   geom_smooth(method=lm, color="black") +
   geom_text(x = 16, y = 0.6, label = lm_eqn(torpor, torpor$AvgEE_normo_MassCorrected, 
-                                            torpor$Tc_min_C), parse=T, size=7) +
+                                            torpor$Tc_min_C), parse=T, size=10) +
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
-  scale_color_brewer(palette = "Set1") + xlim(0, 30) +
+  scale_color_brewer(palette = "Set1") + #xlim(0, 30) +
   #facet_grid(.~Site,space="free") +
   geom_text(aes(label=Torpid_not, hjust=1.75, fontface="bold"),size=5) +
   ylab("Avg EE normothermic (kJ/g)") + xlab(Tc_min.xlab) +
-  theme(axis.title.x = element_text(size=18, face="bold"),
-        axis.text.x = element_text(size=16),
-        axis.title.y = element_text(size=18, face="bold"), axis.text.y = element_text(size=16)) 
+  theme(axis.title.x = element_text(face="bold"),
+        axis.title.y = element_text(face="bold"), legend.key.height=unit(3,"line")) 
 m_avg_normo_EE_Tcmin_eq
 
 ## Mass-corrected Average hourly energy expenditure while torpid
