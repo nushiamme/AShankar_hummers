@@ -428,12 +428,11 @@ m_AvgEE_normo_Tcmin_eq
 
 
 #### Species- specific graphs ####
-## BBLH Avg mass-corrected hourly normothermic EE vs. min Tc with regression line
+# BBLH Avg mass-corrected hourly normothermic EE vs. min Tc with regression line
 m_BBLH_avgEE_normo_Tcmin_eq <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C), 
                                                     AvgEE_normo_MassCorrected)) + 
   theme_bw() + geom_point(size=4) + geom_smooth(method=lm, color="black") +
-  geom_text(x = 16, y = 0.38, label = lm_eqn(BBLH_torpor, BBLH_torpor$AvgEE_normo_MassCorrected, 
-                                             BBLH_torpor$Tc_min_C), parse=T, size=8) +
+  geom_text(x = 20, y = 0.38, label = paste("R^2 :", " 0.291",sep=""), parse=T, size=8) +
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
   scale_color_brewer(palette = "Set1") + #xlim(0, 30) +
   geom_text(aes(label=Torpid_not, hjust=1.75, fontface="bold"),size=5) +
@@ -454,6 +453,20 @@ m_BBLH_avgEE_torpid_Tcmin_eq <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C),
         axis.text.x = element_text(size=22),
         axis.title.y = element_text(size=24, face="bold"), axis.text.y = element_text(size=14)) 
 m_BBLH_avgEE_torpid_Tcmin_eq
+
+## Both normo and torpid avg EE for BBLH on same graph
+BBLH_tor_nor <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C), AvgEE_normo_MassCorrected)) + 
+  theme_bw() + geom_point(color="blue", size=4) +
+  geom_smooth(method=lm, color="blue") +
+  geom_text(x = 20, y = 0.38, label = paste("R^2 :", " 0.291",sep=""), parse=T, size=8) +
+  geom_point(BBLH_torpor, aes(as.numeric(Tc_min_C), AvgEE_torpid_MassCorrected), size=4, color="red") +
+  #geom_smooth(method=lm, color="red") +
+  ylab("Avg BBLH normothermic EE (kJ/g)") + xlab(Tc.xlab) +
+  theme(axis.title.x = element_text(size=24, face="bold"),
+        axis.text.x = element_text(size=22),
+        axis.title.y = element_text(size=24, face="bold"), axis.text.y = element_text(size=24)) 
+BBLH_tor_nor
+
 
 grid.arrange(m_BBLH_avgEE_normo_Tcmin_eq, m_BBLH_avgEE_torpid_Tcmin_eq, nrow=1, ncol=2)
 
