@@ -10,9 +10,19 @@ setwd("C:\\Users\\ANUSHA\\Dropbox\\Data 2015\\Temperature\\iButton_Ta")
 Ta_JulAug <- read.csv("CompiledTemp_July-Aug16_2015.csv")
 Ta_TillNov <- read.csv("CompiledTemp_Nov28_2015.csv")
 head(Ta_TillNov)
+samp <- read.csv("Sample_ToPlot.csv")
 
 ##m.temp <- melt(Ta_JulAug, id.vars = c("Month", "Day", "Year", "Time", "AM_PM", "iButton_number"), 
 ##     measure.vars = "Temperature")
+
+## Not working too well
+samp_plot <- ggplot(samp, aes(Time,Temp_C)) + theme_classic(base_size = 30) + geom_point(size=3) + 
+  scale_color_discrete() + #geom_smooth(aes(group=1)) + facet_grid(~Month) + 
+  theme(axis.title.x = element_text(size=16, face="bold"), 
+        axis.text.x = element_text(size=12, face="bold", angle = 60, vjust=0.2, hjust = 0.4),
+        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=12))
+samp_plot
+
 
 #### TODO - have to add AM, PM and check what happened with after 9:40am
 Temp_aug <- ggplot(Ta_JulAug, aes(Time,Temperature)) + theme_classic(base_size = 30) + geom_boxplot() + 

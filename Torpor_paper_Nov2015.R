@@ -16,6 +16,7 @@ library(MASS)
 wdMS <- setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
 wdMS
 torpor <- read.csv("Torpor_table_plot_Dec9.csv")
+freq_table <- read.csv("Frequency_torpor.csv")
 #names(torpor)
 
 ### NOTE TO ANUSHA- use theme_classic() instead of theme_bw() for publications
@@ -36,6 +37,10 @@ BBLH_torpor <- subset(torpor, Species=="BBLH")
 
 ## Subset just GCB data
 GCB_torpor <- subset(torpor, Species=="GCB")
+
+## Melt torpor file to get Frequency of torpor use
+m.tor_not <- melt(torpor, id.vars = c("Species", "Site", "Day", "Month", "Year"), 
+                  measure.vars="Torpid_not")
 
 ##To subset variables within melted data frame and plot in ggplot, 
 ##add to ggplot(x=,*,subset=.(variable=="NEE_kJ")*)## Function to arrange plots
@@ -77,6 +82,14 @@ Ta.xlab <- expression(atop(paste("Ambient Temperature (", degree,"C)")))
 Tc_min.xlab <- expression(atop(paste("Minimum Chamber Temperature (", degree,"C)")))
 
 #### Basic NEE and hours plots ####
+## Frequency of torpor use
+freq_table$prop <- (freq_table$Torpid/freq_table$Total)*100
+
+freq <- ggplot(freq_table, aes(Species, prop)) + geom_bar(stat="identity") + theme_bw(base_size = 30) +
+  geom_text(data=freq_table,aes(x=Species,y=prop,label=paste("n = ", Total)),vjust=-2, size=10) +
+  ylab("Frequency torpor use (%)") + ylim(0, 109) + theme(axis.title.y = element_text(vjust = 2))
+freq
+
 ## Plot for Nighttime energy expenditure, by species
 energy_plot <- ggplot(torpor, aes(Species, NEE_kJ)) +  theme_bw() +
   geom_boxplot(aes(col=Species)) + facet_grid(.~Site_new, scale="free_x", space="free") + 
@@ -119,6 +132,18 @@ energyM_hours <- ggplot(torpor, aes(Hours_torpid, NEE_MassCorrected)) +
   theme(axis.title.x = element_text(face="bold", vjust=-0.5),
         axis.title.y = element_text(size=28, face="bold", vjust=1.5), legend.key.height=unit(3,"line"))
 energyM_hours
+
+## Energy vs. hours torpid, without species labeled- for retreat
+energy_hours_spUnlabeled <- ggplot(torpor, aes(Hours_torpid, NEE_MassCorrected)) +  
+  geom_point(size=4) + theme_bw(base_size=30) +
+  geom_smooth(method=lm, color="black") +
+  geom_text(x = 7, y = 4.5, label = paste("R^2 :", " 0.565",sep=""), parse=T, size=10) +
+  labs(shape='Species') + scale_color_brewer(palette = "Set1") +
+  ylab("Nighttime energy expenditure (kJ/g)") + xlab("Hours torpid") +
+  theme(axis.title.x = element_text(face="bold", vjust=-0.5),
+        axis.title.y = element_text(face="bold", vjust=1.5), legend.key.height=unit(3,"line"))
+energy_hours_spUnlabeled
+
 
 ## Comparing NEE and hours plots
 grid.arrange(energyM_plot, hours_plot, nrow=1, ncol=2)
