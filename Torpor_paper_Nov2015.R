@@ -109,7 +109,7 @@ energyM_plot
 
 ## Energy vs. hours torpid, species labeled
 energyM_hours <- ggplot(torpor, aes(Hours_torpid, NEE_MassCorrected)) +  
-  geom_point(aes(shape = factor(Species)), size=4) + 
+  geom_point(aes(shape = factor(Species)), size=4) + theme_bw(base_size=30) +
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
   geom_smooth(method=lm, color="black") +
   geom_text(x = 5, y = 4.5, label = lm_eqn(torpor, torpor$NEE_MassCorrected, 
@@ -454,19 +454,27 @@ m_BBLH_avgEE_torpid_Tcmin_eq <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C),
         axis.title.y = element_text(size=24, face="bold"), axis.text.y = element_text(size=14)) 
 m_BBLH_avgEE_torpid_Tcmin_eq
 
+## Melt BBLH dataframe to put torpid and normo in same column
+m_BBLH_tor_nor <- melt(BBLH_torpor, id.vars="Tc_min_C", 
+                       measure.vars = c("AvgEE_torpid_MassCorrected", "AvgEE_normo_MassCorrected"))
+levels(m_BBLH_tor_nor$variable)[levels(m_BBLH_tor_nor$variable)=="AvgEE_normo_MassCorrected"] <- 
+  "Avg Normothermic EE"
+levels(m_BBLH_tor_nor$variable)[levels(m_BBLH_tor_nor$variable)=="AvgEE_torpid_MassCorrected"] <- 
+  "Avg Torpid EE"
+
+m_BBLH_tor_nor$variable <- factor(m_BBLH_tor_nor$variable, levels = rev(levels(m_BBLH_tor_nor$variable)))
+
 ## Both normo and torpid avg EE for BBLH on same graph
-BBLH_tor_nor <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C), AvgEE_normo_MassCorrected)) + 
-  theme_bw() + geom_point(color="blue", size=4) +
-  geom_smooth(method=lm, color="blue") +
-  geom_text(x = 20, y = 0.38, label = paste("R^2 :", " 0.291",sep=""), parse=T, size=8) +
-  geom_point(BBLH_torpor, aes(as.numeric(Tc_min_C), AvgEE_torpid_MassCorrected), size=4, color="red") +
-  #geom_smooth(method=lm, color="red") +
-  ylab("Avg BBLH normothermic EE (kJ/g)") + xlab(Tc.xlab) +
+BBLH_tor_nor <- ggplot(m_BBLH_tor_nor, aes(as.numeric(Tc_min_C), value, color=variable)) +
+  theme_bw(base_size = 30) + geom_point(aes(col=variable), size=4) + geom_smooth(method=lm, size=2) +
+  scale_color_manual(values=c("#0099ff", "#ff0000")) +
+  geom_text(x = 20, y = 0.38, label = paste("R^2 :", " 0.291",sep=""), parse=T, size=8, col="black") +
+  geom_text(x = 20, y = 0.07, label = paste("R^2 :", " 0.567",sep=""), parse=T, size=8, col="black") +
+  ylab("Avg BBLH Energy Expenditure (kJ/g)") + xlab(Tc.xlab) +
   theme(axis.title.x = element_text(size=24, face="bold"),
-        axis.text.x = element_text(size=22),
+        axis.text.x = element_text(size=22), legend.key.height=unit(3,"line"),
         axis.title.y = element_text(size=24, face="bold"), axis.text.y = element_text(size=24)) 
 BBLH_tor_nor
-
 
 grid.arrange(m_BBLH_avgEE_normo_Tcmin_eq, m_BBLH_avgEE_torpid_Tcmin_eq, nrow=1, ncol=2)
 
@@ -527,6 +535,28 @@ m_GCB_avgEE_torpid_Tcmin_eq <- ggplot(GCB_torpor, aes(as.numeric(Tc_min_C), AvgE
 m_GCB_avgEE_torpid_Tcmin_eq
 
 grid.arrange(m_GCB_avgEE_normo_Tcmin_eq, m_GCB_avgEE_torpid_Tcmin_eq, nrow=1, ncol=2)
+
+## Melt BBLH dataframe to put torpid and normo in same column
+m_GCB_tor_nor <- melt(GCB_torpor, id.vars="Tc_min_C", 
+                       measure.vars = c("AvgEE_torpid_MassCorrected", "AvgEE_normo_MassCorrected"))
+levels(m_GCB_tor_nor$variable)[levels(m_GCB_tor_nor$variable)=="AvgEE_normo_MassCorrected"] <- 
+  "Avg Normothermic EE"
+levels(m_GCB_tor_nor$variable)[levels(m_GCB_tor_nor$variable)=="AvgEE_torpid_MassCorrected"] <- 
+  "Avg Torpid EE"
+
+m_GCB_tor_nor$variable <- factor(m_GCB_tor_nor$variable, levels = rev(levels(m_GCB_tor_nor$variable)))
+
+## Both normo and torpid avg EE for GCB on same graph
+GCB_tor_nor <- ggplot(m_GCB_tor_nor, aes(as.numeric(Tc_min_C), value, color=variable)) +
+  theme_bw(base_size = 30) + geom_point(aes(col=variable), size=4) + geom_smooth(method=lm, size=2) +
+  scale_color_manual(values=c("#0099ff", "#ff0000")) +
+  geom_text(x = 22, y = 0.32, label = paste("R^2 :", " 0.0302",sep=""), parse=T, size=8, col="black") +
+  geom_text(x = 22, y = 0.12, label = paste("R^2 :", " 0.343",sep=""), parse=T, size=8, col="black") +
+  ylab("Avg GCB Energy Expenditure (kJ/g)") + xlab(Tc.xlab) +
+  theme(axis.title.x = element_text(size=24, face="bold"),
+        axis.text.x = element_text(size=22), legend.key.height=unit(3,"line"),
+        axis.title.y = element_text(size=24, face="bold"), axis.text.y = element_text(size=24)) 
+GCB_tor_nor
 
 #### Statistics ####
 
