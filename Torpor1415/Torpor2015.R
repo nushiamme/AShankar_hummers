@@ -17,6 +17,8 @@ wdMS <- setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_pa
 wdMS
 torpor2015 <- read.csv("Torpor2015.csv")
 
+m.nee <- melt(torpor2015, id.vars = c("Species", "Time", "Day", "Month"), measure.vars = "NEE_kJ") 
+
 ## Function to return sample sizes
 give.n <- function(x){
   return(c(y = mean(x), label = length(x)))
@@ -49,8 +51,9 @@ energy15_mety <- ggplot(na.omit(mety_indiv[, c("Time", "EE_J", "BirdID")]), aes(
   ylab("Hourly energy expenditure (J)")
 energy15_mety
 
-energy_plot <- ggplot(torpor2015, aes(Species, as.numeric(NEE_kJ))) +  theme_bw(base_size = 30) +
-  geom_boxplot() + 
+## Plot NEE
+energy_plot <- ggplot(m.nee, aes(Species, value)) +  theme_bw(base_size = 30) +
+  geom_boxplot(size=2) + geom_point(aes(col=Species), size=6) +
   ylab("Nighttime energy expenditure (kJ)")
 energy_plot
 
