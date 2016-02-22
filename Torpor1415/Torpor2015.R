@@ -49,10 +49,9 @@ energy15_mety <- ggplot(na.omit(mety_indiv[, c("Time", "EE_J", "BirdID")]), aes(
   ylab("Hourly energy expenditure (J)")
 energy15_mety
 
-energy_plot <- ggplot(torpor2015, aes(Species, NEE_kJ)) +  theme_bw(base_size = 30) +
-  geom_boxplot(aes(col=Species)) + 
-  ylab("Nighttime energy expenditure (kJ)") + 
-  stat_summary(fun.data = give.n, geom = "text", vjust=-5)
+energy_plot <- ggplot(torpor2015, aes(Species, as.numeric(NEE_kJ))) +  theme_bw(base_size = 30) +
+  geom_boxplot() + 
+  ylab("Nighttime energy expenditure (kJ)")
 energy_plot
 
 
