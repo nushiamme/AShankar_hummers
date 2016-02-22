@@ -2,6 +2,7 @@
 ## Anusha Shankar
 ## Started February 22, 2016
 
+##Packages
 library(ggplot2)
 library(reshape)
 library(gridExtra)
@@ -11,10 +12,49 @@ library(gam)
 library(foreign)
 library(MASS)
 
+## Set working directory and read in .csv file
 wdMS <- setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
 wdMS
 torpor2015 <- read.csv("Torpor2015.csv")
-melt()
+
+## Function to return sample sizes
+give.n <- function(x){
+  return(c(y = mean(x), label = length(x)))
+}
+
+## Subsetting files
+agcu <- torpor2015[torpor2015$Species=="AGCU",]
+mety <- torpor2015[torpor2015$Species=="METY",]
+mety$Time <- factor(mety$Time, levels=mety$Time)
+
+mety_indiv <- torpor2015[torpor2015$BirdID=="EG15_1028_METY",]
+mety_indiv$Time <- factor(mety_indiv$Time, levels=mety_indiv$Time)
+
+##METY days - 0910, 1028, 1130, 1209, 1211, 1212, 1219
+##AGCU days - 0826, 1023, 1220, 1223, 0104
+
+agcu_indiv <- torpor2015[torpor2015$BirdID=="EG15_0104_AGCU",]
+agcu_indiv$Time <- factor(agcu_indiv$Time, levels=agcu_indiv$Time)
+
+#Plot EE over night for agcu
+energy15_agcu <- ggplot(na.omit(agcu_indiv[, c("Time", "EE_J", "BirdID")]), aes(Time, EE_J)) +
+  theme_bw(base_size=30) +  geom_line(aes(group=BirdID, col=BirdID), size=2) +
+  scale_color_manual(values="purple") +
+  ylab("Hourly energy expenditure (J)")
+energy15_agcu
+
+#Plot EE over night for mety
+energy15_mety <- ggplot(na.omit(mety_indiv[, c("Time", "EE_J", "BirdID")]), aes(Time, EE_J)) + 
+  theme_bw(base_size=30) +  geom_line(aes(group=BirdID, col = BirdID), size=2) + 
+  ylab("Hourly energy expenditure (J)")
+energy15_mety
+
+energy_plot <- ggplot(torpor2015, aes(Species, NEE_kJ)) +  theme_bw(base_size = 30) +
+  geom_boxplot(aes(col=Species)) + 
+  ylab("Nighttime energy expenditure (kJ)") + 
+  stat_summary(fun.data = give.n, geom = "text", vjust=-5)
+energy_plot
+
 
 
 ###### For later #######
