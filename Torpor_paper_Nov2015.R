@@ -1,5 +1,6 @@
 ## Started fresh, 15 November, 2015
 ## Torpor paper, A. Shankar, R. Schroeder et al.
+## Updated Feb 22, 2015
 
 library(ggplot2)
 library(reshape)
@@ -16,10 +17,10 @@ library(MASS)
 wdMS <- setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
 wdMS
 torpor <- read.csv("Torpor_table_plot_Dec9.csv")
+torpor2015 <- read.csv("Torpor2015.csv")
 freq_table <- read.csv("Frequency_torpor.csv")
 #names(torpor)
 
-### NOTE TO ANUSHA- use theme_classic() instead of theme_bw() for publications
 ## Adding column dividing NEE by 2/3*Mass to correct for mass with allometric scaling
 torpor$NEE_MassCorrected<- torpor$NEE_kJ/((2/3)*torpor$Mass)
 
