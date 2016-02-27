@@ -6,11 +6,17 @@
 library(reshape)
 library(ggplot2)
 library(maptools)
+library(scales)
 
-setwd("C:\\Users\\ANUSHA\\Dropbox\\Data 2015\\Temperature\\iButton_Ta")
+setwd("C:\\Users\\ANUSHA\\Dropbox\\Data 2015\\Temperature\\TempSummaries\\")
 Ta_JulAug <- read.csv("CompiledTemp_July-Aug16_2015.csv")
 Ta_TillNov <- read.csv("CompiledTemp_Nov28_2015.csv")
 Ta_all <- read.csv("CompiledTemp_All.csv")
+Tc <- read.csv("CompiledTc_All.csv")
+
+### TO DO - Make sure to copy and sort out TO DOOOOOOOOO ###
+### Temperature_TillNov15_TorporChamber_MFRCage_For_HEVI_Nov11_12.csv
+
 head(Ta_all)
 
 samp <- read.csv("Sample2_ToPlot.csv")
@@ -20,8 +26,14 @@ Ta_all$daynight[Ta_all$Hour %in% c(7,8,9,10,11)&Ta_all$am_pm=="PM"] <- "Night"
 Ta_all$daynight[Ta_all$Hour %in% c(12,1,2,3,4,5)&Ta_all$am_pm=="AM"] <- "Night"
 Ta_all$daynight[is.na(Ta_all$daynight)]<- "Day"
 
+## Processing chamber file to include day/night (7pm-6am is night)
+Tc$daynight[Tc$Hour %in% c(7,8,9,10,11)&Tc$am_pm=="PM"] <- "Night"
+Tc$daynight[Tc$Hour %in% c(12,1,2,3,4,5)&Tc$am_pm=="AM"] <- "Night"
+Tc$daynight[is.na(Tc$daynight)]<- "Day"
+
 ## Writing the daynight file to csv
 write.csv(Ta_all, file = "Ta_all_daynight.csv")
+write.csv(Tc, file = "Tc_daynight.csv")
 
 ## Summary stats for temperature during torpor
 Ta_daily_mean <- aggregate(Ta_all$Temperature, 
@@ -38,6 +50,23 @@ names(Ta_daily_summ) <- c("Month", "Day", "daynight", "Mean_Ta", "Min_Ta", "Max_
 
 ## Writing the summary temperatures file to csv
 write.csv(Ta_daily_summ, file = "Ta_summary_2015.csv")
+
+## Summary stats forchamber  temperature during torpor. Doing the same as with ambient temp
+Tc_mean <- aggregate(Tc$Temperature, 
+                           by=list(Tc$Month, Tc$Day, Tc$daynight), FUN="mean")
+Tc_min <- aggregate(Tc$Temperature, 
+                          by=list(Tc$Month, Tc$Day, Tc$daynight), FUN="min")
+Tc_max <- aggregate(Tc$Temperature, 
+                          by=list(Tc$Month, Tc$Day,Tc$daynight), FUN="max")
+
+Tc_summ <- merge(Tc_mean, Tc_min, by=c("Group.1", "Group.2", "Group.3"))
+Tc_summ <- merge(Tc_summ, Tc_max, by=c("Group.1", "Group.2", "Group.3"))
+
+names(Tc_summ) <- c("Month", "Day", "daynight", "Mean_Ta", "Min_Ta", "Max_Ta")
+
+## Writing the summary temperatures file to csv
+write.csv(Tc_summ, file = "Ta_summary_2015.csv")
+
 
 ## Creating an object for x axis label to be Ta
 Ta.xlab <- expression(atop(paste("Ambient Temperature (", degree,"C)")))
@@ -63,11 +92,9 @@ Temp_plot
 max(Ta_TillNov$Temperature)
 
 ## 
-Ta_daily_summ <- transform(Ta_daily_summ,Monthday=interaction(Month, Day, sep='/'))
+Ta_daily_summ <- transform(Ta_daily_summ,Monthday=interaction(Month, Day, sep='-'))
 
 Temp_plot <- ggplot(Ta_daily_summ, aes(Monthday,Max_Ta)) + theme_classic(base_size = 30) + 
-  geom_point(aes(col=daynight), size=3) + geom_smooth(aes(group=daynight)) + 
+  geom_point(aes(col=daynight), size=3) + 
   theme(axis.text.x = element_text(size=10, angle=30, vjust=0.2, hjust = 0.4))
 Temp_plot
-
-
