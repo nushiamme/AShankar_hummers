@@ -37,21 +37,26 @@ write.csv(Tc, file = "Tc_daynight.csv")
 
 ## Summary stats for temperature during torpor
 Ta_daily_mean <- aggregate(Ta_all$Temperature, 
-                           by=list(Ta_all$Month, Ta_all$Day, Ta_all$daynight), FUN="mean")
+                   by=list(Ta_all$Year, Ta_all$Month, Ta_all$Day, Ta_all$daynight, Ta_all$Hour, 
+                   Ta_all$am_pm), FUN="mean")
 Ta_daily_min <- aggregate(Ta_all$Temperature, 
-                          by=list(Ta_all$Month, Ta_all$Day, Ta_all$daynight), FUN="min")
+                   by=list(Ta_all$Year, Ta_all$Month, Ta_all$Day, Ta_all$daynight, Ta_all$Hour,
+                   Ta_all$am_pm), FUN="min")
 Ta_daily_max <- aggregate(Ta_all$Temperature, 
-                          by=list(Ta_all$Month, Ta_all$Day,Ta_all$daynight), FUN="max")
+                   by=list(Ta_all$Year, Ta_all$Month, Ta_all$Day, Ta_all$daynight, Ta_all$Hour, 
+                   Ta_all$am_pm), FUN="max")
 
-Ta_daily_summ <- merge(Ta_daily_mean, Ta_daily_min, by=c("Group.1", "Group.2", "Group.3"))
-Ta_daily_summ <- merge(Ta_daily_summ, Ta_daily_max, by=c("Group.1", "Group.2", "Group.3"))
+Ta_daily_summ <- merge(Ta_daily_mean, Ta_daily_min, by=c("Group.1", "Group.2", "Group.3", "Group.4",
+                                                         "Group.5", "Group.6"))
+Ta_daily_summ <- merge(Ta_daily_summ, Ta_daily_max, by=c("Group.1", "Group.2", "Group.3", "Group.4",
+                                                         "Group.5", "Group.6"))
 
-names(Ta_daily_summ) <- c("Month", "Day", "daynight", "Mean_Ta", "Min_Ta", "Max_Ta")
+names(Ta_daily_summ) <- c("Year", "Month", "Day", "daynight", "Hour", "am_pm", "Mean_Ta", 
+                          "Min_Ta", "Max_Ta")
 
-## Writing the summary temperatures file to csv
+## Writing the summary ambient temperatures file to csv
 write.csv(Ta_daily_summ, file = "Ta_summary_2015.csv")
 
-## Summary stats forchamber  temperature during torpor. Doing the same as with ambient temp
 Tc_mean <- aggregate(Tc$Temperature, 
                            by=list(Tc$Expt, Tc$Year, Tc$Month, Tc$Day, Tc$daynight), FUN="mean")
 Tc_min <- aggregate(Tc$Temperature, 
