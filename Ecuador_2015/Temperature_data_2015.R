@@ -53,21 +53,21 @@ write.csv(Ta_daily_summ, file = "Ta_summary_2015.csv")
 
 ## Summary stats forchamber  temperature during torpor. Doing the same as with ambient temp
 Tc_mean <- aggregate(Tc$Temperature, 
-                           by=list(Tc$Month, Tc$Day, Tc$daynight), FUN="mean")
+                           by=list(Tc$Expt, Tc$Year, Tc$Month, Tc$Day, Tc$daynight), FUN="mean")
 Tc_min <- aggregate(Tc$Temperature, 
-                          by=list(Tc$Month, Tc$Day, Tc$daynight), FUN="min")
+                          by=list(Tc$Expt, Tc$Year, Tc$Month, Tc$Day, Tc$daynight), FUN="min")
 Tc_max <- aggregate(Tc$Temperature, 
-                          by=list(Tc$Month, Tc$Day,Tc$daynight), FUN="max")
+                          by=list(Tc$Expt, Tc$Year, Tc$Month, Tc$Day,Tc$daynight), FUN="max")
 
-Tc_summ <- merge(Tc_mean, Tc_min, by=c("Group.1", "Group.2", "Group.3"))
-Tc_summ <- merge(Tc_summ, Tc_max, by=c("Group.1", "Group.2", "Group.3"))
+Tc_summ <- merge(Tc_mean, Tc_min, by=c("Group.1", "Group.2", "Group.3", "Group.4", "Group.5"))
+Tc_summ <- merge(Tc_summ, Tc_max, by=c("Group.1", "Group.2", "Group.3", "Group.4", "Group.5"))
 
-names(Tc_summ) <- c("Month", "Day", "daynight", "Mean_Ta", "Min_Ta", "Max_Ta")
-
+names(Tc_summ) <- c("Expt", "Year", "Month", "Day", "daynight", "Mean_Tc", "Min_Tc", "Max_Tc")
+head(Tc_summ)
 ## Writing the summary temperatures file to csv
-write.csv(Tc_summ, file = "Ta_summary_2015.csv")
+write.csv(Tc_summ, file = "Tc_summary_2015.csv")
 
-
+##### Plots #######
 ## Creating an object for x axis label to be Ta
 Ta.xlab <- expression(atop(paste("Ambient Temperature (", degree,"C)")))
 
@@ -91,7 +91,7 @@ Temp_plot <- ggplot(Ta_TillNov, aes(Time,Temperature)) + theme_bw() + geom_point
 Temp_plot
 max(Ta_TillNov$Temperature)
 
-## 
+## combining Month and Day into same column
 Ta_daily_summ <- transform(Ta_daily_summ,Monthday=interaction(Month, Day, sep='-'))
 
 Temp_plot <- ggplot(Ta_daily_summ, aes(Monthday,Max_Ta)) + theme_classic(base_size = 30) + 
