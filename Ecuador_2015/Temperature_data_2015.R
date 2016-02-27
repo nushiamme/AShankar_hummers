@@ -24,7 +24,7 @@ samp <- read.csv("Sample2_ToPlot.csv")
 
 Ta.xlab <- expression(atop(paste("Ambient Temperature (", degree,"C)")))
 
-OneDay_samp <- samp[samp$Date=="11/28/2015",]
+OneDay_samp <- Ta_all[Ta_all$Day=="2"&Ta_all$Month=="1",]
 
 #### TODO - have to add AM, PM and check what happened with after 9:40am
 Temp_aug <- ggplot(Ta_JulAug, aes(Time,Temperature)) + theme_classic(base_size = 30) + 
@@ -45,31 +45,28 @@ Temp_plot <- ggplot(Ta_TillNov, aes(Time,Temperature)) + theme_bw() + geom_point
 Temp_plot
 max(Ta_TillNov$Temperature)
 
-## Trying newly formatted, all data
-Temp_plot <- ggplot(Ta_all, aes(Time,Temperature)) + theme_bw() + 
+## Trying newly formatted, one day sample from all data
+Temp_plot <- ggplot(OneDay_samp, aes(Time,Temperature)) + theme_bw() + 
   geom_point(aes(col=as.factor(iButton_number))) + scale_color_discrete() + #geom_smooth(aes(group=1)) + 
   facet_grid(~Month) + theme(axis.title.x = element_text(size=16, face="bold"), 
         axis.text.x = element_text(size=12, face="bold", angle = 60, vjust=0.2, hjust = 0.4),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=12))
 Temp_plot
 
+## Summary stats for temperature during torpor
+## example with character variables and NAs
+testDF <- data.frame(v1 = c(1,3,5,7,8,3,5,NA,4,5,7,9),
+                     v2 = c(11,33,55,77,88,33,55,NA,44,55,77,99) )
+by1 <- c("red", "blue", 1, 2, NA, "big", 1, 2, "red", 1, NA, 12)
+by2 <- c("wet", "dry", 99, 95, NA, "damp", 95, 99, "red", 99, NA, NA)
+aggregate(x = testDF, by = list(by1, by2), FUN = "mean")
 
-### This is a horribly manual method, but just getting it done for now
-OneDay_samp$Time2 <- factor(OneDay_samp$Time2, 
-                            levels = c("0:26","0:56", "1:26","1:56", "2:26", "2:56", "3:26","3:56", "4:26",
-                                       "4:56", "5:26", "5:56", "6:26", "6:56","7:26", "7:56", "8:26", "8:56",
-                                       "9:26", "9:56", "10:26","10:56", "11:26", "11:56", "12:26", "12:56",
-                                       "13:26","13:56", "14:26", "14:56", "15:26", "15:56", "16:26","16:56",
-                                       "17:26", "17:56", "18:26", "18:56", "19:26","19:56", "20:26","20:56",
-                                       "21:26","21:56", "22:26","22:56", "23:26", "23:56"))
+Ta_mean_daily <- aggregate(Ta_all$Temperature, by=list(Ta_all$Month, Ta_all$Day), FUN="mean")
+Ta_min_daily <- aggregate(Ta_all$Temperature, by=list(Ta_all$Month, Ta_all$Day), FUN="min")
+Ta_max_daily <- aggregate(Ta_all$Temperature, by=list(Ta_all$Month, Ta_all$Day), FUN="max")
 
-samp_plot <- ggplot(OneDay_samp, aes(Time2,Temp_C)) + theme_classic(base_size = 35) + 
-  geom_point(size=3) + #geom_text(vjust = 0, nudge_y = 0.5) +
-  scale_color_discrete() + #geom_smooth(aes(group=1)) + #facet_grid(~Month) + 
-  theme(axis.title.x = element_text(face="bold"), 
-        axis.text.x = element_text(face="bold", angle=60, vjust=0.4, hjust = 0.4),
-        axis.title.y = element_text(face="bold", vjust=-2), axis.text.y = element_text(size=35)) +
-  xlab("Time of Day") + ylab(Ta.xlab) + 
-  scale_x_discrete(breaks = c("0:26","1:56","3:26","4:56","6:26","7:56","9:26","10:56", "12:26",
-                              "13:56","15:26","16:56","18:26","19:56","21:26","22:56"))
-samp_plot
+Ta_all$daynight[Ta_all$Hour==c(7,8,9,10,11)&Ta_all$am_pm=="PM"] <- "Night"
+Ta_all$daynight[Ta_all$Hour==c(12,1,2,3,4,5)&Ta_all$am_pm=="AM"] <- "Night"
+Ta_all$daynight[is.na(Ta_all$daynight)]<- "Day"
+
+write.csv(Ta_all, file = "Ta_all_daynight.csv")
