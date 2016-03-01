@@ -37,14 +37,33 @@ mety$Time <- factor(mety$Time, levels=mety$Time)
 mety_indiv <- torpor2015[torpor2015$BirdID=="EG15_1028_METY",]
 mety_indiv$Time <- factor(mety_indiv$Time, levels=mety_indiv$Time)
 
-tor_sub$Time <- factor(tor_sub$Time, levels=tor_sub$Time)
 ##METY days - 0910, 1028, 1130, 1209, 1211, 1212, 1219
 ##AGCU days - 0826, 1023, 1220, 1223, 0104
 
+o.tor_sub <- na.omit(tor_sub[, c("Hourly", "EE_J", "BirdID","Species")])
+o.tor_sub$Hourly <- factor(o.tor_sub$Hourly, levels=o.tor_sub$Hourly)
+
+o.tor_sub$BirdID <- factor(o.tor_sub$BirdID, 
+                           levels = c("EG15_0826_AGCU", "EG15_0910_METY", "EG15_1023_AGCU",
+                                      "EG15_1028_METY", "EG15_1130_METY", "EG15_1209_METY",
+                                      "EG15_1211_METY","EG15_1212_METY", "EG15_1219_METY",
+                                      "EG15_1220_AGCU", "EG15_1223_AGCU", "EG15_0104_AGCU"))
+
+
+energy_metyagcu <- ggplot(o.tor_sub, aes(Hourly, EE_J)) + theme_bw(base_size=20) +
+  geom_line(aes(group=BirdID, col=Species), size=2) + facet_wrap(~BirdID, scales="free_x") +
+  ylab("Hourly energy expenditure (J)") + 
+  theme(axis.text.x = element_text(angle=30), 
+        panel.grid.major.x = element_blank(), 
+        panel.grid.major.y = element_line(size=.1, color="black"),
+        panel.grid.minor = element_blank(),
+        strip.background = element_blank(),
+        panel.border = element_rect(colour = "black", fill=NA))
+energy_metyagcu
 
 #Plot EE over night for agcu
-energy15_agcu <- ggplot(na.omit(agcu_indiv[, c("Time", "EE_J", "BirdID")]), aes(Time, EE_J)) +
-  theme_bw(base_size=30) +  geom_line(aes(group=BirdID, col=BirdID), size=2) +
+energy15_agcu <- ggplot(na.omit(agcu_indiv[, c("Time", "EE_J", "BirdID")]),aes(Time, EE_J)) +
+  theme_bw(base_size=30) + geom_line(aes(group=BirdID, col=BirdID), size=2) + 
   scale_color_manual(values="purple") +
   ylab("Hourly energy expenditure (J)")
 energy15_agcu 
