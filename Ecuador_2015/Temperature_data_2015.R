@@ -73,6 +73,25 @@ head(Tc_summ)
 ## Writing the summary temperatures file to csv
 write.csv(Tc_summ, file = "Tc_summary_2015_2.csv")
 
+## For overall torpor table- chamber temp summaries of the whole night
+Tc_mean <- aggregate(Tc$Temperature, 
+                     by=list(Tc$Expt, Tc$Year, Tc$Month, Tc$Day, Tc$daynight), FUN="mean")
+Tc_min <- aggregate(Tc$Temperature, 
+                    by=list(Tc$Expt, Tc$Year, Tc$Month, Tc$Day, Tc$daynight), FUN="min")
+Tc_max <- aggregate(Tc$Temperature, 
+                    by=list(Tc$Expt, Tc$Year, Tc$Month, Tc$Day, Tc$daynight), FUN="max")
+
+Tc_summ_night <- merge(Tc_mean, Tc_min, by=c("Group.1", "Group.2", "Group.3", "Group.4", "Group.5"))
+Tc_summ_night <- merge(Tc_summ_night, Tc_max, by=c("Group.1", "Group.2", "Group.3", "Group.4", "Group.5"))
+
+names(Tc_summ_night) <- c("Expt", "Year", "Month", "Day", "daynight", "Mean_Tc", "Min_Tc", "Max_Tc")
+head(Tc_summ_night)
+## Writing the summary temperatures file to csv
+write.csv(Tc_summ_night, file = "Tc_summary_notHourly_2015.csv")
+
+
+
+
 ##### Plots #######
 ## Creating an object for x axis label to be Ta
 Ta.xlab <- expression(atop(paste("Ambient Temperature (", degree,"C)")))

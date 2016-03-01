@@ -27,6 +27,8 @@ give.n <- function(x){
 ## Subsetting files
 agcu <- torpor2015[torpor2015$Species=="AGCU",]
 mety <- torpor2015[torpor2015$Species=="METY",]
+tor_sub <- torpor2015[torpor2015$Species=="AGCU" | torpor2015$Species=="METY",]
+
 mety$Time <- factor(mety$Time, levels=mety$Time)
 
 mety_indiv <- torpor2015[torpor2015$BirdID=="EG15_1028_METY",]
