@@ -51,9 +51,9 @@ o.tor_sub$BirdID <- factor(o.tor_sub$BirdID,
 
 
 energy_metyagcu <- ggplot(o.tor_sub, aes(Hourly, EE_J)) + theme_bw(base_size=20) +
-  geom_line(aes(group=BirdID, col=Species), size=2) + facet_wrap(~BirdID, scales="free_x") +
-  ylab("Hourly energy expenditure (J)") + 
-  theme(axis.text.x = element_text(angle=30), 
+  geom_line(aes(group=BirdID, col=Species), size=1.5) + facet_wrap(~BirdID, scales="free_x") +
+  ylab("Hourly energy expenditure (J)") + scale_color_manual(values=c("#000080", "#ff0000")) +
+  theme(axis.text.x = element_text(angle=30, hjust=1), 
         panel.grid.major.x = element_blank(), 
         panel.grid.major.y = element_line(size=.1, color="black"),
         panel.grid.minor = element_blank(),
