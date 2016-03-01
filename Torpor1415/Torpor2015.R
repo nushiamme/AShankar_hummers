@@ -29,23 +29,25 @@ agcu <- torpor2015[torpor2015$Species=="AGCU",]
 mety <- torpor2015[torpor2015$Species=="METY",]
 tor_sub <- torpor2015[torpor2015$Species=="AGCU" | torpor2015$Species=="METY",]
 
-mety$Time <- factor(mety$Time, levels=mety$Time)
+## Set time as a factor
+agcu_indiv <- torpor2015[torpor2015$BirdID=="EG15_0104_AGCU",]
+agcu_indiv$Time <- factor(agcu_indiv$Time, levels=agcu_indiv$Time)
 
+mety$Time <- factor(mety$Time, levels=mety$Time)
 mety_indiv <- torpor2015[torpor2015$BirdID=="EG15_1028_METY",]
 mety_indiv$Time <- factor(mety_indiv$Time, levels=mety_indiv$Time)
 
+tor_sub$Time <- factor(tor_sub$Time, levels=tor_sub$Time)
 ##METY days - 0910, 1028, 1130, 1209, 1211, 1212, 1219
 ##AGCU days - 0826, 1023, 1220, 1223, 0104
 
-agcu_indiv <- torpor2015[torpor2015$BirdID=="EG15_0104_AGCU",]
-agcu_indiv$Time <- factor(agcu_indiv$Time, levels=agcu_indiv$Time)
 
 #Plot EE over night for agcu
 energy15_agcu <- ggplot(na.omit(agcu_indiv[, c("Time", "EE_J", "BirdID")]), aes(Time, EE_J)) +
   theme_bw(base_size=30) +  geom_line(aes(group=BirdID, col=BirdID), size=2) +
   scale_color_manual(values="purple") +
   ylab("Hourly energy expenditure (J)")
-energy15_agcu
+energy15_agcu 
 
 #Plot EE over night for mety
 energy15_mety <- ggplot(na.omit(mety_indiv[, c("Time", "EE_J", "BirdID")]), aes(Time, EE_J)) + 
