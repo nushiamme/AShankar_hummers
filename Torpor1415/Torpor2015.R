@@ -58,7 +58,8 @@ energy_metyagcu <- ggplot(o.tor_sub, aes(Hourly, EE_J)) + theme_bw(base_size=20)
         panel.grid.major.y = element_line(size=.1, color="black"),
         panel.grid.minor = element_blank(),
         strip.background = element_blank(),
-        panel.border = element_rect(colour = "black", fill=NA))
+        panel.border = element_rect(colour = "black", fill=NA)) +
+  xlab("Hour step (Birdno_ArmyTime)")
 energy_metyagcu
 
 #Plot EE over night for agcu
