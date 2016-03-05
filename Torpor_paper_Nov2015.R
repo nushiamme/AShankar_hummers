@@ -28,9 +28,6 @@ tor_sub <- torpor2015[torpor2015$Species=="AGCU" | torpor2015$Species=="METY",]
 ## Writing the tor_sub file to csv
 write.csv(tor_sub, "Torpor_METY_AGCU_2015.csv")
 
-## And making time a factor for tor_sub
-tor_sub$Time <- factor(tor_sub$Time, levels=tor_sub$Time)
-
 ## Adding column dividing NEE by 2/3*Mass to correct for mass with allometric scaling
 torpor$NEE_MassCorrected<- torpor$NEE_kJ/((2/3)*torpor$Mass)
 

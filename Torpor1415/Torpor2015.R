@@ -17,30 +17,29 @@ wdMS <- setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_pa
 wdMS
 torpor2015 <- read.csv("Torpor2015.csv")
 
-m.nee <- melt(torpor2015, id.vars = c("Species", "Time", "Day", "Month"), measure.vars = "NEE_kJ") 
-
 ## Function to return sample sizes
 give.n <- function(x){
   return(c(y = mean(x), label = length(x)))
 }
 
 ## Subsetting files
-agcu <- torpor2015[torpor2015$Species=="AGCU",]
-mety <- torpor2015[torpor2015$Species=="METY",]
+#agcu <- torpor2015[torpor2015$Species=="AGCU",]
+#mety <- torpor2015[torpor2015$Species=="METY",]
 tor_sub <- torpor2015[torpor2015$Species=="AGCU" | torpor2015$Species=="METY",]
 
 ## Set time as a factor
-agcu_indiv <- torpor2015[torpor2015$BirdID=="EG15_0104_AGCU",]
-agcu_indiv$Time <- factor(agcu_indiv$Time, levels=agcu_indiv$Time)
+#agcu_indiv <- torpor2015[torpor2015$BirdID=="EG15_0104_AGCU",]
+#agcu_indiv$Time <- factor(agcu_indiv$Time, levels=agcu_indiv$Time)
 
-mety$Time <- factor(mety$Time, levels=mety$Time)
-mety_indiv <- torpor2015[torpor2015$BirdID=="EG15_1028_METY",]
-mety_indiv$Time <- factor(mety_indiv$Time, levels=mety_indiv$Time)
+#mety$Time <- factor(mety$Time, levels=mety$Time)
+#mety_indiv <- torpor2015[torpor2015$BirdID=="EG15_1028_METY",]
+#mety_indiv$Time <- factor(mety_indiv$Time, levels=mety_indiv$Time)
 
 ##METY days - 0910, 1028, 1130, 1209, 1211, 1212, 1219
 ##AGCU days - 0826, 1023, 1220, 1223, 0104
 
-o.tor_sub <- na.omit(tor_sub[, c("Hourly", "EE_J", "BirdID","Species")])
+o.tor_sub <- na.omit(tor_sub[, c("Hourly", "EE_J", "BirdID","Species", "Ta_day_min", "Ta_day_avg",
+                                 "Ta_day_max", "Ta_night_min", "Tc_avg", "Tc_min")])
 o.tor_sub$Hourly <- factor(o.tor_sub$Hourly, levels=o.tor_sub$Hourly)
 
 o.tor_sub$BirdID <- factor(o.tor_sub$BirdID, 
@@ -52,8 +51,10 @@ o.tor_sub$BirdID <- factor(o.tor_sub$BirdID,
 
 energy_metyagcu <- ggplot(o.tor_sub, aes(Hourly, EE_J)) + theme_bw(base_size=20) +
   geom_line(aes(group=BirdID, col=Species), size=1.5) + facet_wrap(~BirdID, scales="free_x") +
+  geom_text(aes(label=Tc_min)) +
+  annotate("text", x=7, y=2100, label= paste("Ta daytime min = ", o.tor_sub$Ta_day_min[1])) + 
   ylab("Hourly energy expenditure (J)") + scale_color_manual(values=c("#000080", "#ff0000")) +
-  scale_y_continuous(breaks=c(0,100,200,300,500,1000,1500,2000))+
+  #scale_y_continuous(breaks=c(0,100,200,300,500,1000,1500,2000))+
   theme(axis.text.x = element_text(angle=30, hjust=1), 
         panel.grid.major.x = element_blank(), 
         panel.grid.major.y = element_line(size=.1, color="black"),
