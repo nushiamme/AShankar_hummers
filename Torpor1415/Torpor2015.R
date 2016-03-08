@@ -49,6 +49,7 @@ o.tor_sub$BirdID <- factor(o.tor_sub$BirdID,
                                       "EG15_1220_AGCU", "EG15_1223_AGCU", "EG15_0104_AGCU"))
 
 
+
 energy_metyagcu <- ggplot(o.tor_sub, aes(Hourly, EE_J)) + theme_bw(base_size=20) +
   geom_line(aes(group=BirdID, col=Species), size=1.5) + facet_wrap(~BirdID, scales="free_x") +
   geom_text(aes(label=Tc_min)) +
