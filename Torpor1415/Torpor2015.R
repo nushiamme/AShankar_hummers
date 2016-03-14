@@ -11,6 +11,9 @@ library(wq)
 library(gam)
 library(foreign)
 library(MASS)
+library(devtools)
+library(plotflow)
+library(trinker)
 
 ## Set working directory and read in .csv file
 wdMS <- setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
@@ -48,11 +51,10 @@ o.tor_sub$BirdID <- factor(o.tor_sub$BirdID,
                                       "EG15_1211_METY","EG15_1212_METY", "EG15_1219_METY",
                                       "EG15_1220_AGCU", "EG15_1223_AGCU", "EG15_0104_AGCU"))
 
-
+order_by()
 
 energy_metyagcu <- ggplot(o.tor_sub, aes(Hourly, EE_J)) + theme_bw(base_size=20) +
   geom_line(aes(group=BirdID, col=Species), size=1.5) + facet_wrap(~BirdID, scales="free_x") +
-  geom_text(aes(label=Tc_min)) +
   annotate("text", x=7, y=2100, label= paste("Ta daytime min = ", o.tor_sub$Ta_day_min[1])) + 
   ylab("Hourly energy expenditure (J)") + scale_color_manual(values=c("#000080", "#ff0000")) +
   #scale_y_continuous(breaks=c(0,100,200,300,500,1000,1500,2000))+
