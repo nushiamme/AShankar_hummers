@@ -13,7 +13,6 @@ library(foreign)
 library(MASS)
 library(devtools)
 library(plotflow)
-library(trinker)
 
 ## Set working directory and read in .csv file
 wdMS <- setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
@@ -41,8 +40,8 @@ tor_sub <- torpor2015[torpor2015$Species=="AGCU" | torpor2015$Species=="METY",]
 ##METY days - 0910, 1028, 1130, 1209, 1211, 1212, 1219
 ##AGCU days - 0826, 1023, 1220, 1223, 0104
 
-o.tor_sub <- na.omit(tor_sub[, c("Hourly", "EE_J", "BirdID","Species", "Ta_day_min", "Ta_day_avg",
-                                 "Ta_day_max", "Ta_night_min", "Tc_avg", "Tc_min")])
+o.tor_sub <- na.omit(tor_sub[, c("Hourly", "Time", "EE_J", "BirdID","Species", "Ta_day_min", 
+                                 "Ta_day_avg", "Ta_day_max", "Ta_night_min", "Tc_avg", "Tc_min")])
 o.tor_sub$Hourly <- factor(o.tor_sub$Hourly, levels=o.tor_sub$Hourly)
 
 o.tor_sub$BirdID <- factor(o.tor_sub$BirdID, 
@@ -51,20 +50,20 @@ o.tor_sub$BirdID <- factor(o.tor_sub$BirdID,
                                       "EG15_1211_METY","EG15_1212_METY", "EG15_1219_METY",
                                       "EG15_1220_AGCU", "EG15_1223_AGCU", "EG15_0104_AGCU"))
 
-order_by()
 
-energy_metyagcu <- ggplot(o.tor_sub, aes(Hourly, EE_J)) + theme_bw(base_size=20) +
+energy_metyagcu <- ggplot(o.tor_sub, aes(Hourly, EE_J)) + theme_bw(base_size=18) +
   geom_line(aes(group=BirdID, col=Species), size=1.5) + facet_wrap(~BirdID, scales="free_x") +
-  annotate("text", x=7, y=2100, label= paste("Ta daytime min = ", o.tor_sub$Ta_day_min[1])) + 
+  geom_point() + geom_text(aes(label=Tc_min), vjust=-1) + 
+  #annotate("text", x=7, y=2100, label= paste("Ta daytime min = ", o.tor_sub$Ta_day_min)) + 
   ylab("Hourly energy expenditure (J)") + scale_color_manual(values=c("#000080", "#ff0000")) +
-  #scale_y_continuous(breaks=c(0,100,200,300,500,1000,1500,2000))+
+  scale_y_continuous(breaks=c(0,100,200,300,500,1000,1500,2000))+
   theme(axis.text.x = element_text(angle=30, hjust=1), 
         panel.grid.major.x = element_blank(), 
-        panel.grid.major.y = element_line(size=.1, color="black"),
+        panel.grid.major.y = element_line(size=.1, color="grey"),
         panel.grid.minor = element_blank(),
         strip.background = element_blank(),
         panel.border = element_rect(colour = "black", fill=NA)) +
-  xlab("Hour step (Birdno_ArmyTime)")
+  xlab("Hour step (Birdno_ArmyTime)") + scale_x_discrete(labels=o.tor_sub$Time)
 energy_metyagcu
 
 #Plot EE over night for agcu
