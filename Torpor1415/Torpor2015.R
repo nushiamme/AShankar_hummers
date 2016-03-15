@@ -12,12 +12,13 @@ library(gam)
 library(foreign)
 library(MASS)
 library(devtools)
-library(plotflow)
+#library(plotflow) #Useful function reorder_by() might be useful for ordering variables by others
 
 ## Set working directory and read in .csv file
 wdMS <- setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
 wdMS
 torpor2015 <- read.csv("Torpor2015.csv")
+litstudy <- read.csv("LitStudy_combined.csv")
 
 ## Function to return sample sizes
 give.n <- function(x){
@@ -29,7 +30,7 @@ give.n <- function(x){
 #mety <- torpor2015[torpor2015$Species=="METY",]
 tor_sub <- torpor2015[torpor2015$Species=="AGCU" | torpor2015$Species=="METY",]
 
-## Set time as a factor
+##### Set time as a factor  ######
 #agcu_indiv <- torpor2015[torpor2015$BirdID=="EG15_0104_AGCU",]
 #agcu_indiv$Time <- factor(agcu_indiv$Time, levels=agcu_indiv$Time)
 
@@ -40,6 +41,12 @@ tor_sub <- torpor2015[torpor2015$Species=="AGCU" | torpor2015$Species=="METY",]
 ##METY days - 0910, 1028, 1130, 1209, 1211, 1212, 1219
 ##AGCU days - 0826, 1023, 1220, 1223, 0104
 
+### Plot literature review values ######
+litplot <- ggplot(litstudy, aes(Tc_min, EE_J)) + facet_grid(~Mass_categ) + 
+  theme_classic(base_size = 20) + 
+
+
+####### Subsetting some columns from tor_sub and ordering them) ######
 o.tor_sub <- na.omit(tor_sub[, c("Hourly", "Time", "EE_J", "BirdID","Species", "Ta_day_min", 
                                  "Ta_day_avg", "Ta_day_max", "Ta_night_min", "Tc_avg", "Tc_min")])
 o.tor_sub$Hourly <- factor(o.tor_sub$Hourly, levels=o.tor_sub$Hourly)
@@ -50,10 +57,11 @@ o.tor_sub$BirdID <- factor(o.tor_sub$BirdID,
                                       "EG15_1211_METY","EG15_1212_METY", "EG15_1219_METY",
                                       "EG15_1220_AGCU", "EG15_1223_AGCU", "EG15_0104_AGCU"))
 
-
+## Plotting EE per hour by time, and labeling with chamber temperature
 energy_metyagcu <- ggplot(o.tor_sub, aes(Hourly, EE_J)) + theme_bw(base_size=18) +
   geom_line(aes(group=BirdID, col=Species), size=1.5) + facet_wrap(~BirdID, scales="free_x") +
   geom_point() + geom_text(aes(label=Tc_min), vjust=-1) + 
+  geom_text(aes(label=Ta_day_min), col="red", vjust=1) +
   #annotate("text", x=7, y=2100, label= paste("Ta daytime min = ", o.tor_sub$Ta_day_min)) + 
   ylab("Hourly energy expenditure (J)") + scale_color_manual(values=c("#000080", "#ff0000")) +
   scale_y_continuous(breaks=c(0,100,200,300,500,1000,1500,2000))+
@@ -63,7 +71,7 @@ energy_metyagcu <- ggplot(o.tor_sub, aes(Hourly, EE_J)) + theme_bw(base_size=18)
         panel.grid.minor = element_blank(),
         strip.background = element_blank(),
         panel.border = element_rect(colour = "black", fill=NA)) +
-  xlab("Hour step (Birdno_ArmyTime)") + scale_x_discrete(labels=o.tor_sub$Time)
+  xlab("Hour step (Birdno_ArmyTime)") # + scale_x_discrete(labels=o.tor_sub$Time)
 energy_metyagcu
 
 #Plot EE over night for agcu
