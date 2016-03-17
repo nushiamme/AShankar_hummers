@@ -1,0 +1,34 @@
+---
+title: "DLW2016"
+author: "Anusha Shankar"
+date: "Thursday, March 17, 2016"
+output: word_document
+---
+Abstract:
+Big sentence
+Methods
+Results
+Implication
+250 words
+
+##Introduction:
+**Problem**: Animals often experience drastic changes in their environmental conditions in terms of resource availability and temperatures across seasons and year to year. The energetic demands on endotherms correspondingly change in response to their environmental conditions. This is especially true for hummingbirds, which have high energetic demands and limited energy reserves to fall back on. For instance, as it gets hotter and thermoregulatory costs increase, can hummingbirds increase the total energy they spend in a day? Or is there an upper limit on the energy they can spend in a day, forcing them to spend less energy on other activities?
+
+**Hurdle**: To answer this question in a useful way, we need daily energy expenditure measured in the wild, on free-living hummingbirds, not just on animals living in a cage. And we need this information in a variety of environmental conditions. Unfortunately, hummingbirds are too small to carry physiological sensors or GPS tags.
+
+**Solution**: I used the doubly labeled water method to collect daily energy expenditure data from hummingbirds. Combining these data with daily activity budgets and estimates of energy spent on each activity, I will build an estimated daily energy budget for hummingbirds in North and South America.
+
+**Benefit**: Hummingbirds are small endotherms with very high energetic demands, so they must manage their energy budgets carefully. They are always on the razor edge between life and death. Once we understand how they manage energy in changing environments, we can extend this energy budget model to other endotherms, such as those with large fat reserves. This will allow us to understand how endotherms will respond energetically to rapidly changing environmental conditions.
+
+
+```{r}
+
+```
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
