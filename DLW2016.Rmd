@@ -22,6 +22,8 @@ Implication
 
 
 ```{r}
+setwd("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper")
+dlw <- read.csv("DLW_data.csv")
 
 ```
 
