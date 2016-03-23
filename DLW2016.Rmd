@@ -15,11 +15,15 @@ Implication
 250 words
 
 ##Introduction:
-**Problem**: Organisms manage to survive by balancing their energy budgets. They usually do this with the help of fat reserves to buffer them if conditions get difficult. But some small organisms do not have much fat, and must deal with the variable energetic demands their environment places on them. I want to know what strategies hummingbirds use to manage their tight energy budgets. For instance, as it gets hotter and thermoregulatory costs increase, can hummingbirds increase the total energy they spend in a day? Or is there an upper limit on the energy they can spend in a day, forcing them to spend less energy on other activities?
+**Problem**: Organisms manage to survive by balancing their energy budgets. They usually do this with the help of fat reserves to buffer them if conditions get difficult. But some small organisms do not have much fat, and must deal with the variable energetic demands their environment places on them. I want to know what strategies hummingbirds use to manage their tight energy budgets. Is there a difference in how much energy birds spend in the tropics vs. the temperate. e.g. birds migrate to temperate places because tropical environments don't have as many bursts of flowering events. How much of a difference is there in energetic demand as resources change?
 
 **Hurdle**: To answer this question in a useful way, we need daily energy expenditure measured in the wild, on free-living hummingbirds, not just on animals living in a cage. And we need this information in a variety of environmental conditions. Unfortunately, hummingbirds are too small to carry physiological sensors or GPS tags.
 
 **Solution**: I used the doubly labeled water method to collect daily energy expenditure data from hummingbirds. Combining these data with daily activity budgets and estimates of energy spent on each activity, I will build an estimated daily energy budget for hummingbirds in North and South America.
+
+```{r}
+##Correct DLW data for thermoregulation. If you have TNZ data for the birds.
+```
 
 **Benefit**: Hummingbirds are small endotherms with very high energetic demands, so they must manage their energy budgets carefully. They are always on the razor edge between life and death. Once we understand how they manage energy in changing environments, we can extend this energy budget model to other endotherms, such as those with large fat reserves. This will allow us to understand how endotherms will respond energetically to rapidly changing environmental conditions.
 
