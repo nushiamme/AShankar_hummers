@@ -42,9 +42,9 @@ tor_sub <- torpor2015[torpor2015$Species=="AGCU" | torpor2015$Species=="METY",]
 ##AGCU days - 0826, 1023, 1220, 1223, 0104
 
 ### Plot literature review values ######
-litplot <- ggplot(litstudy, aes(Tc_min, EE_J)) + 
-  facet_grid(~Mass_categ) + 
-  theme_bw(base_size = 20) + geom_point(aes(col=Torpid_not, shape=Study_lit), size=3) +
+litstudy_med<- litstudy[litstudy$Mass_categ==7.5,]
+litplot <- ggplot(litstudy_med, aes(Tc_min, EE_J)) +  
+  theme_bw(base_size = 20) + geom_point(aes(col=Species, shape=Study_lit), size=3) +
   scale_shape_manual(values=c(20,3)) +
   theme(strip.background = element_blank(),
         panel.border = element_rect(colour = "black", fill=NA))

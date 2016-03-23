@@ -1,18 +1,21 @@
 ---
-title: "DLW2016"
+title: "Daily energy expenditure"
 author: "Anusha Shankar"
 date: "Thursday, March 17, 2016"
-output: word_document
+output:
+  word_document: default
+  pdf_document:
+    fig_caption: yes
 ---
 Abstract:
-Big sentence
-Methods
-Results
-Implication
+Big sentence  
+Methods  
+Results  
+Implication  
 250 words
 
 ##Introduction:
-**Problem**: Animals often experience drastic changes in their environmental conditions in terms of resource availability and temperatures across seasons and year to year. The energetic demands on endotherms correspondingly change in response to their environmental conditions. This is especially true for hummingbirds, which have high energetic demands and limited energy reserves to fall back on. For instance, as it gets hotter and thermoregulatory costs increase, can hummingbirds increase the total energy they spend in a day? Or is there an upper limit on the energy they can spend in a day, forcing them to spend less energy on other activities?
+**Problem**: Organisms manage to survive by balancing their energy budgets. They usually do this with the help of fat reserves to buffer them if conditions get difficult. But some small organisms do not have much fat, and must deal with the variable energetic demands their environment places on them. I want to know what strategies hummingbirds use to manage their tight energy budgets. For instance, as it gets hotter and thermoregulatory costs increase, can hummingbirds increase the total energy they spend in a day? Or is there an upper limit on the energy they can spend in a day, forcing them to spend less energy on other activities?
 
 **Hurdle**: To answer this question in a useful way, we need daily energy expenditure measured in the wild, on free-living hummingbirds, not just on animals living in a cage. And we need this information in a variety of environmental conditions. Unfortunately, hummingbirds are too small to carry physiological sensors or GPS tags.
 
@@ -20,17 +23,26 @@ Implication
 
 **Benefit**: Hummingbirds are small endotherms with very high energetic demands, so they must manage their energy budgets carefully. They are always on the razor edge between life and death. Once we understand how they manage energy in changing environments, we can extend this energy budget model to other endotherms, such as those with large fat reserves. This will allow us to understand how endotherms will respond energetically to rapidly changing environmental conditions.
 
+**Hypotheses**:
 
-```{r}
+1. Daily energy expenditure will increase as mass increases
+2. Daily energy expenditure will increase if daily temperatures vary more widely
+ + If the daily range is significantly wider than the normal range. e.g. if the range is normally 15-30&deg;C in a day, and the range one day is 5-30&deg;C, DEE is expected to be higher than usual
+ + If the daily temperature range is shifted significantly lower or higher than is usual. e.g. if the range is normally 15-30&deg;C in a day, and the range one day is 5-20&deg;C, DEE is expected to be higher than usual
+3. Daily energy expenditure will increase in seasons of low resource availability  
+
+Plot of daily energy expenditure per gram bird, colored by species
+```{r, echo=F, fig.cap="blah"}
+library(ggplot2)
+
 setwd("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper")
 dlw <- read.csv("DLW_data.csv")
-
+dee_per_gram <- ggplot(subset(dlw,Reasonable_not %in% "Y"), aes(Initial_mass, kJ_dayg)) + geom_point(aes(col=Species), size=2, shape=16) + theme_bw() + scale_color_brewer(palette="Dark2") + ylab("kJ per day*g") + xlab("Initial mass (g)")
+dee_total <- ggplot(subset(dlw,Reasonable_not %in% "Y"), aes(Initial_mass, kJ_day)) + geom_point(aes(col=Species), size=2, shape=16) + theme_bw() + scale_color_brewer(palette="Dark2") + ylab("kJ per day") + xlab("Initial mass (g)")
+plot(dee_per_gram, fig.align='left')
 ```
 
-You can also embed plots, for example:
-
-```{r, echo=FALSE}
-
+Plot of total daily energy expenditure per bird, colored by species (not mass-corrected)
+```{r, echo=F, fig.cap="blah"}
+plot(dee_total)
 ```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
