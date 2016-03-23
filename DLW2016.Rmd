@@ -23,41 +23,62 @@ Implication
 ## Earlier methods used jugular blood samples. Used to kill the bird.
 ## There are 3 DLW hummingbird papers. One of them in the tropics- Weathers and Stiles. Don's done the other two. Harry Teebo, captive DLW. 
 ## Austin Spence from Morgan Tingley's lab - toe-clipping to get haemoglobin. Same guy who learned respirometry from Don.
+## Could correct DLW data for thermoregulation. If you have TNZ data for the birds.
+## To do: Include BBLH data in plots
+## Have to talk about testing for dose sizes in AZ birds because they were fed and not injected.
+## For 2013 DLW calculations, assumed the birds had total body water of 0.7 (i.e. 70% proportion of water to body mass). Speakman said this was okay.
+## 
 ```
 
 **Hurdle**: To answer this question in a useful way, we need daily energy expenditure measured in the wild, on free-living hummingbirds, not just on animals living in a cage. And we need this information in a variety of environmental conditions. Unfortunately, hummingbirds are too small to carry physiological sensors or GPS tags.
 
 **Solution**: I used the doubly labeled water method to collect daily energy expenditure data from hummingbirds. Combining these data with daily activity budgets and estimates of energy spent on each activity, I will build an estimated daily energy budget for hummingbirds in North and South America.
 
-```{r}
-## Could correct DLW data for thermoregulation. If you have TNZ data for the birds.
-## To do: Include BBLH data in plots
-## Have to talk about testing for dose sizes in AZ birds because they were fed and not injected.
-```
-
 **Benefit**: Hummingbirds are small endotherms with very high energetic demands, so they must manage their energy budgets carefully. They are always on the razor edge between life and death. Once we understand how they manage energy in changing environments, we can extend this energy budget model to other endotherms, such as those with large fat reserves. This will allow us to understand how endotherms will respond energetically to rapidly changing environmental conditions.
 
 **Hypotheses**:
-
-1. Daily energy expenditure will increase as mass increases
+1. Whole animal daily energy expenditure will increase as mass increases
 2. Daily energy expenditure will increase if daily temperatures vary more widely
- + If the daily range is significantly wider than the normal range. e.g. if the range is normally 15-30&deg;C in a day, and the range one day is 5-30&deg;C, DEE is expected to be higher than usual
- + If the daily temperature range is shifted significantly lower or higher than is usual. e.g. if the range is normally 15-30&deg;C in a day, and the range one day is 5-20&deg;C, DEE is expected to be higher than usual
-3. Daily energy expenditure will increase in seasons of low resource availability  
+ + Higher thermoregulatory costs (avg. daily temperatures are low) would contribute to increased DEE (both directly because of increased thermoregulatory costs, and indirectly because they would need to be more active to gain energy to deal with these increased costs)
+3. Tropical resident species have a higher DEE than temperate long distance migrants
+4. Territorial species 
 
 Plot of daily energy expenditure per gram bird, colored by species
-
 ```{r, echo=F, fig.cap="blah"}
 library(ggplot2)
 
 setwd("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper")
 dlw <- read.csv("DLW_data.csv")
+
+## Function for adding a regression equation to graphs
+## (Where table= the file name, y= column name for y in the equation and x= column name for x)
+lm_eqn <- function(table, y, x){
+  m <- lm(y ~ x, table);
+  eq <- substitute(italic(y) == 
+                     a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
+                   list(a = format(coef(m)[1], digits = 2), 
+                        b = format(coef(m)[2], digits = 2), 
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));                 
+}
+
 dee_per_gram <- ggplot(subset(dlw,Reasonable_not %in% "Y"), aes(Initial_mass, kJ_dayg)) + geom_point(aes(col=Species), size=2, shape=16) + theme_bw() + scale_color_brewer(palette="Dark2") + ylab("kJ per day*g") + xlab("Initial mass (g)")
-dee_total <- ggplot(subset(dlw,Reasonable_not %in% "Y"), aes(Initial_mass, kJ_day)) + geom_point(aes(col=Species), size=2, shape=16) + theme_bw() + scale_color_brewer(palette="Dark2") + ylab("kJ per day") + xlab("Initial mass (g)")
 plot(dee_per_gram, fig.align='left')
+
+dee_total <- ggplot(subset(dlw,Reasonable_not %in% "Y"), aes(Initial_mass, kJ_day)) + geom_point(aes(col=Species), size=2, shape=16) + theme_bw() + scale_color_brewer(palette="Dark2") + ylab("kJ per day") + xlab("Initial mass (g)")
+plot(dee_total, fig.align='left')
+
+##To do: all birds combined, and then on Ecuador and on AZ birds separately
+dee_total_log <- ggplot(subset(dlw,Reasonable_not %in% "Y"), aes(log(Initial_mass), log(kJ_day), label=Pre_post_monsoon)) + geom_point(aes(col=Species), size=2, shape=16) + theme_bw() + scale_color_brewer(palette="Dark2") + ylab("Log(kJ per day)") + xlab("Log(Initial mass (g))") + geom_text() + facet_grid(~Big_site) #+ geom_smooth(method=lm) + geom_text(x = 1.2, y = 5, label = lm_eqn(dlw, log(dlw$kJ_day), log(dlw$Initial_mass)), size=4) 
+plot(dee_total_log)
+
 ```
 
 Plot of total daily energy expenditure per bird, colored by species (not mass-corrected)
 ```{r, echo=F, fig.cap="blah"}
-plot(dee_total)
+fit2 <- lm(log(kJ_day) ~ log(Initial_mass),data = dlw[dlw$Big_site=="AZ"&dlw$Pre_post_monsoon=="Pre",])
+summary(fit2)
+
+fit3 <- lm(log(kJ_day) ~ log(Initial_mass),data = dlw[dlw$Big_site=="EC",])
+summary(fit3)
 ```
