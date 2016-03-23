@@ -69,14 +69,13 @@ dee_total <- ggplot(subset(dlw,Reasonable_not %in% "Y"), aes(Initial_mass, kJ_da
 plot(dee_total, fig.align='left')
 
 ##To do: all birds combined, and then on Ecuador and on AZ birds separately
-dee_total_log <- ggplot(subset(dlw,Reasonable_not %in% "Y"), aes(log(Initial_mass), log(kJ_day), label=Pre_post_monsoon)) + geom_point(aes(col=Species), size=2, shape=16) + theme_bw() + scale_color_brewer(palette="Dark2") + ylab("Log(kJ per day)") + xlab("Log(Initial mass (g))") + geom_text() + facet_grid(~Big_site) #+ geom_smooth(method=lm) + geom_text(x = 1.2, y = 5, label = lm_eqn(dlw, log(dlw$kJ_day), log(dlw$Initial_mass)), size=4) 
+dee_total_log <- ggplot(subset(dlw,Reasonable_not %in% "Y"), aes(log(Initial_mass), log(kJ_day))) + geom_point(aes(color=Species), size=2) + theme_bw() + xlab("Log(Initial mass (g))") + scale_color_brewer(palette="Paired") + ylab("Log(kJ per day)")  + geom_smooth(method=lm) #+ geom_text(x = 1.2, y = 5, label = lm_eqn(dlw, log(dlw$kJ_day), log(dlw$Initial_mass)), size=4) geom_text() + facet_grid(~Big_site)  
 plot(dee_total_log)
-
 ```
 
 Plot of total daily energy expenditure per bird, colored by species (not mass-corrected)
 ```{r, echo=F, fig.cap="blah"}
-fit2 <- lm(log(kJ_day) ~ log(Initial_mass),data = dlw[dlw$Big_site=="AZ"&dlw$Pre_post_monsoon=="Pre",])
+fit2 <- lm(log(kJ_day) ~ log(Initial_mass),data = dlw)
 summary(fit2)
 
 fit3 <- lm(log(kJ_day) ~ log(Initial_mass),data = dlw[dlw$Big_site=="EC",])

@@ -42,14 +42,22 @@ tor_sub <- torpor2015[torpor2015$Species=="AGCU" | torpor2015$Species=="METY",]
 ##AGCU days - 0826, 1023, 1220, 1223, 0104
 
 ### Plot literature review values ######
-litstudy_med<- litstudy[litstudy$Mass_categ==7.5,]
-litplot <- ggplot(litstudy_med, aes(Tc_min, EE_J)) +  
-  theme_bw(base_size = 20) + geom_point(aes(col=Species, shape=Study_lit), size=3) +
-  scale_shape_manual(values=c(20,3)) +
+litplot <- ggplot(litstudy, aes(Tc_min, EE_J)) +  
+  theme_bw(base_size = 20) + geom_point(aes(col=Torpid_not, shape=Study_lit), size=4) +
+  scale_shape_manual(values=c(20,3)) + facet_grid(~Mass_categ)
   theme(strip.background = element_blank(),
         panel.border = element_rect(colour = "black", fill=NA))
 litplot
 grid.text(unit(0.5,"npc"),0.99,label = "Mass in grams", gp=gpar(fontsize=20))
+
+litstudy_med <- litstudy[litstudy$Mass_categ==7.5,]
+litstudy_sm <- litstudy[litstudy$Mass_categ==3,]
+litplot_med <- ggplot(litstudy_sm, aes(Tc_min, EE_J)) +  
+  theme_bw(base_size = 20) + geom_point(aes(col=Species, shape=Study_lit), size=4) +
+  scale_shape_manual(values=c(20,3)) +
+  theme(strip.background = element_blank(),
+        panel.border = element_rect(colour = "black", fill=NA))
+litplot_med
 
 ####### Subsetting some columns from tor_sub and ordering them) ######
 o.tor_sub <- na.omit(tor_sub[, c("Hourly", "Time", "EE_J", "BirdID","Species", "Ta_day_min", 
