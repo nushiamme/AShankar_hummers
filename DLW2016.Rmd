@@ -27,7 +27,9 @@ Implication
 ## To do: Include BBLH data in plots
 ## Have to talk about testing for dose sizes in AZ birds because they were fed and not injected.
 ## For 2013 DLW calculations, assumed the birds had total body water of 0.7 (i.e. 70% proportion of water to body mass). Speakman said this was okay.
-## 
+## Read more about allometric relationships, exponents starting with BMR. Need to be able to explain why the slope is 1. Birds overall, FMR to mass slope is 0.68.
+## Is there data comparing tropics vs. temperate for other bird species that I could analyze?
+## To estimate BMR from RMR, reduce RMR by 25%. Ashoff and Pohl papers compare BMR and RMR
 ```
 
 **Hurdle**: To answer this question in a useful way, we need daily energy expenditure measured in the wild, on free-living hummingbirds, not just on animals living in a cage. And we need this information in a variety of environmental conditions. Unfortunately, hummingbirds are too small to carry physiological sensors or GPS tags.
@@ -48,10 +50,20 @@ Plot of daily energy expenditure per gram bird, colored by species
 library(ggplot2)
 
 setwd("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper")
-dlw <- read.csv("DLW_data.csv")
+dlw <- read.csv("DLW_data2.csv")
 
 ## Function for adding a regression equation to graphs
 ## (Where table= the file name, y= column name for y in the equation and x= column name for x)
+
+dlw_mean <- data.frame()
+dlw_mean <- aggregate(dlw$kJ_day, by=list(dlw$Species), FUN="mean", na.omit=T)
+dlw_something <- aggregate(dlw$Initial_mass, by=list(dlw$Species), FUN="mean", na.omit=T)
+dlw_mean <- merge(dlw_mean, dlw_something, by = "Group.1")
+names(dlw_mean) <- c("Species", "kJ_day", "Mass_g")
+
+ggplot(dlw_mean, aes(log(Mass_g), log(kJ_day))) + geom_point(aes(col=Species), size=4) + theme_bw() + geom_smooth(method=lm)
+
+
 lm_eqn <- function(table, y, x){
   m <- lm(y ~ x, table);
   eq <- substitute(italic(y) == 
@@ -79,5 +91,8 @@ fit2 <- lm(log(kJ_day) ~ log(Initial_mass),data = dlw)
 summary(fit2)
 
 fit3 <- lm(log(kJ_day) ~ log(Initial_mass),data = dlw[dlw$Big_site=="EC",])
+summary(fit3)
+
+fit3 <- lm(log(kJ_day) ~ log(Mass_g),data = dlw_mean)
 summary(fit3)
 ```
