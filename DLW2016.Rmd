@@ -30,6 +30,7 @@ Implication
 ## Read more about allometric relationships, exponents starting with BMR. Need to be able to explain why the slope is 1. Birds overall, FMR to mass slope is 0.68.
 ## Is there data comparing tropics vs. temperate for other bird species that I could analyze?
 ## To estimate BMR from RMR, reduce RMR by 25%. Ashoff and Pohl papers compare BMR and RMR
+## Create allometric relationships for different foraging groups. Insectivores vs. granivores vs. nectarivores
 ```
 
 **Hurdle**: To answer this question in a useful way, we need daily energy expenditure measured in the wild, on free-living hummingbirds, not just on animals living in a cage. And we need this information in a variety of environmental conditions. Unfortunately, hummingbirds are too small to carry physiological sensors or GPS tags.
