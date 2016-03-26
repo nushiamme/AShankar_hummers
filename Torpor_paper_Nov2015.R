@@ -93,11 +93,15 @@ Tc_min.xlab <- expression(atop(paste("Minimum Chamber Temperature (", degree,"C)
 freq_table$prop <- (freq_table$Torpid/freq_table$Total)*100
 
 freqplot <- ggplot(freq_table, aes(Species, prop)) + geom_bar(stat="identity") + 
-  theme_bw(base_size = 30) + 
+  theme_classic(base_size = 30) + 
   geom_text(data=freq_table,aes(x=Species,y=prop,label=paste("n = ", Total)),vjust=-2, size=10) +
   ylab("Rate of occurrence of torpor (%)") + ylim(0, 109) + 
-  theme(axis.title.y = element_text(vjust = 2))
+  theme(axis.title.y = element_text(vjust = 2), 
+        panel.border = element_rect(colour = "black", fill=NA))
 freqplot
+
+mean(torpor$Hours_torpid[torpor$Hours_torpid != 0 | torpor$Site %in% c("HC", "SC", "SWRS")], na.rm=T)
+mean(torpor$Hours_torpid[torpor$Hours_torpid != 0 | torpor$Site %in% c("MQ", "SL")], na.rm=T)
 
 ## Plot for Nighttime energy expenditure, by species
 energy_plot <- ggplot(torpor, aes(Species, NEE_kJ)) +  theme_bw() +
@@ -112,12 +116,12 @@ energy_plot
 ## Plot for hours spent torpid
 hours_plot <- ggplot(na.omit(torpor[,c("Species","Hours_torpid","Site_new")]), 
                      aes(Species, Hours_torpid)) + 
-  theme_bw() + geom_boxplot() + facet_grid(.~Site_new, scale="free_x", space="free") + 
+  theme_classic(base_size = 30) + geom_boxplot() + 
+  facet_grid(.~Site_new, scale="free_x", space="free") + 
   ylab("Hours Torpid") + theme(legend.position="none") +
-  theme(axis.title.x = element_text(size=16, face="bold"),
-        axis.text.x = element_text(size=14),
-        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) +
-  stat_summary(position = position_nudge(y = 0.4), fun.data = give.n, geom = "text")
+  theme(axis.title.x = element_text(face="bold"), axis.title.y = element_text(face="bold")) +
+  theme(panel.border = element_rect(colour = "black", fill=NA)) +
+  stat_summary(position = position_nudge(y = 0.98), fun.data = give.n, geom = "text", size=8)
 hours_plot
 
 ## Plot for Mass-corrected Nighttime energy expenditure, by species
