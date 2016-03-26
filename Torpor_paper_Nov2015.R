@@ -17,16 +17,15 @@ library(MASS)
 wdMS <- setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
 wdMS
 torpor <- read.csv("Torpor_table_plot_Dec9.csv")
-torpor2015 <- read.csv("Torpor2015.csv")
 freq_table <- read.csv("Frequency_torpor.csv")
 #names(torpor)
 
-
+## La Paz data
+#torpor2015 <- read.csv("Torpor2015.csv")
 ## Subsetting just METY and AGCU for 2015 data
-tor_sub <- torpor2015[torpor2015$Species=="AGCU" | torpor2015$Species=="METY",]
-
+#tor_sub <- torpor2015[torpor2015$Species=="AGCU" | torpor2015$Species=="METY",]
 ## Writing the tor_sub file to csv
-write.csv(tor_sub, "Torpor_METY_AGCU_2015.csv")
+#write.csv(tor_sub, "Torpor_METY_AGCU_2015.csv")
 
 ## Adding column dividing NEE by 2/3*Mass to correct for mass with allometric scaling
 torpor$NEE_MassCorrected<- torpor$NEE_kJ/((2/3)*torpor$Mass)
@@ -93,11 +92,12 @@ Tc_min.xlab <- expression(atop(paste("Minimum Chamber Temperature (", degree,"C)
 ## Frequency of torpor use
 freq_table$prop <- (freq_table$Torpid/freq_table$Total)*100
 
-freq <- ggplot(freq_table, aes(Species, prop)) + geom_bar(stat="identity") + 
+freqplot <- ggplot(freq_table, aes(Species, prop)) + geom_bar(stat="identity") + 
   theme_bw(base_size = 30) + 
   geom_text(data=freq_table,aes(x=Species,y=prop,label=paste("n = ", Total)),vjust=-2, size=10) +
-  ylab("Frequency torpor use (%)") + ylim(0, 109) + theme(axis.title.y = element_text(vjust = 2))
-freq
+  ylab("Rate of occurrence of torpor (%)") + ylim(0, 109) + 
+  theme(axis.title.y = element_text(vjust = 2))
+freqplot
 
 ## Plot for Nighttime energy expenditure, by species
 energy_plot <- ggplot(torpor, aes(Species, NEE_kJ)) +  theme_bw() +
@@ -110,13 +110,14 @@ energy_plot <- ggplot(torpor, aes(Species, NEE_kJ)) +  theme_bw() +
 energy_plot
 
 ## Plot for hours spent torpid
-hours_plot <- ggplot(torpor, aes(Species, Hours_torpid)) +  theme_bw() +
-  geom_boxplot(aes(col=Species)) + facet_grid(.~Site_new, scale="free_x", space="free") + 
+hours_plot <- ggplot(na.omit(torpor[,c("Species","Hours_torpid","Site_new")]), 
+                     aes(Species, Hours_torpid)) + 
+  theme_bw() + geom_boxplot() + facet_grid(.~Site_new, scale="free_x", space="free") + 
   ylab("Hours Torpid") + theme(legend.position="none") +
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) +
-  stat_summary(fun.data = give.n, geom = "text", vjust=-4.75)
+  stat_summary(position = position_nudge(y = 0.4), fun.data = give.n, geom = "text")
 hours_plot
 
 ## Plot for Mass-corrected Nighttime energy expenditure, by species
