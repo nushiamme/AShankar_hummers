@@ -16,7 +16,7 @@ library(MASS)
 #wdMac
 wdMS <- setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
 wdMS
-torpor <- read.csv("Torpor_table_plot_Dec9.csv")
+torpor <- read.csv("Torpor_table_plot_Mar26.csv")
 freq_table <- read.csv("Frequency_torpor.csv")
 #names(torpor)
 
@@ -100,6 +100,7 @@ freqplot <- ggplot(freq_table, aes(Species, prop)) + geom_bar(stat="identity") +
         panel.border = element_rect(colour = "black", fill=NA))
 freqplot
 
+## These means give the same value- correct the formulae
 mean(torpor$Hours_torpid[torpor$Hours_torpid != 0 | torpor$Site %in% c("HC", "SC", "SWRS")], na.rm=T)
 mean(torpor$Hours_torpid[torpor$Hours_torpid != 0 | torpor$Site %in% c("MQ", "SL")], na.rm=T)
 
