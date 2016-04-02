@@ -20,6 +20,9 @@ wdMS
 torpor2015 <- read.csv("Torpor2015.csv")
 litstudy <- read.csv("LitStudy_combined.csv")
 
+## Min chamber temo in deg. C axis label
+Tc_min.xlab <- expression(atop(paste("Minimum Chamber Temperature (", degree,"C)")))
+
 ## Function to return sample sizes
 give.n <- function(x){
   return(c(y = mean(x), label = length(x)))
@@ -44,27 +47,48 @@ tor_sub <- torpor2015[torpor2015$Species=="AGCU" | torpor2015$Species=="METY",]
 ### Plot literature review values ######
 litplot <- ggplot(litstudy, aes(Tc_min, EE_J)) +  
   theme_bw(base_size = 20) + geom_point(aes(col=Torpid_not, shape=Study_lit), size=4) +
-  scale_shape_manual(values=c(20,3)) + facet_grid(~Mass_categ)
+  scale_shape_manual(values=c(20,3)) + facet_grid(~Mass_categ) +
   theme(strip.background = element_blank(),
-        panel.border = element_rect(colour = "black", fill=NA))
+        panel.border = element_rect(colour = "black", fill=NA)) + xlab(Tc_min.xlab) +
+  ylab("Energy expenditure (J)")
 litplot
 grid.text(unit(0.5,"npc"),0.99,label = "Mass in grams", gp=gpar(fontsize=20))
 
 litstudy_med <- litstudy[litstudy$Mass_categ==7.5,]
 litstudy_sm <- litstudy[litstudy$Mass_categ==3,]
-litplot_med <- ggplot(litstudy_sm, aes(Tc_min, EE_J)) +  
+litplot_med <- ggplot(litstudy_med, aes(Tc_min, EE_J)) +  
   theme_bw(base_size = 20) + geom_point(aes(col=Species, shape=Study_lit), size=4) +
   scale_shape_manual(values=c(20,3)) +
   theme(strip.background = element_blank(),
         panel.border = element_rect(colour = "black", fill=NA))
 litplot_med
 
+litplot_sm <- ggplot(litstudy_sm, aes(Tc_min, EE_J)) +  
+  theme_bw(base_size = 20) + geom_point(aes(col=Species, shape=Study_lit), size=4) +
+  scale_shape_manual(values=c(20,3)) +
+  theme(strip.background = element_blank(),
+        panel.border = element_rect(colour = "black", fill=NA))
+litplot_sm
+
 ####### Subsetting some columns from tor_sub and ordering them) ######
 o.tor_sub <- na.omit(tor_sub[, c("Hourly", "Time", "EE_J", "BirdID","Species", "Ta_day_min", 
                                  "Ta_day_avg", "Ta_day_max", "Ta_night_min", "Tc_avg", "Tc_min")])
+
 o.tor_sub$Hourly <- factor(o.tor_sub$Hourly, levels=o.tor_sub$Hourly)
 
 o.tor_sub$BirdID <- factor(o.tor_sub$BirdID, 
+                           levels = c("EG15_0826_AGCU", "EG15_0910_METY", "EG15_1023_AGCU",
+                                      "EG15_1028_METY", "EG15_1130_METY", "EG15_1209_METY",
+                                      "EG15_1211_METY","EG15_1212_METY", "EG15_1219_METY",
+                                      "EG15_1220_AGCU", "EG15_1223_AGCU", "EG15_0104_AGCU"))
+
+## Without subsetting out the METYs and AGCU's - all of La Paz data
+o.tor <- na.omit(torpor2015[, c("Hourly", "Time", "EE_J", "BirdID","Species", "Ta_day_min", 
+                             "Ta_day_avg", "Ta_day_max", "Ta_night_min", "Tc_avg", "Tc_min")])
+
+o.tor$Hourly <- factor(o.tor$Hourly, levels=o.tor$Hourly)
+
+o.tor$BirdID <- factor(o.tor$BirdID, 
                            levels = c("EG15_0826_AGCU", "EG15_0910_METY", "EG15_1023_AGCU",
                                       "EG15_1028_METY", "EG15_1130_METY", "EG15_1209_METY",
                                       "EG15_1211_METY","EG15_1212_METY", "EG15_1219_METY",
@@ -86,6 +110,23 @@ energy_metyagcu <- ggplot(o.tor_sub, aes(Hourly, EE_J)) + theme_bw(base_size=18)
         panel.border = element_rect(colour = "black", fill=NA)) +
   xlab("Hour step (Birdno_ArmyTime)") # + scale_x_discrete(labels=o.tor_sub$Time)
 energy_metyagcu
+
+## Plotting EE per hour by time, and labeling with chamber temperature
+energy_all <- ggplot(o.tor, aes(Hourly, EE_J)) + theme_bw(base_size=18) +
+  geom_line(aes(group=BirdID, col=Species), size=1.5) + facet_wrap(~BirdID, scales="free_x") +
+  geom_point() + geom_text(aes(label=Tc_min), vjust=-1) + 
+  geom_text(aes(label=Ta_day_min), col="red", vjust=1) +
+  #annotate("text", x=7, y=2100, label= paste("Ta daytime min = ", o.tor_sub$Ta_day_min)) + 
+  ylab("Hourly energy expenditure (J)") + #scale_color_manual(values=c("#000080", "#ff0000")) +
+  scale_y_continuous(breaks=c(0,100,200,300,500,1000,1500,2000))+
+  theme(axis.text.x = element_blank(), 
+        panel.grid.major.x = element_blank(), 
+        panel.grid.major.y = element_line(size=.1, color="grey"),
+        panel.grid.minor = element_blank(),
+        strip.background = element_blank(),
+        panel.border = element_rect(colour = "black", fill=NA)) +
+  xlab("Hour step (Birdno_ArmyTime)") # + scale_x_discrete(labels=o.tor_sub$Time)
+energy_all
 
 #Plot EE over night for agcu
 energy15_agcu <- ggplot(na.omit(agcu_indiv[, c("Time", "EE_J", "BirdID")]),aes(Time, EE_J)) +
