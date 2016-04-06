@@ -47,10 +47,6 @@ tor_sub <- torpor2015[torpor2015$Species=="AGCU" | torpor2015$Species=="METY",]
 ### Plot literature review values ######
 litplot <- ggplot(litstudy, aes(Tc_min, EE_J)) +  
   theme_bw(base_size = 20) + geom_point(aes(col=Torpid_not, shape=Study_lit), size=4) +
-  #scale_shape_manual("Season\n", values=c(20,3), labels=c("Pre-monsoon", "Post-monsoon"), breaks=c("Pre", "Post")) + 
-  #theme(strip.background = element_blank(),
-   #     panel.border = element_rect(colour = "black", fill=NA),
-    #    legend.key.height=unit(3,"line")) +
   scale_shape_manual(values=c(20,3)) + facet_grid(~Mass_categ) +
   theme(strip.background = element_blank(),
         panel.border = element_rect(colour = "black", fill=NA)) + xlab(Tc_min.xlab) +
@@ -62,7 +58,9 @@ litstudy_med <- litstudy[litstudy$Mass_categ==7.5,]
 litstudy_sm <- litstudy[litstudy$Mass_categ==3,]
 litplot_med <- ggplot(litstudy_med, aes(Tc_min, EE_J)) +  
   theme_bw(base_size = 30) + geom_point(aes(col=Torpid_not, shape=Study_lit), size=6) +
-  scale_shape_manual(values=c(20,3)) +
+  scale_shape_manual("Source\n", values=c(20,3), labels=c("Literature", "This Study")) +
+  scale_color_brewer("Energetic state", palette="Set1", 
+                     labels=c("Normothermic", "Torpid", "Shallow hypothermia?")) +
   theme(strip.background = element_blank(),
         panel.border = element_rect(colour = "black", fill=NA),
         legend.key.height=unit(3,"line")) + xlab(Tc_min.xlab) +
