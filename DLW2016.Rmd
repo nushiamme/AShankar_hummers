@@ -46,7 +46,6 @@ Implication
 3. Tropical resident species have a higher DEE than temperate long distance migrants
 4. Territorial species 
 
-Plot of daily energy expenditure per gram bird, colored by species
 ```{r, echo=F, fig.cap="blah"}
 library(ggplot2)
 
@@ -55,22 +54,18 @@ setwd("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper")
 dlw <- read.csv("DLW_data2.csv")
 dlw <- dlw[dlw$Reasonable_not=="Y",]
 
+## Aggregate data frame by mean.
+dlw_mean <- data.frame()
+dlw_mean <- aggregate(dlw$kJ_day, by=list(dlw$Species, dlw$Big_site), FUN="mean", na.omit=T)
+dlw_something <- aggregate(dlw$Initial_mass, by=list(dlw$Species, dlw$Big_site), 
+                           FUN="mean", na.omit=T)
+dlw_mean <- merge(dlw_mean, dlw_something, by = c("Group.1", "Group.2"))
+names(dlw_mean) <- c("Species", "Region", "kJ_day", "Mass_g")
+
 ## Fuction tO plot sample size
 give.n <- function(x){
   return(c(y = mean(x), label = length(x)))
 }
-
-## Function for adding a regression equation to graphs
-## (Where table= the file name, y= column name for y in the equation and x= column name for x)
-
-dlw_mean <- data.frame()
-dlw_mean <- aggregate(dlw$kJ_day, by=list(dlw$Species, dlw$Big_site), FUN="mean", na.omit=T)
-dlw_something <- aggregate(dlw$Initial_mass, by=list(dlw$Species, dlw$Big_site), FUN="mean", na.omit=T)
-dlw_mean <- merge(dlw_mean, dlw_something, by = c("Group.1", "Group.2"))
-names(dlw_mean) <- c("Species", "Region", "kJ_day", "Mass_g")
-
-dlw_sp_mean <- ggplot(dlw_mean, aes(log(Mass_g), log(kJ_day))) + geom_point(aes(col=Species), size=4) + theme_bw() + geom_smooth(method=lm)
-dlw_sp_mean
 
 lm_eqn <- function(table, y, x){
   m <- lm(y ~ x, table);
@@ -81,39 +76,68 @@ lm_eqn <- function(table, y, x){
                         r2 = format(summary(m)$r.squared, digits = 3)))
   as.character(as.expression(eq));                 
 }
+```
 
-dee_per_gram <- ggplot(subset(dlw,Reasonable_not %in% "Y"), aes(Initial_mass, kJ_dayg)) + geom_point(aes(col=Species), size=2, shape=16) + theme_bw() + scale_color_brewer(palette="Dark2") + ylab("kJ per day*g") + xlab("Initial mass (g)")
+Plot of daily energy expenditure per gram bird, colored by species
+```{r, echo=F, fig.cap=""}
+#Species-wise log-log plot of DEE vs. mass
+dlw_sp_mean <- ggplot(dlw_mean, aes(log(Mass_g), log(kJ_day))) + 
+  geom_point(aes(col=Species), size=4) + theme_bw() + geom_smooth(method=lm)
+dlw_sp_mean
+```
+
+
+```{r, echo=F}
+dee_per_gram <- ggplot(dlw, aes(Initial_mass, kJ_dayg)) + 
+  geom_point(aes(col=Species), size=2, shape=16) + theme_bw() + scale_color_brewer(palette="Paired") +
+  ylab("kJ per day*g") + xlab("Initial mass (g)")
 plot(dee_per_gram, fig.align='left')
 
-dee_total <- ggplot(subset(dlw,Reasonable_not %in% "Y"), aes(Initial_mass, kJ_day)) + geom_point(aes(col=Species), size=2, shape=16) + theme_bw() + scale_color_brewer(palette="Dark2") + ylab("kJ per day") + xlab("Initial mass (g)")
+dee_total <- ggplot(subset(dlw,Reasonable_not %in% "Y"), aes(Initial_mass, kJ_day)) + 
+  geom_point(aes(col=Species), size=2, shape=16) + theme_bw() + 
+  scale_color_brewer(palette="Paired") + ylab("kJ per day") + xlab("Initial mass (g)")
 plot(dee_total, fig.align='left')
 
-dee_BBLH <- ggplot(subset(dlw,Species %in% "BBLH"), aes(Initial_mass, kJ_day)) + 
-  geom_point(aes(shape=Pre_post_monsoon), size=7) + theme_classic(base_size = 30) + 
-  scale_shape_manual("Season\n", values=c(20,3), labels=c("Pre-monsoon", "Post-monsoon"), breaks=c("Pre", "Post")) + 
-  theme(strip.background = element_blank(),
-        panel.border = element_rect(colour = "black", fill=NA),
-        legend.key.height=unit(3,"line")) + 
-  ylab("Daily energy expenditure (kJ/day)") + xlab("Initial mass (g)")
-dee_BBLH
+## For BBLH paper
+#dee_BBLH <- ggplot(subset(dlw,Species %in% "BBLH"), aes(Initial_mass, kJ_day)) + 
+ # geom_point(aes(shape=Pre_post_monsoon), size=7) + theme_classic(base_size = 30) + 
+ # scale_shape_manual("Season\n", values=c(20,3), 
+  #                   labels=c("Pre-monsoon", "Post-monsoon"), breaks=c("Pre", "Post")) + 
+#  theme(strip.background = element_blank(),
+ #       panel.border = element_rect(colour = "black", fill=NA),
+  #      legend.key.height=unit(3,"line")) + 
+  #ylab("Daily energy expenditure (kJ/day)") + xlab("Initial mass (g)")
+#dee_BBLH
 
 ##To do: all birds combined, and then on Ecuador and on AZ birds separately
-dee_indiv_log <- ggplot(dlw, aes(log(Initial_mass), log(kJ_day))) + geom_point(aes(shape=Big_site), size=5) + theme_classic(base_size=30) + xlab("Log(Mass (g))") + scale_shape_manual("Region\n", values=c(16, 3, 1), labels=c("Arizona", "Costa Rica", "Ecuador")) + ylab("Log(kJ per day)")  + geom_smooth(method=lm) + theme(strip.background = element_blank(), panel.border = element_rect(colour = "black", fill=NA), legend.key.height=unit(2,"line"))
-plot(dee_total_log)
+dee_indiv_log <- ggplot(dlw, aes(log(Initial_mass), log(kJ_day))) + 
+  geom_point(aes(shape=Big_site), size=5) + theme_classic(base_size=30) + xlab("Log(Mass (g))") +
+  scale_shape_manual("Region\n", values=c(16, 3, 1), labels=c("Arizona", "Costa Rica", "Ecuador")) +
+  ylab("Log(kJ per day)")  + geom_smooth(method=lm) + 
+  theme(strip.background = element_blank(), 
+        panel.border = element_rect(colour = "black", fill=NA), legend.key.height=unit(2,"line"))
+plot(dee_indiv_log)
 
-dee_indiv_EC <- ggplot(subset(dlw,Big_site %in% "EC"), aes(log(Initial_mass), log(kJ_day))) + geom_point(aes(shape=Species), size=5) + theme_classic(base_size=30) + xlab("Log(Mass (g))") + #scale_shape_manual("Region\n", values=c(16, 3, 1), labels=c("Arizona", "Costa Rica", "Ecuador")) +
-  ylab("Log(kJ per day)")  + geom_smooth(method=lm) + theme(strip.background = element_blank(), panel.border = element_rect(colour = "black", fill=NA), legend.key.height=unit(2,"line"))
+dee_indiv_EC <- ggplot(subset(dlw,Big_site %in% "EC"), aes(log(Initial_mass), log(kJ_day))) +
+  geom_point(aes(shape=Species), size=5) + theme_classic(base_size=30) + xlab("Log(Mass (g))") + 
+  ylab("Log(kJ per day)")  + geom_smooth(method=lm) + 
+  theme(strip.background = element_blank(), 
+        panel.border = element_rect(colour = "black", fill=NA), legend.key.height=unit(2,"line"))
 dee_indiv_EC
 
-dee_indiv_AZ <- ggplot(subset(dlw,Big_site %in% "AZ"), aes(log(Initial_mass), log(kJ_day))) + geom_point(aes(shape=Species), size=5) + theme_classic(base_size=30) + xlab("Log(Mass (g))") + #scale_shape_manual("Region\n", values=c(16, 3, 1), labels=c("Arizona", "Costa Rica", "Ecuador")) +
-  ylab("Log(kJ per day)")  + geom_smooth(method=lm) + theme(strip.background = element_blank(), panel.border = element_rect(colour = "black", fill=NA), legend.key.height=unit(2,"line"))
+dee_indiv_AZ <- ggplot(subset(dlw,Big_site %in% "AZ"), aes(log(Initial_mass), log(kJ_day))) +
+  geom_point(aes(shape=Species), size=5) + theme_classic(base_size=30) + xlab("Log(Mass (g))") + 
+  ylab("Log(kJ per day)")  + geom_smooth(method=lm) + 
+  theme(strip.background = element_blank(), 
+        panel.border = element_rect(colour = "black", fill=NA), legend.key.height=unit(2,"line"))
 dee_indiv_AZ
 
-dee_indiv_CR <- ggplot(subset(dlw,Big_site %in% "CR"), aes(log(Initial_mass), log(kJ_day))) + geom_point(aes(shape=Species), size=5) + theme_classic(base_size=30) + xlab("Log(Mass (g))") + #scale_shape_manual("Region\n", values=c(16, 3, 1), labels=c("Arizona", "Costa Rica", "Ecuador")) +
-  ylab("Log(kJ per day)")  + geom_smooth(method=lm) + theme(strip.background = element_blank(), panel.border = element_rect(colour = "black", fill=NA), legend.key.height=unit(2,"line"))
+dee_indiv_CR <- ggplot(subset(dlw,Big_site %in% "CR"), aes(log(Initial_mass), log(kJ_day))) +
+  geom_point(aes(shape=Species), size=5) + theme_classic(base_size=30) + xlab("Log(Mass (g))") + 
+  ylab("Log(kJ per day)")  + geom_smooth(method=lm) + 
+  theme(strip.background = element_blank(), 
+        panel.border = element_rect(colour = "black", fill=NA), legend.key.height=unit(2,"line"))
 dee_indiv_CR
-
-
 ```
 
 Plot of total daily energy expenditure per bird, colored by species (not mass-corrected)
