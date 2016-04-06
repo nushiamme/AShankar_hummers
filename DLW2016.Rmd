@@ -81,10 +81,19 @@ plot(dee_per_gram, fig.align='left')
 dee_total <- ggplot(subset(dlw,Reasonable_not %in% "Y"), aes(Initial_mass, kJ_day)) + geom_point(aes(col=Species), size=2, shape=16) + theme_bw() + scale_color_brewer(palette="Dark2") + ylab("kJ per day") + xlab("Initial mass (g)")
 plot(dee_total, fig.align='left')
 
+dee_BBLH <- ggplot(subset(dlw,Species %in% "BBLH"), aes(Initial_mass, kJ_day)) + 
+  geom_point(aes(shape=Pre_post_monsoon), size=7) + theme_classic(base_size = 30) + 
+  scale_shape_manual("Season\n", values=c(20,3), labels=c("Pre-monsoon", "Post-monsoon"), breaks=c("Pre", "Post")) + 
+  theme(strip.background = element_blank(),
+        panel.border = element_rect(colour = "black", fill=NA),
+        legend.key.height=unit(3,"line")) + 
+  ylab("Daily energy expenditure (kJ/day)") + xlab("Initial mass (g)")
+dee_BBLH
+
 ##To do: all birds combined, and then on Ecuador and on AZ birds separately
 dee_total_log <- ggplot(subset(dlw,Reasonable_not %in% "Y"), aes(log(Initial_mass), log(kJ_day))) + geom_point(aes(color=Species), size=2) + theme_bw() + xlab("Log(Initial mass (g))") + scale_color_brewer(palette="Paired") + ylab("Log(kJ per day)")  + geom_smooth(method=lm) #+ geom_text(x = 1.2, y = 5, label = lm_eqn(dlw, log(dlw$kJ_day), log(dlw$Initial_mass)), size=4) geom_text() + facet_grid(~Big_site)  
 plot(dee_total_log)
-```
+n```
 
 Plot of total daily energy expenditure per bird, colored by species (not mass-corrected)
 ```{r, echo=F, fig.cap="blah"}

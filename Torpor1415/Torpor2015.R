@@ -47,6 +47,10 @@ tor_sub <- torpor2015[torpor2015$Species=="AGCU" | torpor2015$Species=="METY",]
 ### Plot literature review values ######
 litplot <- ggplot(litstudy, aes(Tc_min, EE_J)) +  
   theme_bw(base_size = 20) + geom_point(aes(col=Torpid_not, shape=Study_lit), size=4) +
+  #scale_shape_manual("Season\n", values=c(20,3), labels=c("Pre-monsoon", "Post-monsoon"), breaks=c("Pre", "Post")) + 
+  #theme(strip.background = element_blank(),
+   #     panel.border = element_rect(colour = "black", fill=NA),
+    #    legend.key.height=unit(3,"line")) +
   scale_shape_manual(values=c(20,3)) + facet_grid(~Mass_categ) +
   theme(strip.background = element_blank(),
         panel.border = element_rect(colour = "black", fill=NA)) + xlab(Tc_min.xlab) +
@@ -57,10 +61,12 @@ grid.text(unit(0.5,"npc"),0.99,label = "Mass in grams", gp=gpar(fontsize=20))
 litstudy_med <- litstudy[litstudy$Mass_categ==7.5,]
 litstudy_sm <- litstudy[litstudy$Mass_categ==3,]
 litplot_med <- ggplot(litstudy_med, aes(Tc_min, EE_J)) +  
-  theme_bw(base_size = 20) + geom_point(aes(col=Species, shape=Study_lit), size=4) +
+  theme_bw(base_size = 30) + geom_point(aes(col=Torpid_not, shape=Study_lit), size=6) +
   scale_shape_manual(values=c(20,3)) +
   theme(strip.background = element_blank(),
-        panel.border = element_rect(colour = "black", fill=NA))
+        panel.border = element_rect(colour = "black", fill=NA),
+        legend.key.height=unit(3,"line")) + xlab(Tc_min.xlab) +
+  ylab("Energy expenditure (J)")
 litplot_med
 
 litplot_sm <- ggplot(litstudy_sm, aes(Tc_min, EE_J)) +  

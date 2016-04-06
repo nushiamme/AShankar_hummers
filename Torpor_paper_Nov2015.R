@@ -486,8 +486,8 @@ m_BBLH_avgEE_normo_Tcmin_eq
 m_BBLH_avgEE_torpid_Tcmin_eq <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C), 
                                                      AvgEE_torpid_MassCorrected)) + 
   theme_bw() + geom_point(size=4) + geom_smooth(method=lm) +
-  geom_text(x = 14, y = 0.07, label = lm_eqn(BBLH_torpor, BBLH_torpor$AvgEE_torpid_MassCorrected, 
-                                             BBLH_torpor$Tc_min_C), parse=T, size=8) +
+  #geom_text(x = 14, y = 0.07, label = lm_eqn(BBLH_torpor, BBLH_torpor$AvgEE_torpid_MassCorrected, 
+   #                                          BBLH_torpor$Tc_min_C), parse=T, size=8) +
   ylab("Avg BBLH EE torpid (kJ/g)") + xlab(Tc_min.xlab) +
   theme(axis.title.x = element_text(size=24, face="bold"),
         axis.text.x = element_text(size=22),
