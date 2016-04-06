@@ -1,21 +1,16 @@
 ---
-title: "Daily energy expenditure"
-author: "Anusha Shankar"
+title: "The allometry of field metabolic rates in tropical vs. temperate hummingbirds"
+author: "Anusha Shankar, Joseph R. Canepa, Catherine H. Graham, Donald R. Powers"
 date: "Thursday, March 17, 2016"
 output:
   word_document: default
   pdf_document:
     fig_caption: yes
 ---
-Abstract:
-Big sentence  
-Methods  
-Results  
-Implication  
-250 words
+## Abstract
+Allometric scaling relationships describe how the scale of one trait (e.g. body size) affect the scale of another trait (e.g. field metabolic rate, brain size). These scaling relationships have intrigued scientists for decades because there seem to be rules that govern how metabolic processes scale up with body size.  In birds, field metabolic rate (FMR) scales with body mass (M) in the form FMR = aM0.67. This relationship between metabolic rate and mass has been found to vary depending on the taxonomic level being studied. Thus, a scaling exponent on the scale of all birds could mask localized taxon-specific patterns. Hummingbirds have among the highest mass-specific rates of all vertebrates, as well as a much higher wing aspect ratio than predicted for their size. We collected FMR and mass data for hummingbirds, and examined the scaling of FMR with body mass among hummingbird. We found that hummingbirds have an FMR to mass scaling exponent >0.9. Since temperate hummingbirds feed on densely clumped resources more than tropical hummingbirds, we expect that tropical birds have higher field metabolic rate to body size exponent than temperate birds to support increased foraging effort. We find that hummingbirds that tropical hummingbirds have a higher FMR to mass ratio on average than temperate birds.
 
 ##Introduction:
-**Problem**: Organisms manage to survive by balancing their energy budgets. They usually do this with the help of fat reserves to buffer them if conditions get difficult. But some small organisms do not have much fat, and must deal with the variable energetic demands their environment places on them. I want to know what strategies hummingbirds use to manage their tight energy budgets. Is there a difference in how much energy birds spend in the tropics vs. temperate environments. e.g. birds migrate to temperate places because tropical environments don't have as many bursts of flowering events. Migration trade-offs: high mortality during trade-offs, but big gains at the other end. Do tropical hummingbirds have a higher EE than temperate, because resources are distributed in the tropics in such a way that birds spend more time foraging. 
 
 ```{r, echo=F}
 ## Maybe compare SC pre-monsoon birds instead of what Joey's posted does with HC pre-monsoon birds. Because temperatures were similar for SC and Maqui/SL. HC was colder.
@@ -33,12 +28,6 @@ Implication
 ## Create allometric relationships for different foraging groups. Insectivores vs. granivores vs. nectarivores
 ```
 
-**Hurdle**: To answer this question in a useful way, we need daily energy expenditure measured in the wild, on free-living hummingbirds, not just on animals living in a cage. And we need this information in a variety of environmental conditions. Unfortunately, hummingbirds are too small to carry physiological sensors or GPS tags.
-
-**Solution**: I used the doubly labeled water method to collect daily energy expenditure data from hummingbirds. Combining these data with daily activity budgets and estimates of energy spent on each activity, I will build an estimated daily energy budget for hummingbirds in North and South America.
-
-**Benefit**: Hummingbirds are small endotherms with very high energetic demands, so they must manage their energy budgets carefully. They are always on the razor edge between life and death. Once we understand how they manage energy in changing environments, we can extend this energy budget model to other endotherms, such as those with large fat reserves. This will allow us to understand how endotherms will respond energetically to rapidly changing environmental conditions.
-
 **Hypotheses**:
 1. Whole animal daily energy expenditure will increase as mass increases
 2. Daily energy expenditure will increase if daily temperatures vary more widely
@@ -53,6 +42,7 @@ setwd("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper")
 ## Includes data from XXXX papers.
 dlw <- read.csv("DLW_data2.csv")
 dlw <- dlw[dlw$Reasonable_not=="Y",]
+
 
 ## Aggregate data frame by mean.
 dlw_mean <- data.frame()
@@ -83,31 +73,23 @@ Plot of daily energy expenditure per gram bird, colored by species
 #Species-wise log-log plot of DEE vs. mass
 dlw_sp_mean <- ggplot(dlw_mean, aes(log(Mass_g), log(kJ_day))) + 
   geom_point(aes(col=Species), size=4) + theme_bw() + geom_smooth(method=lm)
-dlw_sp_mean
+plot(dlw_sp_mean, fig.align='left')
 ```
 
-
+Mass-corrected daily energy expenditure vs. Mass, colored by species
 ```{r, echo=F}
 dee_per_gram <- ggplot(dlw, aes(Initial_mass, kJ_dayg)) + 
   geom_point(aes(col=Species), size=2, shape=16) + theme_bw() + scale_color_brewer(palette="Paired") +
   ylab("kJ per day*g") + xlab("Initial mass (g)")
 plot(dee_per_gram, fig.align='left')
+```
 
+
+```{r, echo=F}
 dee_total <- ggplot(subset(dlw,Reasonable_not %in% "Y"), aes(Initial_mass, kJ_day)) + 
   geom_point(aes(col=Species), size=2, shape=16) + theme_bw() + 
   scale_color_brewer(palette="Paired") + ylab("kJ per day") + xlab("Initial mass (g)")
 plot(dee_total, fig.align='left')
-
-## For BBLH paper
-#dee_BBLH <- ggplot(subset(dlw,Species %in% "BBLH"), aes(Initial_mass, kJ_day)) + 
- # geom_point(aes(shape=Pre_post_monsoon), size=7) + theme_classic(base_size = 30) + 
- # scale_shape_manual("Season\n", values=c(20,3), 
-  #                   labels=c("Pre-monsoon", "Post-monsoon"), breaks=c("Pre", "Post")) + 
-#  theme(strip.background = element_blank(),
- #       panel.border = element_rect(colour = "black", fill=NA),
-  #      legend.key.height=unit(3,"line")) + 
-  #ylab("Daily energy expenditure (kJ/day)") + xlab("Initial mass (g)")
-#dee_BBLH
 
 ##To do: all birds combined, and then on Ecuador and on AZ birds separately
 dee_indiv_log <- ggplot(dlw, aes(log(Initial_mass), log(kJ_day))) + 
