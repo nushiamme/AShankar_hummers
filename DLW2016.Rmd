@@ -91,7 +91,9 @@ dee_BBLH <- ggplot(subset(dlw,Species %in% "BBLH"), aes(Initial_mass, kJ_day)) +
 dee_BBLH
 
 ##To do: all birds combined, and then on Ecuador and on AZ birds separately
-dee_total_log <- ggplot(subset(dlw,Reasonable_not %in% "Y"), aes(log(Initial_mass), log(kJ_day))) + geom_point(aes(color=Species), size=2) + theme_bw() + xlab("Log(Initial mass (g))") + scale_color_brewer(palette="Paired") + ylab("Log(kJ per day)")  + geom_smooth(method=lm) #+ geom_text(x = 1.2, y = 5, label = lm_eqn(dlw, log(dlw$kJ_day), log(dlw$Initial_mass)), size=4) geom_text() + facet_grid(~Big_site)  
+dee_total_log <- ggplot(subset(dlw,Reasonable_not %in% "Y"), aes(log(Initial_mass), log(kJ_day))) + geom_point(aes(color=Species), size=2) + theme_classic(base_size=30) + xlab("Log(Initial mass (g))") + scale_color_brewer(palette="Paired") + ylab("Log(kJ per day)")  + geom_smooth(method=lm) +
+  theme(strip.background = element_blank(), panel.border = element_rect(colour = "black", fill=NA),
+  legend.key.height=unit(3,"line")) +
 plot(dee_total_log)
 n```
 
