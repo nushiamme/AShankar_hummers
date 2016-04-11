@@ -26,6 +26,7 @@ Allometric scaling relationships describe how the scale of one trait (e.g. body 
 ## Is there data comparing tropics vs. temperate for other bird species that I could analyze?
 ## To estimate BMR from RMR, reduce RMR by 25%. Ashoff and Pohl papers compare BMR and RMR
 ## Create allometric relationships for different foraging groups. Insectivores vs. granivores vs. nectarivores
+## Doug - scope for activity and bmr- is there a correlation?
 ```
 
 **Hypotheses**:
@@ -68,7 +69,7 @@ lm_eqn <- function(table, y, x){
 }
 ```
 
-Plot of daily energy expenditure per gram bird, colored by species
+A log-log plot of hummingbird daily energy expenditure (kJ) vs. mass (g), including values from this study as well as from the literature. Colors represent species.
 ```{r, echo=F, fig.cap=""}
 #Species-wise log-log plot of DEE vs. mass
 dlw_sp_mean <- ggplot(dlw_mean, aes(log(Mass_g), log(kJ_day))) + 
@@ -92,8 +93,8 @@ dee_total <- ggplot(subset(dlw,Reasonable_not %in% "Y"), aes(Initial_mass, kJ_da
 plot(dee_total, fig.align='left')
 
 ##To do: all birds combined, and then on Ecuador and on AZ birds separately
-dee_indiv_log <- ggplot(dlw, aes(log(Initial_mass), log(kJ_day))) + 
-  geom_point(aes(shape=Big_site), size=5) + theme_classic(base_size=30) + xlab("Log(Mass (g))") +
+dee_indiv_log <- ggplot(dlw_mean, aes(log(Mass_g), log(kJ_day))) + 
+  geom_point(aes(shape=Region), size=5) + theme_classic(base_size=30) + xlab("Log(Mass (g))") +
   scale_shape_manual("Region\n", values=c(16, 3, 1), labels=c("Arizona", "Costa Rica", "Ecuador")) +
   ylab("Log(kJ per day)")  + geom_smooth(method=lm) + 
   theme(strip.background = element_blank(), 

@@ -9,10 +9,13 @@ library(maptools)
 library(scales)
 
 setwd("C:\\Users\\ANUSHA\\Dropbox\\Data 2015\\Temperature\\TempSummaries\\")
+setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\EC_data")
+
 Ta_JulAug <- read.csv("CompiledTemp_July-Aug16_2015.csv")
 Ta_TillNov <- read.csv("CompiledTemp_Nov28_2015.csv")
 Ta_all <- read.csv("CompiledTemp_All.csv")
 Tc <- read.csv("CompiledTc_All.csv")
+EC_Ta <- read.csv("Ecuador_TempData_corrected.csv")
 
 ### TO DO - Make sure to copy and sort out TO DOOOOOOOOO ###
 ### Temperature_TillNov15_TorporChamber_MFRCage_For_HEVI_Nov11_12.csv
