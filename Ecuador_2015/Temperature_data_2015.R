@@ -24,10 +24,21 @@ head(Ta_all)
 
 samp <- read.csv("Sample2_ToPlot.csv")
 
+## For AM/PM format
 ## Processing file to include day/night category column for time of day (7pm-6am is night) 
 Ta_all$daynight[Ta_all$Hour %in% c(7,8,9,10,11)&Ta_all$am_pm=="PM"] <- "Night"
 Ta_all$daynight[Ta_all$Hour %in% c(12,1,2,3,4,5)&Ta_all$am_pm=="AM"] <- "Night"
 Ta_all$daynight[is.na(Ta_all$daynight)]<- "Day"
+
+## For 24h format of hour
+## Processing file to include day/night category column for time of day (7pm-6am is night) 
+EC_Ta$daynight[6>EC_Ta$Hour&EC_Ta$Hour>18] <- "Night"
+EC_Ta$daynight[5<EC_Ta$Hour&EC_Ta$Hour<19]<- "Day"
+head(EC_Ta)
+
+## Site column for MQ and SL
+EC_Ta$Site[1900>EC_Ta$elevation] <- "MQ"
+EC_Ta$Site[1800<EC_Ta$elevation] <- "SL"
 
 ## Processing chamber file to include day/night (7pm-6am is night)
 Tc$daynight[Tc$Hour %in% c(7,8,9,10,11)&Tc$am_pm=="PM"] <- "Night"
@@ -35,24 +46,26 @@ Tc$daynight[Tc$Hour %in% c(12,1,2,3,4,5)&Tc$am_pm=="AM"] <- "Night"
 Tc$daynight[is.na(Tc$daynight)]<- "Day"
 
 ## Writing the daynight file to csv
-write.csv(Ta_all, file = "Ta_all_daynight.csv")
+write.csv(EC_Ta, file = "EC_Ta_daynight.csv")
 write.csv(Tc, file = "Tc_daynight.csv")
 
 ## Summary stats for temperature during torpor
-Ta_daily_mean <- aggregate(Ta_all$Temperature, 
-                   by=list(Ta_all$Year, Ta_all$Month, Ta_all$Day, Ta_all$daynight), FUN="mean")
-Ta_daily_min <- aggregate(Ta_all$Temperature, 
-                   by=list(Ta_all$Year, Ta_all$Month, Ta_all$Day, Ta_all$daynight), FUN="min")
-Ta_daily_max <- aggregate(Ta_all$Temperature, 
-                   by=list(Ta_all$Year, Ta_all$Month, Ta_all$Day, Ta_all$daynight), FUN="max")
+Ta_daily_mean <- aggregate(EC_Ta$Temp, 
+                   by=list(EC_Ta$Site, EC_Ta$Year, EC_Ta$Month, EC_Ta$Day, EC_Ta$daynight), FUN="mean")
+Ta_daily_min <- aggregate(EC_Ta$Temp, 
+                   by=list(EC_Ta$Site, EC_Ta$Year, EC_Ta$Month, EC_Ta$Day, EC_Ta$daynight), FUN="min")
+Ta_daily_max <- aggregate(EC_Ta$Temp, 
+                   by=list(EC_Ta$Site, EC_Ta$Year, EC_Ta$Month, EC_Ta$Day, EC_Ta$daynight), FUN="max")
 
-Ta_daily_summ <- merge(Ta_daily_mean, Ta_daily_min, by=c("Group.1", "Group.2", "Group.3", "Group.4"))
-Ta_daily_summ <- merge(Ta_daily_summ, Ta_daily_max, by=c("Group.1", "Group.2", "Group.3", "Group.4"))
+Ta_daily_summ <- merge(Ta_daily_mean, Ta_daily_min, 
+                       by=c("Group.1", "Group.2", "Group.3", "Group.4", "Group.5"))
+Ta_daily_summ <- merge(Ta_daily_summ, Ta_daily_max, 
+                       by=c("Group.1", "Group.2", "Group.3", "Group.4", "Group.5"))
 
-names(Ta_daily_summ) <- c("Year", "Month", "Day", "daynight", "Mean_Ta", "Min_Ta", "Max_Ta")
+names(Ta_daily_summ) <- c("Site", "Year", "Month", "Day", "daynight", "Mean_Ta", "Min_Ta", "Max_Ta")
 
 ## Writing the summary ambient temperatures file to csv
-write.csv(Ta_daily_summ, file = "Ta_summary_2015.csv")
+write.csv(Ta_daily_summ, file = "EC_Ta_summary.csv")
 
 ## Doing same summaries for chamber temperature
 Tc_mean <- aggregate(Tc$Temperature, 
@@ -85,7 +98,8 @@ Tc_max <- aggregate(Tc$Temperature,
                     by=list(Tc$Expt, Tc$Year, Tc$Month, Tc$Day, Tc$daynight), FUN="max")
 
 Tc_summ_night <- merge(Tc_mean, Tc_min, by=c("Group.1", "Group.2", "Group.3", "Group.4", "Group.5"))
-Tc_summ_night <- merge(Tc_summ_night, Tc_max, by=c("Group.1", "Group.2", "Group.3", "Group.4", "Group.5"))
+Tc_summ_night <- merge(Tc_summ_night, Tc_max, 
+                       by=c("Group.1", "Group.2", "Group.3", "Group.4", "Group.5"))
 
 names(Tc_summ_night) <- c("Expt", "Year", "Month", "Day", "daynight", "Mean_Tc", "Min_Tc", "Max_Tc")
 head(Tc_summ_night)
