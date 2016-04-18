@@ -46,8 +46,8 @@ BBLH_torpor <- subset(torpor, Species=="BBLH")
 GCB_torpor <- subset(torpor, Species=="GCB")
 
 ## Melt torpor file to get Frequency of torpor use
-m.tor_not <- melt(torpor, id.vars = c("Species", "Site", "Day", "Month", "Year"), 
-                  measure.vars="Torpid_not")
+#m.tor_not <- melt(torpor, id.vars = c("Species", "Site", "Day", "Month", "Year"), 
+ #                 measure.vars="Torpid_not")
 
 ##To subset variables within melted data frame and plot in ggplot, 
 ##add to ggplot(x=,*,subset=.(variable=="NEE_kJ")*)## Function to arrange plots
@@ -99,10 +99,6 @@ freqplot <- ggplot(freq_table, aes(Species, prop)) + geom_bar(stat="identity") +
   theme(axis.title.y = element_text(vjust = 2), 
         panel.border = element_rect(colour = "black", fill=NA))
 freqplot
-
-## These means give the same value- correct the formulae
-mean(torpor$Hours_torpid[torpor$Hours_torpid != 0 | torpor$Site %in% c("HC", "SC", "SWRS")], na.rm=T)
-mean(torpor$Hours_torpid[torpor$Hours_torpid != 0 | torpor$Site %in% c("MQ", "SL")], na.rm=T)
 
 ## Plot for Nighttime energy expenditure, by species
 energy_plot <- ggplot(torpor, aes(Species, NEE_kJ)) +  theme_bw() +
@@ -158,7 +154,6 @@ energy_hours_spUnlabeled <- ggplot(torpor, aes(Hours_torpid, NEE_MassCorrected))
   theme(axis.title.x = element_text(face="bold", vjust=-0.5),
         axis.title.y = element_text(face="bold", vjust=1.5), legend.key.height=unit(3,"line"))
 energy_hours_spUnlabeled
-
 
 ## Comparing NEE and hours plots
 grid.arrange(energyM_plot, hours_plot, nrow=1, ncol=2)
@@ -216,7 +211,7 @@ energyM_Tcmin
 grid.arrange(energy_temp, energyM_temp, nrow=1, ncol=2)
 
 ## NEE plot by chamber temperature, facet by site and color by species
-energy_temp_site <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_kJ)) + 
+energy_temp_site <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_kJ)) + geom_boxplot() +
   geom_point(aes(shape = factor(Species)), size=4) + 
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
   #scale_shape_manual(values=1:nlevels(torpor$Species)) +
@@ -230,9 +225,24 @@ energy_temp_site <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_kJ)) +
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
 energy_temp_site
 
-## Plot both energy_temp plots together
-lay_out(list(energy_temp, 1, 1), 
-        list(energy_temp_site, 1, 2))
+## NEE plot by chamber temperature, facet by site and color by species
+NEE_site <- ggplot(torpor, aes(Site_new, NEE_MassCorrected)) + geom_boxplot(outlier.size = 3) +
+  theme_classic(base_size=30) +
+  ylab("Nighttime energy expenditure (kJ)") + xlab("Site") +
+  theme(strip.background = element_blank(),
+              panel.border = element_rect(colour = "black", fill=NA)) 
+NEE_site
+
+Hours_site <- ggplot(torpor, aes(Site_new, Hours_torpid)) + geom_boxplot(outlier.size = 3) +
+  theme_classic(base_size=30) +
+  ylab("Hours torpid") + xlab("Site") +
+  theme(strip.background = element_blank(),
+              panel.border = element_rect(colour = "black", fill=NA))
+Hours_site
+
+## Plot both Site plots together
+lay_out(list(NEE_site, 1, 2), 
+        list(Hours_site, 1, 1))
 
 ## Mass-corrected NEE plot by chamber temperature, facet by site and color by species
 energyM_temp_site <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_MassCorrected)) + 
@@ -607,6 +617,22 @@ GCB_tor_nor <- ggplot(m_GCB_tor_nor, aes(as.numeric(Tc_min_C), value, color=vari
 GCB_tor_nor
 
 #### Statistics ####
+
+## Mean and t tests
+mean(torpor$Hours_torpid[torpor$Hours_torpid != 0 & torpor$Site %in% c("HC", "SC", "SWRS")], na.rm=T)
+mean(torpor$Hours_torpid[torpor$Hours_torpid != 0 & torpor$Site %in% c("MQ", "SL")], na.rm=T)
+
+hc <- torpor$Hours_torpid[torpor$Species=="BBLH"&torpor$Site=="HC"]
+sc <- torpor$Hours_torpid[torpor$Species=="BBLH"&torpor$Site=="SC"]
+
+az_h <- torpor$Hours_torpid[torpor$Hours_torpid != 0 & torpor$Site %in% c("HC", "SC", "SWRS")]
+ec_h <- torpor$Hours_torpid[torpor$Hours_torpid != 0 & torpor$Site %in% c("MQ", "SL")]
+t.azec.hours <- t.test(az,ec)
+
+az_nee <- torpor$NEE_kJ[torpor$Site %in% c("HC", "SC", "SWRS")]
+ec_nee <- torpor$NEE_kJ[torpor$Site %in% c("MQ", "SL")]
+t.azec.nee <- t.test(az,ec)
+
 
 ## Linear and non-linear models
 ## Regressions
