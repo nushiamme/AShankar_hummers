@@ -33,6 +33,7 @@ total_beh_time <- sum(Total_FL,Total_Hov,Total_perch)
 Total_FL_perc <- (Total_FL/total_beh_time)*100
 Total_Hov_perc <- (Total_Hov/total_beh_time)*100
 Total_perch_perc <- (Total_perch/total_beh_time)*100
+total_beh_time
 Total_FL_perc
 Total_Hov_perc
 Total_perch_perc
