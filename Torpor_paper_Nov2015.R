@@ -88,6 +88,17 @@ Tc.xlab <- expression(atop(paste("Chamber Temperature (", degree,"C)")))
 Ta.xlab <- expression(atop(paste("Ambient Temperature (", degree,"C)")))
 Tc_min.xlab <- expression(atop(paste("Minimum Chamber Temperature (", degree,"C)")))
 
+#### Depth plots #####
+torpor$Species2 <- factor(torpor$Species,
+       levels = c('BBLH','MAHU','GCB','FBB','TBH', "WNJ"), ordered = T)
+savings_plot <- ggplot(torpor[!is.na(torpor$Percentage_avg),], aes(Species2, (100 - Percentage_avg))) + 
+  theme_bw(base_size=30) + geom_boxplot(outlier.shape = 19) + 
+  # facet_grid(.~Site_new, scale="free_x", space="free") + 
+  ylab("Hourly torpid energy savings (%)") + theme(legend.position="none") +
+  stat_summary(fun.data = give.n, geom = "text", vjust=-2, size=6)
+savings_plot
+
+
 #### Basic NEE and hours plots ####
 ## Frequency of torpor use
 freq_table$prop <- (freq_table$Torpid/freq_table$Total)*100
