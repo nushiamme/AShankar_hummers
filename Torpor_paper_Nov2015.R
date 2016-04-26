@@ -91,13 +91,15 @@ Tc_min.xlab <- expression(atop(paste("Minimum Chamber Temperature (", degree,"C)
 #### Depth plots #####
 torpor$Species2 <- factor(torpor$Species,
        levels = c('BBLH','MAHU','GCB','FBB','TBH', "WNJ"), ordered = T)
+
 savings_plot <- ggplot(torpor[!is.na(torpor$Percentage_avg),], aes(Species2, (100 - Percentage_avg))) + 
-  theme_bw(base_size=30) + geom_boxplot(outlier.shape = 19) + 
+  theme_classic(base_size=20) + geom_boxplot(outlier.shape = 19) + xlab("Species") + 
   # facet_grid(.~Site_new, scale="free_x", space="free") + 
   ylab("Hourly torpid energy savings (%)") + theme(legend.position="none") +
-  stat_summary(fun.data = give.n, geom = "text", vjust=-2, size=6)
+  stat_summary(fun.data = give.n, geom = "text", vjust=-3, size=6) +
+  theme(axis.title.y = element_text(vjust = 2), 
+        panel.border = element_rect(colour = "black", fill=NA))
 savings_plot
-
 
 #### Basic NEE and hours plots ####
 ## Frequency of torpor use
@@ -124,7 +126,7 @@ energy_plot
 ## Plot for hours spent torpid
 hours_plot <- ggplot(na.omit(torpor[,c("Species","Hours_torpid","Site_new")]), 
                      aes(Species, Hours_torpid)) + 
-  theme_classic(base_size = 30) + geom_boxplot() + 
+  theme_classic(base_size = 20) + geom_boxplot(outlier.size = 3) + 
   facet_grid(.~Site_new, scale="free_x", space="free") + 
   ylab("Hours Torpid") + theme(legend.position="none") +
   theme(axis.title.x = element_text(face="bold"), axis.title.y = element_text(face="bold")) +
@@ -299,17 +301,6 @@ min_torpid_EE <- ggplot(torpor, aes(as.numeric(Tc_mean_C), as.numeric(Min_EE_tor
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
 min_torpid_EE
-
-## Average hourly energy expenditure while normothermic by Tc
-#avg_normo_EE <- ggplot(torpor, aes(as.numeric(Tc_mean_C), Avg_EE_hourly_normo)) +  theme_bw() + 
-#  geom_point(aes(shape = factor(Species)), size=4) + labs(shape ='Species') +
-#  scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
-#  scale_color_brewer(palette = "Set1")  + #xlim(-7, 35) +
-#  ylab("Avg EE normothermic") + xlab(Tc.xlab) +
-#  theme(axis.title.x = element_text(size=16, face="bold"),
-#        axis.text.x = element_text(size=14),
-#        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
-#avg_normo_EE
 
 ## Avg EE normo, with points labeled as Normo or Torpid birds; to see if overall EE is lower or
 ## higher for birds that tend to go into torpor
@@ -527,18 +518,16 @@ m_BBLH_tor_nor$variable <- factor(m_BBLH_tor_nor$variable,
                                   levels = rev(levels(m_BBLH_tor_nor$variable)))
 
 ## Both normo and torpid avg EE for BBLH on same graph
-BBLH_tor_nor <- ggplot(m_BBLH_tor_nor, aes(as.numeric(Tc_min_C), value, color=variable)) +
-  theme_bw(base_size = 30) + geom_point(aes(col=variable), size=4) + geom_smooth(method=lm, size=2) +
-  scale_color_manual(values=c("#0099ff", "#ff0000")) +
-  geom_text(x = 20, y = 0.38, label = paste("R^2 :", " 0.291",sep=""), 
-            parse=T, size=8, col="black") +
-  geom_text(x = 20, y = 0.07, label = paste("R^2 :", " 0.567",sep=""), 
-            parse=T, size=8, col="black") +
-  ylab("Avg BBLH Energy Expenditure (kJ/g)") + xlab(Tc.xlab) +
-  theme(axis.title.x = element_text(size=24, face="bold"),
-        axis.text.x = element_text(size=22), legend.key.height=unit(3,"line"),
-        axis.title.y = element_text(size=24, face="bold"), axis.text.y = element_text(size=24)) 
-BBLH_tor_nor
+BBLH_tor_nor <- ggplot(m_BBLH_tor_nor, aes(as.numeric(Tc_min_C), value, shape=variable)) +
+  theme_bw(base_size = 30) + geom_point(aes(shape=variable), size=6) + 
+  geom_smooth(method=lm, size=1, col="black") + 
+  scale_shape_manual("Hourly Energy Expenditure\n", 
+                     values=c(16,1), labels=c("Normothermic", "Torpid")) +
+  geom_text(x = 20, y = 0.38, label = paste("R^2 :", " 0.291",sep=""), parse=T, size=8, col="black") +
+  geom_text(x = 20, y = 0.07, label = paste("R^2 :", " 0.567",sep=""), parse=T, size=8, col="black") + 
+  theme(legend.key.height=unit(3,"line"), legend.title=element_text(size=20)) +
+  ylab("Avg BBLH Energy Expenditure (kJ/g)") + xlab(Tc.xlab)
+BBLH_tor_nor 
 
 grid.arrange(m_BBLH_avgEE_normo_Tcmin_eq, m_BBLH_avgEE_torpid_Tcmin_eq, nrow=1, ncol=2)
 
@@ -626,6 +615,19 @@ GCB_tor_nor <- ggplot(m_GCB_tor_nor, aes(as.numeric(Tc_min_C), value, color=vari
         axis.text.x = element_text(size=22), legend.key.height=unit(3,"line"),
         axis.title.y = element_text(size=24, face="bold"), axis.text.y = element_text(size=24)) 
 GCB_tor_nor
+
+GCB_tor_nor <- ggplot(m_GCB_tor_nor, aes(as.numeric(Tc_min_C), value, shape=variable)) +
+  theme_bw(base_size = 30) + geom_point(aes(shape=variable), size=6) + 
+  geom_smooth(method=lm, size=1, col="black") + 
+  scale_shape_manual("Hourly Energy Expenditure\n", 
+                     values=c(16,1), labels=c("Normothermic", "Torpid")) +
+  geom_text(x = 22, y = 0.32, label = paste("R^2 :", " 0.0302",sep=""), 
+            parse=T, size=8, col="black") + 
+  geom_text(x = 22, y = 0.12, label = paste("R^2 :", " 0.343",sep=""), 
+            parse=T, size=8, col="black") +
+  theme(legend.key.height=unit(3,"line"), legend.title=element_text(size=20)) +
+  ylab("Avg GCB Energy Expenditure (kJ/g)") + xlab(Tc.xlab)
+GCB_tor_nor 
 
 #### Statistics ####
 
