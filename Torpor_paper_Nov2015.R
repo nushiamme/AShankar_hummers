@@ -28,12 +28,13 @@ freq_table <- read.csv("Frequency_torpor.csv")
 #write.csv(tor_sub, "Torpor_METY_AGCU_2015.csv")
 
 ## Adding column dividing NEE by 2/3*Mass to correct for mass with allometric scaling
-torpor$NEE_MassCorrected<- torpor$NEE_kJ/((2/3)*torpor$Mass)
+##### NOTE:  Changed to 3/4 exponent on May 4th!! ####
+torpor$NEE_MassCorrected<- torpor$NEE_kJ/((3/4)*torpor$Mass)
 
-## Adding columns to correct for mass in Avg EE normo, Min EE normo, torpid, etc.
-torpor$AvgEE_normo_MassCorrected <- torpor$Avg_EE_hourly_normo/((2/3)*torpor$Mass)
-torpor$MinEE_normo_MassCorrected <- as.numeric(torpor$Min_EE_normo)/((2/3)*torpor$Mass)
-torpor$AvgEE_torpid_MassCorrected <- torpor$Avg_EE_hourly_torpid/((2/3)*torpor$Mass)
+## Adding columns to correct for mass in Avg EE normo, Min EE normo, torpid, etc. 
+torpor$AvgEE_normo_MassCorrected <- torpor$Avg_EE_hourly_normo/((3/4)*torpor$Mass)
+torpor$MinEE_normo_MassCorrected <- as.numeric(torpor$Min_EE_normo)/((3/4)*torpor$Mass)
+torpor$AvgEE_torpid_MassCorrected <- torpor$Avg_EE_hourly_torpid/((3/4)*torpor$Mass)
 torpor$MinEE_torpid_MassCorrected <- as.numeric(torpor$Min_EE_torpid)/((2/3)*torpor$Mass)
 
 # Line to arrange Site facets in sensible order
@@ -87,6 +88,15 @@ lm_eqn <- function(table, y, x){
 Tc.xlab <- expression(atop(paste("Chamber Temperature (", degree,"C)")))
 Ta.xlab <- expression(atop(paste("Ambient Temperature (", degree,"C)")))
 Tc_min.xlab <- expression(atop(paste("Minimum Chamber Temperature (", degree,"C)")))
+
+# Trying out Log-log NEE-mass
+test_log_col <- ggplot(torpor, aes(Mass, NEE_kJ)) +
+  geom_point(alpha=0.2) + theme_bw() + scale_x_log10() + scale_y_log10() + geom_smooth(method='lm')
+test_log_col
+
+## Doing this lm() gives R2 as .74, which is very close to 3/4. So I changed mass corrections from 2/3 to 3/4 on May 4th, 2016.
+summary(lm(log(NEE_kJ) ~ log(Mass), data = torpor))
+
 
 #### Depth plots #####
 torpor$Species2 <- factor(torpor$Species,
@@ -161,7 +171,7 @@ energyM_hours
 ## Energy vs. hours torpid, without species labeled- for retreat
 energy_hours_spUnlabeled <- ggplot(torpor, aes(Hours_torpid, NEE_MassCorrected)) +  
   geom_point(size=4) + theme_bw(base_size=30) + geom_smooth(method=lm, color="black") +
-  geom_text(x = 7, y = 4.5, label = paste("R^2 :", " 0.565",sep=""), parse=T, size=10) +
+  geom_text(x = 7, y = 4, label = paste("R^2 :", " 0.311",sep=""), parse=T, size=10) +
   labs(shape='Species') + scale_color_brewer(palette = "Set1") +
   ylab("Nighttime energy expenditure (kJ/g)") + xlab("Duration torpid") +
   theme(axis.title.x = element_text(face="bold", vjust=-0.5),
@@ -523,8 +533,8 @@ BBLH_tor_nor <- ggplot(m_BBLH_tor_nor, aes(as.numeric(Tc_min_C), value, shape=va
   geom_smooth(method=lm, size=1, col="black") + 
   scale_shape_manual("Hourly Energy Expenditure\n", 
                      values=c(16,1), labels=c("Normothermic", "Torpid")) +
-  geom_text(x = 20, y = 0.38, label = paste("R^2 :", " 0.291",sep=""), parse=T, size=8, col="black") +
-  geom_text(x = 20, y = 0.07, label = paste("R^2 :", " 0.567",sep=""), parse=T, size=8, col="black") + 
+  #geom_text(x = 20, y = 0.38, label = paste("R^2 :", " 0.291",sep=""), parse=T, size=8, col="black") +
+  #geom_text(x = 20, y = 0.07, label = paste("R^2 :", " 0.567",sep=""), parse=T, size=8, col="black") + 
   theme(legend.key.height=unit(3,"line"), legend.title=element_text(size=20)) +
   ylab("Avg BBLH Energy Expenditure (kJ/g)") + xlab(Tc.xlab)
 BBLH_tor_nor 
@@ -603,7 +613,7 @@ m_GCB_tor_nor$variable <- factor(m_GCB_tor_nor$variable,levels =
                                    rev(levels(m_GCB_tor_nor$variable)))
 
 ## Both normo and torpid avg EE for GCB on same graph
-GCB_tor_nor <- ggplot(m_GCB_tor_nor, aes(as.numeric(Tc_min_C), value, color=variable)) +
+GCB_tor_nor_col <- ggplot(m_GCB_tor_nor, aes(as.numeric(Tc_min_C), value, color=variable)) +
   theme_bw(base_size = 30) + geom_point(aes(col=variable), size=4) + 
   geom_smooth(method=lm, size=2) + scale_color_manual(values=c("#0099ff", "#ff0000")) +
   geom_text(x = 22, y = 0.32, label = paste("R^2 :", " 0.0302",sep=""), 
@@ -614,17 +624,17 @@ GCB_tor_nor <- ggplot(m_GCB_tor_nor, aes(as.numeric(Tc_min_C), value, color=vari
   theme(axis.title.x = element_text(size=24, face="bold"),
         axis.text.x = element_text(size=22), legend.key.height=unit(3,"line"),
         axis.title.y = element_text(size=24, face="bold"), axis.text.y = element_text(size=24)) 
-GCB_tor_nor
+GCB_tor_nor_col
 
 GCB_tor_nor <- ggplot(m_GCB_tor_nor, aes(as.numeric(Tc_min_C), value, shape=variable)) +
   theme_bw(base_size = 30) + geom_point(aes(shape=variable), size=6) + 
   geom_smooth(method=lm, size=1, col="black") + 
   scale_shape_manual("Hourly Energy Expenditure\n", 
                      values=c(16,1), labels=c("Normothermic", "Torpid")) +
-  geom_text(x = 22, y = 0.32, label = paste("R^2 :", " 0.0302",sep=""), 
-            parse=T, size=8, col="black") + 
-  geom_text(x = 22, y = 0.12, label = paste("R^2 :", " 0.343",sep=""), 
-            parse=T, size=8, col="black") +
+  #geom_text(x = 22, y = 0.32, label = paste("R^2 :", " 0.0302",sep=""), 
+    #        parse=T, size=8, col="black") + 
+  #geom_text(x = 22, y = 0.12, label = paste("R^2 :", " 0.343",sep=""), 
+   #         parse=T, size=8, col="black") +
   theme(legend.key.height=unit(3,"line"), legend.title=element_text(size=20)) +
   ylab("Avg GCB Energy Expenditure (kJ/g)") + xlab(Tc.xlab)
 GCB_tor_nor 
@@ -644,7 +654,7 @@ t.azec.hours <- t.test(az,ec)
 
 az_nee <- torpor$NEE_kJ[torpor$Site %in% c("HC", "SC", "SWRS")]
 ec_nee <- torpor$NEE_kJ[torpor$Site %in% c("MQ", "SL")]
-t.azec.nee <- t.test(az,ec)
+t.azec.nee <- t.test(az_nee,ec_)
 
 
 ## Linear and non-linear models
