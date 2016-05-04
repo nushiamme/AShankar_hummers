@@ -1,6 +1,6 @@
 ## Started fresh, 15 November, 2015
 ## Torpor paper, A. Shankar, R. Schroeder et al.
-## Updated Feb 22, 2016
+## Updated May 4, 2016
 
 library(ggplot2)
 library(reshape)
