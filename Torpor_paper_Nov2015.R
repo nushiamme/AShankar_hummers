@@ -10,12 +10,13 @@ library(wq)
 library(gam)
 library(foreign)
 library(MASS)
+library(ggbiplot)
 
 ## setwd and read in file
 #wdMac<- setwd("/Users/anushashankar/Dropbox/Hummingbird energetics/Tables_for_paper")
 #wdMac
 wdMS <- setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
-wdMS
+#wdMS
 torpor <- read.csv("Torpor_table_plot_Mar26.csv")
 freq_table <- read.csv("Frequency_torpor.csv")
 #names(torpor)
@@ -35,10 +36,14 @@ torpor$NEE_MassCorrected<- torpor$NEE_kJ/((3/4)*torpor$Mass)
 torpor$AvgEE_normo_MassCorrected <- torpor$Avg_EE_hourly_normo/((3/4)*torpor$Mass)
 torpor$MinEE_normo_MassCorrected <- as.numeric(torpor$Min_EE_normo)/((3/4)*torpor$Mass)
 torpor$AvgEE_torpid_MassCorrected <- torpor$Avg_EE_hourly_torpid/((3/4)*torpor$Mass)
-torpor$MinEE_torpid_MassCorrected <- as.numeric(torpor$Min_EE_torpid)/((2/3)*torpor$Mass)
+torpor$MinEE_torpid_MassCorrected <- as.numeric(torpor$Min_EE_torpid)/((3/4)*torpor$Mass)
 
 # Line to arrange Site facets in sensible order
 torpor$Site_new <- factor(torpor$Site, levels=c('HC','SC','SWRS','MQ','SL'))
+
+## Create Hours_torpid2 column and change NA's to 0's for lm analyses; keep original Hours_torpid column with NA's
+torpor$Hours_torpid2 <- torpor$Hours_torpid
+torpor$Hours_torpid2[is.na(torpor$Hours_torpid2)] <- 0
 
 ## Subset just BBLH data
 BBLH_torpor <- subset(torpor, Species=="BBLH")
@@ -90,13 +95,23 @@ Ta.xlab <- expression(atop(paste("Ambient Temperature (", degree,"C)")))
 Tc_min.xlab <- expression(atop(paste("Minimum Chamber Temperature (", degree,"C)")))
 
 # Trying out Log-log NEE-mass
-test_log_col <- ggplot(torpor, aes(Mass, NEE_kJ)) +
-  geom_point(alpha=0.2) + theme_bw() + scale_x_log10() + scale_y_log10() + geom_smooth(method='lm')
+test_log_col <- ggplot(torpor, aes((Mass^(3/4)), NEE_kJ)) +
+  geom_point(alpha=0.2) + theme_bw() + geom_smooth(method='lm')
 test_log_col
+test_log_col + scale_x_log10() + scale_y_log10()
+test <- ggplot(torpor, aes(Mass, NEE_kJ)) +
+  geom_point(alpha=0.2) + theme_bw() + geom_smooth(method='lm')
+test
 
-## Doing this lm() gives R2 as .74, which is very close to 3/4. So I changed mass corrections from 2/3 to 3/4 on May 4th, 2016.
-summary(lm(log(NEE_kJ) ~ log(Mass), data = torpor))
 
+## Doing this lm() gives R2 as .74, doing it without log-log gives 0.61
+summary(lm(log(NEE_kJ) ~ log(Mass), torpor))
+
+summary(lm(NEE_MassCorrected ~ Mass + Hours_torpid2 + Tc_min_C, data = torpor))
+summary(lm(AvgEE_torpid_MassCorrected ~ Mass + Hours_torpid2 + Tc_min_C, data = torpor))
+summary(lm(AvgEE_normo_MassCorrected ~ Mass + Hours_torpid2 + Tc_min_C, data = torpor))
+summary(lm(AvgEE_torpid_MassCorrected ~ Mass + Hours_torpid2 + Tc_min_C, data = BBLH_torpor))
+summary(lm(AvgEE_torpid_MassCorrected ~ Mass + Hours_torpid2 + Tc_min_C, data = GCB_torpor))
 
 #### Depth plots #####
 torpor$Species2 <- factor(torpor$Species,
@@ -789,3 +804,18 @@ predictedEE_normo_Tcmean <- predict(quad_avgEE_normo,list(Temp=torpor$Tc_mean_C,
 plot(torpor$Tc_mean_C, torpor$AvgEE_normo_MassCorrected, pch=16, xlab = "Mean Temp (deg C)", 
      ylab = "Avg normo EE Mass-corrected", cex.lab = 1.3, col = "blue")
 lines(sort(torpor$Tc_mean_C), predictedEE_normo[order(torpor$Tc_mean_C)], col='red', type='b') 
+
+## PCA
+pr(NEE_kJ, data=torpor)
+pc.cr <- princomp(torpor$NEE_kJ)
+
+biplot(pc.cr, choices = 1:2, scale=1)
+
+
+g <- ggbiplot(ir.pca, obs.scale = 1, var.scale = 1, 
+              groups = ir.species, ellipse = TRUE, 
+              circle = TRUE)
+g <- g + scale_color_discrete(name = '')
+g <- g + theme(legend.direction = 'horizontal', 
+               legend.position = 'top')
+print(g)
