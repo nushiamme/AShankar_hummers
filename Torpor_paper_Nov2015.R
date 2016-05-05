@@ -107,6 +107,7 @@ test
 ## Doing this lm() gives R2 as .74, doing it without log-log gives 0.61
 summary(lm(log(NEE_kJ) ~ log(Mass), torpor))
 
+## Trying out some lm()'s - move these to the end of the doc once done trying.
 summary(lm(NEE_MassCorrected ~ Mass + Hours_torpid2 + Tc_min_C, data = torpor))
 summary(lm(AvgEE_torpid_MassCorrected ~ Mass + Hours_torpid2 + Tc_min_C, data = torpor))
 summary(lm(AvgEE_normo_MassCorrected ~ Mass + Hours_torpid2 + Tc_min_C, data = torpor))
@@ -805,17 +806,16 @@ plot(torpor$Tc_mean_C, torpor$AvgEE_normo_MassCorrected, pch=16, xlab = "Mean Te
      ylab = "Avg normo EE Mass-corrected", cex.lab = 1.3, col = "blue")
 lines(sort(torpor$Tc_mean_C), predictedEE_normo[order(torpor$Tc_mean_C)], col='red', type='b') 
 
-## PCA
-pr(NEE_kJ, data=torpor)
-pc.cr <- princomp(torpor$NEE_kJ)
+## PCA - Not working yet, work on this!!!
+t.pc <- torpor[,c("NEE_kJ", "Hours_torpid", "Tc_min_C", "Avg_EE_hourly_torpid")]
+pc.cr <- prcomp(t.pc, center=T, scale. = T)
 
-biplot(pc.cr, choices = 1:2, scale=1)
-
-
-g <- ggbiplot(ir.pca, obs.scale = 1, var.scale = 1, 
-              groups = ir.species, ellipse = TRUE, 
+g.nee <- ggbiplot(pc.cr, obs.scale = 1, var.scale = 1, 
+              groups = as.character(torpor$Species), ellipse = TRUE, 
               circle = TRUE)
 g <- g + scale_color_discrete(name = '')
 g <- g + theme(legend.direction = 'horizontal', 
                legend.position = 'top')
 print(g)
+
+summary(pc.cr)
