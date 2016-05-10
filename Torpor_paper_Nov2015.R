@@ -807,15 +807,16 @@ plot(torpor$Tc_mean_C, torpor$AvgEE_normo_MassCorrected, pch=16, xlab = "Mean Te
 lines(sort(torpor$Tc_mean_C), predictedEE_normo[order(torpor$Tc_mean_C)], col='red', type='b') 
 
 ## PCA - Not working yet, work on this!!!
-t.pc <- torpor[,c("NEE_kJ", "Hours_torpid", "Tc_min_C", "Avg_EE_hourly_torpid")]
-pc.cr <- prcomp(t.pc, center=T, scale. = T)
+t.pc <- torpor[,c("NEE_kJ", "Hours_torpid2", "Tc_min_C", "Avg_EE_hourly_torpid")]
+pc.cr <- prcomp(t.pc[,1:3], center=T, scale. = T)
 
 g.nee <- ggbiplot(pc.cr, obs.scale = 1, var.scale = 1, 
               groups = as.character(torpor$Species), ellipse = TRUE, 
-              circle = TRUE)
-g <- g + scale_color_discrete(name = '')
-g <- g + theme(legend.direction = 'horizontal', 
-               legend.position = 'top')
-print(g)
+              circle = TRUE) + scale_color_brewer(palette = "Set1")
+g.nee <- g.nee + theme(legend.direction = 'horizontal', 
+               legend.position = 'top') + theme_classic(base_size = 20) +
+  theme(axis.title.y = element_text(vjust = 2), 
+        panel.border = element_rect(colour = "black", fill=NA))
+print(g.nee)
 
 summary(pc.cr)
