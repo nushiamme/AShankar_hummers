@@ -153,12 +153,22 @@ energy_plot
 
 ## Plot for proportion hours spent torpid - replaced hours torpid graph with this
 ##will have to change everything back to get hours torpid graph
-hours_plot <- ggplot(na.omit(torpor[,c("Species","Hours_torpid","Site_new","Temptrop","Prop_hours")]), 
+prop_hours_plot <- ggplot(na.omit(torpor[,c("Species","Hours_torpid","Site_new","Temptrop","Prop_hours")]), 
                      aes(Temptrop, as.numeric(as.character((Prop_hours))))) + 
   geom_boxplot() + my_theme + ylab("Percentage of hours spent torpid") + xlab("Region") +
   #geom_boxplot(outlier.size = 3) 
   #facet_grid(.~Site_new, scale="free_x", space="free") + 
   #ylab("Hours Torpid") + theme(legend.position="none") +
+  stat_summary(position = position_nudge(y = 0.98), fun.data = give.n, geom = "text", size=8)
+prop_hours_plot
+
+hours_plot <- ggplot(na.omit(torpor[,c("Species","Hours_torpid","Site_new")]),
+                     aes(Species, Hours_torpid)) + 
+  theme_classic(base_size = 20) + geom_boxplot(outlier.size = 3) + 
+  facet_grid(.~Site_new, scale="free_x", space="free") + 
+  ylab("Hours Torpid") + theme(legend.position="none") +
+  theme(axis.title.x = element_text(face="bold"), axis.title.y = element_text(face="bold")) +
+  theme(panel.border = element_rect(colour = "black", fill=NA)) +
   stat_summary(position = position_nudge(y = 0.98), fun.data = give.n, geom = "text", size=8)
 hours_plot
 
