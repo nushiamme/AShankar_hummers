@@ -17,7 +17,7 @@ library(ggbiplot)
 #wdMac
 wdMS <- setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
 #wdMS
-torpor <- read.csv("Torpor_table_plot_Mar26.csv")
+torpor <- read.csv("Torpor_table_plot_May12.csv")
 freq_table <- read.csv("Frequency_torpor.csv")
 #names(torpor)
 
@@ -99,7 +99,9 @@ Tc.xlab <- expression(atop(paste("Chamber Temperature (", degree,"C)")))
 Ta.xlab <- expression(atop(paste("Ambient Temperature (", degree,"C)")))
 Tc_min.xlab <- expression(atop(paste("Minimum Chamber Temperature (", degree,"C)")))
 
-# Trying out Log-log NEE-mass
+
+
+####### Trying out Log-log NEE-mass######
 test_log_col <- ggplot(torpor, aes((Mass^(3/4)), NEE_kJ)) +
   geom_point(alpha=0.2) + theme_bw() + geom_smooth(method='lm')
 test_log_col
@@ -122,8 +124,9 @@ summary(lm(AvgEE_torpid_MassCorrected ~ Mass + Hours_torpid2 + Tc_min_C, data = 
 torpor$Species2 <- factor(torpor$Species,
        levels = c('BBLH','MAHU','GCB','FBB','TBH', "WNJ"), ordered = T)
 
-savings_plot <- ggplot(torpor[!is.na(torpor$Percentage_avg),], aes(Species2, (100 - Percentage_avg))) + 
-  geom_boxplot(outlier.shape = 19) + xlab("Species") + 
+## Also plotted tropical-temperate by changing aes(Species2...) to (Temptrop...)
+savings_plot <- ggplot(torpor[!is.na(torpor$Percentage_avg),], aes(Temptrop, (100 - Percentage_avg))) + 
+  geom_boxplot(outlier.shape = 19) + xlab("Region") + 
   # facet_grid(.~Site_new, scale="free_x", space="free") + 
   ylab("Hourly torpid energy savings (%)") + theme(legend.position="none") + my_theme
   #stat_summary(fun.data = give.n, geom = "text", vjust=-3, size=6)
@@ -133,26 +136,23 @@ savings_plot
 ## Frequency of torpor use
 freq_table$prop <- (freq_table$Torpid/freq_table$Total)*100
 
-freqplot <- ggplot(freq_table, aes(Species, prop)) + geom_bar(stat="identity") + 
+freqplot <- ggplot(freq_table, aes(Temptrop, prop)) + geom_bar(stat="identity") + 
   theme_classic(base_size = 30) + 
-  geom_text(data=freq_table,aes(x=Species,y=prop,label=paste("n = ", Total)),vjust=-2, size=10) +
+  #geom_text(data=freq_table,aes(x=Species,y=prop,label=paste("n = ", Total)),vjust=-2, size=10) +
   ylab("Rate of occurrence of torpor (%)") + ylim(0, 109) + 
   theme(axis.title.y = element_text(vjust = 2), 
         panel.border = element_rect(colour = "black", fill=NA))
 freqplot
 
-## Plot for Nighttime energy expenditure, by species
-energy_plot <- ggplot(torpor, aes(Species, NEE_kJ)) +  theme_bw() +
-  geom_boxplot(aes(col=Species)) + facet_grid(.~Site_new, scale="free_x", space="free") + 
+## Plot for Nighttime energy expenditure, by temperate-tropics
+energy_plot <- ggplot(torpor, aes(Temptrop, NEE_kJ)) + my_theme + geom_boxplot() +
+  #geom_boxplot(aes(col=Species)) + #facet_grid(.~Site_new, scale="free_x", space="free") + 
   ylab("Nighttime energy expenditure (kJ)") + theme(legend.position="none") +
-  theme(axis.title.x = element_text(size=16, face="bold"),
-        axis.text.x = element_text(size=14),
-        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) +
-  stat_summary(fun.data = give.n, geom = "text", vjust=-5)
+  stat_summary(fun.data = give.n, geom = "text", vjust=-2, size=10)
 energy_plot
 
 ## Plot for hours spent torpid
-hours_plot <- ggplot(na.omit(torpor[,c("Species","Hours_torpid","Site_new")]), 
+hours_plot <- ggplot(na.omit(torpor[,c("Species","Hours_torpid","Site_new","Temptrop")]), 
                      aes(Species, Hours_torpid)) + 
   theme_classic(base_size = 20) + geom_boxplot(outlier.size = 3) + 
   facet_grid(.~Site_new, scale="free_x", space="free") + 
