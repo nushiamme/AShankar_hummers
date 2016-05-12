@@ -125,8 +125,8 @@ torpor$Species2 <- factor(torpor$Species,
        levels = c('BBLH','MAHU','GCB','FBB','TBH', "WNJ"), ordered = T)
 
 ## Also plotted tropical-temperate by changing aes(Species2...) to (Temptrop...)
-savings_plot <- ggplot(torpor[!is.na(torpor$Percentage_avg),], aes(Temptrop, (100 - Percentage_avg))) + 
-  geom_boxplot(outlier.shape = 19) + xlab("Region") + 
+savings_plot <- ggplot(torpor[!is.na(torpor$Percentage_avg),], aes(Species2, (100 - Percentage_avg))) + 
+  geom_boxplot(outlier.shape = 19) + xlab("Species") + 
   # facet_grid(.~Site_new, scale="free_x", space="free") + 
   ylab("Hourly torpid energy savings (%)") + theme(legend.position="none") + my_theme
   #stat_summary(fun.data = give.n, geom = "text", vjust=-3, size=6)
@@ -136,7 +136,7 @@ savings_plot
 ## Frequency of torpor use
 freq_table$prop <- (freq_table$Torpid/freq_table$Total)*100
 
-freqplot <- ggplot(freq_table, aes(Temptrop, prop)) + geom_bar(stat="identity") + 
+freqplot <- ggplot(freq_table, aes(Temptrop, prop)) + geom_boxplot() + 
   theme_classic(base_size = 30) + 
   #geom_text(data=freq_table,aes(x=Species,y=prop,label=paste("n = ", Total)),vjust=-2, size=10) +
   ylab("Rate of occurrence of torpor (%)") + ylim(0, 109) + 
@@ -151,14 +151,14 @@ energy_plot <- ggplot(torpor, aes(Temptrop, NEE_kJ)) + my_theme + geom_boxplot()
   stat_summary(fun.data = give.n, geom = "text", vjust=-2, size=10)
 energy_plot
 
-## Plot for hours spent torpid
-hours_plot <- ggplot(na.omit(torpor[,c("Species","Hours_torpid","Site_new","Temptrop")]), 
-                     aes(Species, Hours_torpid)) + 
-  theme_classic(base_size = 20) + geom_boxplot(outlier.size = 3) + 
-  facet_grid(.~Site_new, scale="free_x", space="free") + 
-  ylab("Hours Torpid") + theme(legend.position="none") +
-  theme(axis.title.x = element_text(face="bold"), axis.title.y = element_text(face="bold")) +
-  theme(panel.border = element_rect(colour = "black", fill=NA)) +
+## Plot for proportion hours spent torpid - replaced hours torpid graph with this
+##will have to change everything back to get hours torpid graph
+hours_plot <- ggplot(na.omit(torpor[,c("Species","Hours_torpid","Site_new","Temptrop","Prop_hours")]), 
+                     aes(Temptrop, as.numeric(as.character((Prop_hours))))) + 
+  geom_boxplot() + my_theme + ylab("Percentage of hours spent torpid") + xlab("Region") +
+  #geom_boxplot(outlier.size = 3) 
+  #facet_grid(.~Site_new, scale="free_x", space="free") + 
+  #ylab("Hours Torpid") + theme(legend.position="none") +
   stat_summary(position = position_nudge(y = 0.98), fun.data = give.n, geom = "text", size=8)
 hours_plot
 
@@ -822,3 +822,5 @@ g.nee <- g.nee + theme(legend.direction = 'horizontal',
 print(g.nee)
 
 summary(pc.cr)
+
+m.temptrop <- melt(torpor, id.vars = c("Temptrop", "Species", "Site", "Hours_torpid", ""))
