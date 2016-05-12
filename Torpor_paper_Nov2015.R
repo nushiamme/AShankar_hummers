@@ -851,7 +851,11 @@ print(g.nee)
 summary(pc.cr)
 
 ## Anova of torpid energy savings as a function of site and species. Species doesn't matter, site does!
-anova(lm(Percentage_avg~Site_new+Species+Tc_min_C, data = torpor))
+anova(lm(Percentage_avg~Site_new+Species+Tc_min_C+Mass, data = torpor))
+
+## Anova with Avg hourly EE torpid gives slightly different results
+anova(lm(AvgEE_torpid_MassCorrected~Site_new+Species+Tc_min_C+Mass, data = torpor))
+
 
 ## Subsetting melted dataframe to get just depth values. Then subtracting from 100 to make them hourly savings.
 m.savings <- m.temptrop[m.temptrop$variable=="Percentage_avg",]
