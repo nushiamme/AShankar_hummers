@@ -59,6 +59,11 @@ GCB_torpor <- subset(torpor, Species=="GCB")
 ##add to ggplot(x=,*,subset=.(variable=="NEE_kJ")*)## Function to arrange plots
 
 #### General functions ####
+## Saving standard theme
+my_theme <- theme_classic(base_size = 30) + 
+  theme(axis.title.y = element_text(vjust = 2),
+        panel.border = element_rect(colour = "black", fill=NA))
+
 ## To arrange graphs
 lay_out = function(...) {    
   x <- list(...)
@@ -103,7 +108,6 @@ test <- ggplot(torpor, aes(Mass, NEE_kJ)) +
   geom_point(alpha=0.2) + theme_bw() + geom_smooth(method='lm')
 test
 
-
 ## Doing this lm() gives R2 as .74, doing it without log-log gives 0.61
 summary(lm(log(NEE_kJ) ~ log(Mass), torpor))
 
@@ -119,12 +123,10 @@ torpor$Species2 <- factor(torpor$Species,
        levels = c('BBLH','MAHU','GCB','FBB','TBH', "WNJ"), ordered = T)
 
 savings_plot <- ggplot(torpor[!is.na(torpor$Percentage_avg),], aes(Species2, (100 - Percentage_avg))) + 
-  theme_classic(base_size=20) + geom_boxplot(outlier.shape = 19) + xlab("Species") + 
+  geom_boxplot(outlier.shape = 19) + xlab("Species") + 
   # facet_grid(.~Site_new, scale="free_x", space="free") + 
-  ylab("Hourly torpid energy savings (%)") + theme(legend.position="none") +
-  stat_summary(fun.data = give.n, geom = "text", vjust=-3, size=6) +
-  theme(axis.title.y = element_text(vjust = 2), 
-        panel.border = element_rect(colour = "black", fill=NA))
+  ylab("Hourly torpid energy savings (%)") + theme(legend.position="none") + my_theme
+  #stat_summary(fun.data = give.n, geom = "text", vjust=-3, size=6)
 savings_plot
 
 #### Basic NEE and hours plots ####

@@ -28,6 +28,14 @@ give.n <- function(x){
   return(c(y = mean(x), label = length(x)))
 }
 
+## USeful for introduction !!!!!!!!!!!!!!!!
+## McKechnie, A.E. and B.G. Lovegrove. 2002. Avian Facultative Hypothermic Responses: a Review. 
+      # The Condor 104: 705.
+## The capacity for shallow hypothermia (rest-phase hypothermia) occurs throughout the avian phylogeny,
+## but the capacity for pronounced hypothermia (torpor) appears to be restricted to certain taxa. 
+## Families in which torpor has been reported include the Todidae, Coliidae, Trochilidae, Apodidae, 
+## Caprimulgidae, and Columbidae.
+
 ## Subsetting files
 #agcu <- torpor2015[torpor2015$Species=="AGCU",]
 #mety <- torpor2015[torpor2015$Species=="METY",]
