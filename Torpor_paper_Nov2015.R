@@ -104,7 +104,6 @@ Tc.xlab <- expression(atop(paste("Chamber Temperature (", degree,"C)")))
 Ta.xlab <- expression(atop(paste("Ambient Temperature (", degree,"C)")))
 Tc_min.xlab <- expression(atop(paste("Minimum Chamber Temperature (", degree,"C)")))
 
-
 ####### Trying out Log-log NEE-mass######
 test_log_col <- ggplot(torpor, aes((Mass^(3/4)), NEE_kJ)) +
   geom_point(alpha=0.2) + theme_bw() + geom_smooth(method='lm')
@@ -128,21 +127,20 @@ summary(lm(AvgEE_torpid_MassCorrected ~ Mass + Hours_torpid2 + Tc_min_C, data = 
 torpor$Species2 <- factor(torpor$Species,
        levels = c('BBLH','MAHU','GCB','FBB','TBH', "WNJ"), ordered = T)
 
-## Also plotted tropical-temperate by changing aes(Species2...) to (Temptrop...)
-savings_plot <- ggplot(torpor[!is.na(torpor$Percentage_avg),], aes(Temptrop, (100 - Percentage_avg))) + 
+## Also plotted tropical-temperate by changing aes(Species2...) to (Temptrop...) and vice versa
+savings_plot <- ggplot(torpor[!is.na(torpor$Percentage_avg),], aes(Site_new, (100 - Percentage_avg))) + 
   geom_boxplot(outlier.shape = 19) + xlab("Species") + 
   # facet_grid(.~Site_new, scale="free_x", space="free") + 
-  ylab("Hourly torpid energy savings (%)") + theme(legend.position="none") + my_theme
-  #stat_summary(fun.data = give.n, geom = "text", vjust=-3, size=6)
+  ylab("Hourly torpid energy savings (%)") + theme(legend.position="none") + my_theme +
+  stat_summary(fun.data = give.n, geom = "text", vjust=4, size=10)
 savings_plot
 
-## By temptrop
+##### Comparing temperate and tropical species ##########
 temptrop_savings <- ggplot(m.temptrop[m.temptrop$variable=="Percentage_avg",], 
                            aes(Temptrop, 100-(value))) + 
   geom_boxplot() + my_theme + ylab("Hourly torpid energy savings (%)") + xlab("Region")
 temptrop_savings
 
-#### Basic NEE and hours plots ####
 ## Frequency of torpor use
 freq_table$prop <- (freq_table$Torpid/freq_table$Total)*100
 
@@ -156,23 +154,33 @@ freqplot <- ggplot(freq_table, aes(Temptrop, prop)) + geom_boxplot() +
 freqplot
 
 ## Plot for Nighttime energy expenditure, by temperate-tropics
-energy_plot <- ggplot(torpor, aes(Temptrop, NEE_kJ)) + my_theme + geom_boxplot() +
-  #geom_boxplot(aes(col=Species)) + #facet_grid(.~Site_new, scale="free_x", space="free") + 
+energy_plot <- ggplot(torpor, aes(Temptrop, NEE_kJ)) + my_theme + geom_boxplot() + xlab("Region") +
   ylab("Nighttime energy expenditure (kJ)") + theme(legend.position="none") +
   stat_summary(fun.data = give.n, geom = "text", vjust=-2, size=10)
 energy_plot
 
-## Plot for proportion hours spent torpid - replaced hours torpid graph with this
-##will have to change everything back to get hours torpid graph
+## Plot for proportion hours spent torpid
 prop_hours_plot <- ggplot(na.omit(torpor[,c("Species","Hours_torpid","Site_new","Temptrop","Prop_hours")]), 
                      aes(Temptrop, as.numeric(as.character((Prop_hours))))) + 
   geom_boxplot() + my_theme + ylab("Percentage of hours spent torpid") + xlab("Region") +
-  #geom_boxplot(outlier.size = 3) 
-  #facet_grid(.~Site_new, scale="free_x", space="free") + 
-  #ylab("Hours Torpid") + theme(legend.position="none") +
   stat_summary(position = position_nudge(y = 0.98), fun.data = give.n, geom = "text", size=8)
 prop_hours_plot
 
+## Hours torpid temptrop
+hours_temptrop <- ggplot(na.omit(torpor[,c("Species","Hours_torpid", "Temptrop")]), 
+                          aes(Temptrop, Hours_torpid)) + 
+  geom_boxplot() + my_theme + ylab("Torpor duration (hours)") + xlab("Region") +
+  stat_summary(fun.data = give.n, geom = "text", size=8, vjust=-2)
+hours_temptrop
+
+## Temp-trop Plot for Mass-corrected Nighttime energy expenditure
+energyM_temptrop <- ggplot(torpor, aes(Temptrop, NEE_MassCorrected)) + my_theme + geom_boxplot() + xlab("Region") +
+  ylab("Nighttime energy expenditure Mass-corrected (kJ/g)") + theme(axis.title.y = element_text(size=20)) +
+  stat_summary(fun.data = give.n, geom = "text", vjust=-1, size=10)
+energyM_temptrop
+
+#### Basic NEE and hours plots ####
+## Hours torpid
 hours_plot <- ggplot(na.omit(torpor[,c("Species","Hours_torpid","Site_new")]),
                      aes(Species, Hours_torpid)) + 
   geom_boxplot(outlier.size = 3) + my_theme +
@@ -842,11 +850,17 @@ print(g.nee)
 
 summary(pc.cr)
 
+## Anova of torpid energy savings as a function of site and species. Species doesn't matter, site does!
+anova(lm(Percentage_avg~Site_new+Species+Tc_min_C, data = torpor))
+
 ## Subsetting melted dataframe to get just depth values. Then subtracting from 100 to make them hourly savings.
 m.savings <- m.temptrop[m.temptrop$variable=="Percentage_avg",]
 m.savings$value <- 100-m.savings$value
 t.test(m.savings$value[m.savings$Temptrop=="Temperate"], m.savings$value[m.savings$Temptrop=="Tropical"], 
        paired = F)
+
+## Comparing savings, MQ vs. SL, and HC vs. SC
+t.test(m.savings$value[m.savings$Site=="HC"], m.savings$value[m.savings$Site=="SC"], paired=F)
 
 ## Subsetting NEE non-masscorrected, and testing tropical vs. temperate
 m.nee <- m.temptrop[m.temptrop$variable=="NEE_kJ",]
@@ -857,3 +871,12 @@ t.test(m.nee$value[m.nee$Temptrop=="Temperate"], m.nee$value[m.nee$Temptrop=="Tr
 m.nee <- m.temptrop[m.temptrop$variable=="NEE_MassCorrected",]
 t.test(m.nee$value[m.nee$Temptrop=="Temperate"], m.nee$value[m.nee$Temptrop=="Tropical"], 
        paired = F)
+
+## Hours torpid
+m.hours <- m.temptrop[m.temptrop$variable=="Hours_torpid",]
+t.test(m.hours$value[m.hours$Temptrop=="Temperate"],  m.hours$value[m.hours$Temptrop=="Tropical"], paired=F)
+
+## Hours torpid
+m.prophours <- m.temptrop[m.temptrop$variable=="Prop_hours",]
+t.test(m.prophours$value[m.prophours$Temptrop=="Temperate"],
+       m.prophours$value[m.prophours$Temptrop=="Tropical"], paired=F)
