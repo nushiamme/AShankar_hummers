@@ -138,24 +138,25 @@ savings_plot
 ##### Comparing temperate and tropical species ##########
 temptrop_savings <- ggplot(m.temptrop[m.temptrop$variable=="Percentage_avg",], 
                            aes(Temptrop, 100-(value))) + 
-  geom_boxplot() + my_theme + ylab("Hourly torpid energy savings (%)") + xlab("Region")
+  geom_boxplot() + my_theme + ylab("Hourly torpid energy savings (%)") + xlab("Region") +
+  theme(axis.title.y = element_text(size=20)) +
+  stat_summary(fun.data = give.n, geom = "text", size=8, vjust=-2)
 temptrop_savings
 
 ## Frequency of torpor use
 freq_table$prop <- (freq_table$Torpid/freq_table$Total)*100
 
 freqplot <- ggplot(freq_table, aes(Temptrop, prop)) + geom_boxplot() + 
-  theme_classic(base_size = 30) + 
   #geom_text(data=freq_table,aes(x=Species,y=prop,label=paste("n = ", Total)),vjust=-2, size=10) +
-  ylab("Rate of occurrence of torpor (%)") + ylim(0, 109) + 
-  theme(axis.title.y = element_text(vjust = 2), 
-        panel.border = element_rect(colour = "black", fill=NA)) +
+  ylab("Rate of occurrence of torpor (%)") + ylim(0, 109) + xlab("Region") + 
+  my_theme + theme(axis.title.y = element_text(size=20), axis.title.x = element_text(size=20)) + 
   stat_summary(fun.data = give.n, geom = "text", vjust=-2, size=10)
 freqplot
 
 ## Plot for Nighttime energy expenditure, by temperate-tropics
 energy_plot <- ggplot(torpor, aes(Temptrop, NEE_kJ)) + my_theme + geom_boxplot() + xlab("Region") +
-  ylab("Nighttime energy expenditure (kJ)") + theme(legend.position="none") +
+  ylab("Nighttime energy expenditure (kJ)") + theme(legend.position="none") + 
+  theme(axis.title.y = element_text(size=20)) +
   stat_summary(fun.data = give.n, geom = "text", vjust=-2, size=10)
 energy_plot
 
@@ -163,13 +164,15 @@ energy_plot
 prop_hours_plot <- ggplot(na.omit(torpor[,c("Species","Hours_torpid","Site_new","Temptrop","Prop_hours")]), 
                      aes(Temptrop, as.numeric(as.character((Prop_hours))))) + 
   geom_boxplot() + my_theme + ylab("Percentage of hours spent torpid") + xlab("Region") +
+  theme(axis.title.y = element_text(size=20)) +
   stat_summary(position = position_nudge(y = 0.98), fun.data = give.n, geom = "text", size=8)
 prop_hours_plot
 
 ## Hours torpid temptrop
 hours_temptrop <- ggplot(na.omit(torpor[,c("Species","Hours_torpid", "Temptrop")]), 
                           aes(Temptrop, Hours_torpid)) + 
-  geom_boxplot() + my_theme + ylab("Torpor duration (hours)") + xlab("Region") +
+  geom_boxplot() + my_theme + ylab("Torpor duration (hours)") + xlab("Region") + 
+  theme(axis.title.y = element_text(size=20)) +
   stat_summary(fun.data = give.n, geom = "text", size=8, vjust=-2)
 hours_temptrop
 
@@ -178,6 +181,8 @@ energyM_temptrop <- ggplot(torpor, aes(Temptrop, NEE_MassCorrected)) + my_theme 
   ylab("Nighttime energy expenditure Mass-corrected (kJ/g)") + theme(axis.title.y = element_text(size=20)) +
   stat_summary(fun.data = give.n, geom = "text", vjust=-1, size=10)
 energyM_temptrop
+
+grid.arrange(energyM_temptrop, freqplot, hours_temptrop, temptrop_savings, nrow=2, ncol=2)
 
 #### Basic NEE and hours plots ####
 ## Hours torpid
@@ -856,7 +861,6 @@ anova(lm(Percentage_avg~Site_new+Species+Tc_min_C+Mass, data = torpor))
 ## Anova with Avg hourly EE torpid gives slightly different results
 anova(lm(AvgEE_torpid_MassCorrected~Site_new+Species+Tc_min_C+Mass, data = torpor))
 
-
 ## Subsetting melted dataframe to get just depth values. Then subtracting from 100 to make them hourly savings.
 m.savings <- m.temptrop[m.temptrop$variable=="Percentage_avg",]
 m.savings$value <- 100-m.savings$value
@@ -864,7 +868,7 @@ t.test(m.savings$value[m.savings$Temptrop=="Temperate"], m.savings$value[m.savin
        paired = F)
 
 ## Comparing savings, MQ vs. SL, and HC vs. SC
-t.test(m.savings$value[m.savings$Site=="HC"], m.savings$value[m.savings$Site=="SC"], paired=F)
+t.test(m.savings$value[m.savings$Site=="MQ"], m.savings$value[m.savings$Site=="SL"], paired=F)
 
 ## Subsetting NEE non-masscorrected, and testing tropical vs. temperate
 m.nee <- m.temptrop[m.temptrop$variable=="NEE_kJ",]
