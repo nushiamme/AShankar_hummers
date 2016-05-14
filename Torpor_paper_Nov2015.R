@@ -11,6 +11,7 @@ library(gam)
 library(foreign)
 library(MASS)
 library(ggbiplot)
+library(dplyr)
 
 ## setwd and read in file
 #wdMac<- setwd("/Users/anushashankar/Dropbox/Hummingbird energetics/Tables_for_paper")
@@ -19,11 +20,15 @@ wdMS <- setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_pa
 #wdMS
 torpor <- read.csv("Torpor_table_plot_May12.csv")
 freq_table <- read.csv("Frequency_torpor.csv")
+tempsumm <- read.csv("Temp_summary.csv")
 
 torpor$Percentage_avg <- as.numeric(as.character(torpor$Percentage_avg))
 torpor$Prop_hours <- as.numeric(as.character(torpor$Prop_hours))
 m.temptrop <- melt(torpor, id.vars = c("Temptrop", "Species", "Site"), 
           measure.vars =  c("Hours_torpid", "Prop_hours", "NEE_kJ", "Percentage_avg", "NEE_MassCorrected", "Mass"))
+
+rate_site <- data.frame(table(torpor$Site,torpor$Torpid_not))
+names(rate_site) <- c("Site", "Torpid_not", "N")
 
 ## La Paz data
 #torpor2015 <- read.csv("Torpor2015.csv")
@@ -886,8 +891,7 @@ t.test(m.nee$value[m.nee$Site=="SC"], m.nee$value[m.nee$Site=="HC"],
 ## Rate of occurrence
 t.test(freq_table$Rate_occurrence[freq_table$Temptrop=="Temperate"], 
        freq_table$Rate_occurrence[freq_table$Temptrop=="Tropical"], paired=F)
-t.test(freq_table$Rate_occurrence[freq_table$Site=="HC"], 
-       freq_table$Rate_occurrence[freq_table$Site=="SC"], paired=F)
+t.test(rate_site$N[rate_site$Site=="HC"], rate_site$N[rate_site$Site=="SC"], paired=F)
 
 ## Hours torpid
 m.hours <- m.temptrop[m.temptrop$variable=="Hours_torpid",]
