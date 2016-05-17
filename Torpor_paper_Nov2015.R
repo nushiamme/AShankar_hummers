@@ -901,3 +901,7 @@ t.test(m.hours$value[m.hours$Temptrop=="Temperate"],  m.hours$value[m.hours$Temp
 m.prophours <- m.temptrop[m.temptrop$variable=="Prop_hours",]
 t.test(m.prophours$value[m.prophours$Temptrop=="Temperate"],
        m.prophours$value[m.prophours$Temptrop=="Tropical"], paired=F)
+
+## Testing just hourly torpid EE in HC vs. SC birds
+t.test(torpor$Avg_EE_hourly_torpid[torpor$Site=="HC"], 
+       torpor$Avg_EE_hourly_torpid[torpor$Site=="SC"], paired=F)
