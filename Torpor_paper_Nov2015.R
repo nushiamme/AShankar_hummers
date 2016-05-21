@@ -12,6 +12,7 @@ library(foreign)
 library(MASS)
 library(ggbiplot)
 library(dplyr)
+library(rgl)
 
 ## setwd and read in file
 #wdMac<- setwd("/Users/anushashankar/Dropbox/Hummingbird energetics/Tables_for_paper")
@@ -846,13 +847,25 @@ plot(torpor$Tc_mean_C, torpor$AvgEE_normo_MassCorrected, pch=16, xlab = "Mean Te
      ylab = "Avg normo EE Mass-corrected", cex.lab = 1.3, col = "blue")
 lines(sort(torpor$Tc_mean_C), predictedEE_normo[order(torpor$Tc_mean_C)], col='red', type='b') 
 
-## PCA - Not working yet, work on this!!!
+##### PCA - Looks Awesome in 3D ######
 t.pc <- torpor[,c("NEE_kJ", "Hours_torpid2", "Tc_min_C", "Percentage_avg")]
 t.pc$Percentage_avg <- as.numeric(t.pc$Percentage_avg)
 t.pc$Percentage_avg[is.na(t.pc$Percentage_avg)] <- 0
 t.pc$Avg_EE_hourly_torpid[is.na(t.pc$Avg_EE_hourly_torpid)] <- 0
 pc.cr <- prcomp(t.pc[,1:4], center=T, scale. = T)
+pc.cr2 <- princomp(t.pc[,1:4], cor=T, scores=T)
 
+plot3d(pc.cr2$scores[,1:3], col=as.integer(torpor$Site),size = 10)
+
+text3d(pc.cr2$scores[,1:3],texts=torpor$Species,adj = 1)
+text3d(pc.cr2$loadings[,1:3], texts=rownames(pc.cr2$loadings), col="red")
+coords <- NULL
+for (i in 1:nrow(pc.cr2$loadings)) {
+  coords <- rbind(coords, rbind(c(0,0,0),pc.cr2$loadings[i,1:3]))
+}
+lines3d(coords, col="red", lwd=4)
+
+## 2D
 g.nee <- ggbiplot(pc.cr, obs.scale = 1, var.scale = 1, 
               groups = as.character(torpor$Site), ellipse = TRUE, 
               circle = TRUE) + scale_color_brewer(palette = "Set1")
@@ -864,6 +877,7 @@ print(g.nee)
 
 summary(pc.cr)
 
+###Anovas #####
 ## Anova of torpid energy savings as a function of site and species. Species doesn't matter, site does!
 anova(lm(Percentage_avg~Site_new+Species+Tc_min_C+Mass, data = torpor))
 
@@ -873,6 +887,8 @@ anova(lm(AvgEE_torpid_MassCorrected~Site_new+Species+Tc_min_C+Mass, data = torpo
 ## Anova with NEE
 anova(lm(NEE_MassCorrected~Site_new+Species+Tc_min_C+Mass, data = torpor))
 
+
+#### T-tests ######
 ## Subsetting melted dataframe to get just depth values. Then subtracting from 100 to make them hourly savings.
 m.savings <- m.temptrop[m.temptrop$variable=="Percentage_avg",]
 m.savings$value <- 100-m.savings$value
