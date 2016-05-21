@@ -41,13 +41,13 @@ names(rate_site) <- c("Site", "Torpid_not", "N")
 ##### Adding columns #######
 ## Adding column dividing NEE by 2/3*Mass to correct for mass with allometric scaling
 ## NOTE:  Changed to 3/4 exponent on May 4th!!
-torpor$NEE_MassCorrected<- torpor$NEE_kJ/((3/4)*torpor$Mass)
+torpor$NEE_MassCorrected<- torpor$NEE_kJ/(torpor$Mass^(2/3))
 
 ## Adding columns to correct for mass in Avg EE normo, Min EE normo, torpid, etc. 
-torpor$AvgEE_normo_MassCorrected <- torpor$Avg_EE_hourly_normo/((3/4)*torpor$Mass)
-torpor$MinEE_normo_MassCorrected <- as.numeric(torpor$Min_EE_normo)/((3/4)*torpor$Mass)
-torpor$AvgEE_torpid_MassCorrected <- torpor$Avg_EE_hourly_torpid/((3/4)*torpor$Mass)
-torpor$MinEE_torpid_MassCorrected <- as.numeric(torpor$Min_EE_torpid)/((3/4)*torpor$Mass)
+torpor$AvgEE_normo_MassCorrected <- torpor$Avg_EE_hourly_normo/(torpor$Mass^(2/3))
+torpor$MinEE_normo_MassCorrected <- as.numeric(torpor$Min_EE_normo)/(torpor$Mass^(2/3))
+torpor$AvgEE_torpid_MassCorrected <- torpor$Avg_EE_hourly_torpid/(torpor$Mass^(2/3))
+torpor$MinEE_torpid_MassCorrected <- as.numeric(torpor$Min_EE_torpid)/(torpor$Mass^(2/3))
 
 # Line to arrange Site facets in sensible order
 torpor$Site_new <- factor(torpor$Site, levels=c('HC','SC','SWRS','MQ','SL'))
@@ -73,7 +73,7 @@ GCB_torpor <- subset(torpor, Species=="GCB")
 ##add to ggplot(x=,*,subset=.(variable=="NEE_kJ")*)## Function to arrange plots
 
 #### General functions ####
-## Saving standard theme
+## Saving standard theme  
 my_theme <- theme_classic(base_size = 20) + 
   theme(axis.title.y = element_text(vjust = 2),
         panel.border = element_rect(colour = "black", fill=NA), axis.title.x = element_blank())
@@ -153,7 +153,7 @@ energy_plot
 
 ## Temp-trop Plot for Mass-corrected Nighttime energy expenditure
 energyM_temptrop <- ggplot(torpor, aes(Temptrop, NEE_MassCorrected)) + my_theme + geom_boxplot() + xlab("Region") +
-  ylab("NEE Mass-corrected (kJ/g)") + 
+  ylab(bquote("NEE Mass-corrected (kJ/~ ^(-2/3)~)")) + 
   stat_summary(fun.data = give.n, geom = "text", vjust=-3.5, size=10)
 energyM_temptrop
 
@@ -866,6 +866,9 @@ anova(lm(Percentage_avg~Site_new+Species+Tc_min_C+Mass, data = torpor))
 
 ## Anova with Avg hourly EE torpid gives slightly different results
 anova(lm(AvgEE_torpid_MassCorrected~Site_new+Species+Tc_min_C+Mass, data = torpor))
+
+## Anova with NEE
+anova(lm(NEE_MassCorrected~Site_new+Species+Tc_min_C+Mass, data = torpor))
 
 ## Subsetting melted dataframe to get just depth values. Then subtracting from 100 to make them hourly savings.
 m.savings <- m.temptrop[m.temptrop$variable=="Percentage_avg",]
