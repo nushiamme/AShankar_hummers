@@ -31,13 +31,13 @@ m.temptrop <- melt(torpor, id.vars = c("Temptrop", "Species", "Site"),
 rate_site <- data.frame(table(torpor$Site,torpor$Torpid_not))
 names(rate_site) <- c("Site", "Torpid_not", "N")
 
-## La Paz data
-#torpor2015 <- read.csv("Torpor2015.csv")
-## Subsetting just METY and AGCU for 2015 data
-#tor_sub <- torpor2015[torpor2015$Species=="AGCU" | torpor2015$Species=="METY",]
-## Writing the tor_sub file to csv
-#write.csv(tor_sub, "Torpor_METY_AGCU_2015.csv")
-
+## Summarize hours spent torpid
+hours.agg <- aggregate(torpor$Hours_torpid, 
+                       by=list(torpor$Site_new, 
+                               torpor$Species), 
+                       FUN="mean", na.rm=T)
+names(hours.agg) <- c("Site", "Species", "Mean torpor duration (hours)")
+hours.agg
 
 ##### Adding columns #######
 ## Adding column dividing NEE by 2/3*Mass to correct for mass with allometric scaling
