@@ -181,7 +181,7 @@ energy_plot
 
 ## Temp-trop Plot for Mass-corrected Nighttime energy expenditure
 energyM_temptrop <- ggplot(torpor, aes(Temptrop, NEE_MassCorrected)) + my_theme + geom_boxplot() + xlab("Region") +
-  ylab(bquote("NEE Mass-corrected (kJ/~ ^(-2/3)~)")) + 
+  ylab(bquote('NEE Mass-corrected (kJ/' ~M^(-2/3)*')')) + 
   stat_summary(fun.data = give.n, geom = "text", vjust=-3.5, size=10)
 energyM_temptrop
 
