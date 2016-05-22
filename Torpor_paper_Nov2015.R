@@ -31,15 +31,7 @@ m.temptrop <- melt(torpor, id.vars = c("Temptrop", "Species", "Site"),
 rate_site <- data.frame(table(torpor$Site,torpor$Torpid_not))
 names(rate_site) <- c("Site", "Torpid_not", "N")
 
-## Summarize hours spent torpid
-hours.agg <- aggregate(torpor$Hours_torpid, 
-                       by=list(torpor$Site_new, 
-                               torpor$Species), 
-                       FUN="mean", na.rm=T)
-names(hours.agg) <- c("Site", "Species", "Mean torpor duration (hours)")
-hours.agg
-
-##### Adding columns #######
+##### Adding columns and a few summary dataframes #######
 ## Adding column dividing NEE by 2/3*Mass to correct for mass with allometric scaling
 ## NOTE:  Changed to 3/4 exponent on May 4th!!
 torpor$NEE_MassCorrected<- torpor$NEE_kJ/(torpor$Mass^(2/3))
@@ -56,6 +48,41 @@ torpor$Site_new <- factor(torpor$Site, levels=c('HC','SC','SWRS','MQ','SL'))
 ## Create Hours_torpid2 column and change NA's to 0's for lm analyses; keep original Hours_torpid column with NA's
 torpor$Hours_torpid2 <- torpor$Hours_torpid
 torpor$Hours_torpid2[is.na(torpor$Hours_torpid2)] <- 0
+
+## Savings column
+torpor$savings <- 100-torpor$Percentage_avg
+
+#### Make new data frames ####
+## Make table to summarize savings
+nee.agg <- aggregate(torpor$NEE_MassCorrected, 
+                         by=list(torpor$Temptrop, torpor$Site_new, 
+                                 torpor$Species), 
+                         FUN="mean", na.rm=T)
+names(nee.agg) <- c("Temptrop", "Site", "Species", "NEE Mass corrected (kJ/g^(2/3))")
+nee.agg
+
+neet.agg <- aggregate(torpor$NEE_MassCorrected, 
+                     by=list(torpor$Temptrop, torpor$Site_new, 
+                             torpor$Species), 
+                     FUN="mean", na.rm=T)
+names(neet.agg) <- c("Temptrop", "Site", "Species", "NEE Mass corrected (kJ/g^(2/3))")
+neet.agg
+
+## Summarize hours spent torpid
+hours.agg <- aggregate(torpor$Hours_torpid, 
+                       by=list(torpor$Site_new, 
+                               torpor$Species), 
+                       FUN="mean", na.rm=T)
+names(hours.agg) <- c("Site", "Species", "Mean torpor duration (hours)")
+hours.agg
+
+## Make table to summarize savings
+savings.agg <- aggregate(torpor$savings, 
+                       by=list(torpor$Site_new, 
+                               torpor$Species), 
+                       FUN="mean", na.rm=T)
+names(savings.agg) <- c("Site", "Species", "Hourly Torpid Savings (%)")
+savings.agg
 
 ## Frequency table -  add proportion column
 freq_table$prop <- (freq_table$Torpid/freq_table$Total)*100
@@ -77,7 +104,7 @@ GCB_torpor <- subset(torpor, Species=="GCB")
 ## Saving standard theme  
 my_theme <- theme_classic(base_size = 20) + 
   theme(axis.title.y = element_text(vjust = 2),
-        panel.border = element_rect(colour = "black", fill=NA), axis.title.x = element_blank())
+        panel.border = element_rect(colour = "black", fill=NA))
 
 ## To arrange graphs
 lay_out = function(...) {    
@@ -160,8 +187,7 @@ energyM_temptrop
 
 ## Frequency of torpor use
 freqplot <- ggplot(freq_table, aes(Temptrop, prop)) + geom_boxplot() + 
-  #geom_text(data=freq_table,aes(x=Species,y=prop,label=paste("n = ", Total)),vjust=-2, size=10) + ylim(0, 109) +
-  ylab("Rate of occurrence of torpor (%)") + xlab("Region") + my_theme +
+  ylab("Rate of occurrence of torpor (%)") +  xlab("Region") + my_theme + 
   stat_summary(fun.data = give.n, geom = "text", vjust=-1, size=10)
 freqplot
 
