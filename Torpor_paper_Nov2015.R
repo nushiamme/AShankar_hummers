@@ -2,6 +2,7 @@
 ## Torpor paper, A. Shankar, R. Schroeder et al.
 ## Updated May 14, 2016
 
+####### libraries and reading in data ######
 library(ggplot2)
 library(reshape)
 library(gridExtra)
@@ -143,7 +144,7 @@ lm_eqn <- function(table, y, x){
 Tc.xlab <- expression(atop(paste("Chamber Temperature (", degree,"C)")))
 Ta.xlab <- expression(atop(paste("Ambient Temperature (", degree,"C)")))
 Tc_min.xlab <- expression(atop(paste("Minimum Chamber Temperature (", degree,"C)")))
-
+NEE_corrlab <- bquote('NEE Mass-corrected (kJ/' ~M^(-2/3)*')')
 ####### Trying out Log-log NEE-mass######
 test_log_col <- ggplot(torpor, aes((Mass^(3/4)), NEE_kJ)) +
   geom_point(alpha=0.2) + theme_bw() + geom_smooth(method='lm')
@@ -220,7 +221,7 @@ grid.arrange(energyM_temptrop, freqplot, hours_temptrop, temptrop_savings,
 
 #### Basic NEE and hours plots ####
 ## Trying to see if nectar consumption might have affected time of entry into torpor
-nec_time <- ggplot(torpor[!is.na(torpor$EntryTime_new),], aes(EntryTime_new, Nectar_consumption)) + my_theme + 
+nec_time <- ggplot(torpor, aes(EntryTime_new, Nectar_consumption)) + my_theme + 
   geom_point(aes(col=Species), size=4) + geom_smooth(method = lm, col='black') + scale_color_brewer(palette = "Set1") +
   xlab("Time of entry") +  ylab("Nectar consumption (g)")
 nec_time
@@ -237,7 +238,7 @@ hours_plot
 ## Plot for Mass-corrected Nighttime energy expenditure, by species
 energyM_plot <- ggplot(torpor, aes(Species, NEE_MassCorrected)) +  theme_bw() +
   geom_boxplot(aes(col=Species)) + facet_grid(.~Site_new, scale="free_x", space="free") + 
-  ylab("Nighttime energy expenditure Mass-corrected (kJ/g)") + theme(legend.position="none") +
+  ylab(NEE_corrlab) + theme(legend.position="none") +
   theme(axis.title.x = element_text(size=16, face="bold"),
         axis.text.x = element_text(size=14),
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) +
@@ -252,7 +253,7 @@ energyM_hours <- ggplot(torpor, aes(Hours_torpid, NEE_MassCorrected)) +
   geom_text(x = 5, y = 4.5, label = lm_eqn(torpor, torpor$NEE_MassCorrected, torpor$Hours_torpid), 
             parse=T, size=10) +
   labs(shape='Species') + scale_color_brewer(palette = "Set1") + theme_bw(base_size=30) +
-  ylab("Nighttime energy expenditure (kJ/g)") + xlab("Duration torpid") +
+  ylab(NEE_corrlab) + xlab("Torpor duration") +
   theme(axis.title.x = element_text(face="bold", vjust=-0.5),
         axis.title.y = element_text(size=28, face="bold", vjust=1.5), 
         legend.key.height=unit(3,"line"))
@@ -260,12 +261,12 @@ energyM_hours
 
 ## Energy vs. hours torpid, without species labeled- for retreat
 energy_hours_spUnlabeled <- ggplot(torpor, aes(Hours_torpid, NEE_MassCorrected)) +  
-  geom_point(size=4) + theme_bw(base_size=30) + geom_smooth(method=lm, color="black") +
-  geom_text(x = 7, y = 4, label = paste("R^2 :", " 0.311",sep=""), parse=T, size=10) +
+  geom_point(size=4) + my_theme + geom_smooth(method=lm, color="black") +
+  #geom_text(x = 7, y = 4, label = paste("R^2 :", " 0.311",sep=""), parse=T, size=10) +
   labs(shape='Species') + scale_color_brewer(palette = "Set1") +
-  ylab("Nighttime energy expenditure (kJ/g)") + xlab("Duration torpid") +
-  theme(axis.title.x = element_text(face="bold", vjust=-0.5),
-        axis.title.y = element_text(face="bold", vjust=1.5), legend.key.height=unit(3,"line"))
+  ylab(NEE_corrlab) + xlab("Torpor duration") #+
+  #theme(axis.title.x = element_text(face="bold", vjust=-0.5),
+   #     axis.title.y = element_text(face="bold", vjust=1.5), legend.key.height=unit(3,"line"))
 energy_hours_spUnlabeled
 
 ## Comparing NEE and hours plots
