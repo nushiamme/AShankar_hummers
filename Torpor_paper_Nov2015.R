@@ -882,8 +882,10 @@ lines(sort(torpor$Tc_mean_C), predictedEE_normo[order(torpor$Tc_mean_C)], col='r
 
 ##### PCA - Looks Awesome in 3D ######
 t.pc <- torpor[,c("NEE_kJ", "Hours_torpid2", "Tc_min_C", "Percentage_avg")]
-t.pc$Percentage_avg <- as.numeric(t.pc$Percentage_avg)
-t.pc$Percentage_avg[is.na(t.pc$Percentage_avg)] <- 0
+names(t.pc) <- c("NEE", "Torpor_duration", "Min Tc", "Hourly_energy_savings")
+t.pc$Hourly_energy_savings <- as.numeric(t.pc$Hourly_energy_savings)
+t.pc$Hourly_energy_savings[is.na(t.pc$Hourly_energy_savings)] <- 0
+t.pc$Torpor_duration[is.na(t.pc$Torpor_duration)] <- 0
 t.pc$Avg_EE_hourly_torpid[is.na(t.pc$Avg_EE_hourly_torpid)] <- 0
 pc.cr <- prcomp(t.pc[,1:4], center=T, scale. = T)
 pc.cr2 <- princomp(t.pc[,1:4], cor=T, scores=T)
