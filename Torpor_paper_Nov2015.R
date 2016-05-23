@@ -182,12 +182,6 @@ energy_plot <- ggplot(torpor, aes(Temptrop, NEE_kJ)) + my_theme + geom_boxplot()
   stat_summary(fun.data = give.n, geom = "text", vjust=-1, size=10)
 energy_plot
 
-## Trying to see if nectar consumption might have affected time of entry into torpor
-nec_time <- ggplot(torpor[!is.na(torpor$EntryTime_new),], aes(EntryTime_new, Nectar_consumption)) + my_theme + 
-  geom_point(aes(col=Species), size=4) + geom_smooth(method = lm, col='black') +
-  xlab("Time of entry") +  ylab("Nectar consumption (g)")
-nec_time
-
 ## Temp-trop Plot for Mass-corrected Nighttime energy expenditure
 energyM_temptrop <- ggplot(torpor, aes(Temptrop, NEE_MassCorrected)) + my_theme + geom_boxplot() + xlab("Region") +
   ylab(bquote('NEE Mass-corrected (kJ/' ~M^(-2/3)*')')) + 
@@ -224,9 +218,13 @@ temptrop_savings
 grid.arrange(energyM_temptrop, freqplot, hours_temptrop, temptrop_savings, 
              nrow=2, ncol=2, bottom = textGrob("Region",gp=gpar(fontsize=25)))
 
-
-
 #### Basic NEE and hours plots ####
+## Trying to see if nectar consumption might have affected time of entry into torpor
+nec_time <- ggplot(torpor[!is.na(torpor$EntryTime_new),], aes(EntryTime_new, Nectar_consumption)) + my_theme + 
+  geom_point(aes(col=Species), size=4) + geom_smooth(method = lm, col='black') + scale_color_brewer(palette = "Set1") +
+  xlab("Time of entry") +  ylab("Nectar consumption (g)")
+nec_time
+
 ## Hours torpid
 hours_plot <- ggplot(na.omit(torpor[,c("Species","Hours_torpid","Site_new")]),
                      aes(Species, Hours_torpid)) + 
