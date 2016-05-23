@@ -44,6 +44,9 @@ torpor$MinEE_torpid_MassCorrected <- as.numeric(torpor$Min_EE_torpid)/(torpor$Ma
 
 # Line to arrange Site facets in sensible order
 torpor$Site_new <- factor(torpor$Site, levels=c('HC','SC','SWRS','MQ','SL'))
+torpor$EntryTime_new <- factor(torpor$Time_of_entry, 
+                               levels=c('2000', '2100', '2130', '2200', '2230',
+                                        '2300', '2400', '100', '130', '330', '200', '500'))
 
 ## Create Hours_torpid2 column and change NA's to 0's for lm analyses; keep original Hours_torpid column with NA's
 torpor$Hours_torpid2 <- torpor$Hours_torpid
@@ -178,6 +181,12 @@ energy_plot <- ggplot(torpor, aes(Temptrop, NEE_kJ)) + my_theme + geom_boxplot()
   ylab("Nighttime energy expenditure (kJ)") + theme(legend.position="none") + 
   stat_summary(fun.data = give.n, geom = "text", vjust=-1, size=10)
 energy_plot
+
+## Trying to see if nectar consumption might have affected time of entry into torpor
+nec_time <- ggplot(torpor[!is.na(torpor$EntryTime_new),], aes(EntryTime_new, Nectar_consumption)) + my_theme + 
+  geom_point(aes(col=Species), size=4) + geom_smooth(method = lm, col='black') +
+  xlab("Time of entry") +  ylab("Nectar consumption (g)")
+nec_time
 
 ## Temp-trop Plot for Mass-corrected Nighttime energy expenditure
 energyM_temptrop <- ggplot(torpor, aes(Temptrop, NEE_MassCorrected)) + my_theme + geom_boxplot() + xlab("Region") +
