@@ -16,6 +16,13 @@ Ta_TillNov <- read.csv("CompiledTemp_Nov28_2015.csv")
 Ta_all <- read.csv("CompiledTemp_All.csv")
 Tc <- read.csv("CompiledTc_All.csv")
 EC_Ta <- read.csv("Ecuador_TempData_corrected.csv")
+test <- read.csv("C://Users//ANUSHA//Dropbox//Data 2015//Data 2016 season//Temperature_2016//Experiment//Mar_16_combined.csv")
+
+my_theme <- theme_classic(base_size = 30) + 
+  theme(axis.title.y = element_text(vjust = 2),
+        panel.border = element_rect(colour = "black", fill=NA))
+
+ggplot(test[test$Date=="16/03/16",], aes(Time, Temp)) + geom_line(aes(group=ID, col=ID)) + my_theme
 
 ### TO DO - Make sure to copy and sort out TO DOOOOOOOOO ###
 ### Temperature_TillNov15_TorporChamber_MFRCage_For_HEVI_Nov11_12.csv

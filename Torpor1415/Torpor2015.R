@@ -62,6 +62,47 @@ litplot <- ggplot(litstudy, aes(Tc_min, EE_J)) +
 litplot
 grid.text(unit(0.5,"npc"),0.99,label = "Mass in grams", gp=gpar(fontsize=20))
 
+## Just La paz data
+coir_plot <- ggplot(litstudy[litstudy$Species=="COIR",], aes(Tc_min, EE_J)) +  
+  theme_bw(base_size = 20) + geom_point(aes(col=Species), size=4) + 
+  theme(strip.background = element_blank(),
+        panel.border = element_rect(colour = "black", fill=NA)) + xlab(Tc_min.xlab) +
+  ylab("Energy expenditure (J)") + xlim(7,15)
+coir_plot
+
+agcu_plot <- ggplot(litstudy[litstudy$Species=="AGCU",], aes(Tc_min, EE_J)) +  
+  theme_bw(base_size = 20) + geom_point(aes(col=Species), size=4) + 
+  theme(strip.background = element_blank(),
+        panel.border = element_rect(colour = "black", fill=NA)) + xlab(Tc_min.xlab) +
+  ylab("Energy expenditure (J)") + xlim(7,15)
+agcu_plot
+
+hevi_plot <- ggplot(litstudy[litstudy$Species=="HEVI",], aes(Tc_min, EE_J)) +  
+  theme_bw(base_size = 20) + geom_point(aes(col=Species), size=4) + 
+  theme(strip.background = element_blank(),
+        panel.border = element_rect(colour = "black", fill=NA)) + xlab(Tc_min.xlab) +
+  ylab("Energy expenditure (J)") + xlim(7,15)
+hevi_plot
+
+mety_plot <- ggplot(litstudy[litstudy$Species=="METY",], aes(Tc_min, EE_J)) +  
+  theme_bw(base_size = 20) + geom_point(aes(col=Species), size=4) + 
+  theme(strip.background = element_blank(),
+        panel.border = element_rect(colour = "black", fill=NA)) + xlab(Tc_min.xlab) +
+  ylab("Energy expenditure (J)") + xlim(7,15)
+mety_plot
+
+grid.arrange(coir_plot, agcu_plot, mety_plot, hevi_plot, 
+             nrow=2, ncol=2)
+
+
+
+## Regressing species' energy expenditure vs. Tc_min
+summary(lm(EE_J~Tc_min, data=litstudy[litstudy$Species=="AGCU",]))
+
+
+grid.text(unit(0.5,"npc"),0.99,label = "Mass in grams", gp=gpar(fontsize=20))
+
+
 litstudy_med <- litstudy[litstudy$Mass_categ==7.5,]
 litstudy_sm <- litstudy[litstudy$Mass_categ==3,]
 litplot_med <- ggplot(litstudy_med, aes(Tc_min, EE_J)) +  
@@ -107,6 +148,23 @@ o.tor$BirdID <- factor(o.tor$BirdID,
                                       "EG15_1220_AGCU", "EG15_1223_AGCU", "EG15_0104_AGCU"))
 
 ## Plotting EE per hour by time, and labeling with chamber temperature
+energy_metyagcu <- ggplot(o.tor_sub, aes(Hourly, EE_J)) + theme_bw(base_size=18) +
+  geom_line(aes(group=BirdID, col=Species), size=1.5) + facet_wrap(~BirdID, scales="free_x") +
+  geom_point() + geom_text(aes(label=Tc_min), vjust=-1) + 
+  geom_text(aes(label=Ta_day_min), col="red", vjust=1) +
+  #annotate("text", x=7, y=2100, label= paste("Ta daytime min = ", o.tor_sub$Ta_day_min)) + 
+  ylab("Hourly energy expenditure (J)") + scale_color_manual(values=c("#000080", "#ff0000")) +
+  scale_y_continuous(breaks=c(0,100,200,300,500,1000,1500,2000))+
+  theme(axis.text.x = element_text(angle=30, hjust=1), 
+        panel.grid.major.x = element_blank(), 
+        panel.grid.major.y = element_line(size=.1, color="grey"),
+        panel.grid.minor = element_blank(),
+        strip.background = element_blank(),
+        panel.border = element_rect(colour = "black", fill=NA)) +
+  xlab("Hour step (Birdno_ArmyTime)") # + scale_x_discrete(labels=o.tor_sub$Time)
+energy_metyagcu
+
+## just agcu
 energy_metyagcu <- ggplot(o.tor_sub, aes(Hourly, EE_J)) + theme_bw(base_size=18) +
   geom_line(aes(group=BirdID, col=Species), size=1.5) + facet_wrap(~BirdID, scales="free_x") +
   geom_point() + geom_text(aes(label=Tc_min), vjust=-1) + 

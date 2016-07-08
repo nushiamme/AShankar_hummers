@@ -20,8 +20,9 @@ library(rgl)
 #wdMac
 wdMS <- setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
 #wdMS
-torpor <- read.csv("Torpor_table_plot_May12.csv")
+torpor <- read.csv("Torpor_table_plot_Mar26.csv")
 freq_table <- read.csv("Frequency_torpor.csv")
+freq_sites <- read.csv("Frequency_torpor_sites.csv")
 tempsumm <- read.csv("Temp_summary.csv")
 
 torpor$Percentage_avg <- as.numeric(as.character(torpor$Percentage_avg))
@@ -48,6 +49,7 @@ torpor$Site_new <- factor(torpor$Site, levels=c('HC','SC','SWRS','MQ','SL'))
 torpor$EntryTime_new <- factor(torpor$Time_of_entry, 
                                levels=c('2000', '2100', '2130', '2200', '2230',
                                         '2300', '2400', '100', '130', '330', '200', '500'))
+freq_sites$Site_new <- factor(freq_sites$Site, levels=c('HC','SC','SWRS','MQ','SL'))
 
 ## Create Hours_torpid2 column and change NA's to 0's for lm analyses; keep original Hours_torpid column with NA's
 torpor$Hours_torpid2 <- torpor$Hours_torpid
@@ -106,7 +108,7 @@ GCB_torpor <- subset(torpor, Species=="GCB")
 
 #### General functions ####
 ## Saving standard theme  
-my_theme <- theme_classic(base_size = 20) + 
+my_theme <- theme_classic(base_size = 30) + 
   theme(axis.title.y = element_text(vjust = 2),
         panel.border = element_rect(colour = "black", fill=NA))
 
@@ -231,10 +233,17 @@ nec_time <- ggplot(torpor, aes(EntryTime_new, Nectar_consumption)) + my_theme +
 nec_time
 
 ## Frequency of torpor use
-freqplot <- ggplot(freq_table, aes(Species, prop)) + geom_bar() + 
-  ylab("Rate of occurrence of torpor (%)") +  xlab("Region") + my_theme + 
-  stat_summary(fun.data = give.n, geom = "text", vjust=-1, size=10)
-freqplot
+freq <- ggplot(freq_table, aes(Species, prop)) + geom_bar(stat="identity") + 
+  geom_text(data=freq_table,aes(x=Species,y=prop,label=paste("n = ", Total)), vjust=-0.5, size=10) +
+  ylab("Rate of occurrence of torpor (%)") +  xlab("Species") + my_theme + ylim(0, 109)
+freq
+
+freq_site_plot <- ggplot(freq_sites, aes(Species, Rate.of.occurrence)) + 
+  geom_bar(stat="identity", width=0.5, position = position_dodge(width=0.5)) + 
+  facet_grid(~Site_new, scale="free_x", space="free") +
+  geom_text(data=freq_sites, aes(x=Species,y=Rate.of.occurrence, label=paste("n = ", Total)), vjust=-0.5, size=8) +
+  ylab("Rate of occurrence of torpor (%)") +  xlab("Species") + my_theme + ylim(0, 109)
+freq_site_plot
 
 ## Hours torpid
 hours_plot <- ggplot(na.omit(torpor[,c("Species","Hours_torpid","Site_new")]),
@@ -246,13 +255,10 @@ hours_plot <- ggplot(na.omit(torpor[,c("Species","Hours_torpid","Site_new")]),
 hours_plot
 
 ## Plot for Mass-corrected Nighttime energy expenditure, by species
-energyM_plot <- ggplot(torpor, aes(Species, NEE_MassCorrected)) +  theme_bw() +
-  geom_boxplot(aes(col=Species)) + facet_grid(.~Site_new, scale="free_x", space="free") + 
+energyM_plot <- ggplot(torpor, aes(Species, NEE_MassCorrected)) +  my_theme +
+  geom_boxplot(aes(col=Species), size=1) + facet_grid(.~Site_new, scale="free_x", space="free") + 
   ylab(NEE_corrlab) + theme(legend.position="none") +
-  theme(axis.title.x = element_text(size=16, face="bold"),
-        axis.text.x = element_text(size=14),
-        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) +
-  stat_summary(fun.data = give.n, geom = "text", vjust=-5)
+  stat_summary(fun.data = give.n, geom = "text", vjust=-5, size=10)
 energyM_plot
 
 ## Energy vs. hours torpid, species labeled
@@ -319,16 +325,13 @@ energyM_Tcmin <- ggplot(torpor, aes(as.numeric(Tc_min_C), NEE_MassCorrected)) +
   geom_point(aes(shape = factor(Species)), size=4) + 
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
   geom_smooth(method=lm, color="black") +
-  geom_text(x = 16, y = 4.5, label = lm_eqn(torpor, torpor$NEE_MassCorrected, 
-                                            torpor$Tc_min_C), parse=T) +
+  #geom_text(x = 16, y = 4.5, label = lm_eqn(torpor, torpor$NEE_MassCorrected, 
+   #                                         torpor$Tc_min_C), parse=T) +
   labs(shape='Species') + #xlim(5, 25) +
   scale_color_brewer(palette = "Set1") + theme_bw() + 
-  geom_text(aes(label=Torpid_not, hjust=2), size=5, show_guide=F,
-            fontface="bold") +
-  ylab("Nighttime energy expenditure Mass-corrected (kJ/g)") + xlab(Tc_min.xlab) +
-  theme(axis.title.x = element_text(size=16, face="bold"),
-        axis.text.x = element_text(size=14),
-        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
+  #geom_text(aes(label=Torpid_not, hjust=2), size=5, show_guide=F,
+    #        fontface="bold") +
+  ylab("Nighttime energy expenditure Mass-corrected (kJ/g)") + xlab(Tc_min.xlab) + my_theme 
 energyM_Tcmin
 
 ## NEE vs. temp, with and without mass-correction
@@ -589,7 +592,6 @@ m_AvgEE_normo_Tcmin_eq <- ggplot(torpor, aes(as.numeric(Tc_mean_C), AvgEE_normo_
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
 m_AvgEE_normo_Tcmin_eq
 
-
 #### Species- specific graphs ####
 # BBLH Avg mass-corrected hourly normothermic EE vs. min Tc with regression line
 m_BBLH_avgEE_normo_Tcmin_eq <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C), 
@@ -638,6 +640,18 @@ BBLH_tor_nor <- ggplot(m_BBLH_tor_nor, aes(as.numeric(Tc_min_C), value, shape=va
 BBLH_tor_nor 
 
 grid.arrange(m_BBLH_avgEE_normo_Tcmin_eq, m_BBLH_avgEE_torpid_Tcmin_eq, nrow=1, ncol=2)
+
+## BBLH comparison in color
+BBLH_tor_nor_col <- ggplot(m_BBLH_tor_nor, aes(as.numeric(Tc_min_C), value, color=variable)) +
+  my_theme + geom_point(aes(shape=variable), size=6) + 
+  geom_smooth(method=lm, size=2) + scale_color_manual(values=c("#0099ff", "#ff0000")) +
+  geom_text(x = 22, y = 0.32, label = paste("R^2 :", " 0.0302",sep=""), 
+            parse=T, size=8, col="black") + 
+  geom_text(x = 22, y = 0.12, label = paste("R^2 :", " 0.343",sep=""), 
+            parse=T, size=8, col="black") +
+  ylab("Avg BBLH Energy Expenditure (kJ/g)") + xlab(Tc.xlab) +
+  theme(legend.key.height=unit(3,"line"), legend.title=element_text(size=20))
+BBLH_tor_nor_col
 
 ## BBLH Min mass-corrected hourly normothermic EE vs. min Tc with regression line
 m_BBLH_minEE_normo_Tcmin_eq <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C), 
@@ -712,16 +726,14 @@ m_GCB_tor_nor$variable <- factor(m_GCB_tor_nor$variable,levels =
 
 ## Both normo and torpid avg EE for GCB on same graph
 GCB_tor_nor_col <- ggplot(m_GCB_tor_nor, aes(as.numeric(Tc_min_C), value, color=variable)) +
-  theme_bw(base_size = 30) + geom_point(aes(shape=variable), size=4) + 
+  my_theme + geom_point(aes(shape=variable), size=4) + 
   geom_smooth(method=lm, size=2) + scale_color_manual(values=c("#0099ff", "#ff0000")) +
   geom_text(x = 22, y = 0.32, label = paste("R^2 :", " 0.0302",sep=""), 
             parse=T, size=8, col="black") + 
   geom_text(x = 22, y = 0.12, label = paste("R^2 :", " 0.343",sep=""), 
             parse=T, size=8, col="black") +
   ylab("Avg GCB Energy Expenditure (kJ/g)") + xlab(Tc.xlab) +
-  theme(axis.title.x = element_text(size=24, face="bold"),
-        axis.text.x = element_text(size=22), legend.key.height=unit(3,"line"),
-        axis.title.y = element_text(size=24, face="bold"), axis.text.y = element_text(size=24)) 
+  theme(legend.key.height=unit(3,"line"), legend.title=element_text(size=20))
 GCB_tor_nor_col
 
 GCB_tor_nor <- ggplot(m_GCB_tor_nor, aes(as.numeric(Tc_min_C), value, shape=variable)) +
