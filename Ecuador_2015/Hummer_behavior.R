@@ -38,8 +38,36 @@ Total_FL_perc
 Total_Hov_perc
 Total_perch_perc
 
+## For AGCU's
+Total_FL_agcu <- sum(as.numeric(m.beh$value[m.beh$variable=="FL"& m.beh$Species == "AGCU"])) # adding total spent flying
+Total_Hov_agcu <- sum(as.numeric(m.beh$value[m.beh$variable=="Hov"& m.beh$Species == "AGCU"]))
+Total_perch_agcu <- sum(as.numeric(m.beh$value[m.beh$variable=="Perch"& m.beh$Species == "AGCU"]))
+
+total_beh_time_agcu <- sum(Total_FL_agcu,Total_Hov_agcu,Total_perch_agcu)
+Total_FL_perc_agcu <- (Total_FL_agcu/total_beh_time_agcu)*100
+Total_Hov_perc_agcu <- (Total_Hov_agcu/total_beh_time_agcu)*100
+Total_perch_perc_agcu <- (Total_perch_agcu/total_beh_time_agcu)*100
+total_beh_time_agcu
+Total_FL_perc_agcu
+Total_Hov_perc_agcu
+Total_perch_perc_agcu
+
+## For HEVI's
+Total_FL_hevi <- sum(as.numeric(m.beh$value[m.beh$variable=="FL"& m.beh$Species == "HEVI"])) # adding total spent flying
+Total_Hov_hevi <- sum(as.numeric(m.beh$value[m.beh$variable=="Hov"& m.beh$Species == "HEVI"]))
+Total_perch_hevi <- sum(as.numeric(m.beh$value[m.beh$variable=="Perch"& m.beh$Species == "HEVI"]))
+
+total_beh_time_hevi <- sum(Total_FL_hevi,Total_Hov_hevi,Total_perch_hevi)
+Total_FL_perc_hevi <- (Total_FL_hevi/total_beh_time_hevi)*100
+Total_Hov_perc_hevi <- (Total_Hov_hevi/total_beh_time_hevi)*100
+Total_perch_perc_hevi <- (Total_perch_hevi/total_beh_time_hevi)*100
+total_beh_time_hevi
+Total_FL_perc_hevi
+Total_Hov_perc_hevi
+Total_perch_perc_hevi
+
 Fl_not_1 <- m.beh$variable=="FL"[m.beh$Beh_no!=1&m.beh$variable=="FL"]
-length(Fl_not_1)
+length(Fl_not_1)s
 Hov_not_1 <- m.beh$variable=="Hov"[m.beh$Beh_no!=1]
 length(Hov_not_1)
 

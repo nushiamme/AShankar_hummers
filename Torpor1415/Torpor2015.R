@@ -93,15 +93,15 @@ mety_plot
 
 grid.arrange(coir_plot, agcu_plot, mety_plot, hevi_plot, 
              nrow=2, ncol=2)
-
-
+### TO DO use Hainsworth AZ birds and Lasiewski 1963 torpor cutoffs, color points by whether they're 1. presumed torpid,
+## 2. presumed normothermic, and 3. the weirdos.
+grid.arrange(coir_plot, agcu_plot, mety_plot, hevi_plot, 
+             nrow=2, ncol=2)
 
 ## Regressing species' energy expenditure vs. Tc_min
 summary(lm(EE_J~Tc_min, data=litstudy[litstudy$Species=="AGCU",]))
 
-
 grid.text(unit(0.5,"npc"),0.99,label = "Mass in grams", gp=gpar(fontsize=20))
-
 
 litstudy_med <- litstudy[litstudy$Mass_categ==7.5,]
 litstudy_sm <- litstudy[litstudy$Mass_categ==3,]

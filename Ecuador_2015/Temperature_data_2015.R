@@ -16,14 +16,20 @@ Ta_TillNov <- read.csv("CompiledTemp_Nov28_2015.csv")
 Ta_all <- read.csv("CompiledTemp_All.csv")
 Tc <- read.csv("CompiledTc_All.csv")
 EC_Ta <- read.csv("Ecuador_TempData_corrected.csv")
-test <- read.csv("C://Users//ANUSHA//Dropbox//Data 2015//Data 2016 season//Temperature_2016//Experiment//Mar_16_combined.csv")
+test <- 
+  read.csv("C://Users//ANUSHA//Dropbox//Data 2015//Data 2016 season//Temperature_2016//Experiment//Mar_16_combined.csv")
 
+Tbs_test <- 
+  read.csv("C://Users//ANUSHA//Dropbox//Data 2015//Data 2016 season//Torpor_2016//Body_temp//EG16_0710_HEVI_Tc_plot.csv")
+
+## Experiment to check whether iButtons are working as expected and not heating things up
 my_theme <- theme_classic(base_size = 30) + 
   theme(axis.title.y = element_text(vjust = 2),
         panel.border = element_rect(colour = "black", fill=NA))
 
-ggplot(test[test$Date=="16/03/16",], aes(Time, Temp)) + geom_line(aes(group=ID, col=ID)) + my_theme
+ggplot(test[test$Date=="15/03/16",], aes(Time, Temp)) + geom_line(aes(group=ID, col=ID)) + my_theme
 
+ggplot(Tbs_test, aes(Date_Time, Temp)) + geom_line(aes(group=ID, col=ID)) + my_theme
 ### TO DO - Make sure to copy and sort out TO DOOOOOOOOO ###
 ### Temperature_TillNov15_TorporChamber_MFRCage_For_HEVI_Nov11_12.csv
 
@@ -112,9 +118,7 @@ names(Tc_summ_night) <- c("Expt", "Year", "Month", "Day", "daynight", "Mean_Tc",
 head(Tc_summ_night)
 ## Writing the summary temperatures file to csv
 write.csv(Tc_summ_night, file = "Tc_summary_notHourly_2015.csv")
-
-
-
+head(Tc_summ_night)
 
 ##### Plots #######
 ## Creating an object for x axis label to be Ta
