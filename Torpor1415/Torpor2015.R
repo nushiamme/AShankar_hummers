@@ -19,9 +19,19 @@ wdMS <- setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_pa
 wdMS
 torpor2015 <- read.csv("Torpor2015.csv")
 litstudy <- read.csv("LitStudy_combined.csv")
+krugertab <- read.csv("Lit_Kruger1982.csv")
+
+m.krug <- melt(krugertab, id.vars = c("Species", "Sex", "Mean_mass_g", "Temp"), 
+     measure.vars = c("MR_day_J_g_hr", "MR_night_J_g_hr", "MR_torpor_J_g_hr"))
+names(m.krug) <- c("Species", "Sex", "Mass", "Temp", "Measure", "Value")
 
 ## Min chamber temo in deg. C axis label
 Tc_min.xlab <- expression(atop(paste("Minimum Chamber Temperature (", degree,"C)")))
+
+## Making my easy-theme
+my_theme <- theme_classic(base_size = 30) + 
+  theme(axis.title.y = element_text(vjust = 2),
+        panel.border = element_rect(colour = "black", fill=NA))
 
 ## Function to return sample sizes
 give.n <- function(x){
@@ -51,6 +61,19 @@ tor_sub <- torpor2015[torpor2015$Species=="AGCU" | torpor2015$Species=="METY",]
 
 ##METY days - 0910, 1028, 1130, 1209, 1211, 1212, 1219
 ##AGCU days - 0826, 1023, 1220, 1223, 0104
+
+#### Kruger et al. 1982 study, plotting values for 22 species ####
+krugerplot <- ggplot(m.krug, aes(Temp, Value)) + my_theme + 
+  geom_point(aes(col=Measure, size=Mass), alpha=0.4) + 
+  xlab("Ambient temperature (deg. C)") + ylab("Energy expenditure (J/g*hr)") +
+  scale_y_continuous(breaks=c(0,50,100,200,400,600)) + theme(panel.grid.major.y = element_line(size=.1, color="grey"))
+krugerplot
+
+## Kruger's data, selecting particular species
+krugerplot <- ggplot(m.krug[m.krug$Species=="Aglaectis cupripennis",], aes(Temp, Value)) + my_theme +
+  geom_point(aes(col=Measure, size=Mass)) + ylab("Energy expenditure (J/g*hr)") +
+  scale_y_continuous(breaks=c(0,50,100,200,400,600)) + theme(panel.grid.major.y = element_line(size=.1, color="grey"))
+krugerplot
 
 ### Plot literature review values ######
 litplot <- ggplot(litstudy, aes(Tc_min, EE_J)) +  
