@@ -94,7 +94,7 @@ litplotnew <- ggplot(litnew, aes(Temp, EE_J/Mass)) +
   scale_shape_manual(values=c(20,3)) + #facet_grid(~Mass) +
   theme(strip.background = element_blank(),
         panel.border = element_rect(colour = "black", fill=NA)) + xlab(Tc_min.xlab) +
-  ylab("Energy expenditure (J)")
+  ylab("Energy expenditure (J/g*hr)")
 litplotnew
 
 ## Just La paz data
