@@ -97,6 +97,15 @@ litplotnew <- ggplot(litnew, aes(Temp, EE_J/Mass)) +
   ylab("Energy expenditure (J/g*hr)")
 litplotnew
 
+## Without the Unknown points from La Paz
+lits <- ggplot(litnew[litnew$Torpid_not!="UK",], aes(Temp, EE_J/Mass)) +  
+  theme_bw(base_size = 20) + geom_point(aes(col=Torpid_not, shape=Study_lit), size=4) +
+  scale_shape_manual(values=c(20,3)) + #facet_grid(~Mass) +
+  theme(strip.background = element_blank(),
+        panel.border = element_rect(colour = "black", fill=NA)) + xlab(Tc_min.xlab) +
+  ylab("Energy expenditure (J/g*hr)")
+lits
+
 ## Just La paz data
 coir_plot <- ggplot(litstudy[litstudy$Species=="COIR",], aes(Tc_min, EE_J)) +  
   theme_bw(base_size = 20) + geom_point(aes(col=Species), size=4) + 
