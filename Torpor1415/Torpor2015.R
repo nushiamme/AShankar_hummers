@@ -20,6 +20,7 @@ wdMS
 torpor2015 <- read.csv("Torpor2015.csv")
 litstudy <- read.csv("LitStudy_combined.csv")
 krugertab <- read.csv("Lit_Kruger1982.csv")
+k_melt <- read.csv("Lit_Kruger1982_modified.csv")
 
 m.krug <- melt(krugertab, id.vars = c("Species", "Sex", "Mean_mass_g", "Temp"), 
      measure.vars = c("MR_day_J_g_hr", "MR_night_J_g_hr", "MR_torpor_J_g_hr"))
@@ -66,14 +67,15 @@ tor_sub <- torpor2015[torpor2015$Species=="AGCU" | torpor2015$Species=="METY",]
 krugerplot <- ggplot(m.krug, aes(Temp, Value)) + my_theme + 
   geom_point(aes(col=Measure, size=Mass), alpha=0.4) + 
   xlab("Ambient temperature (deg. C)") + ylab("Energy expenditure (J/g*hr)") +
-  scale_y_continuous(breaks=c(0,50,100,200,400,600)) + theme(panel.grid.major.y = element_line(size=.1, color="grey"))
+  scale_y_continuous(breaks=c(0,50,100,200,400,600)) + theme(panel.grid.major.y = element_line(size=.1, color="grey")) +
+  
 krugerplot
 
 ## Kruger's data, selecting particular species
-krugerplot <- ggplot(m.krug[m.krug$Species=="Aglaectis cupripennis",], aes(Temp, Value)) + my_theme +
+krugerplot_sp <- ggplot(m.krug[m.krug$Species=="Aglaectis cupripennis",], aes(Temp, Value)) + my_theme +
   geom_point(aes(col=Measure, size=Mass)) + ylab("Energy expenditure (J/g*hr)") +
   scale_y_continuous(breaks=c(0,50,100,200,400,600)) + theme(panel.grid.major.y = element_line(size=.1, color="grey"))
-krugerplot
+krugerplot_sp
 
 ### Plot literature review values ######
 litplot <- ggplot(litstudy, aes(Tc_min, EE_J)) +  
