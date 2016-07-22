@@ -19,6 +19,7 @@ wdMS <- setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_pa
 wdMS
 torpor2015 <- read.csv("Torpor2015.csv")
 litstudy <- read.csv("LitStudy_combined.csv")
+litnew <- read.csv("LitStudy_andKruger.csv")
 krugertab <- read.csv("Lit_Kruger1982.csv")
 k_melt <- read.csv("Lit_Kruger1982_modified.csv")
 
@@ -64,16 +65,16 @@ tor_sub <- torpor2015[torpor2015$Species=="AGCU" | torpor2015$Species=="METY",]
 ##AGCU days - 0826, 1023, 1220, 1223, 0104
 
 #### Kruger et al. 1982 study, plotting values for 22 species ####
-krugerplot <- ggplot(m.krug, aes(Temp, Value)) + my_theme + 
-  geom_point(aes(col=Measure, size=Mass), alpha=0.4) + 
+krugerplot <- ggplot(m.krug, aes(Temp, Value, group=interaction(Measure,Species))) + my_theme + 
+  geom_line(aes(col=Measure)) +
   xlab("Ambient temperature (deg. C)") + ylab("Energy expenditure (J/g*hr)") +
-  scale_y_continuous(breaks=c(0,50,100,200,400,600)) + theme(panel.grid.major.y = element_line(size=.1, color="grey")) +
-  
+  scale_y_continuous(breaks=c(0,50,100,200,400,600)) + theme(panel.grid.major.y = element_line(size=.1, color="grey"))
 krugerplot
+
 
 ## Kruger's data, selecting particular species
 krugerplot_sp <- ggplot(m.krug[m.krug$Species=="Aglaectis cupripennis",], aes(Temp, Value)) + my_theme +
-  geom_point(aes(col=Measure, size=Mass)) + ylab("Energy expenditure (J/g*hr)") +
+  geom_point(aes(col=Measure, size=Mass)) + ylab("Energy expenditure (J/g*hr)") + 
   scale_y_continuous(breaks=c(0,50,100,200,400,600)) + theme(panel.grid.major.y = element_line(size=.1, color="grey"))
 krugerplot_sp
 
@@ -86,6 +87,15 @@ litplot <- ggplot(litstudy, aes(Tc_min, EE_J)) +
   ylab("Energy expenditure (J)")
 litplot
 grid.text(unit(0.5,"npc"),0.99,label = "Mass in grams", gp=gpar(fontsize=20))
+
+## With Kruger et al. 1982 data added in
+litplotnew <- ggplot(litnew, aes(Temp, EE_J/Mass)) +  
+  theme_bw(base_size = 20) + geom_point(aes(col=Torpid_not, shape=Study_lit), size=4) +
+  scale_shape_manual(values=c(20,3)) + #facet_grid(~Mass) +
+  theme(strip.background = element_blank(),
+        panel.border = element_rect(colour = "black", fill=NA)) + xlab(Tc_min.xlab) +
+  ylab("Energy expenditure (J)")
+litplotnew
 
 ## Just La paz data
 coir_plot <- ggplot(litstudy[litstudy$Species=="COIR",], aes(Tc_min, EE_J)) +  
