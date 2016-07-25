@@ -22,6 +22,10 @@ test <-
 Tbs_test <- 
   read.csv("C://Users//ANUSHA//Dropbox//Data 2015//Data 2016 season//Torpor_2016//Body_temp//EG16_0710_HEVI_Tc_plot.csv")
 
+Tbs_test2 <- 
+  read.csv("C://Users//ANUSHA//Dropbox//Data 2015//Data 2016 season//Torpor_2016//Body_temp//EG16_0718_METY_Tc_plot.csv")
+
+
 ## Experiment to check whether iButtons are working as expected and not heating things up
 my_theme <- theme_classic(base_size = 30) + 
   theme(axis.title.y = element_text(vjust = 2),
