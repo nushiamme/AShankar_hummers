@@ -12,6 +12,7 @@ library(gam)
 library(foreign)
 library(MASS)
 library(devtools)
+require(dplyr)
 #library(plotflow) #Useful function reorder_by() might be useful for ordering variables by others
 
 ## Set working directory and read in .csv file
@@ -195,6 +196,25 @@ o.tor$BirdID <- factor(o.tor$BirdID,
 
 #### Nightly hourly EE plots #####
 
+## For EC2014 birds, making plots for Nat Geo demonstration
+## Plotting EE per hour by time, and labeling with chamber temperature
+energy_gcb <- ggplot(gcbnight, aes(SampleNo, EE_J)) + theme_bw() +
+  geom_line(aes(group=BirdID)) + facet_grid(TimeSlot~., scales = "free_x") +
+  ylab("Energy expenditure (J)")
+energy_gcb
+
+## Short code to produce and save multiple plots from one ggplot snippet, by factor TimeSlot
+tryplot <- ggplot(data = gcbnight, aes(SampleNo, EE_J)) + theme_bw() +
+  geom_line() +  ylab("Energy expenditure (J)") + ylim(-5,50)
+
+tryplots <- gcbnight %>%
+  group_by(TimeSlot) %>%
+  do(plots = tryplot %+% . + facet_wrap(~TimeSlot))
+pdf("EC14_GCB_0720.pdf")
+tryplots$plots
+dev.off()
+
+
 ## Plotting EE per hour by time, and labeling with chamber temperature
 energy_metyagcu <- ggplot(o.tor_sub, aes(Hourly, EE_J)) + theme_bw(base_size=18) +
   geom_line(aes(group=BirdID, col=Species), size=1.5) + facet_wrap(~BirdID, scales="free_x") +
@@ -211,23 +231,6 @@ energy_metyagcu <- ggplot(o.tor_sub, aes(Hourly, EE_J)) + theme_bw(base_size=18)
         panel.border = element_rect(colour = "black", fill=NA)) +
   xlab("Hour step (Birdno_ArmyTime)") # + scale_x_discrete(labels=o.tor_sub$Time)
 energy_metyagcu
-
-## For EC2014 birds, making plots for Nat Geo demonstration
-## Plotting EE per hour by time, and labeling with chamber temperature
-energy_gcb <- ggplot(gcbnight, aes(SampleNo, EE_J)) + theme_bw() +
-  geom_line(aes(group=BirdID)) + facet_grid(TimeSlot~., scales = "free_x") +
-  ylab("Energy expenditure (J)")
-energy_gcb
-
-df.lst <- list(df1, df2)
-
-plotdata <- function(x) {
-  ggplot(data = x, aes(x=x, y=a, color="blue")) + 
-    geom_point() +
-    geom_line()
-}
-
-lapply(df.lst, plotdata)
 
 ## just agcu
 energy_metyagcu <- ggplot(o.tor_sub, aes(Hourly, EE_J)) + theme_bw(base_size=18) +
