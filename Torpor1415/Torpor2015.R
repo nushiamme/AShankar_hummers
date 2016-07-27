@@ -23,7 +23,11 @@ litstudy <- read.csv("LitStudy_combined.csv")
 litnew <- read.csv("LitStudy_andKruger.csv")
 krugertab <- read.csv("Lit_Kruger1982.csv")
 k_melt <- read.csv("Lit_Kruger1982_modified.csv")
+
+## For Nat Geo demo
 gcbnight <- read.csv("Plotting_DailyGraphs_in_R//E14_0720_GCB.csv")
+gcbsumm <- read.csv("Plotting_DailyGraphs_in_R//E14_0720_GCB_summary.csv")
+birdsumms <- read.csv("Plotting_DailyGraphs_in_R//E14_bird_summaries_toplot.csv")
 
 m.krug <- melt(krugertab, id.vars = c("Species", "Sex", "Mean_mass_g", "Temp"), 
      measure.vars = c("MR_day_J_g_hr", "MR_night_J_g_hr", "MR_torpor_J_g_hr"))
@@ -195,7 +199,7 @@ o.tor$BirdID <- factor(o.tor$BirdID,
 
 #### Nightly hourly EE plots #####
 
-## For EC2014 birds, making plots for Nat Geo demonstration
+##### For EC2014 birds, making plots for Nat Geo demonstration ####
 ## Plotting EE per hour by time, and labeling with chamber temperature
 energy_gcb <- ggplot(gcbnight, aes(SampleNo, EE_J)) + theme_bw() +
   geom_line(aes(group=BirdID)) + facet_grid(TimeSlot~., scales = "free_x") +
@@ -223,21 +227,39 @@ pdf("EC14_GCB_0720.pdf", width=10, height = 7)
 plotbunch_gcb$plots
 dev.off()
 
-gcbfacet <- ggplot(data = gcbnight, aes(SampleNo, EE_J)) + theme_bw() + facet_grid(TimeSlot~.) +
+gcbfacet <- ggplot(gcbnight, aes(SampleNo, EE_J)) + theme_bw() + facet_grid(TimeSlot~.) +
   geom_line() +  ylab("Energy expenditure (J)") + ylim(-5,50) + xlab("Time (seconds)") +
   theme(panel.grid.major.y = element_line(size=.1, color="grey"))
 gcbfacet
 
-### For La Paz birds
-lapaz_hourly <- ggplot(data = o.tor, aes(BirdID, EE_J)) + theme_bw() +
-  geom_line() +  ylab("Energy expenditure (J)") + ylim(-5,50) + xlab("Time (seconds)") +
-  scale_y_continuous(breaks=c(0,2,5,10,20,30,40,50)) + theme(panel.grid.major.y = element_line(size=.1, color="grey"))
+gcbsumm$Hour <- factor(gcbsumm$Hour, levels=gcbsumm$Hour)
+
+gcbsummplot <- ggplot(gcbsumm, aes(HourID, EE_J)) + my_theme + geom_point(size=3) + geom_line(aes(group="identity")) + 
+  ylab("Energy expenditure (J)") + xlab("Hour") + ylim(-10,1800) + scale_x_continuous(breaks = 1:10)
+gcbsummplot
+
+birdsumms$BirdID <- factor(birdsumms$BirdID, levels=birdsumms$BirdID)
+
+birdsummsplot <- ggplot(birdsumms, aes(HourID, EE_J)) + my_theme + 
+  geom_point(size=3) + geom_line(aes(group="identity")) + 
+  ylab("Energy expenditure (J)") + xlab("Hour") + ylim(-10,2800) + scale_x_continuous(breaks = 1:11)
+
+birdbunch <- birdsumms %>%
+  group_by(BirdID) %>%
+  do(plots = birdsummsplot %+% . + facet_wrap(~BirdID))
+pdf("EC14_birdsumms.pdf", width=10, height = 7)
+birdbunch$plots
+dev.off()
+
+### For La Paz birds ####
+lapaz_hourly <- ggplot(data = o.tor, aes(Hourly, EE_J)) + theme_bw() + geom_line(aes(group="identity")) +
+  geom_point() +  ylab("Energy expenditure (J)") + xlab("Hour") #+ ylim(-10,3000)
 
 plotbunch_lapaz <- o.tor %>%
-  group_by(Hourly) %>%
-  do(plots = tryplot %+% . + facet_wrap(~Hourly))
-pdf("LaPaz_plotbunch.pdf")
-plotbunch_lapaz$plots[1]
+  group_by(BirdID) %>%
+  do(plots = lapaz_hourly %+% . + facet_wrap(~BirdID))
+pdf("LaPaz_plotbunch.pdf", width=10, height = 7)
+plotbunch_lapaz$plots
 dev.off()
 
 
