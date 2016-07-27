@@ -42,7 +42,7 @@ give.n <- function(x){
   return(c(y = mean(x), label = length(x)))
 }
 
-## USeful for introduction !!!!!!!!!!!!!!!!
+## USeful for introduction !!!!!!!!!!!!!!!! #####
 ## McKechnie, A.E. and B.G. Lovegrove. 2002. Avian Facultative Hypothermic Responses: a Review. 
       # The Condor 104: 705.
 ## The capacity for shallow hypothermia (rest-phase hypothermia) occurs throughout the avian phylogeny,
@@ -73,7 +73,6 @@ krugerplot <- ggplot(m.krug, aes(Temp, Value, group=interaction(Measure,Species)
   xlab("Ambient temperature (deg. C)") + ylab("Energy expenditure (J/g*hr)") +
   scale_y_continuous(breaks=c(0,50,100,200,400,600)) + theme(panel.grid.major.y = element_line(size=.1, color="grey"))
 krugerplot
-
 
 ## Kruger's data, selecting particular species
 krugerplot_sp <- ggplot(m.krug[m.krug$Species=="Aglaectis cupripennis",], aes(Temp, Value)) + my_theme +
@@ -205,13 +204,40 @@ energy_gcb
 
 ## Short code to produce and save multiple plots from one ggplot snippet, by factor TimeSlot
 tryplot <- ggplot(data = gcbnight, aes(SampleNo, EE_J)) + theme_bw() +
-  geom_line() +  ylab("Energy expenditure (J)") + ylim(-5,50)
+  geom_line() +  ylab("Energy expenditure (J)") + ylim(-5,50) + xlab("Time (seconds)") +
+  scale_y_continuous(breaks=c(0,2,5,10,20,30,40,50)) + theme(panel.grid.major.y = element_line(size=.1, color="grey"))
 
-tryplots <- gcbnight %>%
+plotbunch_gcb <- gcbnight %>%
   group_by(TimeSlot) %>%
   do(plots = tryplot %+% . + facet_wrap(~TimeSlot))
-pdf("EC14_GCB_0720.pdf")
-tryplots$plots
+plotbunch_gcb$plots[1]
+
+gcbplots <- ggplot(data = gcbnight, aes(SampleNo, EE_J)) + theme_bw() +
+  geom_line() +  ylab("Energy expenditure (J)") + ylim(-5,50) + xlab("Time (seconds)") +
+  theme(panel.grid.major.y = element_line(size=.1, color="grey"))
+
+plotbunch_gcb <- gcbnight %>%
+  group_by(TimeSlot) %>%
+  do(plots = gcbplots %+% . + facet_wrap(~TimeSlot))
+pdf("EC14_GCB_0720.pdf", width=10, height = 7)
+plotbunch_gcb$plots
+dev.off()
+
+gcbfacet <- ggplot(data = gcbnight, aes(SampleNo, EE_J)) + theme_bw() + facet_grid(TimeSlot~.) +
+  geom_line() +  ylab("Energy expenditure (J)") + ylim(-5,50) + xlab("Time (seconds)") +
+  theme(panel.grid.major.y = element_line(size=.1, color="grey"))
+gcbfacet
+
+### For La Paz birds
+lapaz_hourly <- ggplot(data = o.tor, aes(BirdID, EE_J)) + theme_bw() +
+  geom_line() +  ylab("Energy expenditure (J)") + ylim(-5,50) + xlab("Time (seconds)") +
+  scale_y_continuous(breaks=c(0,2,5,10,20,30,40,50)) + theme(panel.grid.major.y = element_line(size=.1, color="grey"))
+
+plotbunch_lapaz <- o.tor %>%
+  group_by(Hourly) %>%
+  do(plots = tryplot %+% . + facet_wrap(~Hourly))
+pdf("LaPaz_plotbunch.pdf")
+plotbunch_lapaz$plots[1]
 dev.off()
 
 
