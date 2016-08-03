@@ -227,15 +227,16 @@ pdf("EC14_GCB_0720.pdf", width=10, height = 7)
 plotbunch_gcb$plots
 dev.off()
 
-gcbfacet <- ggplot(gcbnight, aes(SampleNo, EE_J)) + theme_bw() + facet_grid(TimeSlot~.) +
-  geom_line() +  ylab("Energy expenditure (J)") + ylim(-5,50) + xlab("Time (seconds)") +
-  theme(panel.grid.major.y = element_line(size=.1, color="grey"))
+gcbfacet <- ggplot(gcbnight, aes(SampleNo, EE_J)) + theme_classic() + facet_grid(TimeSlot~.) +
+  geom_line() +  ylab("Energy expenditure (J)") + ylim(-5,50) + xlab("Time (seconds)")
 gcbfacet
 
 gcbsumm$Hour <- factor(gcbsumm$Hour, levels=gcbsumm$Hour)
 
 gcbsummplot <- ggplot(gcbsumm, aes(HourID, EE_J)) + my_theme + geom_point(size=3) + geom_line(aes(group="identity")) + 
-  ylab("Energy expenditure (J)") + xlab("Hour") + ylim(-10,1800) + scale_x_continuous(breaks = 1:10)
+  ylab("Energy expenditure (J)") + xlab("Hour") + scale_x_continuous(breaks = 1:10) +
+  scale_y_continuous(breaks=c(-100,0,100,200,500,1000,1500)) + 
+  theme(panel.grid.major.y = element_line(size=.1, color="grey"))
 gcbsummplot
 
 birdsumms$BirdID <- factor(birdsumms$BirdID, levels=birdsumms$BirdID)
