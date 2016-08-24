@@ -146,7 +146,7 @@ lm_eqn <- function(table, y, x){
 Tc.xlab <- expression(atop(paste("Chamber Temperature (", degree,"C)")))
 Ta.xlab <- expression(atop(paste("Ambient Temperature (", degree,"C)")))
 Tc_min.xlab <- expression(atop(paste("Minimum Chamber Temperature (", degree,"C)")))
-NEE_corrlab <- bquote('NEE Mass-corrected (kJ/' ~M^(-2/3)*')')
+NEE_corrlab <- bquote('Nighttime energy expneditre (kJ/' ~M^(2/3)*')')
 
 ####### Trying out Log-log NEE-mass######
 test_log_col <- ggplot(torpor, aes(Mass, NEE_kJ)) +

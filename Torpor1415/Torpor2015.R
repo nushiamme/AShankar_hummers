@@ -219,6 +219,7 @@ plotbunch_gcb$plots[1]
 gcbplots <- ggplot(data = gcbnight, aes(SampleNo, EE_J)) + theme_bw() +
   geom_line() +  ylab("Energy expenditure (J)") + ylim(-5,50) + xlab("Time (seconds)") +
   theme(panel.grid.major.y = element_line(size=.1, color="grey"))
+gcbplots
 
 plotbunch_gcb <- gcbnight %>%
   group_by(TimeSlot) %>%
@@ -227,8 +228,12 @@ pdf("EC14_GCB_0720.pdf", width=10, height = 7)
 plotbunch_gcb$plots
 dev.off()
 
-gcbfacet <- ggplot(gcbnight, aes(SampleNo, EE_J)) + theme_classic() + facet_grid(TimeSlot~.) +
-  geom_line() +  ylab("Energy expenditure (J)") + ylim(-5,50) + xlab("Time (seconds)")
+Two_gcb_slots <- gcbnight[gcbnight$TimeSlot==9,] # | gcbnight$TimeSlot==5 | gcbnight$TimeSlot==7,]
+m.gcbslots <- melt(Two_gcb_slots, id.vars = c("BirdID", "TimeSlot"), measure.vars = "EE_J")
+m.gcbslots$TimeSlot <- as.factor(m.gcbslots$TimeSlot)
+gcbfacet <- ggplot(m.gcbslots, aes(x = seq(1, length(m.gcbslots$value)), value)) + 
+  my_theme +
+  geom_line(col="red") +  ylab("Energy expenditure (J)") + ylim(-5,50) + xlab("Time (seconds)")
 gcbfacet
 
 gcbsumm$Hour <- factor(gcbsumm$Hour, levels=gcbsumm$Hour)
