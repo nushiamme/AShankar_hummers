@@ -74,7 +74,11 @@ lm_eqn <- function(table, y, x){
 A log-log plot of hummingbird daily energy expenditure (kJ) vs. mass (g), including values from this study as well as from the literature. Colors represent species.
 ```{r, echo=F, fig.cap=""}
 #Species-wise log-log plot of DEE vs. mass
-dlw_sp_mean <- ggplot(dlw_mean, aes(log(Mass_g), log(kJ_day))) + 
+dlw_sp_mean_log <- ggplot(dlw_mean, aes(log(Mass_g), log(kJ_day))) + 
+  geom_point(aes(col=Species), size=4) + theme_bw() + geom_smooth(method=lm)
+plot(dlw_sp_mean_log, fig.align='left')
+
+dlw_sp_mean <- ggplot(dlw_mean, aes(Mass_g, kJ_day)) + 
   geom_point(aes(col=Species), size=4) + theme_bw() + geom_smooth(method=lm)
 plot(dlw_sp_mean, fig.align='left')
 ```
