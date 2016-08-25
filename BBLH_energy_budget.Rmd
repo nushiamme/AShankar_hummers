@@ -26,6 +26,7 @@ dee_BBLH <- ggplot(subset(dlw,Species %in% "BBLH"), aes(Initial_mass, kJ_day)) +
         panel.border = element_rect(colour = "black", fill=NA),
         legend.key.height=unit(3,"line")) + 
   ylab("Daily energy expenditure (kJ/day)") + xlab("Initial mass (g)")
+dee_BBLH
 
 ## DEE by site
 dee_BBLH_site <- ggplot(subset(dlw,Species %in% "BBLH"), aes(Initial_mass, kJ_day)) + 
@@ -37,6 +38,10 @@ dee_BBLH_site <- ggplot(subset(dlw,Species %in% "BBLH"), aes(Initial_mass, kJ_da
         legend.key.height=unit(3,"line")) + 
   ylab("Daily energy expenditure (kJ/day)") + xlab("Initial mass (g)")
 plot(dee_BBLH_site, fig.align='left')
+
+t.test(dlw$Pre_post_monsoon=="Pre", dlw$Pre_post_monsoon=="Post",paired = F) ## Not significant
+summary(lm(dlw$Pre_post_monsoon=="Post" ~ dlw$Initial_mass)) ## Weak slope even for Pre-monsoon
+
 ```
 
 You can also embed plots, for example:
