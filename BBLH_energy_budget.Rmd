@@ -18,7 +18,7 @@ dlw <- read.csv("DLW_data2.csv")
 dlw <- dlw[dlw$Reasonable_not=="Y",]
 
 # DEE by pre- vs. post- monsoon
-dee_BBLH <- ggplot(subset(dlw,Species %in% "BBLH"), aes(Initial_mass, kJ_day)) + 
+dee_BBLH_monsoon <- ggplot(subset(dlw,Species %in% "BBLH"), aes(Initial_mass, kJ_day)) + 
   geom_point(aes(shape=Pre_post_monsoon), size=7) + theme_classic(base_size = 30) + 
   scale_shape_manual("Season\n", values=c(20,3), 
                      labels=c("Pre-monsoon", "Post-monsoon"), breaks=c("Pre", "Post")) + 
@@ -26,7 +26,7 @@ dee_BBLH <- ggplot(subset(dlw,Species %in% "BBLH"), aes(Initial_mass, kJ_day)) +
         panel.border = element_rect(colour = "black", fill=NA),
         legend.key.height=unit(3,"line")) + 
   ylab("Daily energy expenditure (kJ/day)") + xlab("Initial mass (g)")
-dee_BBLH
+dee_BBLH_monsoon
 
 ## DEE by site
 dee_BBLH_site <- ggplot(subset(dlw,Species %in% "BBLH"), aes(Initial_mass, kJ_day)) + 
@@ -39,15 +39,10 @@ dee_BBLH_site <- ggplot(subset(dlw,Species %in% "BBLH"), aes(Initial_mass, kJ_da
   ylab("Daily energy expenditure (kJ/day)") + xlab("Initial mass (g)")
 plot(dee_BBLH_site, fig.align='left')
 
-t.test(dlw$Pre_post_monsoon=="Pre", dlw$Pre_post_monsoon=="Post",paired = F) ## Not significant
+Premonsoon <- dlw[dlw$Pre_post_monsoon=="Pre",]
+Postmonsoon <- dlw[dlw$Pre_post_monsoon=="Post",]
+t.test(Premonsoon$kJ_day[Premonsoon$Site=="HC"], ,paired = F) ## Not significant
+t.test(dlw$kJ_day[dlw$Site=="HC"], dlw$kJ_day[dlw$Site=="SC"],paired = F) ## Not significant
 summary(lm(dlw$Pre_post_monsoon=="Post" ~ dlw$Initial_mass)) ## Weak slope even for Pre-monsoon
 
 ```
-
-You can also embed plots, for example:
-
-```{r, echo=FALSE}
-plot(cars)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

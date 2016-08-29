@@ -261,6 +261,13 @@ energyM_plot <- ggplot(torpor, aes(Species, NEE_MassCorrected)) +  my_theme +
   stat_summary(fun.data = give.n, geom = "text", vjust=-5, size=10)
 energyM_plot
 
+## Just BBLH
+energyM_BBLH <- ggplot(torpor[torpor$Species=="BBLH",], aes(Site_new, NEE_MassCorrected)) +  my_theme +
+  geom_boxplot(size=1) + 
+  ylab(NEE_corrlab) + theme(legend.position="none") +
+  stat_summary(fun.data = give.n, geom = "text", vjust=-5, size=10)
+energyM_BBLH
+
 ## Energy vs. hours torpid, species labeled
 energyM_hours <- ggplot(torpor, aes(Hours_torpid, NEE_MassCorrected)) +  
   geom_point(aes(shape = factor(Species)), size=4) + theme_bw(base_size=30) +
