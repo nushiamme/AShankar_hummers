@@ -9,13 +9,17 @@ output: word_document
 Flexibility is key to how organisms deal with changing environments. One aspect of flexibility that organisms in rapidly changing environments must have is the ability to modify their energy use as resources and environmental conditions (e.g. temperature) vary. The question of variability in energy use has been addressed in ectotherms (primarily lizards), and to some extent in humans, but little work has been done on other endotherms in the wild. We looked at how flexible a species' daily energy expenditure and torpor use (nighttime hypothermia) are at two sites with different thermal regimes and vegetative structure. We then built a model of daily energy expenditure to parse out the possible basis for such flexibility- does the variation arise solely from differences in thermoregulatory costs, or could another part of the energy budget be varying widely between sites as well? We found that daily energy expenditure varies significantly for the same species between sites with different thermal regimes. Our energy budget model 
 
 
-
+Daily energy expenditure
 ```{r, echo=F}
 library(ggplot2)
 setwd("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper")
 ## Includes data from XXXX papers.
 dlw <- read.csv("DLW_data2.csv")
 dlw <- dlw[dlw$Reasonable_not=="Y",]
+
+my_theme <- theme_classic(base_size = 30) + 
+  theme(axis.title.y = element_text(vjust = 2),
+        panel.border = element_rect(colour = "black", fill=NA))
 
 # DEE by pre- vs. post- monsoon
 dee_BBLH_monsoon <- ggplot(subset(dlw,Species %in% "BBLH"), aes(Initial_mass, kJ_day)) + 
@@ -44,5 +48,17 @@ Postmonsoon <- dlw[dlw$Pre_post_monsoon=="Post",]
 t.test(Premonsoon$kJ_day[Premonsoon$Site=="HC"], ,paired = F) ## Not significant
 t.test(dlw$kJ_day[dlw$Site=="HC"], dlw$kJ_day[dlw$Site=="SC"],paired = F) ## Not significant
 summary(lm(dlw$Pre_post_monsoon=="Post" ~ dlw$Initial_mass)) ## Weak slope even for Pre-monsoon
+
+```
+
+Thermoregulatory costs
+``` {r, echo=F}
+bblh_tnz <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\Energy budget data\\Broad Bill.csv")
+
+bblh_tnz$N_T <- factor(bblh_tnz$N_T, levels=c('T', 'N'))
+
+ggplot(bblh_tnz, aes(Temp_C, VO2)) + geom_point(aes(col=N_T), size=3) + my_theme
+
+lm(bblh_tnz$Normothermic~bblh_tnz$Temp_C)
 
 ```
