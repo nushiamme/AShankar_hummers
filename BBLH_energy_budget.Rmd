@@ -1,12 +1,12 @@
 ---
-title: "Energetic flexibility and budgeting in a temperate hummingbird"
-author: "Anusha Shankar, Joseph R. Canepa, Catherine H. Graham, Donald R. Powers"
-date: "Wednesday, April 06, 2016"
+title: "Energy budgeting in a temperate hummingbird"
+author: "Anusha Shankar, Donald R. Powers, Susan Wethington, Joseph R. Canepa, Catherine H. Graham"
+date: "Wednesday, August 31, 2016"
 output: word_document
 ---
 
 ## Abstract
-Flexibility is key to how organisms deal with changing environments. One aspect of flexibility that organisms in rapidly changing environments must have is the ability to modify their energy use as resources and environmental conditions (e.g. temperature) vary. The question of variability in energy use has been addressed in ectotherms (primarily lizards), and to some extent in humans, but little work has been done on other endotherms in the wild. We looked at how flexible a species' daily energy expenditure and torpor use (nighttime hypothermia) are at two sites with different thermal regimes and vegetative structure. We then built a model of daily energy expenditure to parse out the possible basis for such flexibility- does the variation arise solely from differences in thermoregulatory costs, or could another part of the energy budget be varying widely between sites as well? We found that daily energy expenditure varies significantly for the same species between sites with different thermal regimes. Our energy budget model 
+With climate change and the subsequent changes in thermal regimes, organisms might have to budget their energy use differently to incorporate the varying costs of temperature change, both direct (e.g. thermoregulatory) and indirect (e.g. foraging, flying). Our goal is to determine which aspects of the daily energy budget (e.g. thermoregulation, daytime activity costs, nighttime costs) change in response to environmental variation. This will help us understand the strategies species might use to balance their energy budget over the short term to survive environmental extremes. Energy-budget management is particular challenging for hummingbirds because they have high metabolic rates and store little fat. The lack of significant energy storage by hummingbirds makes their energy budget relatively simple compared to other endothermic systems. We modeled energy budgets for two populations of broad-billed hummingbirds (Cynanthus latirostris) that vary significantly in their daily energy expenditure due to differences in thermal profiles, topography, and vegetative structure of their habitats. Our analyses show that the difference in daily energy expenditure was due primarily to thermoregulatory costs. High thermoregulatory costs could cause birds to sit in the shade and forage less in order to manage their energy budget. If thermoregulatory costs occupy a larger portion of the energy budget in one site versus another, this could cause differential fitness across sites, as there could be less energy available to the birds for reproduction and foraging.
 
 
 Daily energy expenditure
@@ -55,10 +55,14 @@ Thermoregulatory costs
 ``` {r, echo=F}
 bblh_tnz <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\Energy budget data\\Broad Bill.csv")
 
-bblh_tnz$N_T <- factor(bblh_tnz$N_T, levels=c('T', 'N'))
+bblh_tnz$N_T <- factor(bblh_tnz$N_T, levels=c('T', 'N', 'N?'))
 
-ggplot(bblh_tnz, aes(Temp_C, VO2)) + geom_point(aes(col=N_T), size=3) + my_theme
+bblh_MR_temp <- ggplot(bblh_tnz, aes(Temp_C, VO2)) + geom_point(aes(col=N_T), size=3) + my_theme + scale_color_manual(values=c("#ff0000", "blue", "black"))
+plot(bblh_MR_temp, fig.alig='center')
 
-lm(bblh_tnz$Normothermic~bblh_tnz$Temp_C)
-
+bblh_LCT_eqn <- lm(bblh_tnz$Normothermic~bblh_tnz$Temp_C)
 ```
+
+Equation of TNZ below lower critical temperature (LCT):  
+
+VO2 = `r bblh_LCT_eqn$coefficients[[2]]`*Temperature + `r bblh_LCT_eqn$coefficients[[1]]`
