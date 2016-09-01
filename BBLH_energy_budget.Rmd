@@ -6,12 +6,16 @@ output: word_document
 ---
 
 ## Abstract
-With climate change and the subsequent changes in thermal regimes, organisms might have to budget their energy use differently to incorporate the varying costs of temperature change, both direct (e.g. thermoregulatory) and indirect (e.g. foraging, flying). Our goal is to determine which aspects of the daily energy budget (e.g. thermoregulation, daytime activity costs, nighttime costs) change in response to environmental variation. This will help us understand the strategies species might use to balance their energy budget over the short term to survive environmental extremes. Energy-budget management is particular challenging for hummingbirds because they have high metabolic rates and store little fat. The lack of significant energy storage by hummingbirds makes their energy budget relatively simple compared to other endothermic systems. We modeled energy budgets for two populations of broad-billed hummingbirds (Cynanthus latirostris) that vary significantly in their daily energy expenditure due to differences in thermal profiles, topography, and vegetative structure of their habitats. Our analyses show that the difference in daily energy expenditure was due primarily to thermoregulatory costs. High thermoregulatory costs could cause birds to sit in the shade and forage less in order to manage their energy budget. If thermoregulatory costs occupy a larger portion of the energy budget in one site versus another, this could cause differential fitness across sites, as there could be less energy available to the birds for reproduction and foraging.
+With climate change and the subsequent changes in thermal regimes, organisms might have to budget their energy use differently to incorporate the varying costs of temperature change, both direct (e.g. thermoregulatory) and indirect (e.g. foraging, flying). Our goal is to determine which aspects of the daily energy budget (e.g. thermoregulation, daytime activity costs, nighttime costs) change in response to environmental variation. This will help us understand the strategies species might use to balance their energy budget over the short term to survive environmental extremes. Energy-budget management is particular challenging for hummingbirds because they have high metabolic rates and store little fat. The lack of significant energy storage by hummingbirds makes their energy budget relatively simple compared to other endothermic systems. We modeled energy budgets for two populations of Broad-billed hummingbirds (*Cynanthus latirostris*) that vary significantly in their daily energy expenditure due to differences in thermal profiles, topography, and vegetative structure of their habitats. Our analyses show that the difference in daily energy expenditure was due primarily to thermoregulatory costs. High thermoregulatory costs could cause birds to sit in the shade and forage less in order to manage their energy budget. If thermoregulatory costs occupy a larger portion of the energy budget in one site versus another, this could cause differential fitness across sites, as there could be less energy available to the birds for reproduction and foraging.  
 
-
-Daily energy expenditure
+## Daily energy expenditure
 ```{r, echo=F}
 library(ggplot2)
+library(pander)
+
+panderOptions('round', 2)
+panderOptions('keep.trailing.zeros', TRUE)
+
 setwd("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper")
 ## Includes data from XXXX papers.
 dlw <- read.csv("DLW_data2.csv")
@@ -35,21 +39,34 @@ dee_BBLH_monsoon
 ## DEE by site
 dee_BBLH_site <- ggplot(subset(dlw,Species %in% "BBLH"), aes(Initial_mass, kJ_day)) + 
   geom_point(aes(col=Site), size=7) + theme_classic(base_size = 30) + 
-  scale_shape_manual("Season\n", values=c(20,3), 
-                     labels=c("Pre-monsoon", "Post-monsoon"), breaks=c("Pre", "Post")) + 
+  scale_shape_manual("Site", values=c(20,3), 
+                     labels=c("HC", "SC"), breaks=c("Pre", "Post")) + 
   theme(strip.background = element_blank(),
         panel.border = element_rect(colour = "black", fill=NA),
         legend.key.height=unit(3,"line")) + 
   ylab("Daily energy expenditure (kJ/day)") + xlab("Initial mass (g)")
 plot(dee_BBLH_site, fig.align='left')
 
+## DEE by site
+dee_BBLH_site <- ggplot(subset(dlw,Species %in% "BBLH"), aes(Site, kJ_day)) + 
+  geom_boxplot() + theme_classic(base_size = 30) + geom_point(aes(shape=Pre_post_monsoon), size=7) +
+  scale_shape_manual("Season\n", values=c(20,3), 
+                     labels=c("Pre-monsoon", "Post-monsoon"), breaks=c("Pre", "Post")) +
+  theme(strip.background = element_blank(),
+        panel.border = element_rect(colour = "black", fill=NA),
+        legend.key.height=unit(3,"line")) + 
+  ylab("Daily energy expenditure (kJ/day)") + xlab("Site")
+plot(dee_BBLH_site, fig.align='left')
+
 Premonsoon <- dlw[dlw$Pre_post_monsoon=="Pre",]
 Postmonsoon <- dlw[dlw$Pre_post_monsoon=="Post",]
 t.test(Premonsoon$kJ_day[Premonsoon$Site=="HC"], ,paired = F) ## Not significant
-t.test(dlw$kJ_day[dlw$Site=="HC"], dlw$kJ_day[dlw$Site=="SC"],paired = F) ## Not significant
+t.dee.sites <- t.test(dlw$kJ_day[dlw$Site=="HC"], dlw$kJ_day[dlw$Site=="SC"],paired = F) ## Significant
+pander(t.dee.sites)
 summary(lm(dlw$Pre_post_monsoon=="Post" ~ dlw$Initial_mass)) ## Weak slope even for Pre-monsoon
-
 ```
+
+Daily energy expenditure at Harshaw Creek was `r mean(dlw$kJ_day[dlw$Site=="HC"])` kJ, while at Sonoita Creek, DEE was `r mean(dlw$kJ_day[dlw$Site=="SC"])` kJ. This was a significant difference (t (`r t.dee.sites$parameter[[1]]`) = `r t.dee.sites$statistic[[1]]`, p = `r t.dee.sites$p.value[[1]]`).
 
 Thermoregulatory costs
 ``` {r, echo=F}
@@ -65,4 +82,4 @@ bblh_LCT_eqn <- lm(bblh_tnz$Normothermic~bblh_tnz$Temp_C)
 
 Equation of TNZ below lower critical temperature (LCT):  
 
-VO2 = `r bblh_LCT_eqn$coefficients[[2]]`*Temperature + `r bblh_LCT_eqn$coefficients[[1]]`
+VO2 = `r bblh_LCT_eqn$coefficients[[2]]`* T~a~ + `r bblh_LCT_eqn$coefficients[[1]]`
