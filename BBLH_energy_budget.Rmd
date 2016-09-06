@@ -48,20 +48,15 @@ dee_BBLH_site <- ggplot(subset(dlw,Species %in% "BBLH"), aes(Initial_mass, kJ_da
 plot(dee_BBLH_site, fig.align='left')
 
 ## DEE by site
-dee_BBLH_site <- ggplot(subset(dlw,Species %in% "BBLH"), aes(Site, kJ_day)) + 
-  geom_boxplot() + theme_classic(base_size = 30) + geom_point(aes(shape=Pre_post_monsoon), size=7) +
-  scale_shape_manual("Season\n", values=c(20,3), 
-                     labels=c("Pre-monsoon", "Post-monsoon"), breaks=c("Pre", "Post")) +
-  theme(strip.background = element_blank(),
-        panel.border = element_rect(colour = "black", fill=NA),
-        legend.key.height=unit(3,"line")) + 
-  ylab("Daily energy expenditure (kJ/day)") + xlab("Site")
+dee_BBLH_site <- ggplot(subset(dlw,Species %in% "BBLH"), aes(Site, kJ_day)) + geom_boxplot() + theme_classic(base_size = 30) + geom_point(aes(shape=Pre_post_monsoon), size=5, alpha=0.4, col="blue") + scale_shape_manual("Season\n", values=c(20,3), labels=c("Pre-monsoon", "Post-monsoon"), breaks=c("Pre", "Post")) + theme(strip.background = element_blank(), panel.border = element_rect(colour = "black", fill=NA), legend.key.height=unit(3,"line")) + ylab("Daily energy expenditure (kJ/day)") + xlab("Site")
 plot(dee_BBLH_site, fig.align='left')
 
 Premonsoon <- dlw[dlw$Pre_post_monsoon=="Pre",]
 Postmonsoon <- dlw[dlw$Pre_post_monsoon=="Post",]
-t.test(Premonsoon$kJ_day[Premonsoon$Site=="HC"], ,paired = F) ## Not significant
+t.test(Premonsoon$kJ_day[Premonsoon$Site=="HC"], Premonsoon$kJ_day[Premonsoon$Site=="SC"], paired = F) ## Not significant
 t.dee.sites <- t.test(dlw$kJ_day[dlw$Site=="HC"], dlw$kJ_day[dlw$Site=="SC"],paired = F) ## Significant
+t.test(Premonsoon$kJ_day[Premonsoon$Site=="HC"], Postmonsoon$kJ_day[Postmonsoon$Site=="HC"], paired=F) ## Significant
+t.test(Premonsoon$kJ_day[Premonsoon$Site=="SC"], Postmonsoon$kJ_day[Postmonsoon$Site=="SC"], paired=F) ##Highly significant
 pander(t.dee.sites)
 summary(lm(dlw$Pre_post_monsoon=="Post" ~ dlw$Initial_mass)) ## Weak slope even for Pre-monsoon
 ```

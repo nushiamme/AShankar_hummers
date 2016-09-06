@@ -90,8 +90,15 @@ savings.agg <- aggregate(torpor$savings,
 names(savings.agg) <- c("Site", "Species", "Hourly Torpid Savings (%)")
 savings.agg
 
+mass.agg <- aggregate(torpor$Mass, 
+                         by=list(torpor$Species), 
+                         FUN="mean", na.rm=T)
+names(mass.agg) <- c("Species", "Mass")
+mass.agg
+
 ## Frequency table -  add proportion column
 freq_table$prop <- (freq_table$Torpid/freq_table$Total)*100
+freq_table$mass <- mass.agg$Mass
 
 ## Subset just BBLH data
 BBLH_torpor <- subset(torpor, Species=="BBLH")
@@ -181,6 +188,13 @@ savings_plot <- ggplot(torpor[!is.na(torpor$Percentage_avg),], aes(Site_new, (10
   stat_summary(fun.data = give.n, geom = "text", vjust=4, size=10)
 savings_plot
 
+savings_mass <- ggplot(torpor[!is.na(torpor$Percentage_avg),], aes(Mass, (100 - Percentage_avg))) + 
+  geom_point(aes(col=Species), size=3) + my_theme + geom_smooth(method = lm, col='black') +
+  ylab("Hourly torpid energy savings (%)")
+savings_mass
+
+summary(lm(torpor$Percentage_avg[!is.na(torpor$Percentage_avg)] ~ torpor$Mass[!is.na(torpor$Percentage_avg)]))
+
 ##### Comparing temperate and tropical species ##########
 ## Plot for Nighttime energy expenditure, by temperate-tropics
 energy_plot <- ggplot(torpor, aes(Temptrop, NEE_kJ)) + my_theme + geom_boxplot() + xlab("Region") +
@@ -225,6 +239,13 @@ grid.arrange(energyM_temptrop, freqplot, hours_temptrop, temptrop_savings,
              nrow=2, ncol=2, bottom = textGrob("Region",gp=gpar(fontsize=25)))
 
 #### Basic frequency, NEE and hours plots ####
+
+## Rate of occurrence vs. mass - seeing if mass is more a determinant than just role
+freqmass <- ggplot(freq_table, aes(mass, prop)) + geom_point() + geom_smooth(method = lm, col='black') +
+  ylab("Rate of occurrence of torpor (%)") +  xlab("Mass") + my_theme
+freqmass
+
+summary(lm(freq_table$Rate_occurrence ~ freq_table$mass))
 
 ## Trying to see if nectar consumption might have affected time of entry into torpor
 nec_time <- ggplot(torpor, aes(EntryTime_new, Nectar_consumption)) + my_theme + 
