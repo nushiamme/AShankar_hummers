@@ -189,7 +189,7 @@ savings_plot <- ggplot(torpor[!is.na(torpor$Percentage_avg),], aes(Site_new, (10
 savings_plot
 
 savings_mass <- ggplot(torpor[!is.na(torpor$Percentage_avg),], aes(Mass, (100 - Percentage_avg))) + 
-  geom_point(aes(col=Species), size=3) + my_theme + geom_smooth(method = lm, col='black') +
+  geom_point(aes(col=Tc_min_C), size=3) + my_theme + geom_smooth(method = lm, col='black') +
   ylab("Hourly torpid energy savings (%)")
 savings_mass
 

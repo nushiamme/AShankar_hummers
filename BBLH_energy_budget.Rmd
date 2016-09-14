@@ -59,6 +59,7 @@ t.test(Premonsoon$kJ_day[Premonsoon$Site=="HC"], Postmonsoon$kJ_day[Postmonsoon$
 t.test(Premonsoon$kJ_day[Premonsoon$Site=="SC"], Postmonsoon$kJ_day[Postmonsoon$Site=="SC"], paired=F) ##Highly significant
 pander(t.dee.sites)
 summary(lm(dlw$Pre_post_monsoon=="Post" ~ dlw$Initial_mass)) ## Weak slope even for Pre-monsoon
+
 ```
 
 Daily energy expenditure at Harshaw Creek was `r mean(dlw$kJ_day[dlw$Site=="HC"])` kJ, while at Sonoita Creek, DEE was `r mean(dlw$kJ_day[dlw$Site=="SC"])` kJ. This was a significant difference (t (`r t.dee.sites$parameter[[1]]`) = `r t.dee.sites$statistic[[1]]`, p = `r t.dee.sites$p.value[[1]]`).
@@ -78,3 +79,13 @@ bblh_LCT_eqn <- lm(bblh_tnz$Normothermic~bblh_tnz$Temp_C)
 Equation of TNZ below lower critical temperature (LCT):  
 
 VO2 = `r bblh_LCT_eqn$coefficients[[2]]`* T~a~ + `r bblh_LCT_eqn$coefficients[[1]]`
+
+``` {r, echo=F}
+
+setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget")
+beh <- read.csv("BehaviorData_2013_AZ.csv")
+
+beh_bblh <- beh[beh$SpeciesCode=="BBLH",]
+
+ggplot(beh_bblh, aes(Behavior)) + geom_boxplot() + my_theme
+```
