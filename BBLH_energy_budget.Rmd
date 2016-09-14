@@ -16,8 +16,12 @@ library(pander)
 panderOptions('round', 2)
 panderOptions('keep.trailing.zeros', TRUE)
 
+## NOTE: masses for SC pre- vs. post-monsoon were significantly different
+## from "C:\Users\ANUSHA\Dropbox\DLW_paper\BBLH 2013 Poster Data.xlsx"
+
 setwd("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper")
 ## Includes data from XXXX papers.
+
 dlw <- read.csv("DLW_data2.csv")
 dlw <- dlw[dlw$Reasonable_not=="Y",]
 
