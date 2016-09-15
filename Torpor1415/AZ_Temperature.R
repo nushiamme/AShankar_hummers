@@ -10,6 +10,9 @@ setwd("C://Users//ANUSHA//Dropbox//Hummingbird energetics//AZ temperature 2")
 ## Ambient temperature for Harshaw Creek, 6/27/13 - 6/28/13 and Sonoita Creek 7/2/2013 - 7/3/2013
 AZ_ta <- read.csv("AZ_Temp_toPlot.csv")
 
+my_theme <- theme_classic(base_size = 30) + 
+  theme(panel.border = element_rect(colour = "black", fill=NA))
+
 ##Melt AZ_ta
 m.AZta <- melt(AZ_ta, id.vars = c("Site", "Date", "Time"), 
                measure.vars = c("Min_Ta", "Max_Ta", "Average"))
@@ -20,11 +23,11 @@ m.Min <- m.AZta[m.AZta$variable=="Min_Ta",]
 
 time <- c("00:00", "05:00", "10:00", "15:00", "20:00")
 ## Plots
-AZ_TaPlot <- ggplot(m.Mean, aes(as.numeric(Time), value)) + stat_smooth() + 
+AZ_TaPlot <- ggplot(m.Mean, aes(as.numeric(Time), value)) + stat_smooth(aes(col=Site)) + my_theme +
   geom_point() + xlab ("Time") + 
   scale_x_discrete(breaks=c("0", "500", "1000", "1500", "2000"),
                    labels=c("00:00", "05:00", "10:00", "15:00", "20:00")) + 
-  theme_bw() + facet_wrap(Date~Site)
+  facet_wrap(Date~Site)
 AZ_TaPlot
 
 blank_data <- data.frame(group = c("A", "A", "B", "B", "C", "C"), x = 0, y = c(0, 8, 0, 40, 0, 50))
