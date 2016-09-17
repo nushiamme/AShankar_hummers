@@ -103,6 +103,14 @@ litplotnew <- ggplot(litnew, aes(Temp, EE_J/Mass)) +
   ylab("Energy expenditure (J/g*hr)")
 litplotnew
 
+## All lit data, jut plotting torpor points
+litplotnew_T <- ggplot(litnew[litnew$Torpid_not=="T",], aes(Temp, EE_J/Mass)) +  
+  theme_bw(base_size = 20) + geom_point(aes(col=Mass, shape=Study_lit), size=5) +
+  scale_shape_manual(values=c(20,3)) + my_theme + xlab(Tc_min.xlab) +
+  scale_colour_gradientn(colours=rainbow(3)) + ggtitle("Energy expenditure in torpor") +
+  ylab("Energy expenditure (J/g*hr)")
+litplotnew_T
+
 ## Without the Unknown points from La Paz
 lits <- ggplot(litnew[litnew$Torpid_not!="UK",], aes(Temp, EE_J/Mass)) +  
   theme_bw(base_size = 20) + geom_point(aes(col=Torpid_not, shape=Study_lit), size=4) +
