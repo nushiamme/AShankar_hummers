@@ -20,7 +20,7 @@ wdMS <- setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_pa
 wdMS
 torpor2015 <- read.csv("Torpor2015.csv")
 litstudy <- read.csv("LitStudy_combined.csv")
-litnew <- read.csv("LitStudy_andKruger.csv")
+litnew <- read.csv("LitStudy_andKruger2.csv")
 krugertab <- read.csv("Lit_Kruger1982.csv")
 k_melt <- read.csv("Lit_Kruger1982_modified.csv")
 
@@ -110,6 +110,10 @@ litplotnew_T <- ggplot(litnew[litnew$Torpid_not=="T",], aes(Temp, EE_J/Mass)) +
   scale_colour_gradientn(colours=rainbow(3)) + ggtitle("Energy expenditure in torpor") +
   ylab("Energy expenditure (J/g*hr)")
 litplotnew_T
+
+#Testing slopes
+summary(lm(EE_J/Mass~Temp, data=litnew[litnew$Torpid_not=="T" & litnew$Temp > 18,]))
+summary(lm(EE_J/Mass~Temp, data=litnew[litnew$Torpid_not=="T" & litnew$Temp < 18,]))
 
 ## Without the Unknown points from La Paz
 lits <- ggplot(litnew[litnew$Torpid_not!="UK",], aes(Temp, EE_J/Mass)) +  

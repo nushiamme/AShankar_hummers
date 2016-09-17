@@ -195,6 +195,9 @@ savings_mass
 
 summary(lm(torpor$Percentage_avg[!is.na(torpor$Percentage_avg)] ~ torpor$Mass[!is.na(torpor$Percentage_avg)]))
 
+## BBLH torpor plots
+BBLH_tor <- ggplot(torpor[torpor$Species=="BBLH",], aes(Tc_min_C, AvgEE_torpid_MassCorrected)) + geom_point(size=5) + my_theme
+
 ##### Comparing temperate and tropical species ##########
 ## Plot for Nighttime energy expenditure, by temperate-tropics
 energy_plot <- ggplot(torpor, aes(Temptrop, NEE_kJ)) + my_theme + geom_boxplot() + xlab("Region") +
