@@ -33,9 +33,14 @@ torpor$AvgEE_normo_MassCorrected <- torpor$Avg_EE_hourly_normo/(torpor$Mass^(2/3
 torpor$AvgEE_torpid_MassCorrected <- torpor$Avg_EE_hourly_torpid/(torpor$Mass^(2/3))
 BBLH_torpor <- subset(torpor, Species=="BBLH")
 
-## Create a column tha's a combindation of Site and monsoon status
+## Reading in merged NEE and DEE dataset including only pre-monsoon DEE data. For all DEE data, use BBLH_merged_summ.csv
+bblh_merged <- read.csv("BBLH_merged_premonsoon.csv")
+m.bblh <- melt(bblh_merged, id.vars="Site", measure.vars = c("NEE_kJ", "DEE_kJ"))
+
+## Create a column tha's a combination of Site and monsoon status
 dlw_bblh$Site_monsoon <- paste(dlw_bblh$Site, dlw_bblh$Pre_post_monsoon, sep="_")
 
+## Generic plot theme
 my_theme <- theme_classic(base_size = 30) + 
   theme(axis.title.y = element_text(vjust = 2),
         panel.border = element_rect(colour = "black", fill=NA))
@@ -75,6 +80,34 @@ t.test(Premonsoon$kJ_day[Premonsoon$Site=="SC"], Postmonsoon$kJ_day[Postmonsoon$
 pander(t.dee.sites)
 summary(lm(dlw$Pre_post_monsoon=="Post" ~ dlw$Initial_mass)) ## Weak slope even for Pre-monsoon
 
+## Torpor plots
+
+## Comparing HC and SC BBLH NEE
+ggplot(BBLH_torpor, aes(Site, NEE_kJ)) + my_theme +
+  geom_boxplot() + geom_point() +
+  ylab("Nighttime energy expenditure (kJ)")
+
+ggplot(BBLH_torpor, aes(Site, AvgEE_normo_MassCorrected)) + my_theme +
+  geom_boxplot() + geom_point(aes(col=Tc_min_C), size=5) + 
+  scale_colour_gradient(low = "blue", high = "red", "Min chamber temperature\n") +
+  ylab("Hourly Energy expenditure in normothermic birds (J/h*g)")
+
+## Combining DLW and torpor plots
+ggplot(m.bblh, aes(Site, value)) + geom_boxplot(aes(col=variable)) + my_theme + scale_color_manual("Energy expenditure", labels=c("Nighttime", "24-hour daily"), values=c("#000080", "#ff0000")) + ylab("kilo Joules")
+
+dee.hc <- mean(m.bblh$value[m.bblh$variable=="DEE_kJ" & m.bblh$Site=="HC"], na.rm=T)
+dee.sc <- mean(m.bblh$value[m.bblh$variable=="DEE_kJ" & m.bblh$Site=="SC"], na.rm=T)
+nee.hc <- mean(m.bblh$value[m.bblh$variable=="NEE_kJ" & m.bblh$Site=="HC"], na.rm=T)
+nee.sc <- mean(m.bblh$value[m.bblh$variable=="NEE_kJ" & m.bblh$Site=="SC"], na.rm=T)
+dee.hc
+dee.sc
+nee.hc
+nee.sc
+
+nee.hc/dee.hc
+nee.sc/dee.sc
+
+t.test(m.bblh$value[m.bblh$variable=="DEE_kJ" & m.bblh$Site=="HC"], m.bblh$value[m.bblh$variable=="DEE_kJ" & m.bblh$Site=="SC"], na.rm=T)
 ```
 
 Daily energy expenditure at Harshaw Creek was `r mean(dlw$kJ_day[dlw$Site=="HC"])` kJ, while at Sonoita Creek, DEE was `r mean(dlw$kJ_day[dlw$Site=="SC"])` kJ. This was a significant difference (t (`r t.dee.sites$parameter[[1]]`) = `r t.dee.sites$statistic[[1]]`, p = `r t.dee.sites$p.value[[1]]`).
