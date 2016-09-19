@@ -200,7 +200,18 @@ BBLH_tor <- ggplot(torpor[torpor$Species=="BBLH",], aes(Tc_min_C, AvgEE_torpid_M
 
 summary(lm(AvgEE_torpid_MassCorrected~Tc_min_C, data=torpor[torpor$Species=="BBLH",]))
 
-##### Comparing temperate and tropical species ##########
+##### Comparing temperate and tropical species, and BBLH across sites ##########
+## Comparing HC and SC BBLH energy expenditure in torpor
+ggplot(BBLH_torpor, aes(Site, AvgEE_torpid_MassCorrected)) + my_theme +
+  geom_boxplot() + geom_point(aes(col=Tc_min_C), size=5) + 
+  scale_colour_gradient(low = "blue", high = "red", "Min chamber temperature\n") +
+  ylab("Hourly Energy expenditure in torpid birds (J/h*g)")
+
+ggplot(BBLH_torpor, aes(Site, AvgEE_normo_MassCorrected)) + my_theme +
+  geom_boxplot() + geom_point(aes(col=Tc_min_C), size=5) + 
+  scale_colour_gradient(low = "blue", high = "red", "Min chamber temperature\n") +
+  ylab("Hourly Energy expenditure in normothermic birds (J/h*g)")
+
 ## Plot for Nighttime energy expenditure, by temperate-tropics
 energy_plot <- ggplot(torpor, aes(Temptrop, NEE_kJ)) + my_theme + geom_boxplot() + xlab("Region") +
   ylab("Nighttime energy expenditure (kJ)") + theme(legend.position="none") + 
