@@ -42,8 +42,7 @@ dlw_bblh$Site_monsoon <- paste(dlw_bblh$Site, dlw_bblh$Pre_post_monsoon, sep="_"
 
 ## Generic plot theme
 my_theme <- theme_classic(base_size = 30) + 
-  theme(axis.title.y = element_text(vjust = 2),
-        panel.border = element_rect(colour = "black", fill=NA))
+  theme(panel.border = element_rect(colour = "black", fill=NA))
 
 # DEE by pre- vs. post- monsoon
 dee_BBLH_monsoon <- ggplot(dlw_bblh, aes(Initial_mass_g, kJ_day)) + 
@@ -67,7 +66,7 @@ dee_BBLH_site <- ggplot(dlw_bblh, aes(Initial_mass_g, kJ_day)) +
   ylab("Daily energy expenditure (kJ/day)") + xlab("Initial mass (g)")
 plot(dee_BBLH_site, fig.align='left')
 
-## DEE by site
+## DEE by site and pre- and post-monsoon
 dee_BBLH_site <- ggplot(dlw_bblh, aes(Site_monsoon, kJ_day)) + geom_boxplot() + my_theme + geom_point(aes(shape=Pre_post_monsoon), size=5, alpha=0.4, col="blue") + scale_shape_manual("Season\n", values=c(20,3), labels=c("Pre-monsoon", "Post-monsoon"), breaks=c("Pre", "Post")) + ylab("Daily energy expenditure (kJ/day)") + xlab("Site")
 plot(dee_BBLH_site, fig.align='left')
 
@@ -93,6 +92,7 @@ ggplot(BBLH_torpor, aes(Site, AvgEE_normo_MassCorrected)) + my_theme +
   ylab("Hourly Energy expenditure in normothermic birds (J/h*g)")
 
 ## Combining DLW and torpor plots
+## Remember- m.bblh only has pre-monsoon data
 ggplot(m.bblh, aes(Site, value)) + geom_boxplot(aes(col=variable)) + my_theme + scale_color_manual("Energy expenditure", labels=c("Nighttime", "24-hour daily"), values=c("#000080", "#ff0000")) + ylab("kilo Joules")
 
 dee.hc <- mean(m.bblh$value[m.bblh$variable=="DEE_kJ" & m.bblh$Site=="HC"], na.rm=T)

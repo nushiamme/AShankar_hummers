@@ -306,18 +306,26 @@ energyM_BBLH <- ggplot(torpor[torpor$Species=="BBLH",], aes(Site_new, NEE_MassCo
 energyM_BBLH
 
 ## Energy vs. hours torpid, species labeled
-energyM_hours <- ggplot(torpor, aes(Hours_torpid, NEE_MassCorrected)) +  
+energyM_hours <- ggplot(torpor, aes(Hours_torpid, NEE_MassCorrected)) +  my_theme +
   geom_point(aes(shape = factor(Species)), size=4) + theme_bw(base_size=30) +
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
   geom_smooth(method=lm, color="black") +
   geom_text(x = 5, y = 4.5, label = lm_eqn(torpor, torpor$NEE_MassCorrected, torpor$Hours_torpid), 
             parse=T, size=10) +
   labs(shape='Species') + scale_color_brewer(palette = "Set1") + theme_bw(base_size=30) +
-  ylab(NEE_corrlab) + xlab("Torpor duration") +
-  theme(axis.title.x = element_text(face="bold", vjust=-0.5),
-        axis.title.y = element_text(size=28, face="bold", vjust=1.5), 
-        legend.key.height=unit(3,"line"))
+  ylab(NEE_corrlab) + xlab("Torpor duration")
 energyM_hours
+
+## Energy vs. hours torpid, species labeled
+BBLH_energyM_hours <- ggplot(BBLH_torpor, aes(Hours_torpid, NEE_MassCorrected)) +  my_theme +
+  geom_point(aes(shape = factor(Species)), size=4) + theme_bw(base_size=30) +
+  scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
+  geom_smooth(method=lm, color="black") +
+  geom_text(x = 4, y = 2.5, label = lm_eqn(BBLH_torpor, BBLH_torpor$NEE_MassCorrected, BBLH_torpor$Hours_torpid), 
+            parse=T, size=10) +
+  labs(shape='Species') + scale_color_brewer(palette = "Set1") + theme_bw(base_size=30) +
+  ylab(NEE_corrlab) + xlab("Torpor duration")
+BBLH_energyM_hours
 
 ## Energy vs. hours torpid, without species labeled- for retreat
 energy_hours_spUnlabeled <- ggplot(torpor, aes(Hours_torpid, NEE_MassCorrected)) +  
