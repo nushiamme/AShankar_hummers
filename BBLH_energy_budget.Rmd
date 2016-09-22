@@ -62,10 +62,12 @@ lm_eqn <- function(table, y, x){
 dee_BBLH_monsoon <- ggplot(dlw_bblh, aes(Initial_mass_g, kJ_day)) + my_theme + 
   geom_point(aes(shape=Site_monsoon), size=7) + 
   scale_shape_manual("Site_monsoon", values=c(20,3,2,8)) +
-  geom_text(x = 2.8, y = 40, 
-            label = lm_eqn(dlw_bblh$kJ_day, dlw_bblh$Initial_mass_g), parse=T, size=10) +
-  geom_line(stat='smooth', data=dlw_bblh, aes(Initial_mass_g, kJ_day, group=Site_monsoon, col=Site_monsoon),
-              method="lm",size=2, alpha=0.6) +
+  #geom_text(x = 2.8, y = 40, 
+            #label = lm_eqn(dlw_bblh$kJ_day, dlw_bblh$Initial_mass_g), parse=T, size=10) +
+  geom_smooth(stat='smooth', method='loess', data=dlw_bblh, 
+              aes(Initial_mass_g, kJ_day, group=Site_monsoon, col=Site_monsoon)) +
+  #geom_line(stat='smooth', data=dlw_bblh, aes(Initial_mass_g, kJ_day, group=Site_monsoon, col=Site_monsoon),
+   #           method="lm",size=2, alpha=0.6) +
   ylab("Daily energy expenditure (kJ/day)") + xlab("Initial mass (g)")
 dee_BBLH_monsoon
 
