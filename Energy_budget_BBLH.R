@@ -21,8 +21,9 @@ dlw_bblh$Site_monsoon <- paste(dlw_bblh$Site, dlw_bblh$Pre_post_monsoon, sep="_"
 dlw_bblh$Initial_mass_g <- as.numeric(as.character(dlw_bblh$Initial_mass_g))
 
 ## TNZ files
-bblh_tnz <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\Energy budget data\\Broad Bill.csv")
-bblh_tnz$N_T <- factor(bblh_tnz$N_T, levels=c('T', 'N', 'N')) ## Merged N? and N because the points looked similar
+bblh_tnz <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Energy budget data\\Broad Bill.csv")
+## Merged N? and N in Excel (first 3 N's were N?) because the points looked similar
+bblh_tnz$N_T <- factor(bblh_tnz$N_T, levels=c('T', 'N'))
 
 #### Reading in Torpor files ####
 ## Pulling in BBLH torpor data
@@ -34,6 +35,7 @@ BBLH_torpor <- subset(torpor, Species=="BBLH")
 ## Reading in merged NEE and DEE dataset including only pre-monsoon DEE data. For all DEE data, use BBLH_merged_summ.csv
 bblh_merged <- read.csv("BBLH_merged_premonsoon.csv")
 m.bblh <- melt(bblh_merged, id.vars="Site", measure.vars = c("NEE_kJ", "DEE_kJ"))
+m.bblh$variable <- factor(m.bblh$variable, levels=c('DEE_kJ', 'NEE_kJ'))
 
 ###### General functions #####
 ## Generic plot theme
@@ -98,7 +100,9 @@ ggplot(BBLH_torpor, aes(Site, AvgEE_normo_MassCorrected)) + my_theme +
 
 #### Combining DLW and torpor plots ####
 ## Remember- m.bblh only has pre-monsoon data
-ggplot(m.bblh, aes(Site, value)) + geom_boxplot(aes(col=variable)) + my_theme + scale_color_manual("Energy expenditure", labels=c("Nighttime", "24-hour daily"), values=c("#000080", "#ff0000")) + ylab("kilo Joules")
+ggplot(m.bblh, aes(Site, value)) + geom_boxplot(aes(col=variable)) + my_theme + 
+  scale_color_manual("Energy expenditure", labels=c("24-hour daily", "Nighttime"), values=c("black", "#ff0000")) + 
+  ylab("kiloJoules")
 
 #### DEE and NEE costs at each site; NEE as proportion of DEE ####
 dee.hc <- mean(m.bblh$value[m.bblh$variable=="DEE_kJ" & m.bblh$Site=="HC"], na.rm=T)
@@ -128,10 +132,16 @@ summary(lm(dlw$Pre_post_monsoon=="Post" ~ dlw$Initial_mass)) ## Weak slope even 
 
 
 #### Thermoregulatory costs ####
-bblh_MR_temp <- ggplot(bblh_tnz, aes(Temp_C, VO2)) + geom_point(aes(col=N_T), size=4) + my_theme + 
-  geom_smooth(stat='smooth', method='loess', data=bblh_tnz, aes(Temp_C, VO2, group=N_T, col=N_T)) +
-  scale_color_manual("Torpor/ \n Normothermy", values=c("#ff0000", "blue"), labels=c("Torpor", "Normothermy")) +
-  ylab(expression(VO["2"] (ml/min))) + xlab(Temp.lab)
+bblh_MR_temp <- ggplot(bblh_tnz, aes(Temp_C, VO2)) + my_theme +
+  geom_point(aes(col=N_T, shape=N_T), size=4) + 
+  scale_color_manual("Torpor/ \n Normothermy", labels=c("Torpor", "Normothermy"), values=c("#ff0000", "blue")) +
+  scale_shape_manual("Torpor/ \n Normothermy", labels=c("Torpor", "Normothermy"), values=c(1,19)) +
+  geom_smooth(stat='smooth', method='lm', data=bblh_tnz[bblh_tnz$N_T=="N",], 
+              aes(Temp_C, VO2, group=N_T, col=N_T), alpha=0.2) +
+  geom_smooth(stat='smooth', method='loess', data=bblh_tnz[bblh_tnz$N_T=="T",],
+              aes(Temp_C, VO2, group=N_T, col=N_T), alpha=0.2) +
+  ylab(expression(VO["2"] (ml/min))) + xlab(Temp.lab) + theme(legend.key.height=unit(3,"line")) +
+  scale_x_continuous(breaks=seq(0,40,5))
 bblh_MR_temp
 
 bblh_LCT_eqn <- lm(bblh_tnz$Normothermic~bblh_tnz$Temp_C)
