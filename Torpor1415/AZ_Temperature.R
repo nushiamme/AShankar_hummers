@@ -1,7 +1,7 @@
 ## Analyzing and plotting AZ ambient temperature data
 ## For torpor manuscript- Rebecca Schroeder*, Anusha Shankar*, Joseph Canepa, Catherine Graham, Don Powers
 
-require(ggplot)
+require(ggplot2)
 require(reshape)
 
 ## Set wd and read in files
