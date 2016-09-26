@@ -10,8 +10,10 @@ setwd("C://Users//ANUSHA//Dropbox//Hummingbird energetics//Tables_for_paper/")
 
 ## Read in files
 tatc <- read.csv("TempSummary_AllSites.csv")
+## Made this in R with the aggregating chunk, so avoid that if reading this in
+tc_summ <- read.csv("Tc_AllSites_summ.csv")
 
-## General functions
+## General functions, adding columns, ordering factors
 my_theme <- theme_classic(base_size = 30) + 
   theme(panel.border = element_rect(colour = "black", fill=NA))
 
@@ -26,7 +28,10 @@ tatc$Hour2 <- factor(tatc$Hour2, levels= c("19", "20", "21", "22", "23", "24", "
 
 Hour_labels <- c("1900", "2000", "2100", "2200","2300", "2400", "100", "200", "300", "400", "500", "600", "700")
 
-Tc.lab <- expression(atop(paste("Mean Chamber Temperature (", degree,"C)")))
+tc_summ$Hour2 <- factor(tc_summ$Hour2, levels= c("19", "20", "21", "22", "23", "24", "1", "2", "3", "4", "5", "6", "7"), ordered=T)
+tc_summ$Site <- factor(tc_summ$Site, levels=c('HC','SC','SWRS','MQ','SL'))
+
+Tc.lab <- expression(atop(paste("Chamber Temperature (", degree,"C)")))
 Ta.lab <- expression(atop(paste("Mean Ambient Temperature (", degree,"C)")))
 
 #### Aggregating ####
