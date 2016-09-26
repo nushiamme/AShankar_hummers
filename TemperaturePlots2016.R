@@ -54,21 +54,33 @@ Tc_max <- aggregate(tatc$Tc_max,
 
 Tc_min_HC <- aggregate(tatc$Tc_Mean[tatc$Site=="HC"], 
                     by=list(tatc$Site[tatc$Site=="HC"], tatc$Hour2[tatc$Site=="HC"]), FUN="min")
-Tc_max_HC <- aggregate(tatc$Tc_max[tatc$Site=="HC"], 
+Tc_max_HC <- aggregate(tatc$Tc_Mean[tatc$Site=="HC"], 
                     by=list(tatc$Site[tatc$Site=="HC"], tatc$Hour2[tatc$Site=="HC"]), FUN="max")
 
 Tc_min_SC <- aggregate(tatc$Tc_Mean[tatc$Site=="SC"], 
                        by=list(tatc$Site[tatc$Site=="SC"], tatc$Hour2[tatc$Site=="SC"]), FUN="min")
-Tc_max_SC <- aggregate(tatc$Tc_max[tatc$Site=="SC"], 
+Tc_max_SC <- aggregate(tatc$Tc_Mean[tatc$Site=="SC"], 
                        by=list(tatc$Site[tatc$Site=="SC"], tatc$Hour2[tatc$Site=="SC"]), FUN="max")
 
 tc_summ <- merge(Tc_mean, Tc_min, 
                    by=c("Group.1", "Group.2"))
 tc_summ <- merge(tc_summ, Tc_max, 
                    by=c("Group.1", "Group.2"))
-tc_summ <- merge(tc_summ, Tc_min_HC, by=c("Group.1", "Group.2"))
 
 names(tc_summ) <- c("Site", "Hour2", "Mean_Tc", "Min_Tc", "Max_Tc")
+
+write.csv(tc_summ, "Tc_AllSites_summ.csv")
+tc_summ$Min_Tc[is.na(tc_summ$Min_Tc) | tc_summ$Site=="HC"] <- Tc_min_HC$x
+tc_summ$Min_Tc[is.na(tc_summ$Min_Tc) | tc_summ$Site=="SC"] <- Tc_min_SC$x
+tc_summ$Max_Tc[is.na(tc_summ$Max_Tc) | tc_summ$Site=="HC"] <- Tc_max_HC$x
+tc_summ$Max_Tc[is.na(tc_summ$Max_Tc) | tc_summ$Site=="SC"] <- Tc_max_SC$x
+
+tc_summ <- merge(tc_summ, Tc_min_HC, by=c("Group.1", "Group.2"))
+tc_summ <- merge(tc_summ, Tc_max_HC, by=c("Group.1", "Group.2"))
+tc_summ <- merge(tc_summ, Tc_min_SC, by=c("Group.1", "Group.2"))
+tc_summ <- merge(tc_summ, Tc_max_SC, by=c("Group.1", "Group.2"))
+
+
 
 tatc_summ <- merge(ta_summ, tc_summ, by=c("Site", "Hour_rounded"))
 
