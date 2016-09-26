@@ -17,10 +17,17 @@ my_theme <- theme_classic(base_size = 30) +
 
 pd <- position_dodge(0.1) # move them .05 to the left and right
 
+tatc$Hour_rounded <- factor(tatc$Hour_rounded, 
+                            levels= c("1900", "1930", "2000", "2030", "2130", "2200", "2230", "2300", "2330", "2400",
+                                      "2430", "100", "130", "200", "230", "300", "330", "400", "430", "500", "530",
+                                      "600", "630", "700"), ordered=T)
+aggregate()
+
 ## Plots
-ggplot(tatc, aes(Hour,Tc_Mean)) + my_theme + 
-  geom_point(aes(col=Site)) + geom_line(aes(col=Site, group=Site)) +
-  geom_errorbar(aes(ymin=Tc_min, ymax=Tc_max), width=.1, position=pd) +
+ggplot(tatc, aes(as.character(Hour_rounded),Tc_Mean)) + my_theme + 
+  #geom_point(aes(col=Site)) + 
+  geom_line(aes(col=Site, group=Site)) +
+  #geom_errorbar(aes(ymin=Tc_min, ymax=Tc_max), width=.1, position=pd) +
   theme(axis.text.x = element_text(angle = 90))
 
 ggplot(tatc, aes(Hour,Ta_Mean)) + my_theme + 
