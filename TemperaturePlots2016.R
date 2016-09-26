@@ -18,34 +18,75 @@ my_theme <- theme_classic(base_size = 30) +
 pd <- position_dodge(0.1) # move them .05 to the left and right
 
 tatc$Hour_rounded <- factor(tatc$Hour_rounded, 
-                            levels= c("1900", "1930", "2000", "2030", "2130", "2200", "2230", "2300", "2330", "2400",
+                            levels= c("1900", "1930", "2000", "2030", "2100", "2130", "2200", "2230", "2300", "2330", "2400",
                                       "2430", "100", "130", "200", "230", "300", "330", "400", "430", "500", "530",
                                       "600", "630", "700"), ordered=T)
+
+tatc$Hour2 <- factor(tatc$Hour2, levels= c("19", "20", "21", "22", "23", "24", "1", "2", "3", "4", "5", "6", "7"), ordered=T)
+
+Hour_labels <- c("1900", "2000", "2100", "2200","2300", "2400", "100", "200", "300", "400", "500", "600", "700")
+
+Tc.lab <- expression(atop(paste("Mean Chamber Temperature (", degree,"C)")))
+Ta.lab <- expression(atop(paste("Mean Ambient Temperature (", degree,"C)")))
+
+#### Aggregating ####
 ## Aggregate means, min and max
-Tc_mean <- aggregate(tatc$Tc_Mean, 
+Ta_mean <- aggregate(tatc$Ta_Mean, 
                            by=list(tatc$Site, tatc$Hour_rounded), FUN="mean")
-Tc_min <- aggregate(tatc$Tc_min, 
+Ta_min <- aggregate(tatc$Ta_min, 
                               by=list(tatc$Site, tatc$Hour_rounded), FUN="min")
-Tc_max <- aggregate(tatc$Tc_max, 
+Ta_max <- aggregate(tatc$Ta_max, 
                               by=list(tatc$Site, tatc$Hour_rounded), FUN="max")
 
-tatc_summ <- merge(Tc_mean, Tc_min, 
+ta_summ <- merge(Ta_mean, Ta_min, 
                        by=c("Group.1", "Group.2"))
-tatc_summ <- merge(tatc_summ, Tc_max, 
+ta_summ <- merge(ta_summ, Ta_max, 
                        by=c("Group.1", "Group.2"))
 
-names(tatc_summ) <- c("Site", "Hour_rounded", "Mean_Tc", "Min_Tc", "Max_Tc")
+names(ta_summ) <- c("Site", "Hour_rounded", "Mean_Ta", "Min_Ta", "Max_Ta")
 
+Tc_mean <- aggregate(tatc$Tc_Mean, 
+                     by=list(tatc$Site, tatc$Hour2), FUN="mean")
+Tc_min <- aggregate(tatc$Tc_min, 
+                    by=list(tatc$Site, tatc$Hour2), FUN="min")
+Tc_max <- aggregate(tatc$Tc_max, 
+                    by=list(tatc$Site, tatc$Hour2), FUN="max")
 
-## Plots
-ggplot(tatc_summ, aes(Hour_rounded,Mean_Tc)) + my_theme + 
-  #geom_point(aes(col=Site)) + 
-  geom_line(aes(col=Site, group=Site), size=3) +
+Tc_min_HC <- aggregate(tatc$Tc_Mean[tatc$Site=="HC"], 
+                    by=list(tatc$Site[tatc$Site=="HC"], tatc$Hour2[tatc$Site=="HC"]), FUN="min")
+Tc_max_HC <- aggregate(tatc$Tc_max[tatc$Site=="HC"], 
+                    by=list(tatc$Site[tatc$Site=="HC"], tatc$Hour2[tatc$Site=="HC"]), FUN="max")
+
+Tc_min_SC <- aggregate(tatc$Tc_Mean[tatc$Site=="SC"], 
+                       by=list(tatc$Site[tatc$Site=="SC"], tatc$Hour2[tatc$Site=="SC"]), FUN="min")
+Tc_max_SC <- aggregate(tatc$Tc_max[tatc$Site=="SC"], 
+                       by=list(tatc$Site[tatc$Site=="SC"], tatc$Hour2[tatc$Site=="SC"]), FUN="max")
+
+tc_summ <- merge(Tc_mean, Tc_min, 
+                   by=c("Group.1", "Group.2"))
+tc_summ <- merge(tc_summ, Tc_max, 
+                   by=c("Group.1", "Group.2"))
+tc_summ <- merge(tc_summ, Tc_min_HC, by=c("Group.1", "Group.2"))
+
+names(tc_summ) <- c("Site", "Hour2", "Mean_Tc", "Min_Tc", "Max_Tc")
+
+tatc_summ <- merge(ta_summ, tc_summ, by=c("Site", "Hour_rounded"))
+
+#### Plots ####
+## Chamber Temp plots by hour, per site
+ChambTemp <- ggplot(tc_summ, aes(Hour2,Mean_Tc)) + my_theme +  
+  geom_point(aes(col=Site, group=Site), size=1.5) +
+  geom_line(aes(col=Site, group=Site)) +
   geom_errorbar(aes(ymin= Min_Tc, ymax= Max_Tc, col=Site), width=.1, position=pd) +
   theme(axis.text.x = element_text(angle = 90)) +
-  ylab("Mean chamber temperature")
+  xlab("Hour") + ylab(Tc.lab) +
+  scale_x_discrete(labels=Hour_labels)
+ChambTemp
 
-ggplot(tatc, aes(Hour,Ta_Mean)) + my_theme + 
-  geom_point(aes(col=Site)) + geom_line(aes(col=Site, group=Site)) +
-  geom_errorbar(aes(ymin=Ta_min, ymax=Ta_max), width=.1, position=pd) +
-  theme(axis.text.x = element_text(angle = 90))
+## Ambient temp
+AmbTemp <- ggplot(tatc_summ, aes(Hour_rounded,Mean_Ta)) + my_theme + 
+  geom_line(aes(col=Site, group=Site), size=2) +
+  geom_errorbar(aes(ymin= Min_Ta, ymax= Max_Ta, col=Site), width=.1, position=pd) +
+  theme(axis.text.x = element_text(angle = 90)) +
+  xlab("Hour") + ylab(Ta.lab)
+AmbTemp
