@@ -31,7 +31,7 @@ Hour_labels <- c("1900", "2000", "2100", "2200","2300", "2400", "100", "200", "3
 tc_summ$Hour2 <- factor(tc_summ$Hour2, levels= c("19", "20", "21", "22", "23", "24", "1", "2", "3", "4", "5", "6", "7"), ordered=T)
 tc_summ$Site <- factor(tc_summ$Site, levels=c('HC','SC','SWRS','MQ','SL'))
 
-Tc.lab <- expression(atop(paste("Chamber Temperature (", degree,"C)")))
+Tc.lab <- expression(atop(paste("Chamber Temperature ( ", degree,"C)")))
 Ta.lab <- expression(atop(paste("Mean Ambient Temperature (", degree,"C)")))
 
 #### Aggregating ####
@@ -95,9 +95,9 @@ tc_summ$Site <- factor(tc_summ$Site, levels=c('HC','SC','SWRS','MQ','SL'))
 ChambTemp <- ggplot(tc_summ, aes(Hour2,Mean_Tc)) + my_theme + facet_grid(.~Site) +  
   geom_point(aes(group=Site), size=1.5) +
   geom_line(aes(group=Site), ) +
-  geom_errorbar(aes(ymin= Min_Tc, ymax= Max_Tc), width=.1, position=pd) +
+  geom_errorbar(aes(ymin= Min_Tc, ymax= Max_Tc), alpha=0.4, width=.1, position=pd) +
   theme(axis.text.x = element_text(angle = 90, size=15), legend.position="none") +
-  xlab("Hour") + ylab(Tc.lab) +
+  xlab("Hour") + ylab(Tc.lab) + ggtitle("Sites") + theme(plot.title = element_text(size = 20)) +
   scale_x_discrete(labels=Hour_labels)
 ChambTemp
 
