@@ -37,11 +37,11 @@ Ta.lab <- expression(atop(paste("Mean Ambient Temperature (", degree,"C)")))
 #### Aggregating ####
 ## Aggregate means, min and max
 Ta_mean <- aggregate(tatc$Ta_Mean, 
-                           by=list(tatc$Site, tatc$Hour2), FUN="mean")
+                           by=list(tatc$Site, tatc$Hour2), FUN="mean", na.action = na.omit)
 Ta_min <- aggregate(tatc$Ta_min, 
-                              by=list(tatc$Site, tatc$Hour2), FUN="min")
+                              by=list(tatc$Site, tatc$Hour2), FUN="min", na.action = na.omit)
 Ta_max <- aggregate(tatc$Ta_max, 
-                              by=list(tatc$Site, tatc$Hour2), FUN="max")
+                              by=list(tatc$Site, tatc$Hour2), FUN="max", na.action = na.omit)
 
 ta_summ <- merge(Ta_mean, Ta_min, 
                        by=c("Group.1", "Group.2"))
@@ -89,6 +89,7 @@ write.csv(tc_summ, "Tc_AllSites_summ.csv")
 tatc_summ <- merge(ta_summ, tc_summ, by=c("Site", "Hour2"))
 tatc_summ$Site <- factor(tatc_summ$Site, levels=c('HC','SC','SWRS','MQ','SL'))
 tc_summ$Site <- factor(tc_summ$Site, levels=c('HC','SC','SWRS','MQ','SL'))
+ta_summ$Site <- factor(ta_summ$Site, levels=c('HC','SC','SWRS','MQ','SL'))
 
 #### Plots ####
 ## Chamber Temp plots by hour, per site
@@ -102,9 +103,11 @@ ChambTemp <- ggplot(tc_summ, aes(Hour2,Mean_Tc)) + my_theme + facet_grid(.~Site)
 ChambTemp
 
 ## Ambient temp
-AmbTemp <- ggplot(tatc_summ, aes(Hour_rounded,Mean_Ta)) + my_theme + 
-  geom_line(aes(col=Site, group=Site), size=2) +
-  geom_errorbar(aes(ymin= Min_Ta, ymax= Max_Ta, col=Site), width=.1, position=pd) +
-  theme(axis.text.x = element_text(angle = 90)) +
-  xlab("Hour") + ylab(Ta.lab)
+AmbTemp <- ggplot(ta_summ, aes(Hour2,Mean_Ta)) + my_theme + facet_grid(.~Site) +  
+  geom_point(aes(group=Site), size=1.5) +
+  geom_line(aes(group=Site), ) +
+  geom_errorbar(aes(ymin= Min_Ta, ymax= Max_Ta), alpha=0.4, width=.1, position=pd) +
+  theme(axis.text.x = element_text(angle = 90, size=15), legend.position="none") +
+  xlab("Hour") + ylab(Ta.lab) + ggtitle("Sites") + theme(plot.title = element_text(size = 20)) +
+  scale_x_discrete(labels=Hour_labels)
 AmbTemp
