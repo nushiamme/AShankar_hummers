@@ -32,16 +32,16 @@ tc_summ$Hour2 <- factor(tc_summ$Hour2, levels= c("19", "20", "21", "22", "23", "
 tc_summ$Site <- factor(tc_summ$Site, levels=c('HC','SC','SWRS','MQ','SL'))
 
 Tc.lab <- expression(atop(paste("Chamber Temperature ( ", degree,"C)")))
-Ta.lab <- expression(atop(paste("Mean Ambient Temperature (", degree,"C)")))
+Ta.lab <- expression(atop(paste("Ambient Temperature (", degree,"C)")))
 
 #### Aggregating ####
 ## Aggregate means, min and max
 Ta_mean <- aggregate(tatc$Ta_Mean, 
-                           by=list(tatc$Site, tatc$Hour2), FUN="mean", na.action = na.omit)
+                           by=list(tatc$Site, tatc$Hour2), FUN="mean", na.rm=TRUE)
 Ta_min <- aggregate(tatc$Ta_min, 
-                              by=list(tatc$Site, tatc$Hour2), FUN="min", na.action = na.omit)
+                              by=list(tatc$Site, tatc$Hour2), FUN="min", na.rm=TRUE)
 Ta_max <- aggregate(tatc$Ta_max, 
-                              by=list(tatc$Site, tatc$Hour2), FUN="max", na.action = na.omit)
+                              by=list(tatc$Site, tatc$Hour2), FUN="max", na.rm=TRUE)
 
 ta_summ <- merge(Ta_mean, Ta_min, 
                        by=c("Group.1", "Group.2"))
@@ -96,7 +96,7 @@ ta_summ$Site <- factor(ta_summ$Site, levels=c('HC','SC','SWRS','MQ','SL'))
 ChambTemp <- ggplot(tc_summ, aes(Hour2,Mean_Tc)) + my_theme + facet_grid(.~Site) +  
   geom_point(aes(group=Site), size=1.5) +
   geom_line(aes(group=Site), ) +
-  geom_errorbar(aes(ymin= Min_Tc, ymax= Max_Tc), alpha=0.4, width=.1, position=pd) +
+  geom_errorbar(aes(ymin= Min_Tc, ymax= Max_Tc), alpha=0.6, width=.1, position=pd) +
   theme(axis.text.x = element_text(angle = 90, size=15), legend.position="none") +
   xlab("Hour") + ylab(Tc.lab) + ggtitle("Sites") + theme(plot.title = element_text(size = 20)) +
   scale_x_discrete(labels=Hour_labels)
@@ -106,7 +106,7 @@ ChambTemp
 AmbTemp <- ggplot(ta_summ, aes(Hour2,Mean_Ta)) + my_theme + facet_grid(.~Site) +  
   geom_point(aes(group=Site), size=1.5) +
   geom_line(aes(group=Site), ) +
-  geom_errorbar(aes(ymin= Min_Ta, ymax= Max_Ta), alpha=0.4, width=.1, position=pd) +
+  geom_errorbar(aes(ymin= Min_Ta, ymax= Max_Ta), alpha=0.6, width=.1, position=pd) +
   theme(axis.text.x = element_text(angle = 90, size=15), legend.position="none") +
   xlab("Hour") + ylab(Ta.lab) + ggtitle("Sites") + theme(plot.title = element_text(size = 20)) +
   scale_x_discrete(labels=Hour_labels)
