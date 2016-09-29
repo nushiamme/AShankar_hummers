@@ -10,8 +10,18 @@
 library(reshape)
 
 ## Set wd and read in file
-setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha_personal\\Thesis_proposal\\R_csv\\AZ")
-sc_temp <- read.csv("SonoitaCreek_Temperatures_S1.csv")
+setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha_personal\\Thesis_proposal\\R_csv\\AZ") ## Old wd from 2014, still has some files
+setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget")
+
+bblh_tatc <- read.csv("BBLH_TcTa_2013.csv")
+
+tatc$Hour_rounded <- factor(tatc$Hour_rounded, 
+                            levels= c("1900", "1930", "2000", "2030", "2100", "2130", "2200", "2230", "2300", "2330", "2400",
+                                      "2430", "100", "130", "200", "230", "300", "330", "400", "430", "500", "530",
+                                      "600", "630", "700"), ordered=T)
+#tatc$Hour2 <- factor(tatc$Hour2, levels= c("19", "20", "21", "22", "23", "24", "1", "2", "3", "4", "5", "6", "7"), ordered=T)
+
+Hour_labels <- c("1900", "2000", "2100", "2200","2300", "2400", "100", "200", "300", "400", "500", "600", "700")
 
 ## Melt
 m.sc <- melt(sc_temp, id.vars = c("Time", "Mean_Ta"), measure.vars = "MR_ml.h")
@@ -23,6 +33,19 @@ bmr <- 0.2385*60
 rmr <- 1.5*bmr
 hmr <- 10.3*bmr
 flmr <- 0.5*hmr
+
+## Ambient temperatures - Weird, says 2500 as time - check
+AmbTemp <- ggplot(bblh_tatc, aes(Hour_rounded, Ta_Mean)) + facet_grid(.~Site) +  my_theme +
+  geom_point(size=1.5) +
+  #geom_line(size=1.5) +
+  #scale_color_manual(values=c("Black", "Blue", "Red")) +
+  #scale_alpha_manual(values = c(1, 0.5, 0.5)) +
+  theme(axis.text.x = element_text(angle = 90, size=15), legend.position="none", plot.title = element_text(size = 20),
+        panel.grid.major.y = element_line(size=.1, color="grey75")) +
+  xlab("Hour") + ylab(Ta.lab) + ggtitle("Sites")
+  #scale_x_discrete(labels=Hour_labels)
+AmbTemp
+
 
 ## TRE_H (i.e. MR measured above 35&deg;C) from SC daytime temperature data and broad-bill equation
 tre_h <- sum(m.sc$MR_ml_h[m.sc$Mean_Ta > 35 & 4 < m.sc$Time & m.sc$Time < 20])

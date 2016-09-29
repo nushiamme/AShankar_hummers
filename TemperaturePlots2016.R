@@ -30,7 +30,6 @@ tatc$Hour_rounded <- factor(tatc$Hour_rounded,
 
 tatc$Hour2 <- factor(tatc$Hour2, levels= c("19", "20", "21", "22", "23", "24", "1", "2", "3", "4", "5", "6", "7"), ordered=T)
 
-
 Hour_labels <- c("1900", "2000", "2100", "2200","2300", "2400", "100", "200", "300", "400", "500", "600", "700")
 
 Tc.lab <- expression(atop(paste("Chamber Temperature ( ", degree,"C)")))
@@ -107,18 +106,19 @@ ChambTemp <- ggplot(m.tc, aes(Hour,Temperature, alpha=Variable)) + my_theme + fa
   geom_line(aes(group=Variable, col=Variable), size=1.5) +
   scale_color_manual(values=c("Black", "Blue", "Red")) +
   scale_alpha_manual(values = c(1, 0.5, 0.5)) +
-  theme(axis.text.x = element_text(angle = 90, size=15), legend.position="none") +
-  xlab("Hour") + ylab(Tc.lab) + ggtitle("Sites") + theme(plot.title = element_text(size = 20)) +
-  scale_x_discrete(labels=Hour_labels)
+  theme(axis.text.x = element_text(angle = 90, size=15), legend.position="none", plot.title = element_text(size = 20),
+        panel.grid.major.y = element_line(size=.1, color="grey75")) +
+  xlab("Hour") + ylab(Tc.lab) + ggtitle("Sites") + scale_x_discrete(labels=Hour_labels)
 ChambTemp
 
-AmbTemp <- ggplot(m.ta, aes(Hour,Temperature, alpha=Variable)) + my_theme + facet_grid(.~Site) +  
+AmbTemp <- ggplot(m.ta, aes(Hour,Temperature, alpha=Variable)) + facet_grid(.~Site) +  my_theme +
   geom_point(aes(group=Variable, col=Variable), size=1.5) +
   geom_line(aes(group=Variable, col=Variable), size=1.5) +
   scale_color_manual(values=c("Black", "Blue", "Red")) +
   scale_alpha_manual(values = c(1, 0.5, 0.5)) +
-  theme(axis.text.x = element_text(angle = 90, size=15), legend.position="none") +
-  xlab("Hour") + ylab(Ta.lab) + ggtitle("Sites") + theme(plot.title = element_text(size = 20)) +
+  theme(axis.text.x = element_text(angle = 90, size=15), legend.position="none", plot.title = element_text(size = 20),
+        panel.grid.major.y = element_line(size=.1, color="grey75")) +
+  xlab("Hour") + ylab(Ta.lab) + ggtitle("Sites") +
   scale_x_discrete(labels=Hour_labels)
 AmbTemp
 
