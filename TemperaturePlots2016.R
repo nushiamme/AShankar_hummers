@@ -122,7 +122,7 @@ AmbTemp <- ggplot(m.ta, aes(Hour,Temperature, alpha=Variable)) + my_theme + face
   scale_x_discrete(labels=Hour_labels)
 AmbTemp
 
-## Ambient temp - Black with "Error bars" depicting max and min temps
+## Old ambient temp - Black with "Error bars" depicting max and min temps
 AmbTemp <- ggplot(ta_summ, aes(Hour2,Mean_Ta)) + my_theme + facet_grid(.~Site) +  
   geom_point(aes(group=Site), size=1.5) +
   geom_line(aes(group=Site), ) +
