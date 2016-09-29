@@ -10,8 +10,12 @@ setwd("C://Users//ANUSHA//Dropbox//Hummingbird energetics//Tables_for_paper/")
 
 ## Read in files
 tatc <- read.csv("TempSummary_AllSites.csv")
-## Made this in R with the aggregating chunk, so avoid that if reading this in
+## Made these two in R with the aggregating chunk, so avoid that if reading these in
 tc_summ <- read.csv("Tc_AllSites_summ.csv")
+ta_summ <- read.csv("Ta_AllSites_summ.csv")
+ta_summ$Hour2 <- factor(ta_summ$Hour2, levels= c("19", "20", "21", "22", "23", "24", "1", "2", "3", "4", "5", "6", "7"), ordered=T)
+tc_summ$Hour2 <- factor(tc_summ$Hour2, levels= c("19", "20", "21", "22", "23", "24", "1", "2", "3", "4", "5", "6", "7"), ordered=T)
+tc_summ$Site <- factor(tc_summ$Site, levels=c('HC','SC','SWRS','MQ','SL'))
 
 ## General functions, adding columns, ordering factors
 my_theme <- theme_classic(base_size = 30) + 
@@ -26,13 +30,17 @@ tatc$Hour_rounded <- factor(tatc$Hour_rounded,
 
 tatc$Hour2 <- factor(tatc$Hour2, levels= c("19", "20", "21", "22", "23", "24", "1", "2", "3", "4", "5", "6", "7"), ordered=T)
 
-Hour_labels <- c("1900", "2000", "2100", "2200","2300", "2400", "100", "200", "300", "400", "500", "600", "700")
 
-tc_summ$Hour2 <- factor(tc_summ$Hour2, levels= c("19", "20", "21", "22", "23", "24", "1", "2", "3", "4", "5", "6", "7"), ordered=T)
-tc_summ$Site <- factor(tc_summ$Site, levels=c('HC','SC','SWRS','MQ','SL'))
+Hour_labels <- c("1900", "2000", "2100", "2200","2300", "2400", "100", "200", "300", "400", "500", "600", "700")
 
 Tc.lab <- expression(atop(paste("Chamber Temperature ( ", degree,"C)")))
 Ta.lab <- expression(atop(paste("Ambient Temperature (", degree,"C)")))
+
+m.ta <- melt(ta_summ, id.vars = c("Site", "Hour2"), measure.vars = c("Mean_Ta", "Min_Ta", "Max_Ta"))
+names(m.ta) <- c("Site", "Hour", "Variable", "Temperature")
+m.tc <- melt(tc_summ, id.vars = c("Site", "Hour2"), measure.vars = c("Mean_Tc", "Min_Tc", "Max_Tc"))
+names(m.tc) <- c("Site", "Hour", "Variable", "Temperature")
+m.ta$Site <- factor(m.ta$Site, levels=c('HC','SC','SWRS','MQ','SL'))
 
 #### Aggregating ####
 ## Aggregate means, min and max
@@ -49,6 +57,7 @@ ta_summ <- merge(ta_summ, Ta_max,
                        by=c("Group.1", "Group.2"))
 
 names(ta_summ) <- c("Site", "Hour2", "Mean_Ta", "Min_Ta", "Max_Ta")
+ta_summ$Site <- factor(ta_summ$Site, levels=c('HC','SC','SWRS','MQ','SL'))
 
 Tc_mean <- aggregate(tatc$Tc_Mean, 
                      by=list(tatc$Site, tatc$Hour2), FUN="mean")
@@ -85,24 +94,35 @@ tc_summ$Max_Tc[is.na(tc_summ$Max_Tc) | tc_summ$Site=="HC"] <- tc_HC$Max_Tc
 tc_summ$Max_Tc[is.na(tc_summ$Max_Tc) | tc_summ$Site=="SC"] <- tc_SC$Max_Tc
 
 write.csv(tc_summ, "Tc_AllSites_summ.csv")
+write.csv(ta_summ, "Ta_AllSites_summ.csv")
 
+tc_summ$Site <- factor(tc_summ$Site, levels=c('HC','SC','SWRS','MQ','SL'))
 tatc_summ <- merge(ta_summ, tc_summ, by=c("Site", "Hour2"))
 tatc_summ$Site <- factor(tatc_summ$Site, levels=c('HC','SC','SWRS','MQ','SL'))
-tc_summ$Site <- factor(tc_summ$Site, levels=c('HC','SC','SWRS','MQ','SL'))
-ta_summ$Site <- factor(ta_summ$Site, levels=c('HC','SC','SWRS','MQ','SL'))
 
 #### Plots ####
 ## Chamber Temp plots by hour, per site
-ChambTemp <- ggplot(tc_summ, aes(Hour2,Mean_Tc)) + my_theme + facet_grid(.~Site) +  
-  geom_point(aes(group=Site), size=1.5) +
-  geom_line(aes(group=Site), ) +
-  geom_errorbar(aes(ymin= Min_Tc, ymax= Max_Tc), alpha=0.6, width=.1, position=pd) +
+ChambTemp <- ggplot(m.tc, aes(Hour,Temperature, alpha=Variable)) + my_theme + facet_grid(.~Site) +  
+  geom_point(aes(group=Variable, col=Variable), size=1.5) +
+  geom_line(aes(group=Variable, col=Variable), size=1.5) +
+  scale_color_manual(values=c("Black", "Blue", "Red")) +
+  scale_alpha_manual(values = c(1, 0.5, 0.5)) +
   theme(axis.text.x = element_text(angle = 90, size=15), legend.position="none") +
   xlab("Hour") + ylab(Tc.lab) + ggtitle("Sites") + theme(plot.title = element_text(size = 20)) +
   scale_x_discrete(labels=Hour_labels)
 ChambTemp
 
-## Ambient temp
+AmbTemp <- ggplot(m.ta, aes(Hour,Temperature, alpha=Variable)) + my_theme + facet_grid(.~Site) +  
+  geom_point(aes(group=Variable, col=Variable), size=1.5) +
+  geom_line(aes(group=Variable, col=Variable), size=1.5) +
+  scale_color_manual(values=c("Black", "Blue", "Red")) +
+  scale_alpha_manual(values = c(1, 0.5, 0.5)) +
+  theme(axis.text.x = element_text(angle = 90, size=15), legend.position="none") +
+  xlab("Hour") + ylab(Ta.lab) + ggtitle("Sites") + theme(plot.title = element_text(size = 20)) +
+  scale_x_discrete(labels=Hour_labels)
+AmbTemp
+
+## Ambient temp - Black with "Error bars" depicting max and min temps
 AmbTemp <- ggplot(ta_summ, aes(Hour2,Mean_Ta)) + my_theme + facet_grid(.~Site) +  
   geom_point(aes(group=Site), size=1.5) +
   geom_line(aes(group=Site), ) +
