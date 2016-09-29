@@ -153,7 +153,7 @@ lm_eqn <- function(table, y, x){
 Tc.xlab <- expression(atop(paste("Chamber Temperature (", degree,"C)")))
 Ta.xlab <- expression(atop(paste("Ambient Temperature (", degree,"C)")))
 Tc_min.xlab <- expression(atop(paste("Minimum Chamber Temperature (", degree,"C)")))
-NEE_corrlab <- bquote('Nighttime energy expneditre (kJ/' ~M^(2/3)*')')
+NEE_corrlab <- bquote('Nighttime energy expenditure (kJ/' ~M^(0.67)*')')
 
 ####### Trying out Log-log NEE-mass######
 test_log_col <- ggplot(torpor, aes(Mass, NEE_kJ)) +
@@ -181,7 +181,7 @@ torpor$Species2 <- factor(torpor$Species,
        levels = c('BBLH','MAHU','GCB','FBB','TBH', "WNJ"), ordered = T)
 
 ## Also plotted tropical-temperate by changing aes(Species2...) to (Temptrop...) and vice versa
-savings_plot <- ggplot(torpor[!is.na(torpor$Percentage_avg),], aes(Site_new, (100 - Percentage_avg))) + 
+savings_plot <- ggplot(torpor[!is.na(torpor$Percentage_avg),], aes(Species2, (100 - Percentage_avg))) + 
   geom_boxplot(outlier.shape = 19) + xlab("Species") + 
   # facet_grid(.~Site_new, scale="free_x", space="free") + 
   ylab("Hourly torpid energy savings (%)") + theme(legend.position="none") + my_theme +
@@ -197,7 +197,7 @@ summary(lm(torpor$Percentage_avg[!is.na(torpor$Percentage_avg)] ~ torpor$Mass[!i
 
 ## BBLH torpor plots
 BBLH_tor <- ggplot(torpor[torpor$Species=="BBLH",], aes(Tc_min_C, AvgEE_torpid_MassCorrected)) + geom_point(size=5) + my_theme
-
+BBLH_tor
 summary(lm(AvgEE_torpid_MassCorrected~Tc_min_C, data=torpor[torpor$Species=="BBLH",]))
 
 ##### Comparing temperate and tropical species, and BBLH across sites ##########
@@ -330,11 +330,9 @@ BBLH_energyM_hours
 ## Energy vs. hours torpid, without species labeled- for retreat
 energy_hours_spUnlabeled <- ggplot(torpor, aes(Hours_torpid, NEE_MassCorrected)) +  
   geom_point(size=4) + my_theme + geom_smooth(method=lm, color="black") +
-  #geom_text(x = 7, y = 4, label = paste("R^2 :", " 0.311",sep=""), parse=T, size=10) +
+  geom_text(x = 7, y = 6, label = paste("R^2 :", " 0.311",sep=""), parse=T, size=10) +
   labs(shape='Species') + scale_color_brewer(palette = "Set1") +
-  ylab(NEE_corrlab) + xlab("Torpor duration") #+
-  #theme(axis.title.x = element_text(face="bold", vjust=-0.5),
-   #     axis.title.y = element_text(face="bold", vjust=1.5), legend.key.height=unit(3,"line"))
+  ylab(NEE_corrlab) + xlab("Torpor duration")
 energy_hours_spUnlabeled
 
 ## Comparing NEE and hours plots
@@ -685,8 +683,6 @@ BBLH_tor_nor <- ggplot(m_BBLH_tor_nor, aes(as.numeric(Tc_min_C), value, shape=va
   geom_smooth(method=lm, size=1, col="black") + 
   scale_shape_manual("Hourly Energy Expenditure\n", 
                      values=c(16,1), labels=c("Normothermic", "Torpid")) +
-  #geom_text(x = 20, y = 0.38, label = paste("R^2 :", " 0.291",sep=""), parse=T, size=8, col="black") +
-  #geom_text(x = 20, y = 0.07, label = paste("R^2 :", " 0.567",sep=""), parse=T, size=8, col="black") + 
   theme(legend.key.height=unit(3,"line"), legend.title=element_text(size=20)) +
   ylab("Avg BBLH Energy Expenditure (kJ/g)") + xlab(Tc.xlab)
 BBLH_tor_nor 
