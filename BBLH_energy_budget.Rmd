@@ -21,13 +21,12 @@ library(reshape)
 ## NOTE: masses for SC pre- vs. post-monsoon were significantly different
 ## from "C:\Users\ANUSHA\Dropbox\DLW_paper\BBLH 2013 Poster Data.xlsx"
 
-setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget")
 ## Includes data from XXXX papers.
 
 dlw <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper\\DLW_data2.csv")
 dlw <- dlw[dlw$Reasonable_not=="Y",]
 
-dlw_bblh <- read.csv("DLW_summary.csv")
+dlw_bblh <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\DLW_summary.csv")
 dlw_bblh$Site_monsoon <- paste(dlw_bblh$Site, dlw_bblh$Pre_post_monsoon, sep="_") # column combining site and monsoon status
 dlw_bblh$Initial_mass_g <- as.numeric(as.character(dlw_bblh$Initial_mass_g))
 
@@ -134,7 +133,7 @@ Daily energy expenditure at Harshaw Creek was `r mean(dlw$kJ_day[dlw$Site=="HC"]
 
 Thermoregulatory costs
 ``` {r, echo=F}
-bblh_tnz <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\Energy budget data\\Broad Bill.csv")
+bblh_tnz <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Energy budget data\\BroadBill.csv")
 
 bblh_tnz$N_T <- factor(bblh_tnz$N_T, levels=c('T', 'N', 'N?'))
 
@@ -150,8 +149,7 @@ VO2 = `r bblh_LCT_eqn$coefficients[[2]]`* T~a~ + `r bblh_LCT_eqn$coefficients[[1
 
 ``` {r, echo=F}
 
-setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget")
-beh <- read.csv("BehaviorData_2013_AZ.csv")
+beh <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\BehaviorData_2013_AZ.csv")
 
 beh_bblh <- beh[beh$SpeciesCode=="BBLH",]
 
