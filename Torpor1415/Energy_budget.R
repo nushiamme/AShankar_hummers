@@ -10,12 +10,15 @@
 library(reshape)
 
 ## Set wd and read in file
-setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha_personal\\Thesis_proposal\\R_csv\\AZ") ## Old wd from 2014, still has some files
 setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget")
 
+sc_temp <- read.csv("SonoitaCreek_Temperatures_S1.csv")
 bblh_tatc <- read.csv("BBLH_TcTa_2013.csv")
+bblh_tnz <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Energy budget data\\BroadBill.csv")
 
-tatc$Hour_rounded <- factor(tatc$Hour_rounded, 
+bblh_tnz$N_T <- factor(bblh_tnz$N_T, levels=c('T', 'N', 'N?'))
+
+bblh_tatc$Hour_rounded <- factor(bblh_tatc$Hour_rounded, 
                             levels= c("1900", "1930", "2000", "2030", "2100", "2130", "2200", "2230", "2300", "2330", "2400",
                                       "2430", "100", "130", "200", "230", "300", "330", "400", "430", "500", "530",
                                       "600", "630", "700"), ordered=T)
@@ -49,6 +52,15 @@ AmbTemp
 
 ## TRE_H (i.e. MR measured above 35&deg;C) from SC daytime temperature data and broad-bill equation
 tre_h <- sum(m.sc$MR_ml_h[m.sc$Mean_Ta > 35 & 4 < m.sc$Time & m.sc$Time < 20])
+
+## BBLH below LCT equation
+bblh_LCT_eqn <- lm(bblh_tnz$Normothermic~bblh_tnz$Temp_C)
+bblh_LCT_eqn
+
+## Thermoregulatory costs if mean ambient temperature is <= 32 deg C, and between 5am and 8pm
+bblh_tatc$thermo_mean[bblh_tatc$Ta_Mean<=32 & 500 < bblh_tatc$Hour_rounded & bblh_tatc$Hour_rounded < 2000] <- bblh_LCT_eqn$coefficients[[1]] + 
+  bblh_tatc$Ta_Mean[bblh_tatc$Ta_Mean<=32 & 500 < bblh_tatc$Hour_rounded & bblh_tatc$Hour_rounded < 2000]*bblh_LCT_eqn$coefficients[[2]]
+
 
 ## From SC daytime temperature data and broad-bill equation (in csv)
 tre_l <- sum(m.sc$MR_ml_h[m.sc$Mean_Ta < 32 & 4 < m.sc$Time & m.sc$Time < 20])
