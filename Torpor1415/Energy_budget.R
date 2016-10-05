@@ -16,9 +16,14 @@ sc_temp <- read.csv("SonoitaCreek_Temperatures_S1.csv")
 bblh_tatc <- read.csv("BBLH_TcTa_2013.csv")
 bblh_tnz <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Energy budget data\\BroadBill.csv")
 
+my_theme <- theme_classic(base_size = 30) + 
+  theme(panel.border = element_rect(colour = "black", fill=NA))
+
+
 bblh_tnz$N_T <- factor(bblh_tnz$N_T, levels=c('T', 'N', 'N?'))
 
-bblh_tatc$Hour_rounded <- factor(bblh_tatc$Hour_rounded, 
+#bblh_tatc$Hour_rounded <- as.numeric(as.character(bblh_tatc$Hour_rounded))
+bblh_tatc$Hour2 <- factor(bblh_tatc$Hour_rounded, 
                             levels= c("1900", "1930", "2000", "2030", "2100", "2130", "2200", "2230", "2300", "2330", "2400",
                                       "2430", "100", "130", "200", "230", "300", "330", "400", "430", "500", "530",
                                       "600", "630", "700"), ordered=T)
@@ -38,7 +43,7 @@ hmr <- 10.3*bmr
 flmr <- 0.5*hmr
 
 ## Ambient temperatures - Weird, says 2500 as time - check
-AmbTemp <- ggplot(bblh_tatc, aes(Hour_rounded, Ta_Mean)) + facet_grid(.~Site) +  my_theme +
+AmbTemp <- ggplot(bblh_tatc, aes(Hour2, Ta_Mean)) + facet_grid(.~Site) +  my_theme +
   geom_point(size=1.5) +
   #geom_line(size=1.5) +
   #scale_color_manual(values=c("Black", "Blue", "Red")) +
@@ -51,28 +56,38 @@ AmbTemp
 
 
 ## TRE_H (i.e. MR measured above 35&deg;C) from SC daytime temperature data and broad-bill equation
-tre_h <- sum(m.sc$MR_ml_h[m.sc$Mean_Ta > 35 & 4 < m.sc$Time & m.sc$Time < 20])
+## MR~H~ (mL O~2~/min) = 0.214 (T~e~) - 7.2515
+## Old
+#tre_h <- sum(m.sc$MR_ml_h[m.sc$Mean_Ta > 35 & 4 < m.sc$Time & m.sc$Time < 20])
+
+bblh_tatc$thermo_mlO2_tamean <- NA
+
+for(i in 1:nrow(bblh_tatc)) {
+  if(bblh_tatc$Ta_Mean[i]>=35 & bblh_tatc$Hour_rounded[i] > 500 & bblh_tatc$Hour_rounded[i] < 2000) {
+    bblh_tatc$thermo_mlO2_tamean[i] <-  bblh_tatc$Ta_Mean[i]*(0.214) - 7.2515
+  }    
+}
+head(bblh_tatc, n=20)
 
 ## BBLH below LCT equation
 bblh_LCT_eqn <- lm(bblh_tnz$Normothermic~bblh_tnz$Temp_C)
 bblh_LCT_eqn
 
 ## Thermoregulatory costs if mean ambient temperature is <= 32 deg C, and between 5am and 8pm
-bblh_tatc$thermo_mean <- 0
-bblh_tatc$thermo_mean[bblh_tatc$Ta_Mean<=32 & 500 < bblh_tatc$Hour_rounded & bblh_tatc$Hour_rounded < 2000] <- bblh_LCT_eqn$coefficients[[1]] + 
-  bblh_tatc$Ta_Mean[bblh_tatc$Ta_Mean<=32 & 500 < bblh_tatc$Hour_rounded & bblh_tatc$Hour_rounded < 2000]*bblh_LCT_eqn$coefficients[[2]]
-
 for(i in 1:nrow(bblh_tatc)) {
-  if(bblh_tatc$Ta_Mean[i]<=32 && 500 < !is.na(bblh_tatc$Hour_rounded[i]) && !is.na(bblh_tatc$Hour_rounded[i]) < 2000) {
-    bblh_tatc$thermo_mean[i] <- bblh_LCT_eqn$coefficients[[1]] + 
-      bblh_tatc$Ta_Mean[i]*bblh_LCT_eqn$coefficients[[2]]
-  }
+  if(bblh_tatc$Ta_Mean[i]<=32 & bblh_tatc$Hour_rounded[i] > 500 & bblh_tatc$Hour_rounded[i] < 2000) {
+     bblh_tatc$thermo_mlO2_tamean[i] <- bblh_LCT_eqn$coefficients[[1]] + 
+        bblh_tatc$Ta_Mean[i]*bblh_LCT_eqn$coefficients[[2]]
+    }    
 }
+head(bblh_tatc, n=20)
 
 
+ggplot(bblh_tatc, aes(Ta_Mean, thermo_mlO2_tamean)) + geom_point() + my_theme
 
+## Old
 ## From SC daytime temperature data and broad-bill equation (in csv)
-tre_l <- sum(m.sc$MR_ml_h[m.sc$Mean_Ta < 32 & 4 < m.sc$Time & m.sc$Time < 20])
+#tre_l <- sum(m.sc$MR_ml_h[m.sc$Mean_Ta < 32 & 4 < m.sc$Time & m.sc$Time < 20])
 
 t_bmr <- sum(m.sc$MR_ml_h[32 < m.sc$Mean_Ta & m.sc$Mean_Ta < 35 & 4 < m.sc$Time & m.sc$Time < 20])
 tre_total <- (tre_h + tre_l + t_bmr)
