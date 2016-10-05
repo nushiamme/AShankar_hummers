@@ -58,8 +58,17 @@ bblh_LCT_eqn <- lm(bblh_tnz$Normothermic~bblh_tnz$Temp_C)
 bblh_LCT_eqn
 
 ## Thermoregulatory costs if mean ambient temperature is <= 32 deg C, and between 5am and 8pm
+bblh_tatc$thermo_mean <- 0
 bblh_tatc$thermo_mean[bblh_tatc$Ta_Mean<=32 & 500 < bblh_tatc$Hour_rounded & bblh_tatc$Hour_rounded < 2000] <- bblh_LCT_eqn$coefficients[[1]] + 
   bblh_tatc$Ta_Mean[bblh_tatc$Ta_Mean<=32 & 500 < bblh_tatc$Hour_rounded & bblh_tatc$Hour_rounded < 2000]*bblh_LCT_eqn$coefficients[[2]]
+
+for(i in 1:nrow(bblh_tatc)) {
+  if(bblh_tatc$Ta_Mean[i]<=32 && 500 < !is.na(bblh_tatc$Hour_rounded[i]) && !is.na(bblh_tatc$Hour_rounded[i]) < 2000) {
+    bblh_tatc$thermo_mean[i] <- bblh_LCT_eqn$coefficients[[1]] + 
+      bblh_tatc$Ta_Mean[i]*bblh_LCT_eqn$coefficients[[2]]
+  }
+}
+
 
 
 ## From SC daytime temperature data and broad-bill equation (in csv)
