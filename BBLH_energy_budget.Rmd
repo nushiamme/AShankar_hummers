@@ -15,8 +15,9 @@ library(ggplot2)
 library(pander)
 library(reshape)
 
-#panderOptions('round', 2)
-#panderOptions('keep.trailing.zeros', TRUE)
+panderOptions('digits', 2)
+panderOptions('round', 2)
+panderOptions('keep.trailing.zeros', TRUE)
 
 ## NOTE: masses for SC pre- vs. post-monsoon were significantly different
 ## from "C:\Users\ANUSHA\Dropbox\DLW_paper\BBLH 2013 Poster Data.xlsx"
@@ -141,6 +142,7 @@ bblh_MR_temp <- ggplot(bblh_tnz, aes(Temp_C, VO2)) + geom_point(aes(col=N_T), si
 plot(bblh_MR_temp, fig.alig='center')
 
 bblh_LCT_eqn <- lm(bblh_tnz$Normothermic~bblh_tnz$Temp_C)
+bblh_LCT_eqn
 ```
 
 Equation of TNZ below lower critical temperature (LCT):  
