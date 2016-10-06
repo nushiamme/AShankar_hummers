@@ -24,12 +24,14 @@ bblh_tnz$N_T <- factor(bblh_tnz$N_T, levels=c('T', 'N', 'N?'))
 
 #bblh_tatc$Hour_rounded <- as.numeric(as.character(bblh_tatc$Hour_rounded))
 bblh_tatc$Hour2 <- factor(bblh_tatc$Hour_rounded, 
-                            levels= c("1900", "1930", "2000", "2030", "2100", "2130", "2200", "2230", "2300", "2330", "2400",
-                                      "2430", "100", "130", "200", "230", "300", "330", "400", "430", "500", "530",
-                                      "600", "630", "700"), ordered=T)
+                            levels= c("530", "600", "630", "700", "730", "800", "830", "900", "1000", "1100", "1200", "1300", "1400", "1500",
+                                      "1600", "1700", "1800", "1900", "1930", "2000", "2030", "2100", "2130", "2200", "2230", "2300", "2330", 
+                                      "2400", "2430", "100", "130", "200", "230", "300", "330", "400", "430", "500"), ordered=T)
 #tatc$Hour2 <- factor(tatc$Hour2, levels= c("19", "20", "21", "22", "23", "24", "1", "2", "3", "4", "5", "6", "7"), ordered=T)
 
 Hour_labels <- c("1900", "2000", "2100", "2200","2300", "2400", "100", "200", "300", "400", "500", "600", "700")
+
+bblh_tatc$mmdd <- paste(bblh_tatc$Month, bblh_tatc$Day, sep='/') 
 
 ## Melt
 m.sc <- melt(sc_temp, id.vars = c("Time", "Mean_Ta"), measure.vars = "MR_ml.h")
@@ -60,6 +62,7 @@ AmbTemp
 ## Old
 #tre_h <- sum(m.sc$MR_ml_h[m.sc$Mean_Ta > 35 & 4 < m.sc$Time & m.sc$Time < 20])
 
+### WHY is the Upper CT slope 0.214, while lower CT is -0.0208?
 bblh_tatc$thermo_mlO2_tamean <- NA
 
 for(i in 1:nrow(bblh_tatc)) {
@@ -75,15 +78,32 @@ bblh_LCT_eqn
 
 ## Thermoregulatory costs if mean ambient temperature is <= 32 deg C, and between 5am and 8pm
 for(i in 1:nrow(bblh_tatc)) {
-  if(bblh_tatc$Ta_Mean[i]<=32 & bblh_tatc$Hour_rounded[i] > 500 & bblh_tatc$Hour_rounded[i] < 2000) {
+  if(bblh_tatc$Ta_Mean[i]<=32) {
      bblh_tatc$thermo_mlO2_tamean[i] <- bblh_LCT_eqn$coefficients[[1]] + 
         bblh_tatc$Ta_Mean[i]*bblh_LCT_eqn$coefficients[[2]]
     }    
 }
 head(bblh_tatc, n=20)
 
+## Same with Ta min to see how different MR's are if birds were in the coldest parts of the habitat
+bblh_tatc$thermo_mlO2_tamin <- NA
+for(i in 1:nrow(bblh_tatc)) {
+  if(bblh_tatc$Ta_min[i]<=32) {
+    bblh_tatc$thermo_mlO2_tamin[i] <- bblh_LCT_eqn$coefficients[[1]] + bblh_tatc$Ta_min[i]*bblh_LCT_eqn$coefficients[[2]]
+  }    
+}
 
-ggplot(bblh_tatc, aes(Ta_Mean, thermo_mlO2_tamean)) + geom_point() + my_theme
+#& bblh_tatc$Hour_rounded[i] > 500 & bblh_tatc$Hour_rounded[i] < 2000
+
+ggplot(bblh_tatc, aes(Ta_Mean, thermo_mlO2_tamean)) + my_theme +
+  geom_point(col="black")
+
+ggplot(bblh_tatc[!is.na(bblh_tatc$Hour2),], aes(Hour2, thermo_mlO2_tamean)) + my_theme +
+  geom_point(col="black")
+
+ggplot(bblh_tatc[!is.na(bblh_tatc$Hour2),], aes(Hour2, thermo_mlO2_tamean)) + my_theme + facet_grid(~mmdd) +
+  geom_point(aes(col=Site), size=2) + theme(axis.text.x = element_text(angle = 90, size=15)) +
+  scale_colour_brewer(palette = "Paired")
 
 ## Old
 ## From SC daytime temperature data and broad-bill equation (in csv)
