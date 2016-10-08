@@ -42,6 +42,11 @@ BBLH_torpor <- subset(torpor, Species=="BBLH")
 bblh_merged <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\BBLH_merged_premonsoon.csv")
 m.bblh <- melt(bblh_merged, id.vars="Site", measure.vars = c("NEE_kJ", "DEE_kJ"))
 
+
+
+## Aggregate to summarize DEE
+a.dlw <- aggregate(dlw_bblh$kJ_day, by = list(dlw_bblh$Site, dlw_bblh$Day, dlw_bblh$Month), FUN="mean")
+
 ###### General functions #####
 ## Generic plot theme
 my_theme <- theme_classic(base_size = 30) + 
@@ -73,14 +78,8 @@ dee_BBLH_Sitemonsoon
 
 dee_BBLH_monsoon <- ggplot(dlw_bblh, aes(Initial_mass_g, kJ_day)) + my_theme + 
   geom_point(aes(shape=Pre_post_monsoon), size=7) + 
-  scale_shape_manual("Monsoon", values=c(20,3)) +
-  #geom_text(x = 2.8, y = 40, 
-   #         label = lm_eqn(dlw_bblh$kJ_day, dlw_bblh$Initial_mass_g), parse=T, size=10) +
-  #geom_smooth(stat='smooth', method='loess', data=dlw_bblh, 
-   #           aes(Initial_mass_g, kJ_day, group=Site_monsoon, col=Site_monsoon)) +
-  #geom_line(stat='smooth', data=dlw_bblh, aes(Initial_mass_g, kJ_day, group=Pre_post_monsoon, col=Pre_post_monsoon),
-   #           method="lm",size=2, alpha=0.6) +
-  ylab("Daily energy expenditure (kJ/day)") + xlab("Initial mass (g)")
+  scale_shape_manual("Monsoon", values=c(20,3),labels=c("Post-monsoon", "Pre-monsoon")) +
+  ylab("Daily energy expenditure (kJ/day)") + xlab("Capture mass (g)")
 dee_BBLH_monsoon
 
 summary(lm(dlw_bblh$kJ_day[dlw_bblh$Pre_post_monsoon=="Pre"] ~ dlw_bblh$Initial_mass_g[dlw_bblh$Pre_post_monsoon=="Pre"]))
@@ -113,7 +112,7 @@ ggplot(BBLH_torpor, aes(Site, AvgEE_normo_MassCorrected)) + my_theme +
 
 #### Combining DLW and torpor plots ####
 ## Remember- m.bblh only has pre-monsoon data
-ggplot(m.bblh, aes(Site, value)) + geom_boxplot(aes(col=variable)) + my_theme + scale_color_manual("Energy expenditure", labels=c("Nighttime", "24-hour daily"), values=c("#000080", "#ff0000")) + ylab("kilo Joules")
+ggplot(m.bblh, aes(Site, value, fill=)) + geom_bar(stat="idenity", aes(col=variable)) + my_theme + scale_color_manual("Energy expenditure", labels=c("Nighttime", "24-hour daily"), values=c("#000080", "#ff0000")) + ylab("kilo Joules")
 
 #### DEE and NEE costs at each site; NEE as proportion of DEE ####
 dee.hc <- mean(m.bblh$value[m.bblh$variable=="DEE_kJ" & m.bblh$Site=="HC"], na.rm=T)

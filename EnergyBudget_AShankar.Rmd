@@ -186,6 +186,7 @@ flmr <- 0.5*hmr
 ## Total energy spent on daytime activities in ml O2/h. 
 ## Assuming ACT = 70% resting + 20% hovering + 10% flying; 14 daylight hours
 ACT <- (0.7*14*(rmr-bmr)) + (0.2*14*(hmr-bmr)) + (0.1*14*(flmr-bmr))
+ACT
 
 ## Model estimate in ml O2 per 24h
 DEE_model <- tre_total + ACT + nee

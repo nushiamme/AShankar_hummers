@@ -85,6 +85,14 @@ for(i in 1:nrow(bblh_tatc)) {
 }
 head(bblh_tatc, n=20)
 
+## For within BMR
+for(i in 1:nrow(bblh_tatc)) {
+  if(bblh_tatc$Ta_Mean[i]>32 & bblh_tatc$Ta_Mean[i]<35) {
+    bblh_tatc$thermo_mlO2_tamean[i] <- 0.2385
+  }    
+}
+head(bblh_tatc, n=20)
+
 ## Same with Ta min to see how different MR's are if birds were in the coldest parts of the habitat
 bblh_tatc$thermo_mlO2_tamin <- NA
 for(i in 1:nrow(bblh_tatc)) {
@@ -115,8 +123,8 @@ tre_total <- (tre_h + tre_l + t_bmr)
 ## NEE in ml O2/h
 nee <- sum(m.sc$MR_ml_h[m.sc$Time < 5 | m.sc$Time > 18])
 
-## ACT = 70% resting + 15% hovering + 15% flying; assuming 14 daylight hours, in ml O~2~/h
-ACT <- (0.7*14*(rmr-bmr)) + (0.15*14*(hmr-bmr)) + (0.15*14*(flmr-bmr))
+## ACT = 70% resting + 15% hovering + 15% flying; assuming 15 daylight hours, in ml O~2~/h
+ACT <- (0.7*15*(rmr-bmr)) + (0.15*15*(hmr-bmr)) + (0.15*15*(flmr-bmr))
 ACT
 
 DEE_model <- ACT + nee + tre_total
@@ -132,3 +140,20 @@ dlw <- 51.3
 ## Percentage the model is off from the mean DLW estimate
 per.off <- ((dlw - DEE_model_hr)/dlw)*100
 per.off
+
+### Let's build the models and see what we get!
+tre_hc_pre <- sum(bblh_tatc$thermo_mlO2_tamean[bblh_tatc$mmdd=="6/15" & 
+                                                 bblh_tatc$Hour_rounded <2000 & bblh_tatc$Hour_rounded > 500])
+
+nee_hc_pre <- mean(torpor$NEE_kJ[torpor$Site=="HC"])*1000/20.5 ## TO convert kJ to ml O2/min
+nee_sc_pre <- mean(torpor$NEE_kJ[torpor$Site=="SC"])
+
+
+bud_hc_pre <- ACT + nee_hc_pre + tre_hc_pre
+bud_hc_pre
+
+bud_hc_post <- ACT + nee_hc_post + tre_hc_post
+
+bud_sc_pre <- ACT + nee_sc_pre + tre_sc_pre
+
+bud_sc_post <- ACT + nee_sc_post + tre_sc_post
