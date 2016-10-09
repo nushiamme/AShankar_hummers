@@ -4,7 +4,7 @@ library(stringr)
 library(extrafont)
 library(RColorBrewer)
 
-setwd("C://Users//ANUSHA//Dropbox//Anusha_personal//Thesis_proposal//R_csv//AZ")
+setwd("C://Users//ANUSHA//Dropbox//Anusha Committee//BBLH_EnergyBudget")
 
 costa <- read.csv("Costa1986_Don.csv")
 costaVO2 <- read.csv("Costa1986_DonVO2.csv")
@@ -31,11 +31,11 @@ mean(hmr.bblh[hmr.bblh>q.hmr])
 lm.below <- lm(bblh$Normothermic~bblh$TempC)
 
 ## Below LCT and above UCT for Costas
-below <- costa[costa$Temperature<=32,]
-lm.belowcosta <- lm(below$BelowLCT~below$Temperature)
+below <- costaVO2[costaVO2$Temperature<=32,]
+lm.belowcosta <- lm(below$BelowVO2~below$Temperature)
 lm.abovecosta <- lm(costaVO2$AboveVO2~costaVO2$Temperature)
 
-lm.aboveCosta_pergram <- lm(costa$AboveUCT~costa$Temperature)
+lm.aboveCosta_pergram <- lm(costaVO2$AboveUCT~costa$Temperature)
 
 ## BMR calculated from extrapolating BBLH summer 2012 data down to presumed LCT of 32&deg;C
 bmrBBLH <- 0.23846
@@ -50,10 +50,10 @@ hmr_comparison
 
 ## Plot temperatures
 ggplot(costa, aes(Temperature, MR)) + geom_point() + theme_bw()
-plot(costa$BelowLCT~costa$Temperature)
-plot(costa$AboveUCT~costa$Temperature)
+plot(costaVO2$BelowVO2~costaVO2$Temperature)
+plot(costa$AboveVO2~costaVO2$Temperature)
 ## All of curve
-plot(costa$MR~costa$Temperature)
+ggplot(costaVO2, aes(Temperature, VO2_ml.g.h)) + geom_point(shape=1, size=3) + my_theme 
 
 ## Fitting a glm
 below.glm <- glm(below$BelowLCT~below$Temperature)
