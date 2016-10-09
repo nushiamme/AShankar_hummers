@@ -5,7 +5,6 @@ library(extrafont)
 library(RColorBrewer)
 
 setwd("C://Users//ANUSHA//Dropbox//Anusha Committee//BBLH_EnergyBudget")
-
 costa <- read.csv("Costa1986_Don.csv")
 costaVO2 <- read.csv("Costa1986_DonVO2.csv")
 bblh <- read.csv("BroadBill.csv")
@@ -31,11 +30,11 @@ mean(hmr.bblh[hmr.bblh>q.hmr])
 lm.below <- lm(bblh$Normothermic~bblh$TempC)
 
 ## Below LCT and above UCT for Costas
-below <- costaVO2[costaVO2$Temperature<=32,]
-lm.belowcosta <- lm(below$BelowVO2~below$Temperature)
+below <- costa[costa$Temperature<=32,]
+lm.belowcosta <- lm(below$BelowLCT~below$Temperature)
 lm.abovecosta <- lm(costaVO2$AboveVO2~costaVO2$Temperature)
 
-lm.aboveCosta_pergram <- lm(costaVO2$AboveUCT~costa$Temperature)
+lm.aboveCosta_pergram <- lm(costa$AboveUCT~costa$Temperature)
 
 ## BMR calculated from extrapolating BBLH summer 2012 data down to presumed LCT of 32&deg;C
 bmrBBLH <- 0.23846
@@ -50,10 +49,10 @@ hmr_comparison
 
 ## Plot temperatures
 ggplot(costa, aes(Temperature, MR)) + geom_point() + theme_bw()
-plot(costaVO2$BelowVO2~costaVO2$Temperature)
-plot(costa$AboveVO2~costaVO2$Temperature)
+plot(costa$BelowLCT~costa$Temperature)
+plot(costa$AboveUCT~costa$Temperature)
 ## All of curve
-ggplot(costaVO2, aes(Temperature, VO2_ml.g.h)) + geom_point(shape=1, size=3) + my_theme 
+plot(costa$MR~costa$Temperature)
 
 ## Fitting a glm
 below.glm <- glm(below$BelowLCT~below$Temperature)
@@ -67,10 +66,10 @@ my.cols <- c("#91cf60","#1c9099", "#e34a33")
 
 
 budget_plot <- ggplot(m.budget, aes(variable, value, fill=Act)) + xlab("Type of budget") + ylab("Percentage") + 
-    geom_bar(stat="identity") + theme_bw() +
+  geom_bar(stat="identity") + theme_bw() +
   theme(text=element_text(family="sans"), axis.title.x = element_text(size=16, vjust=0.2, face="bold"), 
         axis.text.x = element_text(size=13, face="bold"),
-       axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=13),
+        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=13),
         legend.title = element_text(size=16), legend.text = element_text(size = 12, face="bold")) +
   guides(fill=guide_legend(title="Activity")) +
   scale_x_discrete(labels = function(variable) str_wrap(variable, width = 16)) + 

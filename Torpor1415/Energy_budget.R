@@ -52,7 +52,7 @@ AmbTemp <- ggplot(bblh_tatc, aes(Hour2, Ta_Mean)) + facet_grid(.~Site) +  my_the
   #scale_alpha_manual(values = c(1, 0.5, 0.5)) +
   theme(axis.text.x = element_text(angle = 90, size=15), legend.position="none", plot.title = element_text(size = 20),
         panel.grid.major.y = element_line(size=.1, color="grey75")) +
-  xlab("Hour") + ylab(Ta.lab) + ggtitle("Sites")
+  xlab("Hour") #+ ylab(Ta.lab) + ggtitle("Sites")
   #scale_x_discrete(labels=Hour_labels)
 AmbTemp
 
@@ -66,7 +66,7 @@ AmbTemp
 bblh_tatc$thermo_mlO2_tamean <- NA
 
 for(i in 1:nrow(bblh_tatc)) {
-  if(bblh_tatc$Ta_Mean[i]>=35 & bblh_tatc$Hour_rounded[i] > 500 & bblh_tatc$Hour_rounded[i] < 2000) {
+  if(bblh_tatc$Ta_Mean[i]>=35) {
     bblh_tatc$thermo_mlO2_tamean[i] <-  bblh_tatc$Ta_Mean[i]*(0.214) - 7.2515
   }    
 }
@@ -142,11 +142,19 @@ per.off <- ((dlw - DEE_model_hr)/dlw)*100
 per.off
 
 ### Let's build the models and see what we get!
-tre_hc_pre <- sum(bblh_tatc$thermo_mlO2_tamean[bblh_tatc$mmdd=="6/15" & 
+## In O2 ml/min
+tre_hc_pre <- sum(bblh_tatc$thermo_mlO2_tamean[bblh_tatc$mmdd=="6/21" & 
                                                  bblh_tatc$Hour_rounded <2000 & bblh_tatc$Hour_rounded > 500])
 
+tre_sc_pre <- sum(bblh_tatc$thermo_mlO2_tamean[bblh_tatc$mmdd=="6/24" & 
+                                                 bblh_tatc$Hour_rounded <2000 & bblh_tatc$Hour_rounded > 500])
+
+## Convert to ml/h
+tre_hc_pre <- tre_hc_pre*60
+tre_sc_pre <- tre_sc_pre*60
+
 nee_hc_pre <- mean(torpor$NEE_kJ[torpor$Site=="HC"])*1000/20.5 ## TO convert kJ to ml O2/min
-nee_sc_pre <- mean(torpor$NEE_kJ[torpor$Site=="SC"])
+nee_sc_pre <- mean(torpor$NEE_kJ[torpor$Site=="SC"])*1000/20.5
 
 
 bud_hc_pre <- ACT + nee_hc_pre + tre_hc_pre
@@ -155,5 +163,6 @@ bud_hc_pre
 bud_hc_post <- ACT + nee_hc_post + tre_hc_post
 
 bud_sc_pre <- ACT + nee_sc_pre + tre_sc_pre
+bud_sc_pre
 
 bud_sc_post <- ACT + nee_sc_post + tre_sc_post
