@@ -8,6 +8,7 @@
 ## Tb from the tre_l equation   
 
 library(reshape)
+library(ggplot2)
 
 ## Set wd and read in file
 setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget")
@@ -18,7 +19,6 @@ bblh_tnz <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyB
 
 my_theme <- theme_classic(base_size = 30) + 
   theme(panel.border = element_rect(colour = "black", fill=NA))
-
 
 bblh_tnz$N_T <- factor(bblh_tnz$N_T, levels=c('T', 'N', 'N?'))
 
@@ -47,27 +47,32 @@ flmr <- 0.5*hmr
 ## Ambient temperatures - Weird, says 2500 as time - check
 AmbTemp <- ggplot(bblh_tatc, aes(Hour2, Ta_Mean)) + facet_grid(.~Site) +  my_theme +
   geom_point(size=1.5) +
-  #geom_line(size=1.5) +
-  #scale_color_manual(values=c("Black", "Blue", "Red")) +
-  #scale_alpha_manual(values = c(1, 0.5, 0.5)) +
   theme(axis.text.x = element_text(angle = 90, size=15), legend.position="none", plot.title = element_text(size = 20),
         panel.grid.major.y = element_line(size=.1, color="grey75")) +
   xlab("Hour") #+ ylab(Ta.lab) + ggtitle("Sites")
-  #scale_x_discrete(labels=Hour_labels)
 AmbTemp
 
 
 ## TRE_H (i.e. MR measured above 35&deg;C) from SC daytime temperature data and broad-bill equation
 ## MR~H~ (mL O~2~/min) = 0.214 (T~e~) - 7.2515
+#### WHEN TRYING WITH VO2 above UCT rather than with MR, equation I get is:
+## MR~H~ (mL O~2~/min) = 0.0106*(T~e~) + 0.132381
+
 ## Old
 #tre_h <- sum(m.sc$MR_ml_h[m.sc$Mean_Ta > 35 & 4 < m.sc$Time & m.sc$Time < 20])
 
-### WHY is the Upper CT slope 0.214, while lower CT is -0.0208?
+## Above UCT, since we don't have BBLH measurements, we use the slope from Costa's, and find out the y intercept BBLH would have with that slope, 
+## knowing that the UCT line would pass through BMR 
+lm.abovecosta <- lm(costaVO2$AboveVO2~costaVO2$Temperature)
+lm.abovecosta # Just use slope from here
+bmr_permin <- 0.23846
+yinterceptBBLH <- (lm.abovecosta$coefficients[2]*35)-bmr_permin # for intercept
+
 bblh_tatc$thermo_mlO2_tamean <- NA
 
 for(i in 1:nrow(bblh_tatc)) {
   if(bblh_tatc$Ta_Mean[i]>=35) {
-    bblh_tatc$thermo_mlO2_tamean[i] <-  bblh_tatc$Ta_Mean[i]*(0.214) - 7.2515
+    bblh_tatc$thermo_mlO2_tamean[i] <-  bblh_tatc$Ta_Mean[i]*lm.abovecosta$coefficients[2] - yinterceptBBLH
   }    
 }
 head(bblh_tatc, n=20)

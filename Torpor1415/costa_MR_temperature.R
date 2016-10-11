@@ -30,17 +30,20 @@ mean(hmr.bblh[hmr.bblh>q.hmr])
 lm.below <- lm(bblh$Normothermic~bblh$TempC)
 
 ## Below LCT and above UCT for Costas
-below <- costa[costa$Temperature<=32,]
-lm.belowcosta <- lm(below$BelowLCT~below$Temperature)
+below <- costaVO2[costaVO2$Temperature<=32,]
+lm.belowcosta <- lm(below$BelowVO2~below$Temperature)
+lm.belowcostaMR <- lm(below$BelowLCT~below$Temperature)
 lm.abovecosta <- lm(costaVO2$AboveVO2~costaVO2$Temperature)
+lm.abovecostaMR <- lm(costaVO2$AboveUCT~costa$Temperature)
 
 lm.aboveCosta_pergram <- lm(costa$AboveUCT~costa$Temperature)
 
 ## BMR calculated from extrapolating BBLH summer 2012 data down to presumed LCT of 32&deg;C
+# 0.95302 + (32*(-0.02233)) = 0.23846
 bmrBBLH <- 0.23846
-yinterceptBBLH <- (lm.abovecosta$coefficients[2]*35)-bmrBBLH
+yinterceptBBLH <- (lm.abovecosta$coefficients[2]*35)-bmrBBLH ## Slope - 0.214, intercept = -7.253277
 
-yinterceptBBLH <- (0.0144*35)-bmrBBLH
+# Not sure why I had this earlier: yinterceptBBLH <- (0.0144*35)-bmrBBLH
 
 ## hmr unscaled by body mass
 hmr_comparison <- ggplot(m.hmr, aes(x=Species, y=HMR)) + geom_point() + 
