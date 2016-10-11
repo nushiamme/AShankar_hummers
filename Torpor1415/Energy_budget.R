@@ -16,6 +16,10 @@ setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget")
 sc_temp <- read.csv("SonoitaCreek_Temperatures_S1.csv")
 bblh_tatc <- read.csv("BBLH_TcTa_2013.csv")
 bblh_tnz <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Energy budget data\\BroadBill.csv")
+torpor <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper\\Torpor_table_plot_Mar26.csv")
+torpor$AvgEE_normo_MassCorrected <- torpor$Avg_EE_hourly_normo/(torpor$Mass^(2/3))
+torpor$AvgEE_torpid_MassCorrected <- torpor$Avg_EE_hourly_torpid/(torpor$Mass^(2/3))
+BBLH_torpor <- subset(torpor, Species=="BBLH")
 
 my_theme <- theme_classic(base_size = 30) + 
   theme(panel.border = element_rect(colour = "black", fill=NA))
@@ -148,7 +152,7 @@ per.off
 
 ### Let's build the models and see what we get!
 ## In O2 ml/min
-tre_hc_pre <- sum(bblh_tatc$thermo_mlO2_tamean[bblh_tatc$mmdd=="6/21" & 
+tre_hc_pre <- sum(bblh_tatc$thermo_mlO2_tamean[bblh_tatc$mmdd=="6/15" & 
                                                  bblh_tatc$Hour_rounded <2000 & bblh_tatc$Hour_rounded > 500])
 
 tre_sc_pre <- sum(bblh_tatc$thermo_mlO2_tamean[bblh_tatc$mmdd=="6/24" & 
@@ -156,11 +160,14 @@ tre_sc_pre <- sum(bblh_tatc$thermo_mlO2_tamean[bblh_tatc$mmdd=="6/24" &
 
 ## Convert to ml/h
 tre_hc_pre <- tre_hc_pre*60
+tre_hc_pre
 tre_sc_pre <- tre_sc_pre*60
+tre_sc_pre
 
 nee_hc_pre <- mean(torpor$NEE_kJ[torpor$Site=="HC"])*1000/20.5 ## TO convert kJ to ml O2/min
+nee_hc_pre
 nee_sc_pre <- mean(torpor$NEE_kJ[torpor$Site=="SC"])*1000/20.5
-
+nee_sc_pre
 
 bud_hc_pre <- ACT + nee_hc_pre + tre_hc_pre
 bud_hc_pre

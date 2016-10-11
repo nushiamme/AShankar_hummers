@@ -42,8 +42,6 @@ BBLH_torpor <- subset(torpor, Species=="BBLH")
 bblh_merged <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\BBLH_merged_premonsoon.csv")
 m.bblh <- melt(bblh_merged, id.vars="Site", measure.vars = c("NEE_kJ", "DEE_kJ"))
 
-
-
 ## Aggregate to summarize DEE
 a.dlw <- aggregate(dlw_bblh$kJ_day, by = list(dlw_bblh$Site, dlw_bblh$Day, dlw_bblh$Month), FUN="mean")
 
@@ -112,7 +110,10 @@ ggplot(BBLH_torpor, aes(Site, AvgEE_normo_MassCorrected)) + my_theme +
 
 #### Combining DLW and torpor plots ####
 ## Remember- m.bblh only has pre-monsoon data
-ggplot(m.bblh, aes(Site, value, fill=)) + geom_bar(stat="idenity", aes(col=variable)) + my_theme + scale_color_manual("Energy expenditure", labels=c("Nighttime", "24-hour daily"), values=c("#000080", "#ff0000")) + ylab("kilo Joules")
+mean_dee_nee <- aggregate(m.bblh$value, by=list(m.bblh$variable, m.bblh$Site), FUN=mean, na.rm=T)
+names(mean_dee_nee) <- c("variable", "Site", "value")
+ggplot(m.bblh, aes(Site, value)) + geom_boxplot(aes(col=variable)) + my_theme + scale_color_manual("Energy expenditure", labels=c("Nighttime", "24-hour daily"), values=c("#000080", "#ff0000")) + ylab("Energy expenditure (kJ)") +  geom_text(data = mean_dee_nee, aes(label = paste("Mean = ", round(value,2.5)), y = value + 2, hjust=1), size=10)
+
 
 #### DEE and NEE costs at each site; NEE as proportion of DEE ####
 dee.hc <- mean(m.bblh$value[m.bblh$variable=="DEE_kJ" & m.bblh$Site=="HC"], na.rm=T)
