@@ -32,8 +32,8 @@ lm.below <- lm(bblh$Normothermic~bblh$TempC)
 ## Below LCT and above UCT for Costas
 below <- costaVO2[costaVO2$Temperature<=32,]
 lm.belowcosta <- lm(below$BelowVO2~below$Temperature)
-lm.belowcostaMR <- lm(below$BelowLCT~below$Temperature)
-lm.abovecosta <- lm(costaVO2$AboveVO2~costaVO2$Temperature)
+lm.belowcostaMR <- lm(below$BelowLCT~below$Temperature) ## Use this for MR units -  not entirely sure which ones!
+lm.abovecosta <- lm(costaVO2$AboveVO2~costaVO2$Temperature) ## Use this for VO2 in ml/min
 lm.abovecostaMR <- lm(costaVO2$AboveUCT~costa$Temperature)
 
 lm.aboveCosta_pergram <- lm(costa$AboveUCT~costa$Temperature)
