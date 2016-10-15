@@ -10,6 +10,8 @@
 library(reshape)
 library(ggplot2)
 
+
+#### Reading in files and reshaping ####
 ## Set wd and read in file
 setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget")
 
@@ -27,8 +29,12 @@ m.bblh <- melt(bblh_merged, id.vars="Site", measure.vars = c("NEE_kJ", "DEE_kJ")
 ## Average of DEE and NEE for HC and SC, only pre-monsoon
 mean_dee_nee <- aggregate(m.bblh$value, by=list(m.bblh$variable, m.bblh$Site), FUN=mean, na.rm=T)
 names(mean_dee_nee) <- c("variable", "Site", "value")
+## Melt temp files
+m.sc <- melt(sc_temp, id.vars = c("Time", "Mean_Ta"), measure.vars = "MR_ml.h")
+m.sc <- m.sc[,c(1,2,4)]
+names(m.sc) <- c("Time", "Mean_Ta", "MR_ml_h" )
 
-
+#### General functions and ordering factors within columns ####
 my_theme <- theme_classic(base_size = 30) + 
   theme(panel.border = element_rect(colour = "black", fill=NA))
 Ta.lab <- expression(atop(paste("Ambient Temperature (", degree,"C)")))
@@ -45,11 +51,6 @@ bblh_tatc$Hour2 <- factor(bblh_tatc$Hour_rounded,
 Hour_labels <- c("1900", "2000", "2100", "2200","2300", "2400", "100", "200", "300", "400", "500", "600", "700")
 
 bblh_tatc$mmdd <- paste(bblh_tatc$Month, bblh_tatc$Day, sep='/') 
-
-## Melt
-m.sc <- melt(sc_temp, id.vars = c("Time", "Mean_Ta"), measure.vars = "MR_ml.h")
-m.sc <- m.sc[,c(1,2,4)]
-names(m.sc) <- c("Time", "Mean_Ta", "MR_ml_h" )
 
 ## Metabolic rates in ml O~2~/h (bmr calculated in "costa_MR_temperature.R")
 bmr <- 0.2385*60
