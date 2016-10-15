@@ -21,8 +21,17 @@ torpor$AvgEE_normo_MassCorrected <- torpor$Avg_EE_hourly_normo/(torpor$Mass^(2/3
 torpor$AvgEE_torpid_MassCorrected <- torpor$Avg_EE_hourly_torpid/(torpor$Mass^(2/3))
 BBLH_torpor <- subset(torpor, Species=="BBLH")
 
+## Reading in merged NEE and DEE dataset including only pre-monsoon DEE data. For all DEE data, use BBLH_merged_summ.csv
+bblh_merged <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\BBLH_merged_premonsoon.csv")
+m.bblh <- melt(bblh_merged, id.vars="Site", measure.vars = c("NEE_kJ", "DEE_kJ"))
+## Average of DEE and NEE for HC and SC, only pre-monsoon
+mean_dee_nee <- aggregate(m.bblh$value, by=list(m.bblh$variable, m.bblh$Site), FUN=mean, na.rm=T)
+names(mean_dee_nee) <- c("variable", "Site", "value")
+
+
 my_theme <- theme_classic(base_size = 30) + 
   theme(panel.border = element_rect(colour = "black", fill=NA))
+Ta.lab <- expression(atop(paste("Ambient Temperature (", degree,"C)")))
 
 bblh_tnz$N_T <- factor(bblh_tnz$N_T, levels=c('T', 'N', 'N?'))
 
@@ -113,7 +122,7 @@ for(i in 1:nrow(bblh_tatc)) {
 #& bblh_tatc$Hour_rounded[i] > 500 & bblh_tatc$Hour_rounded[i] < 2000
 
 ggplot(bblh_tatc, aes(Ta_Mean, thermo_mlO2_tamean)) + my_theme +
-  geom_point(col="black")
+  geom_point(col="black", size=2) + ylab("Thermoregulatory costs in O2 ml/min") + xlab(Ta.lab)
 
 ggplot(bblh_tatc[!is.na(bblh_tatc$Hour2),], aes(Hour2, thermo_mlO2_tamean)) + my_theme +
   geom_point(col="black")
@@ -169,12 +178,14 @@ nee_hc_pre
 nee_sc_pre <- mean(torpor$NEE_kJ[torpor$Site=="SC"])*1000/20.5
 nee_sc_pre
 
-bud_hc_pre <- ACT + nee_hc_pre + tre_hc_pre
+bud_hc_pre <- ACT + nee_hc_pre + tre_hc_pre ### HAVE TO ADD BMR
 bud_hc_pre
 
-bud_hc_post <- ACT + nee_hc_post + tre_hc_post
+bud_hc_post <- ACT + nee_hc_post + tre_hc_post ### HAVE TO ADD BMR
 
-bud_sc_pre <- ACT + nee_sc_pre + tre_sc_pre
+bud_sc_pre <- ACT + nee_sc_pre + tre_sc_pre ### HAVE TO ADD BMR
 bud_sc_pre
 
-bud_sc_post <- ACT + nee_sc_post + tre_sc_post
+bud_sc_post <- ACT + nee_sc_post + tre_sc_post ### HAVE TO ADD BMR
+
+per.off_hc_pre <- ((dlw - DEE_model_hr)/dlw)*100

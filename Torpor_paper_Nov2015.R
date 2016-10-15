@@ -60,19 +60,31 @@ torpor$savings <- 100-torpor$Percentage_avg
 
 #### Make new data frames ####
 ## Make table to summarize savings
-nee.agg <- aggregate(torpor$NEE_MassCorrected, 
-                         by=list(torpor$Temptrop, torpor$Site_new, 
+nee.agg <- aggregate(torpor$NEE_kJ, 
+                         by=list(torpor$Torpid_not, torpor$Site_new, 
                                  torpor$Species), 
                          FUN="mean", na.rm=T)
-names(nee.agg) <- c("Temptrop", "Site", "Species", "NEE Mass corrected (kJ/g^(2/3))")
+names(nee.agg) <- c("Torpid_not", "Site", "Species", "NEE_kJ")
 nee.agg
 
 neet.agg <- aggregate(torpor$NEE_MassCorrected, 
-                     by=list(torpor$Temptrop, torpor$Site_new, 
+                     by=list(torpor$Torpid_not, torpor$Site_new, 
                              torpor$Species), 
                      FUN="mean", na.rm=T)
-names(neet.agg) <- c("Temptrop", "Site", "Species", "NEE Mass corrected (kJ/g^(2/3))")
+names(neet.agg) <- c("Torpid_not", "Site", "Species", "NEE Mass corrected (kJ/g^(2/3))")
 neet.agg
+
+mass1.agg <- aggregate(torpor$Mass, 
+                      by=list(torpor$Torpid_not, torpor$Site_new, 
+                              torpor$Species), 
+                      FUN="mean", na.rm=T)
+names(mass1.agg) <- c("Torpid_not", "Site", "Species", "Mass")
+mass1.agg
+
+nee_Mc_agg <- merge(nee.agg, neet.agg,by=c("Torpid_not", "Site", "Species"))
+nee_Mc_agg <- merge(nee_Mc_agg, mass1.agg, by=c("Torpid_not", "Site", "Species"))
+
+write.csv(nee_Mc_agg, "NEE and mass-corrected summary.csv")
 
 ## Summarize hours spent torpid
 hours.agg <- aggregate(torpor$Hours_torpid, 
