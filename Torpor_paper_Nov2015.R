@@ -102,6 +102,14 @@ hours.agg <- aggregate(torpor$Hours_torpid,
 names(hours.agg) <- c("Site", "Species", "Mean torpor duration (hours)")
 hours.agg
 
+## Whole animal O2 consumption summary
+o2.agg <- aggregate(torpor$O2_ml_min, 
+                      by=list(torpor$Torpid_not, torpor$Site_new, 
+                              torpor$Species), 
+                      FUN="mean", na.rm=T)
+names(o2.agg) <- c("Torpid_not", "Site", "Species", "Oxygen_ml_min")
+o2.agg
+
 ## Make table to summarize savings
 savings.agg <- aggregate(torpor$savings, 
                        by=list(torpor$Site_new, 
