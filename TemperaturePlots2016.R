@@ -40,9 +40,11 @@ m.ta <- melt(ta_summ, id.vars = c("Site", "Hour2"), measure.vars = c("Mean_Ta", 
 names(m.ta) <- c("Site", "Hour", "Variable", "Temperature")
 m.tc <- melt(tc_summ, id.vars = c("Site", "Hour2"), measure.vars = c("Mean_Tc", "Min_Tc", "Max_Tc"))
 names(m.tc) <- c("Site", "Hour", "Variable", "Temperature")
+levels(m.tc$Site) <- c("Harshaw", "Sonoita", "Southwest Research Station", "Maqui", "Santa Lucia")
 m.ta$Site <- factor(m.ta$Site, levels=c('HC','SC','SWRS','MQ','SL'))
+levels(m.ta$Site) <- c("Harshaw", "Sonoita", "Southwest Research Station", "Maqui", "Santa Lucia")
 
-#### Aggregating ####
+#### Aggregating - ignore because already aggregated. Only use if you need to modify agg's####
 ## Aggregate means, min and max
 Ta_mean <- aggregate(tatc$Ta_Mean, 
                            by=list(tatc$Site, tatc$Hour2), FUN="mean", na.rm=TRUE)
@@ -108,7 +110,7 @@ ChambTemp <- ggplot(m.tc, aes(Hour,Temperature, alpha=Variable)) + my_theme + fa
   scale_color_manual(values=c("Black", "Blue", "Red")) +
   scale_alpha_manual(values = c(1, 0.5, 0.5)) +
   theme(axis.text.x = element_text(angle = 90, size=15), legend.position="none", plot.title = element_text(size = 20),
-        panel.grid.major.y = element_line(size=.1, color="grey75")) +
+        panel.grid.major.y = element_line(size=.1, color="grey75"), strip.text.x = element_text(size = 15)) + 
   xlab("Hour") + ylab(Tc.lab) + ggtitle("Sites") + scale_x_discrete(labels=Hour_labels)
 ChambTemp
 
@@ -118,7 +120,7 @@ AmbTemp <- ggplot(m.ta, aes(Hour,Temperature, alpha=Variable)) + facet_grid(.~Si
   scale_color_manual(values=c("Black", "Blue", "Red")) +
   scale_alpha_manual(values = c(1, 0.5, 0.5)) +
   theme(axis.text.x = element_text(angle = 90, size=15), legend.position="none", plot.title = element_text(size = 20),
-        panel.grid.major.y = element_line(size=.1, color="grey75")) +
+        panel.grid.major.y = element_line(size=.1, color="grey75"), strip.text.x = element_text(size = 15)) +
   xlab("Hour") + ylab(Ta.lab) + ggtitle("Sites") +
   scale_x_discrete(labels=Hour_labels)
 AmbTemp
