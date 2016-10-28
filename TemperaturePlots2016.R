@@ -109,7 +109,7 @@ ChambTemp <- ggplot(m.tc, aes(Hour,Temperature, alpha=Variable)) + my_theme + fa
   geom_line(aes(group=Variable, col=Variable), size=1.5) +
   scale_color_manual(values=c("Black", "Blue", "Red")) +
   scale_alpha_manual(values = c(1, 0.5, 0.5)) +
-  theme(axis.text.x = element_text(angle = 90, size=15), legend.position="none", plot.title = element_text(size = 20),
+  theme(axis.text.x = element_text(angle = 90, size=15), legend.position="none", plot.title = element_text(size = 30),
         panel.grid.major.y = element_line(size=.1, color="grey75"), strip.text.x = element_text(size = 15)) + 
   xlab("Hour") + ylab(Tc.lab) + ggtitle("Sites") + scale_x_discrete(labels=Hour_labels)
 ChambTemp
@@ -119,7 +119,7 @@ AmbTemp <- ggplot(m.ta, aes(Hour,Temperature, alpha=Variable)) + facet_grid(.~Si
   geom_line(aes(group=Variable, col=Variable), size=1.5) +
   scale_color_manual(values=c("Black", "Blue", "Red")) +
   scale_alpha_manual(values = c(1, 0.5, 0.5)) +
-  theme(axis.text.x = element_text(angle = 90, size=15), legend.position="none", plot.title = element_text(size = 20),
+  theme(axis.text.x = element_text(angle = 90, size=15), legend.position="none", plot.title = element_text(size = 30),
         panel.grid.major.y = element_line(size=.1, color="grey75"), strip.text.x = element_text(size = 15)) +
   xlab("Hour") + ylab(Ta.lab) + ggtitle("Sites") +
   scale_x_discrete(labels=Hour_labels)
