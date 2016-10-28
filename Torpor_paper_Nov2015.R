@@ -27,11 +27,6 @@ tempsumm <- read.csv("Temp_summary.csv")
 
 torpor$Percentage_avg <- as.numeric(as.character(torpor$Percentage_avg))
 torpor$Prop_hours <- as.numeric(as.character(torpor$Prop_hours))
-m.temptrop <- melt(torpor, id.vars = c("Temptrop", "Species", "Site"), 
-          measure.vars =  c("Hours_torpid", "Prop_hours", "NEE_kJ", "Percentage_avg", "NEE_MassCorrected", "Mass"))
-
-rate_site <- data.frame(table(torpor$Site,torpor$Torpid_not))
-names(rate_site) <- c("Site", "Torpid_not", "N")
 
 ##### Adding columns and a few summary dataframes #######
 ## Adding column dividing NEE by 2/3*Mass to correct for mass with allometric scaling
@@ -58,7 +53,20 @@ torpor$Hours_torpid2[is.na(torpor$Hours_torpid2)] <- 0
 ## Savings column
 torpor$savings <- 100-torpor$Percentage_avg
 
+m.temptrop <- melt(torpor, id.vars = c("Temptrop", "Species", "Site"), 
+                   measure.vars =  c("Hours_torpid", "Prop_hours", "NEE_kJ", "Percentage_avg", "NEE_MassCorrected", "Mass"))
+
+rate_site <- data.frame(table(torpor$Site,torpor$Torpid_not))
+names(rate_site) <- c("Site", "Torpid_not", "N")
+
+
 #### Make new data frames ####
+## Subset just BBLH data
+BBLH_torpor <- subset(torpor, Species=="BBLH")
+
+## Subset just GCB data
+GCB_torpor <- subset(torpor, Species=="GCB")
+
 ## Make table to summarize savings
 nee.agg <- aggregate(torpor$NEE_kJ, 
                          by=list(torpor$Torpid_not, torpor$Site_new, 
@@ -111,12 +119,6 @@ mass.agg
 ## Frequency table -  add proportion column
 freq_table$prop <- (freq_table$Torpid/freq_table$Total)*100
 freq_table$mass <- mass.agg$Mass
-
-## Subset just BBLH data
-BBLH_torpor <- subset(torpor, Species=="BBLH")
-
-## Subset just GCB data
-GCB_torpor <- subset(torpor, Species=="GCB")
 
 ## Melt torpor file to get Frequency of torpor use
 #m.tor_not <- melt(torpor, id.vars = c("Species", "Site", "Day", "Month", "Year"), 
@@ -691,12 +693,13 @@ m_BBLH_tor_nor$variable <- factor(m_BBLH_tor_nor$variable,
 
 ## Both normo and torpid avg EE for BBLH on same graph
 BBLH_tor_nor <- ggplot(m_BBLH_tor_nor, aes(as.numeric(Tc_min_C), value, shape=variable)) +
-  my_theme + geom_point(aes(shape=variable), size=6) + 
+  theme_classic(base_size = 20) + geom_point(aes(shape=variable), size=6) + 
   geom_smooth(method=lm, size=1, col="black") + 
   scale_shape_manual("Hourly Energy Expenditure\n", 
                      values=c(16,1), labels=c("Normothermic", "Torpid")) +
-  theme(legend.key.height=unit(3,"line"), legend.title=element_text(size=20)) +
-  ylab("Avg BBLH Energy Expenditure (kJ/g)") + xlab(Tc.xlab)
+  theme(legend.key.height=unit(3,"line"), legend.title=element_text(size=20), legend.position="bottom", axis.title.y = element_text(vjust = 2),
+        panel.border = element_rect(colour = "black", fill=NA)) +
+  ylab("Mean BBLH Energy Expenditure (kJ/g)") + xlab(Tc.xlab)
 BBLH_tor_nor 
 
 grid.arrange(m_BBLH_avgEE_normo_Tcmin_eq, m_BBLH_avgEE_torpid_Tcmin_eq, nrow=1, ncol=2)
@@ -797,13 +800,42 @@ GCB_tor_nor_col <- ggplot(m_GCB_tor_nor, aes(as.numeric(Tc_min_C), value, color=
 GCB_tor_nor_col
 
 GCB_tor_nor <- ggplot(m_GCB_tor_nor, aes(as.numeric(Tc_min_C), value, shape=variable)) +
-  my_theme + geom_point(aes(shape=variable), size=6) + 
+  theme_classic(base_size = 20) + geom_point(aes(shape=variable), size=6) + 
   geom_smooth(method=lm, size=1, col="black") + 
   scale_shape_manual("Hourly Energy Expenditure\n", 
                      values=c(16,1), labels=c("Normothermic", "Torpid")) +
-  theme(legend.key.height=unit(3,"line"), legend.title=element_text(size=20)) +
-  ylab("Avg GCB Energy Expenditure (kJ/g)") + xlab(Tc.xlab)
+  theme(legend.key.height=unit(3,"line"), legend.title=element_text(size=20), legend.position="bottom", axis.title.y = element_text(vjust = 2),
+        panel.border = element_rect(colour = "black", fill=NA)) +
+  ylab("Mean GCB Energy Expenditure (kJ/g)") + xlab(Tc.xlab)
 GCB_tor_nor 
+
+
+## Arrange BBLH and GCB tor_nor plots in a single window
+grid_arrange_shared_legend <- function(...) {
+  plots <- list(...)
+  g <- ggplotGrob(plots[[1]] + theme(legend.position="bottom"))$grobs
+  legend <- g[[which(sapply(g, function(x) x$name) == "guide-box")]]
+  lheight <- sum(legend$height)
+  grid.arrange(
+    do.call(arrangeGrob, lapply(plots, function(x)
+      x + theme(legend.position="none"))),
+    legend,
+    ncol = 1,
+    heights = unit.c(unit(1, "npc") - lheight, lheight))
+}
+
+grid_arrange_shared_legend(BBLH_tor_nor, GCB_tor_nor)
+
+library(gtable)
+g1 <- ggplotGrob(BBLH_tor_nor)
+g1 <- gtable_add_cols(g1, unit(0,"mm")) # add a column for missing legend
+g2 <- ggplotGrob(GCB_tor_nor)
+g <- cbind(g1, g2, size="first") # stack the two plots
+g$widths <- unit.pmax(g1$widths, g2$widths) # use the largest widths
+# center the legend vertically
+g$layout[grepl("guide", g$layout$name),c("t","b")] <- c(1,nrow(g))
+grid.newpage()
+grid.draw(g)
 
 #### Statistics ####
 
