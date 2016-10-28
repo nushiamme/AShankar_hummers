@@ -76,3 +76,11 @@ beh_by_month <- ggplot(m.beh, aes(variable, value)) + geom_bar(stat="identity") 
   facet_grid(~Month) + xlab("Behavior") + ylab("Time (seconds)")
 beh_by_month
 
+beh_plotlog <- ggplot(m.beh, aes(variable, log(value))) + geom_boxplot() + my_theme +
+  xlab("Behavior") + ylab("Log (Time (seconds))")
+beh_plotlog
+
+beh_plot <- ggplot(m.beh, aes(variable, value)) + geom_boxplot() + my_theme +
+  xlab("Behavior") + ylab("Time (seconds)")
+beh_plot
+
