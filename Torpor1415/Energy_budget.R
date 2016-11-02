@@ -10,21 +10,20 @@
 library(reshape)
 library(ggplot2)
 
-
 #### Reading in files and reshaping ####
 ## Set wd and read in file
 setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget")
 
 sc_temp <- read.csv("SonoitaCreek_Temperatures_S1.csv")
 bblh_tatc <- read.csv("BBLH_TcTa_2013.csv")
-bblh_tnz <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Energy budget data\\BroadBill.csv")
+bblh_tnz <- read.csv("Energy budget data\\BroadBill.csv")
 torpor <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper\\Torpor_table_plot_Mar26.csv")
 torpor$AvgEE_normo_MassCorrected <- torpor$Avg_EE_hourly_normo/(torpor$Mass^(2/3))
 torpor$AvgEE_torpid_MassCorrected <- torpor$Avg_EE_hourly_torpid/(torpor$Mass^(2/3))
 BBLH_torpor <- subset(torpor, Species=="BBLH")
 
 ## Reading in merged NEE and DEE dataset including only pre-monsoon DEE data. For all DEE data, use BBLH_merged_summ.csv
-bblh_merged <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\BBLH_merged_premonsoon.csv")
+bblh_merged <- read.csv("BBLH_merged_premonsoon.csv")
 m.bblh <- melt(bblh_merged, id.vars="Site", measure.vars = c("NEE_kJ", "DEE_kJ"))
 ## Average of DEE and NEE for HC and SC, only pre-monsoon
 mean_dee_nee <- aggregate(m.bblh$value, by=list(m.bblh$variable, m.bblh$Site), FUN=mean, na.rm=T)
@@ -65,7 +64,6 @@ AmbTemp <- ggplot(bblh_tatc, aes(Hour2, Ta_Mean)) + facet_grid(.~Site) +  my_the
         panel.grid.major.y = element_line(size=.1, color="grey75")) +
   xlab("Hour") #+ ylab(Ta.lab) + ggtitle("Sites")
 AmbTemp
-
 
 ## TRE_H (i.e. MR measured above 35&deg;C) from SC daytime temperature data and broad-bill equation
 ## MR~H~ (mL O~2~/min) = 0.214 (T~e~) - 7.2515

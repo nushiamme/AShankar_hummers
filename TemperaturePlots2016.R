@@ -1,5 +1,6 @@
 ## Analyzing and plotting ambient and chamber temperature data for torpor paper
-## Anusha Shankar*, Rebecca Schroeder*, Catherine Graham, Don Powers
+## Script by Anusha Shankar
+## Paper authors: Anusha Shankar*, Rebecca Schroeder*, Catherine Graham, Don Powers
 ## Script started on: Sept 24, 2016
 
 require(ggplot2)
