@@ -40,6 +40,9 @@ my_theme <- theme_classic(base_size = 30) +
 Ta.lab <- expression(atop(paste("Ambient Temperature ( ", degree,"C)")))
 Te.lab <- expression(atop(paste("Operative Temperature ( ", degree,"C)")))
 
+## Randomly sampling temperatures to get theroregulatory costs
+
+
 #### Plots #####
 m.te_hour <- m.te_det[m.te_det$Hour==700 & m.te_det$DayMonth=="8,7" & m.te_det$Site=="HC",]
 ggplot(m.te_hour, aes(Sensor, Te)) + geom_point(size=4) + my_theme + 
