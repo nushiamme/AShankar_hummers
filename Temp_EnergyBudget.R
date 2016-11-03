@@ -41,7 +41,19 @@ Ta.lab <- expression(atop(paste("Ambient Temperature ( ", degree,"C)")))
 Te.lab <- expression(atop(paste("Operative Temperature ( ", degree,"C)")))
 
 ## Randomly sampling temperatures to get theroregulatory costs
+lst <- list()
 
+te_hc <- m.te_det[m.te_det$Site=="HC",]
+te_hc$Hour <- as.factor(te_hc$Hour)
+te_hc_list <- split(te_hc, as.factor(te_hc$Hour))
+
+for(i in seq_len(5)){
+  for(j in ncol(te_hc_list)) {
+    lst[[i]] <- te_hc_list[sample(seq_len(nrow(te_hc_list$j)), 3, replace = TRUE),]
+    lst[[i]]["Sample"] <- i
+  }
+}
+lst
 
 #### Plots #####
 m.te_hour <- m.te_det[m.te_det$Hour==700 & m.te_det$DayMonth=="8,7" & m.te_det$Site=="HC",]
