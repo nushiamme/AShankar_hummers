@@ -47,13 +47,23 @@ te_hc <- m.te_det[m.te_det$Site=="HC",]
 te_hc$Hour <- as.factor(te_hc$Hour)
 te_hc_list <- split(te_hc, as.factor(te_hc$Hour))
 
-for(i in seq_len(5)){
-  for(j in ncol(te_hc_list)) {
-    lst[[i]] <- te_hc_list[sample(seq_len(nrow(te_hc_list$j)), 3, replace = TRUE),]
-    lst[[i]]["Sample"] <- i
+te_samp_hc <- lapply(split(te_hc, te_hc$Hour),
+              function(subdf) subdf[sample(1:nrow(te_hc), 3),]
+)
+
+
+for(i in nlevels(te_hc$Hour)) {
+  for(j in seq_len(5)){
+    lst[[j]] <- te_hc[sample(te_hc$Te[te_hc$Hour %in% i], 3, replace = TRUE),]
+    lst[[j]]["Sample"] <- j
   }
 }
 lst
+
+te.hc.samp <- te_hc_list[tapply(1:nrow(te_hc_list), te_hc$, sample, 2),]
+sample(te_hc[te_hc$Hour %in% 100,], 1, replace = TRUE)
+
+sample(te_hc$Te[te_hc$Hour=="2400"], 3, replace = TRUE)
 
 #### Plots #####
 m.te_hour <- m.te_det[m.te_det$Hour==700 & m.te_det$DayMonth=="8,7" & m.te_det$Site=="HC",]
