@@ -6,6 +6,7 @@
 library(reshape)
 library(ggplot2)
 
+
 #### Reading in files and reshaping ####
 ## Set wd
 setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget")
@@ -47,14 +48,15 @@ te_hc <- m.te_det[m.te_det$Site=="HC",]
 te_hc$Hour <- as.factor(te_hc$Hour)
 te_hc_list <- split(te_hc, as.factor(te_hc$Hour))
 
+cast(te_hc, Te~Hour)
+
 te_samp_hc <- lapply(split(te_hc, te_hc$Hour),
               function(subdf) subdf[sample(1:nrow(te_hc), 3),]
 )
 
-
-for(i in nlevels(te_hc$Hour)) {
+for(i in 1:ncol(te_hc_list)) {
   for(j in seq_len(5)){
-    lst[[j]] <- te_hc[sample(te_hc$Te[te_hc$Hour %in% i], 3, replace = TRUE),]
+    lst[[j]] <- te_hc_list[sample(te_hc_list[i,], 3, replace = TRUE),]
     lst[[j]]["Sample"] <- j
   }
 }
