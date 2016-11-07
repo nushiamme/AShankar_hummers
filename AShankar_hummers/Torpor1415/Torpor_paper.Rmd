@@ -1,0 +1,226 @@
+---
+title: "Torpor paper graphs"
+author: "Anusha Shankar, Rebecca Schroeder"
+date: "Wednesday, December 09, 2015"
+output: pdf_document
+---
+These are results or a cross-continent study of torpor in hummingbirds. Data were collected from a total of 42 individuals of eight species across five sites, with three species in Arizona, USA, and five species in the Andes of Ecuador.
+
+```{r, echo=FALSE}
+library(knitr)
+library(ggplot2)
+library(reshape)
+library(gridExtra)
+library(grid)
+library(wq)
+gitpath <- "E:\\Git\\AShankar_hummers\\Torpor_EC_AZ_2013_2014"
+setwd(gitpath)
+droppath <- "C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper\\"
+figpath <- "C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Plots_for_paper\\"
+torpor <-read.csv(paste(droppath,"Torpor_table_plot_Dec9.csv", sep=""), header=T)
+
+
+#### Mass-correction columns and species-specific subsets ####
+## Adding column dividing NEE by 2/3*Mass to correct for mass with allometric scaling
+torpor$NEE_MassCorrected<- torpor$NEE_kJ/((2/3)*torpor$Mass)
+
+## Adding columns to correct for mass in Avg EE normo, Min EE normo, torpid, etc.
+torpor$AvgEE_normo_MassCorrected <- torpor$Avg_EE_hourly_normo/((2/3)*torpor$Mass)
+torpor$MinEE_normo_MassCorrected <- as.numeric(torpor$Min_EE_normo)/((2/3)*torpor$Mass)
+torpor$AvgEE_torpid_MassCorrected <- torpor$Avg_EE_hourly_torpid/((2/3)*torpor$Mass)
+torpor$MinEE_torpid_MassCorrected <- as.numeric(torpor$Min_EE_torpid)/((2/3)*torpor$Mass)
+
+# Line to arrange Site facets in sensible order
+torpor$Site_new <- factor(torpor$Site, levels=c('HC','SC','SWRS','MQ','SL'))
+
+## Subset just BBLH data
+BBLH_torpor <- subset(torpor, Species=="BBLH")
+
+#### General functions ####
+lay_out = function(...) {    
+  x <- list(...)
+  n <- max(sapply(x, function(x) max(x[[2]])))
+  p <- max(sapply(x, function(x) max(x[[3]])))
+  grid::pushViewport(grid::viewport(layout = grid::grid.layout(n, p)))    
+  
+  for (i in seq_len(length(x))) {
+    print(x[[i]][[1]], vp = grid::viewport(layout.pos.row = x[[i]][[2]], 
+                                           layout.pos.col = x[[i]][[3]]))
+  }
+} 
+
+# Function to return sample sizes
+give.n <- function(x){
+  return(c(y = mean(x), label = length(x)))
+}
+
+## Function for adding a regression equation to graphs
+## (Where table= the file name, y= column name for y in the equation and x= column name for x)
+lm_eqn <- function(table, y, x){
+  m <- lm(y ~ x, table);
+  eq <- substitute(italic(y) == 
+                     a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
+                   list(a = format(coef(m)[1], digits = 2), 
+                        b = format(coef(m)[2], digits = 2), 
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));                 
+}
+
+#code for including degree symbol in axis labels
+Tc.xlab <- expression(atop(paste("Chamber Temperature (", degree,"C)")))
+Ta.xlab <- expression(atop(paste("Ambient Temperature (", degree,"C)")))
+Tc_min.xlab <- expression(atop(paste("Minimum Chamber Temperature (", degree,"C)")))
+```
+
+**Nighttime energy expenditure plots**
+```{r, NEE, echo=FALSE}
+#### Basic NEE and hours plots ####
+## Plot for Nighttime energy expenditure, by species
+energy_plot <- ggplot(torpor, aes(Species, NEE_kJ)) +  theme_bw() +
+  geom_boxplot(aes(col=Species)) + facet_grid(.~Site_new, scale="free_x", space="free") + 
+  ylab("Nighttime energy expenditure (kJ)") + theme(legend.position="none") +
+  theme(axis.title.x = element_text(size=16, face="bold"),
+        axis.text.x = element_text(size=14),
+        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) +
+  stat_summary(fun.data = give.n, geom = "text", vjust=-5)
+#energy_plot
+
+## Plot for hours spent torpid
+hours_plot <- ggplot(torpor, aes(Species, Hours_torpid)) +  theme_bw() +
+  geom_boxplot(aes(col=Species)) + facet_grid(.~Site_new, scale="free_x", space="free") + 
+  ylab("Hours Torpid") + theme(legend.position="none") +
+  theme(axis.title.x = element_text(size=16, face="bold"),
+        axis.text.x = element_text(size=14),
+        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) +
+  stat_summary(fun.data = give.n, geom = "text", vjust=-4.75)
+#hours_plot
+
+## Plot for Mass-corrected Nighttime energy expenditure, by species
+energyM_plot <- ggplot(torpor, aes(Species, NEE_MassCorrected)) +  theme_bw() +
+  geom_boxplot(aes(col=Species)) + facet_grid(.~Site_new, scale="free_x", space="free") + 
+  ylab("Nighttime energy expenditure Mass-corrected (kJ/g)") + theme(legend.position="none") +
+  theme(axis.title.x = element_text(size=16, face="bold"),
+        axis.text.x = element_text(size=14),
+        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) +
+  stat_summary(fun.data = give.n, geom = "text", vjust=-5)
+#energyM_plot
+```
+*** Nighttime energy expenditure compared to hours spent torpid***
+```{r NEEplots, echo=FALSE}
+## Comparing NEE and hours plots
+grid.arrange(energyM_plot, hours_plot, nrow=1, ncol=2)
+
+## Comparing energy plots with and without mass-correction
+#grid.arrange(energy_plot, energyM_plot, nrow=1, ncol=2)
+
+## NEE plot by temperature
+energy_temp <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_kJ)) + 
+  geom_point(aes(shape = factor(Species)), size=4) + 
+  scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
+  labs(shape='Species') + xlim(4, 30) +
+  scale_color_brewer(palette = "Set1") + theme_bw() + 
+  geom_text(aes(label=Torpid_not, hjust=2), size=5, show_guide=F,
+            fontface="bold") +
+  ylab("Nighttime energy expenditure (kJ)") + xlab(Tc.xlab) +
+  theme(axis.title.x = element_text(size=16, face="bold"),
+        axis.text.x = element_text(size=14),
+        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
+#energy_temp 
+
+## Mass-corrected NEE plot by temperature
+energyM_temp <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_MassCorrected)) + 
+  geom_point(aes(shape = factor(Species)), size=4) + 
+  scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
+  #scale_shape_manual(values=1:nlevels(torpor$Species)) +
+  labs(shape='Species') + xlim(0, 30) +
+  scale_color_brewer(palette = "Set1") + theme_bw() + 
+  geom_text(aes(label=Torpid_not, hjust=2), size=5, show_guide=F,
+            fontface="bold") +
+  ylab("Nighttime energy expenditure Mass-corrected (kJ/g)") + xlab(Tc.xlab) +
+  theme(axis.title.x = element_text(size=16, face="bold"),
+        axis.text.x = element_text(size=14),
+        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
+#energyM_temp 
+
+## Mass-corrected NEE plot by MINIMUM Tc
+energyM_Tcmin <- ggplot(torpor, aes(as.numeric(Tc_min_C), NEE_MassCorrected)) + 
+  geom_point(aes(shape = factor(Species)), size=4) + 
+  scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
+  geom_smooth(method=lm, color="black") +
+  geom_text(x = 16, y = 4.5, label = lm_eqn(torpor, torpor$NEE_MassCorrected, 
+                                            torpor$Tc_min_C), parse=T) +
+  labs(shape='Species') + #xlim(5, 25) +
+  scale_color_brewer(palette = "Set1") + theme_bw() + 
+  geom_text(aes(label=Torpid_not, hjust=2), size=5, show_guide=F,
+            fontface="bold") +
+  ylab("Nighttime energy expenditure Mass-corrected (kJ/g)") + xlab(Tc_min.xlab) +
+  theme(axis.title.x = element_text(size=16, face="bold"),
+        axis.text.x = element_text(size=14),
+        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
+#energyM_Tcmin
+
+## NEE vs. temp, with and without mass-correction
+#grid.arrange(energy_temp, energyM_temp, nrow=1, ncol=2)
+![NEE with and without mass correction][NEE_species_MassAndNot]
+
+## NEE plot by chamber temperature, facet by site and color by species
+energy_temp_site <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_kJ)) + 
+  geom_point(aes(shape = factor(Species)), size=4) + 
+  scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
+  #scale_shape_manual(values=1:nlevels(torpor$Species)) +
+  labs(shape='Species') + xlim(-7, 45) +
+  scale_color_brewer(palette = "Set1") + theme_bw() + 
+  geom_text(aes(label=Torpid_not, hjust=1.75, fontface="bold"),size=5) +
+  facet_grid(.~Site_new) +
+  ylab("Nighttime energy expenditure (kJ)") + xlab(Tc.xlab) +
+  theme(axis.title.x = element_text(size=16, face="bold"),
+        axis.text.x = element_text(size=14),
+        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
+#energy_temp_site
+
+## Plot both energy_temp plots together
+#lay_out(list(energy_temp, 1, 1), 
+#        list(energy_temp_site, 1, 2))
+
+## Mass-corrected NEE plot by chamber temperature, facet by site and color by species
+energyM_temp_site <- ggplot(torpor, aes(as.numeric(Tc_mean_C), NEE_MassCorrected)) + 
+  geom_point(aes(shape = factor(Species)), size=4) + 
+  scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
+  #scale_shape_manual(values=1:nlevels(torpor$Species)) +
+  labs(shape='Species') + xlim(-7, 45) +
+  scale_color_brewer(palette = "Set1") + theme_bw() + 
+  geom_text(aes(label=Torpid_not, hjust=1.75, fontface="bold"),size=5) +
+  facet_grid(.~Site_new) +
+  ylab("Nighttime energy expenditure Mass-corrected (kJ/g)") + xlab(Tc.xlab) +
+  theme(axis.title.x = element_text(size=16, face="bold"),
+        axis.text.x = element_text(size=14),
+        axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
+#energyM_temp_site
+
+## Plot both energy_temp with and without mass-correction together. i.e. 4 plots
+lay_out(list(energy_temp, 1, 1), 
+        list(energy_temp_site, 1, 2),
+        list(energyM_temp, 2, 1),
+        list(energyM_temp_site, 2, 2))
+```
+
+**Average hourly energy expenditure plots**
+
+
+
+**Minimum hourly energy expenditure plots**
+
+
+
+**Comparing average and minimum energy expenditure**
+
+
+
+**Species- or site-specific plots with regression lines**
+
+
+
+**Statistical tests**
+```{r FigDefs}
+[NEE_species_MassAndNot]: "C:/Users/ANUSHA/Dropbox/Hummingbird energetics/Plots_for_paper/NEE/NEE_species_MassAndNot.jpeg" "NEE something"
+```
