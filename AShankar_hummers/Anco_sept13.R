@@ -1,5 +1,5 @@
 ## Anusha Hornbill nest data
-# Updated : December 4th, 2013
+# Updated : May 15, 2015
 
 ## Read in packages
 library(ggplot2)
@@ -15,17 +15,20 @@ library(RgoogleMaps)
 library(ggmap)
 library(raster)
 library(rgdal)
+## library(jpeg)
 
 ## Set working directory
-setwd("D://Dropbox/Hornbills/")
+## setwd("D://Dropbox/Hornbills/")
+setwd("C://Users//ANUSHA//SkyDrive//Hornbills")
+
 
 ## Read in data
 #anco2 <- read.csv("Ancodata_Sept2013.csv")
 anco <- read.csv("Ancodata_edit.csv")
-# Read in ebird data!
+## Read in ebird data!
 ebird <- read.csv("ebird2_dec13.csv")
-# Ebird data used for poster
-ebird_old <- read.csv("ebird_old.csv")
+## Ebird data used for poster
+# ebird_old <- read.csv("ebird_old.csv")
 
 ## Cleaning and aggregating data
 
@@ -68,9 +71,35 @@ anco$dbhcl
 
 ##### End sort #####
 
+## Calculate mean and s.e. for nest site characters
+av.dbh <- mean(anco$dbh)
+av.dbh
+se.dbh <- sd(anco$dbh)/sqrt(length(anco$dbh))
+sd.dbh <- sd(anco$dbh, na.rm=T)
+sd.dbh
+
+
+av.ht <- mean(anco$ht, na.rm=T)
+av.ht
+se.ht <- sd(anco$ht, na.rm=T)/sqrt(length(anco$ht))
+sd.ht <- sd(anco$ht, na.rm=T)
+sd.ht
+
+av.nestht <- mean(anco$nestht, na.rm=T)
+av.nestht
+se.nestht <- sd(anco$nestht, na.rm=T)/sqrt(length(anco$nestht))
+sd.nestht <- sd(anco$nestht, na.rm=T)
+sd.nestht
+
 ## Seeing how to do an Anova with habitat (categorial, factors) as the measure variable
 anco$hab_binary[anco$habitat=="Open"] <- 0
 anco$hab_binary[anco$habitat=="Forest"] <- 1
+
+## Nest site parameters by forest type
+mean(anco$dbh[anco$hab_binary==0]) # open
+mean(anco$dbh[anco$hab_binary==1]) # forest
+sd(anco$dbh[anco$hab_binary==0]) # open
+sd(anco$dbh[anco$hab_binary==1]) # forest
 
 ## Classify forest distances
 
@@ -92,6 +121,8 @@ forest_class <- function (forest) {
 }
 
 anco$forestclass <- forest_class(anco$Forest)
+
+## Logistic regression
 
 
 
@@ -192,6 +223,7 @@ c(t.nestht.dbh$estimate, t.nestht.dbh$p.value)
 
 # Two sample t test for distances
 t.test(x=anco$Building[anco$habitat=="Open"], y=anco$Building[anco$habitat=="Forest"]) ## Significant
+t.test(x=anco$dbh[anco$habitat=="Open"], y=anco$dbh[anco$habitat=="Forest"])
 t.test(anco$dbh[anco$Species=="Mangifera indica"], anco$dbh[anco$Species=="Terminalia bellerica"])
 t.test(x=anco$Stream[anco$habitat=="Open"], y=anco$Stream[anco$habitat=="Forest"])
 t.test(x=anco$Road, y=anco$Building)
