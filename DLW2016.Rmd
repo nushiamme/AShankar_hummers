@@ -1,0 +1,145 @@
+---
+title: "The allometry of field metabolic rates in tropical vs. temperate hummingbirds"
+author: "Anusha Shankar, Joseph R. Canepa, Catherine H. Graham, Donald R. Powers"
+date: "Thursday, March 17, 2016"
+output:
+  word_document: default
+  pdf_document:
+    fig_caption: yes
+---
+## Abstract
+Allometric scaling relationships describe how the scaling of one trait (e.g. body size) affects the scaling of another trait (e.g. field metabolic rate, brain size). These scaling relationships have intrigued scientists for decades because there seem to be rules that govern how metabolic processes scale up with body size.  In birds, field metabolic rate (FMR) scales with body mass (M) in the form FMR = aM0.67. This relationship between metabolic rate and mass has been found to vary depending on the taxonomic level being studied. Thus, a scaling exponent on the scale of all birds could mask localized taxon-specific patterns. Hummingbirds have among the highest mass-specific rates of all vertebrates, as well as a much higher wing aspect ratio than predicted for their size. We collected FMR and mass data for hummingbirds, and examined the scaling of FMR with body mass among hummingbird. We found that hummingbirds have an FMR to mass scaling exponent >0.9, much higher than any group previously studied. Further, since temperate hummingbirds feed on densely clumped resources more than tropical hummingbirds do, we expect tropical birds to have a higher field metabolic rate to body size exponent than temperate birds to support increased foraging effort. We find that tropical hummingbirds have a higher FMR to mass ratio on average than temperate birds.
+
+Tropical birds have been found to have significantly lower BMR than temperate birds, though within the tropics (Peru) elevation had no effect on BMR (Londono et al. 2015). 'Pace of life' is thus slower in tropical than temperate regions.
+
+##Introduction:
+
+```{r, echo=F}
+## Maybe compare SC pre-monsoon birds instead of what Joey's posted does with HC pre-monsoon birds. Because temperatures were similar for SC and Maqui/SL. HC was colder.
+## Calculate nighttime energy expenditure for the birds and subtract that from total DEE, what is daytime energy expenditure? What is hourly daytime energy expenditure?
+## Earlier methods used jugular blood samples. Used to kill the bird.
+## There are 3 DLW hummingbird papers. One of them in the tropics- Weathers and Stiles. Don's done the other two. Harry Teebo, captive DLW. 
+## Austin Spence from Morgan Tingley's lab - toe-clipping to get haemoglobin. Same guy who learned respirometry from Don.
+## Could correct DLW data for thermoregulation. If you have TNZ data for the birds.
+## To do: Include BBLH data in plots
+## Have to talk about testing for dose sizes in AZ birds because they were fed and not injected.
+## For 2013 DLW calculations, assumed the birds had total body water of 0.7 (i.e. 70% proportion of water to body mass). Speakman said this was okay.
+## Read more about allometric relationships, exponents starting with BMR. Need to be able to explain why the slope is 1. Birds overall, FMR to mass slope is 0.68.
+## Is there data comparing tropics vs. temperate for other bird species that I could analyze?
+## To estimate BMR from RMR, reduce RMR by 25%. Ashoff and Pohl papers compare BMR and RMR
+## Create allometric relationships for different foraging groups. Insectivores vs. granivores vs. nectarivores
+## Doug - scope for activity and bmr- is there a correlation?
+```
+
+**Hypotheses**:
+1. Whole animal daily energy expenditure will increase as mass increases
+2. Daily energy expenditure will increase if daily temperatures vary more widely
+ + Higher thermoregulatory costs (avg. daily temperatures are low) would contribute to increased DEE (both directly because of increased thermoregulatory costs, and indirectly because they would need to be more active to gain energy to deal with these increased costs)
+3. Tropical resident species have a higher DEE than temperate long distance migrants
+4. Territorial species 
+
+```{r, echo=F, fig.cap="blah"}
+library(ggplot2)
+
+setwd("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper")
+## Includes data from XXXX papers.
+dlw <- read.csv("DLW_data2.csv")
+dlw <- dlw[dlw$Reasonable_not=="Y",]
+
+
+## Aggregate data frame by mean.
+dlw_mean <- data.frame()
+dlw_mean <- aggregate(dlw$kJ_day, by=list(dlw$Species, dlw$Big_site), FUN="mean", na.omit=T)
+dlw_something <- aggregate(dlw$Initial_mass, by=list(dlw$Species, dlw$Big_site), 
+                           FUN="mean", na.omit=T)
+dlw_mean <- merge(dlw_mean, dlw_something, by = c("Group.1", "Group.2"))
+names(dlw_mean) <- c("Species", "Region", "kJ_day", "Mass_g")
+
+## Fuction tO plot sample size
+give.n <- function(x){
+  return(c(y = mean(x), label = length(x)))
+}
+
+lm_eqn <- function(table, y, x){
+  m <- lm(y ~ x, table);
+  eq <- substitute(italic(y) == 
+                     a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
+                   list(a = format(coef(m)[1], digits = 2), 
+                        b = format(coef(m)[2], digits = 2), 
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));                 
+}
+```
+
+A log-log plot of hummingbird daily energy expenditure (kJ) vs. mass (g), including values from this study as well as from the literature. Colors represent species.
+```{r, echo=F, fig.cap=""}
+#Species-wise log-log plot of DEE vs. mass
+dlw_sp_mean_log <- ggplot(dlw_mean, aes(log(Mass_g), log(kJ_day))) + 
+  geom_point(aes(col=Species), size=4) + theme_bw() + geom_smooth(method=lm)
+#plot(dlw_sp_mean_log, fig.align='left')
+
+dlw_sp_mean <- ggplot(dlw_mean, aes(Mass_g, kJ_day)) + 
+  geom_point(aes(col=Species), size=4) + theme_bw() + geom_smooth(method=lm)
+#plot(dlw_sp_mean, fig.align='left')
+```
+
+Mass-corrected daily energy expenditure vs. Mass, colored by species
+```{r, echo=F}
+dee_per_gram <- ggplot(dlw, aes(Initial_mass, kJ_dayg)) + 
+  geom_point(aes(col=Species), size=2, shape=16) + theme_bw() + scale_color_brewer(palette="Paired") +
+  ylab("kJ per day*g") + xlab("Initial mass (g)")
+#plot(dee_per_gram, fig.align='left')
+```
+
+
+```{r, echo=F}
+dee_total <- ggplot(subset(dlw,Reasonable_not %in% "Y"), aes(Initial_mass, kJ_day)) + 
+  geom_point(aes(col=Species), size=2, shape=16) + theme_bw() + 
+  scale_color_brewer(palette="Paired") + ylab("kJ per day") + xlab("Initial mass (g)")
+#plot(dee_total, fig.align='left')
+
+##To do: all birds combined, and then on Ecuador and on AZ birds separately
+dee_indiv_log <- ggplot(dlw_mean, aes(log(Mass_g), log(kJ_day))) + 
+  geom_point(aes(shape=Region), size=5) + theme_classic(base_size=30) + xlab("Log(Mass (g))") +
+  scale_shape_manual("Region\n", values=c(16, 3, 1), labels=c("Arizona", "Costa Rica", "Ecuador")) +
+  ylab("Log(kJ per day)")  + geom_smooth(method=lm) + 
+  theme(strip.background = element_blank(), 
+        panel.border = element_rect(colour = "black", fill=NA), legend.key.height=unit(2,"line"))
+#plot(dee_indiv_log)
+
+dee_indiv_EC <- ggplot(subset(dlw,Big_site %in% "EC"), aes(log(Initial_mass), log(kJ_day))) +
+  geom_point(aes(shape=Species), size=5) + theme_classic(base_size=30) + xlab("Log(Mass (g))") + 
+  ylab("Log(kJ per day)")  + geom_smooth(method=lm) + 
+  theme(strip.background = element_blank(), 
+        panel.border = element_rect(colour = "black", fill=NA), legend.key.height=unit(2,"line"))
+#dee_indiv_EC
+
+dee_indiv_AZ <- ggplot(subset(dlw,Big_site %in% "AZ"), aes(log(Initial_mass), log(kJ_day))) +
+  geom_point(aes(shape=Species), size=5) + theme_classic(base_size=30) + xlab("Log(Mass (g))") + 
+  ylab("Log(kJ per day)")  + geom_smooth(method=lm) + 
+  theme(strip.background = element_blank(), 
+        panel.border = element_rect(colour = "black", fill=NA), legend.key.height=unit(2,"line"))
+#dee_indiv_AZ
+
+dee_indiv_CR <- ggplot(subset(dlw,Big_site %in% "CR"), aes(log(Initial_mass), log(kJ_day))) +
+  geom_point(aes(shape=Species), size=5) + theme_classic(base_size=30) + xlab("Log(Mass (g))") + 
+  ylab("Log(kJ per day)")  + geom_smooth(method=lm) + 
+  theme(strip.background = element_blank(), 
+        panel.border = element_rect(colour = "black", fill=NA), legend.key.height=unit(2,"line"))
+#dee_indiv_CR
+```
+
+Plot of total daily energy expenditure per bird, colored by species (not mass-corrected)
+```{r, echo=F, fig.cap="blah"}
+fitAll <- lm(log(kJ_day) ~ log(Initial_mass),data = dlw)
+summary(fitAll)
+
+fitEC <- lm(log(kJ_day) ~ log(Initial_mass),data = dlw[dlw$Big_site=="EC",])
+summary(fitEC)
+
+fit_spMean <- lm(log(kJ_day) ~ log(Mass_g),data = dlw_mean)
+summary(fit_spMean)
+
+fit_try <- lm(log(kJ_day) ~ log(Mass_g) + Region, data=dlw_mean)
+summary(fit_try)
+```
