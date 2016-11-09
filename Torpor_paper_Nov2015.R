@@ -75,6 +75,7 @@ nee.agg <- aggregate(torpor$NEE_kJ,
 names(nee.agg) <- c("Torpid_not", "Site", "Species", "NEE_kJ")
 nee.agg
 
+## Mass-corrected NEE aggregate
 neet.agg <- aggregate(torpor$NEE_MassCorrected, 
                      by=list(torpor$Torpid_not, torpor$Site_new, 
                              torpor$Species), 
