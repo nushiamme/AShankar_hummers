@@ -43,14 +43,24 @@ Other files of note:
       TemperaturePlots2016.R - Plotting temperatures for torpor and BBLH energy budget papers, script made in 2016 but data are from
       2013-14
       
+    BBLH Energy budget:  
+      Temp_EnergyBudget.R - Compile all sensors' temperature data from Harshaw and Sonoita Creek, and calculate thermoregulatory
+      costs for BBLH at each site
+      
+      ToMelt_Temp_details.R - Separate ambient and operative temperature data from original dataframe, which also has original sensor ID
+      info, and save as separate melted .csv's
+      
       BBLH_energy_budget.Rmd - To put together analyses from other scripts into a readable energy budget word/pdf document
       
       EnergyBudget_AShankar.Rmd - Old energy budget used for dissertation proposal - initially drafted by DR Powers; improved when 
       A Shankar and DR Powers met and rebuilt the model in Jan 2014
       
+    Other:
       DLW2016.Rmd - Hummingbird DEE allometry
       
       AnushaHornbill_Mar2015.R - To analyze data from my Master's thesis on Malabar Pied Hornbill nest site distributions
+      
+      There's a few more files that aren't very relevant to my current work any more, or are Miscellaneous.
       
 Required Packages:
 
