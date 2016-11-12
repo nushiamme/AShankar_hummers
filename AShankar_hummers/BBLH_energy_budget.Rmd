@@ -1,0 +1,172 @@
+---
+title: "Energy budgeting in a temperate hummingbird"
+author: "Anusha Shankar, Donald R. Powers, Susan Wethington, Joseph R. Canepa, Catherine
+  H. Graham"
+date: "Wednesday, August 31, 2016"
+output: word_document
+---
+
+## Abstract
+With climate change and the subsequent changes in thermal regimes, organisms might have to budget their energy use differently to incorporate the varying costs of temperature change, both direct (e.g. thermoregulatory) and indirect (e.g. foraging, flying). Our goal is to determine which aspects of the daily energy budget (e.g. thermoregulation, daytime activity costs, nighttime costs) change in response to environmental variation. This will help us understand the strategies species might use to balance their energy budget over the short term to survive environmental extremes. Energy-budget management is particular challenging for hummingbirds because they have high metabolic rates and store little fat. The lack of significant energy storage by hummingbirds makes their energy budget relatively simple compared to other endothermic systems. We modeled energy budgets for two populations of Broad-billed hummingbirds (*Cynanthus latirostris*) that vary significantly in their daily energy expenditure due to differences in thermal profiles, topography, and vegetative structure of their habitats. Our analyses show that the difference in daily energy expenditure was due primarily to thermoregulatory costs. High thermoregulatory costs could cause birds to sit in the shade and forage less in order to manage their energy budget. If thermoregulatory costs occupy a larger portion of the energy budget in one site versus another, this could cause differential fitness across sites, as there could be less energy available to the birds for reproduction and foraging.  
+
+## Daily energy expenditure
+```{r, echo=F}
+library(ggplot2)
+library(pander)
+library(reshape)
+
+panderOptions('digits', 2)
+panderOptions('round', 2)
+panderOptions('keep.trailing.zeros', TRUE)
+
+## NOTE: masses for SC pre- vs. post-monsoon were significantly different
+## from "C:\Users\ANUSHA\Dropbox\DLW_paper\BBLH 2013 Poster Data.xlsx"
+
+## Includes data from XXXX papers.
+
+dlw <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper\\DLW_data2.csv")
+dlw <- dlw[dlw$Reasonable_not=="Y",]
+
+dlw_bblh <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\DLW_summary.csv")
+dlw_bblh$Site_monsoon <- paste(dlw_bblh$Site, dlw_bblh$Pre_post_monsoon, sep="_") # column combining site and monsoon status
+dlw_bblh$Initial_mass_g <- as.numeric(as.character(dlw_bblh$Initial_mass_g))
+
+#### Reading in Torpor files ####
+## Pulling in BBLH torpor data
+torpor <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper\\Torpor_table_plot_Mar26.csv")
+torpor$AvgEE_normo_MassCorrected <- torpor$Avg_EE_hourly_normo/(torpor$Mass^(2/3))
+torpor$AvgEE_torpid_MassCorrected <- torpor$Avg_EE_hourly_torpid/(torpor$Mass^(2/3))
+BBLH_torpor <- subset(torpor, Species=="BBLH")
+
+## Reading in merged NEE and DEE dataset including only pre-monsoon DEE data. For all DEE data, use BBLH_merged_summ.csv
+bblh_merged <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\BBLH_merged_premonsoon.csv")
+m.bblh <- melt(bblh_merged, id.vars="Site", measure.vars = c("NEE_kJ", "DEE_kJ"))
+
+## Aggregate to summarize DEE
+a.dlw <- aggregate(dlw_bblh$kJ_day, by = list(dlw_bblh$Site, dlw_bblh$Day, dlw_bblh$Month), FUN="mean")
+
+###### General functions #####
+## Generic plot theme
+my_theme <- theme_classic(base_size = 30) + 
+  theme(panel.border = element_rect(colour = "black", fill=NA))
+
+lm_eqn <- function(table, y, x){
+  m <- lm(y ~ x, table);
+  eq <- substitute(italic(y) == 
+                     a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
+                   list(a = format(coef(m)[1], digits = 2), 
+                        b = format(coef(m)[2], digits = 2), 
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));                 
+}
+
+#### BBLH DEE plots ####
+# DEE by pre- vs. post- monsoon
+dee_BBLH_Sitemonsoon <- ggplot(dlw_bblh, aes(Initial_mass_g, kJ_day)) + my_theme + 
+  geom_point(aes(shape=Site_monsoon), size=7) + 
+  scale_shape_manual("Site_monsoon", values=c(20,3,2,8)) +
+  #geom_text(x = 2.8, y = 40, 
+            #label = lm_eqn(dlw_bblh$kJ_day, dlw_bblh$Initial_mass_g), parse=T, size=10) +
+  geom_smooth(stat='smooth', method='loess', data=dlw_bblh, 
+              aes(Initial_mass_g, kJ_day, group=Site_monsoon, col=Site_monsoon)) +
+  #geom_line(stat='smooth', data=dlw_bblh, aes(Initial_mass_g, kJ_day, group=Site_monsoon, col=Site_monsoon),
+   #           method="lm",size=2, alpha=0.6) +
+  ylab("Daily energy expenditure (kJ/day)") + xlab("Initial mass (g)")
+dee_BBLH_Sitemonsoon
+
+dee_BBLH_monsoon <- ggplot(dlw_bblh, aes(Initial_mass_g, kJ_day)) + my_theme + 
+  geom_point(aes(shape=Pre_post_monsoon), size=7) + 
+  scale_shape_manual("Monsoon", values=c(20,3),labels=c("Post-monsoon", "Pre-monsoon")) +
+  ylab("Daily energy expenditure (kJ/day)") + xlab("Capture mass (g)")
+dee_BBLH_monsoon
+
+summary(lm(dlw_bblh$kJ_day[dlw_bblh$Pre_post_monsoon=="Pre"] ~ dlw_bblh$Initial_mass_g[dlw_bblh$Pre_post_monsoon=="Pre"]))
+summary(lm(dlw_bblh$kJ_day ~ dlw_bblh$Initial_mass_g))
+
+## DEE by site
+dee_BBLH_site <- ggplot(dlw_bblh, aes(Initial_mass_g, kJ_day)) + my_theme +
+  geom_point(aes(col=Site), size=7) +  
+  scale_shape_manual("Site", values=c(20,3), 
+                     labels=c("HC", "SC"), breaks=c("Pre", "Post")) + 
+  ylab("Daily energy expenditure (kJ/day)") + xlab("Initial mass (g)")
+plot(dee_BBLH_site, fig.align='left')
+
+## DEE by site and pre- and post-monsoon
+dee_BBLH_site <- ggplot(dlw_bblh, aes(Site_monsoon, kJ_day)) + geom_boxplot() + my_theme + geom_point(aes(shape=Pre_post_monsoon), size=5, alpha=0.4) + scale_shape_manual("Season\n", values=c(19,17), labels=c("Pre-monsoon", "Post-monsoon"), breaks=c("Pre", "Post")) + ylab("Daily energy expenditure (kJ/day)") + xlab("Site and monsoon status")
+plot(dee_BBLH_site, fig.align='left')
+
+
+#### Torpor plots ####
+
+## Comparing HC and SC BBLH NEE
+ggplot(BBLH_torpor, aes(Site, NEE_kJ)) + my_theme +
+  geom_boxplot() + geom_point() +
+  ylab("Nighttime energy expenditure (kJ)")
+
+ggplot(BBLH_torpor, aes(Site, AvgEE_normo_MassCorrected)) + my_theme +
+  geom_boxplot() + geom_point(aes(col=Tc_min_C), size=5) + 
+  scale_colour_gradient(low = "blue", high = "red", "Min chamber temperature\n") +
+  ylab("Hourly Energy expenditure in normothermic birds (J/h*g)")
+
+#### Combining DLW and torpor plots ####
+## Remember- m.bblh only has pre-monsoon data
+mean_dee_nee <- aggregate(m.bblh$value, by=list(m.bblh$variable, m.bblh$Site), FUN=mean, na.rm=T)
+names(mean_dee_nee) <- c("variable", "Site", "value")
+ggplot(m.bblh, aes(Site, value)) + geom_boxplot(aes(col=variable)) + my_theme + scale_color_manual("Energy expenditure", labels=c("Nighttime", "24-hour daily"), values=c("#000080", "#ff0000")) + ylab("Energy expenditure (kJ)") +  geom_text(data = mean_dee_nee, aes(label = paste("Mean = ", round(value,2.5)), y = value + 2, hjust=1), size=10)
+
+
+#### DEE and NEE costs at each site; NEE as proportion of DEE ####
+dee.hc <- mean(m.bblh$value[m.bblh$variable=="DEE_kJ" & m.bblh$Site=="HC"], na.rm=T)
+dee.sc <- mean(m.bblh$value[m.bblh$variable=="DEE_kJ" & m.bblh$Site=="SC"], na.rm=T)
+nee.hc <- mean(m.bblh$value[m.bblh$variable=="NEE_kJ" & m.bblh$Site=="HC"], na.rm=T)
+nee.sc <- mean(m.bblh$value[m.bblh$variable=="NEE_kJ" & m.bblh$Site=="SC"], na.rm=T)
+dee.hc
+dee.sc
+nee.hc
+nee.sc
+
+nee.hc/dee.hc
+nee.sc/dee.sc
+
+#### T-tests for site and monsoon differences ####
+t.test(m.bblh$value[m.bblh$variable=="DEE_kJ" & m.bblh$Site=="HC"], m.bblh$value[m.bblh$variable=="DEE_kJ" & m.bblh$Site=="SC"], na.rm=T)
+Premonsoon <- dlw[dlw$Pre_post_monsoon=="Pre",]
+Postmonsoon <- dlw[dlw$Pre_post_monsoon=="Post",]
+t.test(Premonsoon$kJ_day[Premonsoon$Site=="HC"], Premonsoon$kJ_day[Premonsoon$Site=="SC"], paired = F) ## Not significant
+t.test(Postmonsoon$kJ_day[Postmonsoon$Site=="HC"], Postmonsoon$kJ_day[Postmonsoon$Site=="SC"], paired = F) # Significant
+t.test(Premonsoon$kJ_day, Postmonsoon$kJ_day, paired = F) # No difference
+t.dee.sites <- t.test(dlw$kJ_day[dlw$Site=="HC"], dlw$kJ_day[dlw$Site=="SC"],paired = F) ## Significant
+t.test(Premonsoon$kJ_day[Premonsoon$Site=="HC"], Postmonsoon$kJ_day[Postmonsoon$Site=="HC"], paired=F) ## Significant
+t.test(Premonsoon$kJ_day[Premonsoon$Site=="SC"], Postmonsoon$kJ_day[Postmonsoon$Site=="SC"], paired=F) ##Highly significant
+pander(t.dee.sites)
+summary(lm(dlw$Pre_post_monsoon=="Post" ~ dlw$Initial_mass)) ## Weak slope even for Pre-monsoon
+
+```
+
+Daily energy expenditure at Harshaw Creek was `r mean(dlw$kJ_day[dlw$Site=="HC"])` kJ, while at Sonoita Creek, DEE was `r mean(dlw$kJ_day[dlw$Site=="SC"])` kJ. This was a significant difference (t (`r t.dee.sites$parameter[[1]]`) = `r t.dee.sites$statistic[[1]]`, p = `r t.dee.sites$p.value[[1]]`).
+
+Thermoregulatory costs
+``` {r, echo=F}
+bblh_tnz <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Energy budget data\\BroadBill.csv")
+
+bblh_tnz$N_T <- factor(bblh_tnz$N_T, levels=c('T', 'N', 'N?'))
+
+bblh_MR_temp <- ggplot(bblh_tnz, aes(Temp_C, VO2)) + geom_point(aes(col=N_T), size=3) + my_theme + scale_color_manual(values=c("#ff0000", "blue", "black"))
+plot(bblh_MR_temp, fig.alig='center')
+
+bblh_LCT_eqn <- lm(bblh_tnz$Normothermic~bblh_tnz$Temp_C)
+bblh_LCT_eqn
+```
+
+Equation of TNZ below lower critical temperature (LCT):  
+
+VO2 =   `r bblh_LCT_eqn$coefficients[[1]]`  `r bblh_LCT_eqn$coefficients[[2]]`* T~a~
+
+``` {r, echo=F}
+## This chunk isn't working right now.
+#beh <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\BehaviorData_2013_AZ.csv")
+
+#beh_bblh <- beh[beh$SpeciesCode=="BBLH",]
+
+#ggplot(beh_bblh, aes(Behavior)) + geom_boxplot() + my_theme
+```
