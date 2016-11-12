@@ -17,6 +17,8 @@ setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget")
 sc_temp <- read.csv("SonoitaCreek_Temperatures_S1.csv")
 bblh_tatc <- read.csv("BBLH_TcTa_2013.csv")
 bblh_tnz <- read.csv("Energy budget data\\BroadBill.csv")
+costa <- read.csv("Costa1986_Don.csv")
+costaVO2 <- read.csv("Costa1986_DonVO2.csv")
 torpor <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper\\Torpor_table_plot_Mar26.csv")
 torpor$AvgEE_normo_MassCorrected <- torpor$Avg_EE_hourly_normo/(torpor$Mass^(2/3))
 torpor$AvgEE_torpid_MassCorrected <- torpor$Avg_EE_hourly_torpid/(torpor$Mass^(2/3))
@@ -79,6 +81,9 @@ lm.abovecosta <- lm(costaVO2$AboveVO2~costaVO2$Temperature)
 lm.abovecosta # Just use slope from here
 bmr_permin <- 0.23846
 yinterceptBBLH <- (lm.abovecosta$coefficients[2]*35)-bmr_permin # for intercept
+
+###What Don got for Costa's above UCT
+# MRH (mL O2/min) = 0.0144 (Te) - 0.3623
 
 bblh_tatc$thermo_mlO2_tamean <- NA
 

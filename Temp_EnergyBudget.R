@@ -5,7 +5,8 @@
 
 library(reshape)
 library(ggplot2)
-
+library(dplyr)
+library(data.table)
 
 #### Reading in files and reshaping ####
 ## Set wd
@@ -14,58 +15,94 @@ setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget")
 ## Read in file with temperature from each sensor per hour per site (hence temp "details")
 temp_details <- read.csv("BBLH_temperatures_compiled.csv")
 
-#### Rename and reshape ####
-# See original csv for original sensor names. That's why I'm changing names here and not in source file
-names(temp_details) <- c("Site", "Day", "Month", "Year", "Time", "Hour", "HC_te1", "HC_te2", "Mixed_te1", "Mixed_te2",
-                         "Te_max", "Te_min", "Te_mean", "Te_sd", "SC_ta1", "SC_ta2", "SC_ta3", "Mixed_ta1", "Mixed_ta2",
-                         "Mixed_ta3", "Mixed_ta4", "Mixed_ta5", "Mixed_ta6", "Mixed_ta7", "Mixed_ta8", "Mixed_ta9", 
-                         "Mixed_ta10", "Mixed_ta11", "Mixed_ta12", "Mixed_ta13", "Ta_min", "Ta_max", "Ta_mean", "Ta_sd")
+## Read in premelted dataframes with temperatures and calculated thermoregulatory costs
+m.te_det <- read.csv("Melted_Te_thermo.csv")
+m.te_det$Hour <- as.factor(m.te_det$Hour)
+m.ta_det <- read.csv("Melted_Ta_thermo.csv")
+m.ta_det$Hour <- as.factor(m.ta_det$Hour)
 
-## Melt to compile Te-'s and Ta's separately. Then rename columns to sensible names
-m.te_det <- melt(temp_details, id.vars=c("Site", "Day", "Month", "Year", "Hour"), 
-               measure.vars=c("HC_te1", "HC_te2", "Mixed_te1", "Mixed_te2"), na.rm=T)
-m.te_det$DayMonth <- paste0(m.te_det$Day, ",", m.te_det$Month)
-names(m.te_det) <- c("Site", "Day", "Month", "Year", "Hour", "Sensor", "Te", "DayMonth")
-
-m.ta_det <- melt(temp_details, id.vars=c("Site", "Day", "Month", "Year", "Hour"), 
-               measure.vars=c("SC_ta1", "SC_ta2", "SC_ta3", "Mixed_ta1", 
-                              "Mixed_ta2", "Mixed_ta3", "Mixed_ta4", "Mixed_ta5", "Mixed_ta6", "Mixed_ta7", "Mixed_ta8",
-                              "Mixed_ta9", "Mixed_ta10", "Mixed_ta11", "Mixed_ta12", "Mixed_ta13"), na.rm=T)
-m.ta_det$DayMonth <- paste0(m.ta_det$Day, ",", m.ta_det$Month)
-names(m.ta_det) <- c("Site", "Day", "Month", "Year", "Hour", "Sensor", "Ta", "DayMonth")
+## Can change this depending on Thermoregulatory model- Multiply $thermo (in O2 ml/min) by 15 to get thermoregulatory costs per 15min, 
+## assuming the bird is exposed to each temperature sampled for 15 minutes
+m.te_det$thermo_mlO2_15min <- m.te_det$thermo_mlO2*15
+m.ta_det$thermo_mlO2_15min <- m.ta_det$thermo_mlO2*15
 
 #### General functions ####
 my_theme <- theme_classic(base_size = 30) + 
   theme(panel.border = element_rect(colour = "black", fill=NA))
 
-Ta.lab <- expression(atop(paste("Ambient Temperature ( ", degree,"C)")))
 Te.lab <- expression(atop(paste("Operative Temperature ( ", degree,"C)")))
+Ta.lab <- expression(atop(paste("Ambient Temperature ( ", degree,"C)")))
 
-## Randomly sampling temperatures to get theroregulatory costs
-lst <- list()
+#### Building a model for thermoregulatory costs ####
 
-te_hc <- m.te_det[m.te_det$Site=="HC",]
-te_hc$Hour <- as.factor(te_hc$Hour)
-te_hc_list <- split(te_hc, as.factor(te_hc$Hour))
+#### First, subset each site and the dates needed (from DLW data), make it a separate dataframe, 
+## then save it as a list where each hour from the day is a separate object ####
 
-cast(te_hc, Te~Hour)
+te_hc_1306 <- m.te_det[m.te_det$Site=="HC" & m.te_det$DayMonth=="13,6",]
+telist_hc_1306 <- split(te_hc_1306, te_hc_1306$Hour)
 
-te_samp_hc <- lapply(split(te_hc, te_hc$Hour),
-              function(subdf) subdf[sample(1:nrow(te_hc), 3),]
-)
+te_hc_2706 <- m.te_det[m.te_det$Site=="HC" & m.te_det$DayMonth=="27,6",]
+telist_hc_2706 <- split(te_hc_2706, te_hc_2706$Hour)
 
-for(i in 1:ncol(te_hc_list)) {
-  for(j in seq_len(5)){
-    lst[[j]] <- te_hc_list[sample(te_hc_list[i,], 3, replace = TRUE),]
-    lst[[j]]["Sample"] <- j
+te_hc_1107 <- m.te_det[m.te_det$Site=="HC" & m.te_det$DayMonth=="11,7",]
+telist_hc_1107 <- split(te_hc_1107, te_hc_1107$Hour)
+
+ta_hc_1306 <- m.ta_det[m.ta_det$Site=="HC" & m.ta_det$DayMonth=="13,6",]
+talist_hc_1306 <- split(ta_hc_1306, ta_hc_1306$Hour)
+
+ta_hc_2706 <- m.ta_det[m.ta_det$Site=="HC" & m.ta_det$DayMonth=="27,6",]
+talist_hc_2706 <- split(ta_hc_2706, ta_hc_2706$Hour)
+
+ta_hc_1107 <- m.ta_det[m.ta_det$Site=="HC" & m.ta_det$DayMonth=="11,7",]
+talist_hc_1107 <- split(ta_hc_1107, ta_hc_1107$Hour)
+
+te_sc_0207 <- m.te_det[m.te_det$Site=="SC" & m.te_det$DayMonth=="2,7",]
+telist_sc_0207 <- split(te_sc_0207, te_sc_0207$Hour)
+
+te_sc_1607 <- m.te_det[m.te_det$Site=="SC" & m.te_det$DayMonth=="16,7",]
+telist_sc_1607 <- split(te_sc_1607, te_sc_1607$Hour)
+
+ta_sc_0207 <- m.ta_det[m.ta_det$Site=="SC" & m.ta_det$DayMonth=="2,7",]
+talist_sc_0207 <- split(ta_sc_0207, ta_sc_0207$Hour)
+
+ta_sc_1607 <- m.ta_det[m.ta_det$Site=="SC" & m.ta_det$DayMonth=="16,7",]
+talist_sc_1607 <- split(ta_sc_1607, ta_sc_1607$Hour)
+
+## Randomly sampling temperatures to get theroregulatory costs ####
+## Using function to pull random values from 4 sensors at a site, with replacement, to represent temperatures in 15 min intervals
+rand_therm <- function (list_day) {
+  for (i in 1:100){
+    iter <- lapply(list_day, function(x) {
+      temp_rows <- sample_n(x, 4)
+      sum(temp_rows$thermo_mlO2_15min)
+      # min_rows <- x[[1]][which(x[[1]]$Te <= quantile(x[[1]]$Te, .2)), ]
+    })
+   test <- do.call(sum, iter)
+   # make ddmm variable to call date and month for file name
+   ddmm <- paste(list_day[[1]][1,3], list_day[[1]][1,4], sep="0") # can use zero to separate because months in study were single digit (i.e. <10)
+   saveRDS(iter, paste("Thermo_iterations//iter//" , ddmm, "_iter", i, ".RDS", sep = ""))
+   saveRDS(test, paste("Thermo_iterations//test//", ddmm, "_test", i, ".RDS", sep = ""))
   }
 }
-lst
 
-te.hc.samp <- te_hc_list[tapply(1:nrow(te_hc_list), te_hc$, sample, 2),]
-sample(te_hc[te_hc$Hour %in% 100,], 1, replace = TRUE)
+rand_therm(talist_hc_1306)
+rand_therm(talist_hc_2706)
+rand_therm(talist_hc_1107)
+rand_therm(talist_sc_0207)
+rand_therm(talist_sc_1607)
 
-sample(te_hc$Te[te_hc$Hour=="2400"], 3, replace = TRUE)
+
+## Bind data from all iterations of one day together
+compiled_daily_thermo <- list.files(path = 'Thermo_iterations\\test\\', pattern = '1306_iter.*.RDS$')
+compiled_daily_thermo 
+setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Thermo_iterations\\test")
+dat_list <- lapply(compiled_daily_thermo, function (x) data.table(readRDS(x)))
+daily_thermo_results <- rbindlist(dat_list)
+daily_thermo_results
+setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\")
+
+hist(daily_thermo_results$V1)
+ggplot(daily_thermo_results, aes(V1)) + geom_point()
 
 #### Plots #####
 m.te_hour <- m.te_det[m.te_det$Hour==700 & m.te_det$DayMonth=="8,7" & m.te_det$Site=="HC",]
