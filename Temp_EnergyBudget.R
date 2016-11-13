@@ -93,6 +93,19 @@ rand_therm(talist_hc_1107) # Doesn't work because temp data unavailable
 rand_therm(talist_sc_0207)
 rand_therm(talist_sc_1607) # Doesn't work because temp data unavailable
 
+## Bind data from all iterations of one day together
+compiled_daily_thermo <- list.files(path = 'Thermo_iterations\\test\\', pattern = '1306_test.*.RDS$')
+compiled_daily_thermo 
+setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Thermo_iterations\\test")
+dat_list <- lapply(compiled_daily_thermo, function (x) data.table(readRDS(x)))
+daily_thermo_results <- rbindlist(dat_list)
+daily_thermo_results
+setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\")
+
+hist(daily_thermo_results$V1)
+ggplot(daily_thermo_results, aes(V1)) + geom_histogram(bins = 20) + my_theme +
+  xlab("Daly thermoregulatory costs") + ggtitle("Harshaw 13 June, 2013")
+
 ## Simmilar function as above, but using lowest 4 temperatures from that hour and day, rather than 
 ## randomly sampling 4 temperatures across the landscape
 minTemp_therm <- function (list_day) {
@@ -113,17 +126,27 @@ minTemp_therm(talist_sc_0207)
 minTemp_therm(talist_hc_1107) # Doesn't work because temp data unavailable
 minTemp_therm(talist_sc_1607) # Doesn't work because temp data unavailable
 
-## Bind data from all iterations of one day together
-compiled_daily_thermo <- list.files(path = 'Thermo_iterations\\test\\', pattern = '1306_iter.*.RDS$')
-compiled_daily_thermo 
-setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Thermo_iterations\\test")
-dat_list <- lapply(compiled_daily_thermo, function (x) data.table(readRDS(x)))
-daily_thermo_results <- rbindlist(dat_list)
-daily_thermo_results
-setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\")
+data.table(readRDS("Thermo_iterations\\test_min\\1306_testmin.RDS"))
 
-hist(daily_thermo_results$V1)
-ggplot(daily_thermo_results, aes(V1)) + geom_point()
+maxTemp_therm <- function (list_day) {
+  iter <- lapply(list_day, function(x) {
+    max_rows <- x[which(x$Ta >= quantile(x$Ta, .8)), ]
+    sum(max_rows$thermo_mlO2_15min)
+  })
+  test <- do.call(sum, iter)
+  # make ddmm variable to call date and month for file name
+  ddmm <- paste(list_day[[1]][1,3], list_day[[1]][1,4], sep="0") # can use zero to separate because months in study were single digit (i.e. <10)
+  saveRDS(iter, paste("Thermo_iterations//iter_max//" , ddmm, "_itermax", ".RDS", sep = ""))
+  saveRDS(test, paste("Thermo_iterations//test_max//", ddmm, "_testmax", ".RDS", sep = ""))
+}
+
+maxTemp_therm(talist_hc_1306)
+maxTemp_therm(talist_hc_2706)
+maxTemp_therm(talist_sc_0207)
+maxTemp_therm(talist_hc_1107) # Doesn't work because temp data unavailable
+maxTemp_therm(talist_sc_1607) # Doesn't work because temp data unavailable
+
+data.table(readRDS("Thermo_iterations\\test_max\\1306_testmax.RDS"))
 
 #### Plots #####
 m.te_hour <- m.te_det[m.te_det$Hour==700 & m.te_det$DayMonth=="8,7" & m.te_det$Site=="HC",]
