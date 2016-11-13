@@ -74,9 +74,8 @@ talist_sc_1607 <- split(ta_sc_1607, ta_sc_1607$Hour)
 rand_therm <- function (list_day) {
   for (i in 1:100){
     iter <- lapply(list_day, function(x) {
-      temp_rows <- sample_n(x, 4)
+      temp_rows <- sample_n(x, 4) # currently without replacement
       sum(temp_rows$thermo_mlO2_15min)
-      # min_rows <- x[[1]][which(x[[1]]$Te <= quantile(x[[1]]$Te, .2)), ]
     })
    test <- do.call(sum, iter)
    # make ddmm variable to call date and month for file name
@@ -103,8 +102,20 @@ daily_thermo_results
 setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\")
 
 hist(daily_thermo_results$V1)
-ggplot(daily_thermo_results, aes(V1)) + geom_histogram(bins = 20) + my_theme +
-  xlab("Daly thermoregulatory costs") + ggtitle("Harshaw 13 June, 2013")
+
+## Change the sitedate for object name below depending on what's being run above
+plot_hc1306_iters <- ggplot(daily_thermo_results, aes(V1)) + geom_histogram(bins = 20) + my_theme +
+  xlab("Daily thermoregulatory costs (mL O2/min)") + ggtitle("Harshaw 13 June, 2013")
+plot_hc1306_iters
+
+plot_hc2706_iters <- ggplot(daily_thermo_results, aes(V1)) + geom_histogram(bins = 20) + my_theme +
+  xlab("Daily thermoregulatory costs (mL O2/min)") + ggtitle("Harshaw 27 June, 2013")
+plot_hc2706_iters
+
+plot_sc0207_iters <- ggplot(daily_thermo_results, aes(V1)) + geom_histogram(bins = 20) + my_theme +
+  xlab("Daily thermoregulatory costs (mL O2/min)") + ggtitle("Sonoita 2 July, 2013")
+plot_sc0207_iters
+
 
 ## Simmilar function as above, but using lowest 4 temperatures from that hour and day, rather than 
 ## randomly sampling 4 temperatures across the landscape
@@ -126,7 +137,18 @@ minTemp_therm(talist_sc_0207)
 minTemp_therm(talist_hc_1107) # Doesn't work because temp data unavailable
 minTemp_therm(talist_sc_1607) # Doesn't work because temp data unavailable
 
-data.table(readRDS("Thermo_iterations\\test_min\\1306_testmin.RDS"))
+## Make a table of results for thermo costs at min and max temperatures
+Results <- data.frame(matrix(NA, nrow = 5, ncol = 6))
+names(Results) <- c("Site", "Day", "Month", "Year", "MinTemp_thermo_day", "MaxTemp_thermo_day")
+Results$Site <- c("HC", "HC", "HC", "SC", "SC")
+Results$Day <- c(13, 27, 11, 2, 16)
+Results$Month <- c(6, 6, 7, 7, 7)
+Results$Year <- 2013
+
+Results$MinTemp_thermo_day[1] <- readRDS("Thermo_iterations\\test_min\\1306_testmin.RDS")
+Results$MinTemp_thermo_day[2] <- readRDS("Thermo_iterations\\test_min\\2706_testmin.RDS")
+Results$MinTemp_thermo_day[4] <- readRDS("Thermo_iterations\\test_min\\207_testmin.RDS")
+
 
 maxTemp_therm <- function (list_day) {
   iter <- lapply(list_day, function(x) {
@@ -146,7 +168,11 @@ maxTemp_therm(talist_sc_0207)
 maxTemp_therm(talist_hc_1107) # Doesn't work because temp data unavailable
 maxTemp_therm(talist_sc_1607) # Doesn't work because temp data unavailable
 
-data.table(readRDS("Thermo_iterations\\test_max\\1306_testmax.RDS"))
+Results$MaxTemp_thermo_day[1] <- readRDS("Thermo_iterations\\test_max\\1306_testmax.RDS")
+Results$MaxTemp_thermo_day[2] <- readRDS("Thermo_iterations\\test_max\\2706_testmax.RDS")
+Results$MaxTemp_thermo_day[4] <- readRDS("Thermo_iterations\\test_max\\207_testmax.RDS")
+
+write.csv(Results, "Summary_minmaxTemps_prelim.csv")
 
 #### Plots #####
 m.te_hour <- m.te_det[m.te_det$Hour==700 & m.te_det$DayMonth=="8,7" & m.te_det$Site=="HC",]
