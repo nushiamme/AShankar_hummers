@@ -182,6 +182,10 @@ nee_hc_pre
 nee_sc_pre <- mean(torpor$NEE_kJ[torpor$Site=="SC"])*1000/20.5
 nee_sc_pre
 
+## Remove later- duplicate of above; moved for temporary convenience
+#ACT <- (0.4*15*(rmr-bmr)) + (0.4*15*(hmr-bmr)) + (0.3*15*(flmr-bmr))
+#ACT
+
 bud_hc_pre <- ACT + nee_hc_pre + tre_hc_pre ### HAVE TO ADD BMR
 bud_hc_pre
 
