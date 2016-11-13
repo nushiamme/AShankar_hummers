@@ -104,16 +104,16 @@ setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\")
 hist(daily_thermo_results$V1)
 
 ## Change the sitedate for object name below depending on what's being run above
-plot_hc1306_iters <- ggplot(daily_thermo_results, aes(V1)) + geom_histogram(bins = 20) + my_theme +
-  xlab("Daily thermoregulatory costs (mL O2/min)") + ggtitle("Harshaw 13 June, 2013")
+#plot_hc1306_iters <- ggplot(daily_thermo_results, aes(V1)) + geom_histogram(bins = 20) + my_theme +
+ # xlab("Daily thermoregulatory costs (mL O2/min)") + ggtitle("Harshaw 13 June, 2013")
 plot_hc1306_iters
 
-plot_hc2706_iters <- ggplot(daily_thermo_results, aes(V1)) + geom_histogram(bins = 20) + my_theme +
-  xlab("Daily thermoregulatory costs (mL O2/min)") + ggtitle("Harshaw 27 June, 2013")
+#plot_hc2706_iters <- ggplot(daily_thermo_results, aes(V1)) + geom_histogram(bins = 20) + my_theme +
+ # xlab("Daily thermoregulatory costs (mL O2/min)") + ggtitle("Harshaw 27 June, 2013")
 plot_hc2706_iters
 
-plot_sc0207_iters <- ggplot(daily_thermo_results, aes(V1)) + geom_histogram(bins = 20) + my_theme +
-  xlab("Daily thermoregulatory costs (mL O2/min)") + ggtitle("Sonoita 2 July, 2013")
+#plot_sc0207_iters <- ggplot(daily_thermo_results, aes(V1)) + geom_histogram(bins = 20) + my_theme +
+ # xlab("Daily thermoregulatory costs (mL O2/min)") + ggtitle("Sonoita 2 July, 2013")
 plot_sc0207_iters
 
 
@@ -149,7 +149,6 @@ Results$MinTemp_thermo_day[1] <- readRDS("Thermo_iterations\\test_min\\1306_test
 Results$MinTemp_thermo_day[2] <- readRDS("Thermo_iterations\\test_min\\2706_testmin.RDS")
 Results$MinTemp_thermo_day[4] <- readRDS("Thermo_iterations\\test_min\\207_testmin.RDS")
 
-
 maxTemp_therm <- function (list_day) {
   iter <- lapply(list_day, function(x) {
     max_rows <- x[which(x$Ta >= quantile(x$Ta, .8)), ]
@@ -178,12 +177,19 @@ write.csv(Results, "Summary_minmaxTemps_prelim.csv")
 m.te_hour <- m.te_det[m.te_det$Hour==700 & m.te_det$DayMonth=="8,7" & m.te_det$Site=="HC",]
 ggplot(m.te_hour, aes(Sensor, Te)) + geom_point(size=4) + my_theme + 
   ylab(Te.lab) +
-  ggtitle("Harshaw July 8, 2016, 7am")
+  ggtitle("Harshaw July 8, 2013, 7am")
 
-m.ta_hour <- m.ta_det[m.ta_det$Hour==700 & m.ta_det$DayMonth=="8,7" & m.ta_det$Site=="HC",]
-ggplot(m.ta_hour, aes(Sensor, Ta)) + geom_point(size=4) + my_theme + 
-  ylab(Ta.lab) +
-  ggtitle("Harshaw July 8, 2016, 7am")
+ggplot(m.ta_det[m.ta_det$DayMonth=="13,6",], aes(Hour, Ta)) + geom_point(size=4) + my_theme + 
+  ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
+  ggtitle("Harshaw June 13, 2013")
+
+ggplot(m.ta_det[m.ta_det$DayMonth=="27,6",], aes(Hour, Ta)) + geom_point(size=4) + my_theme + 
+  ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
+  ggtitle("Harshaw June 27, 2013")
+
+ggplot(m.ta_det[m.ta_det$DayMonth=="2,7",], aes(Hour, Ta)) + geom_point(size=4) + my_theme + 
+  ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
+  ggtitle("Sonoita July 2, 2013")
 
 ggplot(m.temp[m.temp$Site=="HC",], aes(Sensor, Temp)) + geom_point() + my_theme 
   facet_grid(Hour~.)
