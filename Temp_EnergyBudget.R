@@ -17,12 +17,13 @@ temp_details <- read.csv("BBLH_temperatures_compiled.csv")
 
 ## Read in premelted dataframes with temperatures and calculated thermoregulatory costs
 m.te_det <- read.csv("Melted_Te_thermo.csv")
-m.te_det$Hour <- as.factor(m.te_det$Hour)
 m.ta_det <- read.csv("Melted_Ta_thermo.csv")
-m.ta_det$Hour <- as.factor(m.ta_det$Hour)
+
 
 ## Can change this depending on Thermoregulatory model- Multiply $thermo (in O2 ml/min) by 15 to get thermoregulatory costs per 15min, 
 ## assuming the bird is exposed to each temperature sampled for 15 minutes
+m.te_det$Hour <- as.factor(m.te_det$Hour)
+m.ta_det$Hour <- as.factor(m.ta_det$Hour)
 m.te_det$thermo_mlO2_15min <- m.te_det$thermo_mlO2*15
 m.ta_det$thermo_mlO2_15min <- m.ta_det$thermo_mlO2*15
 
@@ -85,12 +86,32 @@ rand_therm <- function (list_day) {
   }
 }
 
+## Applying the function to just ambient temperatures at the sites, on the days for which we have DLW DEE data
 rand_therm(talist_hc_1306)
 rand_therm(talist_hc_2706)
-rand_therm(talist_hc_1107)
+rand_therm(talist_hc_1107) # Doesn't work because temp data unavailable
 rand_therm(talist_sc_0207)
-rand_therm(talist_sc_1607)
+rand_therm(talist_sc_1607) # Doesn't work because temp data unavailable
 
+## Simmilar function as above, but using lowest 4 temperatures from that hour and day, rather than 
+## randomly sampling 4 temperatures across the landscape
+minTemp_therm <- function (list_day) {
+  iter <- lapply(list_day, function(x) {
+      min_rows <- x[which(x$Ta <= quantile(x$Ta, .2)), ]
+      sum(min_rows$thermo_mlO2_15min)
+    })
+    test <- do.call(sum, iter)
+    # make ddmm variable to call date and month for file name
+    ddmm <- paste(list_day[[1]][1,3], list_day[[1]][1,4], sep="0") # can use zero to separate because months in study were single digit (i.e. <10)
+    saveRDS(iter, paste("Thermo_iterations//iter_min//" , ddmm, "_itermin", ".RDS", sep = ""))
+    saveRDS(test, paste("Thermo_iterations//test_min//", ddmm, "_testmin", ".RDS", sep = ""))
+}
+
+minTemp_therm(talist_hc_1306)
+minTemp_therm(talist_hc_2706)
+minTemp_therm(talist_sc_0207)
+minTemp_therm(talist_hc_1107) # Doesn't work because temp data unavailable
+minTemp_therm(talist_sc_1607) # Doesn't work because temp data unavailable
 
 ## Bind data from all iterations of one day together
 compiled_daily_thermo <- list.files(path = 'Thermo_iterations\\test\\', pattern = '1306_iter.*.RDS$')
