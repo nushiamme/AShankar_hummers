@@ -17,6 +17,7 @@ setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget")
 sc_temp <- read.csv("SonoitaCreek_Temperatures_S1.csv")
 bblh_tatc <- read.csv("BBLH_TcTa_2013.csv")
 bblh_tnz <- read.csv("Energy budget data\\BroadBill.csv")
+bblh_dlw <- read.csv("DLW_summary.csv")
 costa <- read.csv("Costa1986_Don.csv")
 costaVO2 <- read.csv("Costa1986_DonVO2.csv")
 torpor <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper\\Torpor_table_plot_Mar26.csv")
@@ -87,29 +88,19 @@ yinterceptBBLH <- (lm.abovecosta$coefficients[2]*35)-bmr_permin # for intercept
 
 bblh_tatc$thermo_mlO2_tamean <- NA
 
-for(i in 1:nrow(bblh_tatc)) {
-  if(bblh_tatc$Ta_Mean[i]>=35) {
-    bblh_tatc$thermo_mlO2_tamean[i] <-  bblh_tatc$Ta_Mean[i]*lm.abovecosta$coefficients[2] - yinterceptBBLH
-  }    
-}
-head(bblh_tatc, n=20)
-
 ## BBLH below LCT equation
 bblh_LCT_eqn <- lm(bblh_tnz$Normothermic~bblh_tnz$Temp_C)
 bblh_LCT_eqn
 
-## Thermoregulatory costs if mean ambient temperature is <= 32 deg C, and between 5am and 8pm
 for(i in 1:nrow(bblh_tatc)) {
-  if(bblh_tatc$Ta_Mean[i]<=32) {
-     bblh_tatc$thermo_mlO2_tamean[i] <- bblh_LCT_eqn$coefficients[[1]] + 
-        bblh_tatc$Ta_Mean[i]*bblh_LCT_eqn$coefficients[[2]]
-    }    
-}
-head(bblh_tatc, n=20)
-
-## For within BMR
-for(i in 1:nrow(bblh_tatc)) {
-  if(bblh_tatc$Ta_Mean[i]>32 & bblh_tatc$Ta_Mean[i]<35) {
+  if(bblh_tatc$Ta_Mean[i]>=35) { # What Don got for Costa's above UCT
+    bblh_tatc$thermo_mlO2_tamean[i] <-  bblh_tatc$Ta_Mean[i]*lm.abovecosta$coefficients[2] - yinterceptBBLH
+  }   
+  if(bblh_tatc$Ta_Mean[i]<=32) { # Thermoregulatory costs if mean ambient temperature is <= 32 deg C, and between 5am and 8pm
+    bblh_tatc$thermo_mlO2_tamean[i] <- bblh_LCT_eqn$coefficients[[1]] + 
+      bblh_tatc$Ta_Mean[i]*bblh_LCT_eqn$coefficients[[2]]
+  }
+  if(bblh_tatc$Ta_Mean[i]>32 & bblh_tatc$Ta_Mean[i]<35) { # For within BMR
     bblh_tatc$thermo_mlO2_tamean[i] <- 0.2385
   }    
 }
@@ -124,7 +115,6 @@ for(i in 1:nrow(bblh_tatc)) {
 }
 
 #& bblh_tatc$Hour_rounded[i] > 500 & bblh_tatc$Hour_rounded[i] < 2000
-
 ggplot(bblh_tatc, aes(Ta_Mean, thermo_mlO2_tamean)) + my_theme +
   geom_point(col="black", size=2) + ylab("Thermoregulatory costs in O2 ml/min") + xlab(Ta.lab)
 
@@ -156,7 +146,14 @@ DEE_model
 DEE_model_hr <- DEE_model*0.85/24
 DEE_model_hr
 
-## Measured estimate of DEE from DLW
+## Measured estimate of DEE from DLW in kJ, converted into O2 mL/min
+dlwhc_1306 <- (mean(bblh_dlw$kJ_day[bblh_dlw$Day==13]))*1000/20.5 # Only one sample from this day
+dlwhc_2706 <- (mean(bblh_dlw$kJ_day[bblh_dlw$Day==27]))*1000/20.5 # n = 10
+dlwhc_min_2706 <- (min(bblh_dlw$kJ_day[bblh_dlw$Day==27]))*1000/20.5
+dlwhc_max_2706 <- (max(bblh_dlw$kJ_day[bblh_dlw$Day==27]))*1000/20.5
+dlwsc_0207 <- mean(bblh_dlw$kJ_day[bblh_dlw$Day==2])*1000/20.5 # n = 6
+
+## OLD - Measured estimate of DEE from DLW
 dlw <- 51.3
 
 ## Percentage the model is off from the mean DLW estimate

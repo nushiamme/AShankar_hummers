@@ -74,8 +74,11 @@ talist_sc_1607 <- split(ta_sc_1607, ta_sc_1607$Hour)
 rand_therm <- function (list_day) {
   for (i in 1:100){
     iter <- lapply(list_day, function(x) {
-      temp_rows <- sample_n(x, 4) # currently without replacement
+      if(as.numeric(as.character(x$Hour[1]))<=1900 & 
+           as.numeric(as.character(x$Hour[1])) >=500) {
+      temp_rows <- sample_n(x, 4, replace = T) # currently without replacement
       sum(temp_rows$thermo_mlO2_15min)
+      }
     })
    test <- do.call(sum, iter)
    # make ddmm variable to call date and month for file name
@@ -104,16 +107,16 @@ setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\")
 hist(daily_thermo_results$V1)
 
 ## Change the sitedate for object name below depending on what's being run above
-#plot_hc1306_iters <- ggplot(daily_thermo_results, aes(V1)) + geom_histogram(bins = 20) + my_theme +
- # xlab("Daily thermoregulatory costs (mL O2/min)") + ggtitle("Harshaw 13 June, 2013")
+plot_hc1306_iters <- ggplot(daily_thermo_results, aes(V1)) + geom_histogram(bins = 20) + my_theme +
+  xlab("Daily thermoregulatory costs (mL O2 consumed)") + ggtitle("Harshaw 13 June, 2013")
 plot_hc1306_iters
 
-#plot_hc2706_iters <- ggplot(daily_thermo_results, aes(V1)) + geom_histogram(bins = 20) + my_theme +
- # xlab("Daily thermoregulatory costs (mL O2/min)") + ggtitle("Harshaw 27 June, 2013")
+plot_hc2706_iters <- ggplot(daily_thermo_results, aes(V1)) + geom_histogram(bins = 20) + my_theme +
+  xlab("Daily thermoregulatory costs (mL O2 consumed)") + ggtitle("Harshaw 27 June, 2013")
 plot_hc2706_iters
 
-#plot_sc0207_iters <- ggplot(daily_thermo_results, aes(V1)) + geom_histogram(bins = 20) + my_theme +
- # xlab("Daily thermoregulatory costs (mL O2/min)") + ggtitle("Sonoita 2 July, 2013")
+plot_sc0207_iters <- ggplot(daily_thermo_results, aes(V1)) + geom_histogram(bins = 20) + my_theme +
+  xlab("Daily thermoregulatory costs (mL O2 consumed)") + ggtitle("Sonoita 2 July, 2013")
 plot_sc0207_iters
 
 
@@ -137,7 +140,7 @@ minTemp_therm(talist_sc_0207)
 minTemp_therm(talist_hc_1107) # Doesn't work because temp data unavailable
 minTemp_therm(talist_sc_1607) # Doesn't work because temp data unavailable
 
-## Make a table of results for thermo costs at min and max temperatures
+## Make a table to store results for thermo costs at min and max temperatures
 Results <- data.frame(matrix(NA, nrow = 5, ncol = 6))
 names(Results) <- c("Site", "Day", "Month", "Year", "MinTemp_thermo_day", "MaxTemp_thermo_day")
 Results$Site <- c("HC", "HC", "HC", "SC", "SC")
@@ -149,6 +152,7 @@ Results$MinTemp_thermo_day[1] <- readRDS("Thermo_iterations\\test_min\\1306_test
 Results$MinTemp_thermo_day[2] <- readRDS("Thermo_iterations\\test_min\\2706_testmin.RDS")
 Results$MinTemp_thermo_day[4] <- readRDS("Thermo_iterations\\test_min\\207_testmin.RDS")
 
+## Function to calculate thermoregulatory costs if the bird spent its time, every hour, near the sensor with the highest ambient temperatures
 maxTemp_therm <- function (list_day) {
   iter <- lapply(list_day, function(x) {
     max_rows <- x[which(x$Ta >= quantile(x$Ta, .8)), ]
@@ -179,14 +183,32 @@ ggplot(m.te_hour, aes(Sensor, Te)) + geom_point(size=4) + my_theme +
   ylab(Te.lab) +
   ggtitle("Harshaw July 8, 2013, 7am")
 
+#Operative temp 13 June, 2013, HC
+ggplot(m.te_det[m.te_det$DayMonth=="13,6",], aes(Hour, Te)) + geom_point(size=4) + my_theme + 
+  ylab(Te.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
+  ggtitle("Harshaw June 13, 2013")
+
+#Ambient temp 13 June, 2013, HC
 ggplot(m.ta_det[m.ta_det$DayMonth=="13,6",], aes(Hour, Ta)) + geom_point(size=4) + my_theme + 
   ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
   ggtitle("Harshaw June 13, 2013")
 
+#Operative temp 27 June, 2013, HC
+ggplot(m.te_det[m.te_det$DayMonth=="27,6",], aes(Hour, Te)) + geom_point(size=4) + my_theme + 
+  ylab(Te.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
+  ggtitle("Harshaw June 27, 2013")
+
+#Ambient temp 27 June, 2013, HC
 ggplot(m.ta_det[m.ta_det$DayMonth=="27,6",], aes(Hour, Ta)) + geom_point(size=4) + my_theme + 
   ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
   ggtitle("Harshaw June 27, 2013")
 
+#Operative temp 2 July, 2013, SC
+ggplot(m.te_det[m.te_det$DayMonth=="2,7",], aes(Hour, Te)) + geom_point(size=4) + my_theme + 
+  ylab(Te.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
+  ggtitle("Sonoita July 2, 2013")
+
+#Ambient temp 2 July, 2013, SC
 ggplot(m.ta_det[m.ta_det$DayMonth=="2,7",], aes(Hour, Ta)) + geom_point(size=4) + my_theme + 
   ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
   ggtitle("Sonoita July 2, 2013")
