@@ -96,15 +96,21 @@ rand_therm(talist_sc_0207)
 rand_therm(talist_sc_1607) # Doesn't work because temp data unavailable
 
 ## Bind data from all iterations of one day together
-compiled_daily_thermo <- list.files(path = 'Thermo_iterations\\test\\', pattern = '1306_test.*.RDS$')
-compiled_daily_thermo 
-setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Thermo_iterations\\test")
-dat_list <- lapply(compiled_daily_thermo, function (x) data.table(readRDS(x)))
-daily_thermo_results <- rbindlist(dat_list)
-daily_thermo_results
-setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\")
+compile_iters <- function(x) {
+  compiled_daily_thermo <- list.files(path = 'Thermo_iterations\\test\\', pattern = x)
+  setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Thermo_iterations\\test")
+  dat_list <- lapply(compiled_daily_thermo, function (x) data.table(readRDS(x)))
+  daily_thermo_results <- rbindlist(dat_list)
+  setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\")
+  plot_iter <- ggplot(daily_thermo_results, aes(V1)) + geom_histogram(bins = 20) + my_theme +
+    xlab("Daily thermoregulatory costs (mL O2 consumed)") + ggtitle(x)
+  plot_iter
+  paste("Median daytime thermo cost in mL O2 = ", round(median(daily_thermo_results$V1),2))
+}
 
-hist(daily_thermo_results$V1)
+compile_iters('1306_test.*.RDS$')
+compile_iters('2706_test.*.RDS$')
+compile_iters('207_test.*.RDS$')
 
 ## Change the sitedate for object name below depending on what's being run above
 plot_hc1306_iters <- ggplot(daily_thermo_results, aes(V1)) + geom_histogram(bins = 20) + my_theme +
@@ -124,8 +130,11 @@ plot_sc0207_iters
 ## randomly sampling 4 temperatures across the landscape
 minTemp_therm <- function (list_day) {
   iter <- lapply(list_day, function(x) {
+    if(as.numeric(as.character(x$Hour[1]))<=1900 & 
+         as.numeric(as.character(x$Hour[1])) >=500) {
       min_rows <- x[which(x$Ta <= quantile(x$Ta, .2)), ]
       sum(min_rows$thermo_mlO2_15min)
+    }
     })
     test <- do.call(sum, iter)
     # make ddmm variable to call date and month for file name
@@ -137,12 +146,13 @@ minTemp_therm <- function (list_day) {
 minTemp_therm(talist_hc_1306)
 minTemp_therm(talist_hc_2706)
 minTemp_therm(talist_sc_0207)
-minTemp_therm(talist_hc_1107) # Doesn't work because temp data unavailable
-minTemp_therm(talist_sc_1607) # Doesn't work because temp data unavailable
+#minTemp_therm(talist_hc_1107) # Doesn't work because temp data unavailable
+#minTemp_therm(talist_sc_1607) # Doesn't work because temp data unavailable
 
 ## Make a table to store results for thermo costs at min and max temperatures
-Results <- data.frame(matrix(NA, nrow = 5, ncol = 6))
-names(Results) <- c("Site", "Day", "Month", "Year", "MinTemp_thermo_day", "MaxTemp_thermo_day")
+Results <- data.frame(matrix(NA, nrow = 5, ncol = 12))
+names(Results) <- c("Site", "Day", "Month", "Year", "MinTemp_thermo_day", "MaxTemp_thermo_day", "DEE_randTemp", "DEE_minTemp","DEE_maxTemp",
+                    "DLW_mean", "DLW_min", "DLW_max")
 Results$Site <- c("HC", "HC", "HC", "SC", "SC")
 Results$Day <- c(13, 27, 11, 2, 16)
 Results$Month <- c(6, 6, 7, 7, 7)
@@ -151,12 +161,16 @@ Results$Year <- 2013
 Results$MinTemp_thermo_day[1] <- readRDS("Thermo_iterations\\test_min\\1306_testmin.RDS")
 Results$MinTemp_thermo_day[2] <- readRDS("Thermo_iterations\\test_min\\2706_testmin.RDS")
 Results$MinTemp_thermo_day[4] <- readRDS("Thermo_iterations\\test_min\\207_testmin.RDS")
+Results
 
 ## Function to calculate thermoregulatory costs if the bird spent its time, every hour, near the sensor with the highest ambient temperatures
 maxTemp_therm <- function (list_day) {
   iter <- lapply(list_day, function(x) {
-    max_rows <- x[which(x$Ta >= quantile(x$Ta, .8)), ]
-    sum(max_rows$thermo_mlO2_15min)
+    if(as.numeric(as.character(x$Hour[1]))<=1900 & 
+         as.numeric(as.character(x$Hour[1])) >=500) {
+      max_rows <- x[which(x$Ta >= quantile(x$Ta, .8)), ]
+      sum(max_rows$thermo_mlO2_15min)
+    }
   })
   test <- do.call(sum, iter)
   # make ddmm variable to call date and month for file name
@@ -175,7 +189,7 @@ Results$MaxTemp_thermo_day[1] <- readRDS("Thermo_iterations\\test_max\\1306_test
 Results$MaxTemp_thermo_day[2] <- readRDS("Thermo_iterations\\test_max\\2706_testmax.RDS")
 Results$MaxTemp_thermo_day[4] <- readRDS("Thermo_iterations\\test_max\\207_testmax.RDS")
 
-write.csv(Results, "Summary_minmaxTemps_prelim.csv")
+#write.csv(Results, "Summary_minmaxTemps_prelim.csv")
 
 #### Plots #####
 m.te_hour <- m.te_det[m.te_det$Hour==700 & m.te_det$DayMonth=="8,7" & m.te_det$Site=="HC",]
