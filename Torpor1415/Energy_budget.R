@@ -153,7 +153,7 @@ dlwhc_min_2706 <- (min(bblh_dlw$kJ_day[bblh_dlw$Day==27]))*1000/20.5
 dlwhc_max_2706 <- (max(bblh_dlw$kJ_day[bblh_dlw$Day==27]))*1000/20.5
 dlwsc_0207 <- mean(bblh_dlw$kJ_day[bblh_dlw$Day==2])*1000/20.5 # n = 6
 
-## OLD - Measured estimate of DEE from DLW
+## OLD - Measured estimate of DEE from DLW in CO2
 dlw <- 51.3
 
 ## Percentage the model is off from the mean DLW estimate
