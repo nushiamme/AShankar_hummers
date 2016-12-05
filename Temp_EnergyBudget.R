@@ -126,13 +126,13 @@ plot_sc0207_iters <- ggplot(daily_thermo_results, aes(V1)) + geom_histogram(bins
 plot_sc0207_iters
 
 
-## Simmilar function as above, but using lowest 4 temperatures from that hour and day, rather than 
+## Simmilar function as above, but using lowest 4 thermoreg costs from that hour and day, rather than 
 ## randomly sampling 4 temperatures across the landscape
 minTemp_therm <- function (list_day) {
   iter <- lapply(list_day, function(x) {
     if(as.numeric(as.character(x$Hour[1]))<=1900 & 
          as.numeric(as.character(x$Hour[1])) >=500) {
-      min_rows <- x[which(x$Ta <= quantile(x$Ta, .2)), ]
+      min_rows <- x[which(x$thermo_mlO2_15min <= quantile(x$thermo_mlO2_15min, .2)), ]
       sum(min_rows$thermo_mlO2_15min)
     }
     })
@@ -163,12 +163,13 @@ Results$MinTemp_thermo_day[2] <- readRDS("Thermo_iterations\\test_min\\2706_test
 Results$MinTemp_thermo_day[4] <- readRDS("Thermo_iterations\\test_min\\207_testmin.RDS")
 Results
 
-## Function to calculate thermoregulatory costs if the bird spent its time, every hour, near the sensor with the highest ambient temperatures
+## Function to calculate thermoregulatory costs if the bird spent its time, every hour, with the 
+# highest thermoregulatory costs per hour
 maxTemp_therm <- function (list_day) {
   iter <- lapply(list_day, function(x) {
     if(as.numeric(as.character(x$Hour[1]))<=1900 & 
          as.numeric(as.character(x$Hour[1])) >=500) {
-      max_rows <- x[which(x$Ta >= quantile(x$Ta, .8)), ]
+      max_rows <- x[which(x$thermo_mlO2_15min >= quantile(x$thermo_mlO2_15min, .8)), ]
       sum(max_rows$thermo_mlO2_15min)
     }
   })
@@ -189,7 +190,7 @@ Results$MaxTemp_thermo_day[1] <- readRDS("Thermo_iterations\\test_max\\1306_test
 Results$MaxTemp_thermo_day[2] <- readRDS("Thermo_iterations\\test_max\\2706_testmax.RDS")
 Results$MaxTemp_thermo_day[4] <- readRDS("Thermo_iterations\\test_max\\207_testmax.RDS")
 
-#write.csv(Results, "Summary_minmaxTemps_prelim.csv")
+write.csv(Results, "Summary_minmaxTemps_prelim.csv")
 
 #### Plots #####
 m.te_hour <- m.te_det[m.te_det$Hour==700 & m.te_det$DayMonth=="8,7" & m.te_det$Site=="HC",]
