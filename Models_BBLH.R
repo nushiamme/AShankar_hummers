@@ -11,10 +11,14 @@ hmr <- 10.3*bmr #in ml O~2~/h
 flmr <- 0.5*hmr #in ml O~2~/h
 
 ## Traditional activity budget
-## ACT = 70% resting + 15% hovering + 15% flying; assuming 14 daylight hours, in ml O~2~/h
-## End Nov 2016 to Dec 5, 2016 - used 15 daylight hours
-ACT_trad <- (0.7*15*(rmr-bmr)) + (0.15*15*(hmr-bmr)) + (0.15*15*(flmr-bmr))
-ACT_trad # in ml O~2~/day
+## ACT = 70% resting + 15% hovering + 15% flying; assuming 15 daylight hours, in ml O~2~/h
+ACT <- (0.7*15*(rmr-bmr)) + (0.15*15*(hmr-bmr)) + (0.15*15*(flmr-bmr))
+ACT # in ml O~2~/day
+
+## Slightly modified act budget
+## ACT = 70% resting + 15% hovering + 15% flying; assuming 15 daylight hours, in ml O~2~/h
+ACT <- (0.6*15*(rmr-bmr)) + (0.2*15*(hmr-bmr)) + (0.2*15*(flmr-bmr))
+ACT # in ml O~2~/day
 
 ### Let's build the models and see what we get!
 ## In O2 ml/min
@@ -63,15 +67,16 @@ tremax_hc_2706 <- Results$MaxTemp_thermo_day[2]
 tremax_sc_0207 <- Results$MaxTemp_thermo_day[4]
 
 ## In ml O2 consumed/day
-Results$DEE_randTemp[1] <- ACT_trad + nee_hc_pre + tre_hc_1306
-Results$DEE_minTemp[1] <- ACT_trad + nee_hc_pre + tremin_hc_1306
-Results$DEE_maxTemp[1] <- ACT_trad + nee_hc_pre + tremax_hc_1306
-Results$DEE_randTemp[2] <- ACT_trad + nee_hc_pre + tre_hc_2706
-Results$DEE_minTemp[2] <- ACT_trad + nee_hc_pre + tremin_hc_2706
-Results$DEE_maxTemp[2] <- ACT_trad + nee_hc_pre + tremax_hc_2706
-Results$DEE_randTemp[4] <- ACT_trad + nee_sc_pre + tre_sc_0207
-Results$DEE_minTemp[4] <- ACT_trad + nee_sc_pre + tremin_sc_0207
-Results$DEE_maxTemp[4] <- ACT_trad + nee_sc_pre + tremax_sc_0207
+Results$DEE_randTemp[1] <- ACT + nee_hc_pre + tre_hc_1306
+Results$DEE_minTemp[1] <- ACT + nee_hc_pre + tremin_hc_1306
+Results$DEE_maxTemp[1] <- ACT + nee_hc_pre + tremax_hc_1306
+Results$DEE_randTemp[2] <- ACT + nee_hc_pre + tre_hc_2706
+Results$DEE_minTemp[2] <- ACT + nee_hc_pre + tremin_hc_2706
+Results$DEE_maxTemp[2] <- ACT + nee_hc_pre + tremax_hc_2706
+Results$DEE_randTemp[4] <- ACT + nee_sc_pre + tre_sc_0207
+Results$DEE_minTemp[4] <- ACT + nee_sc_pre + tremin_sc_0207
+Results$DEE_maxTemp[4] <- ACT + nee_sc_pre + tremax_sc_0207
+Results$ACT[1]
 
 ## To get a per hour CO2 estimate, multiply by RQ and divide by 24
 DEE_model_hr <- DEE_model*0.85/24
@@ -86,8 +91,11 @@ Results$DLW_max[2] <- (max(bblh_dlw$kJ_day[bblh_dlw$Day==27]))*1000/20.5
 Results$DLW_mean[4] <- mean(bblh_dlw$kJ_day[bblh_dlw$Day==2])*1000/20.5 # n = 6
 Results$DLW_min[4] <- (min(bblh_dlw$kJ_day[bblh_dlw$Day==2]))*1000/20.5
 Results$DLW_max[4] <- (max(bblh_dlw$kJ_day[bblh_dlw$Day==2]))*1000/20.5
+
 Results
 
+melt
+ggplot(Results, aes())
 #write.csv(Results, "Summary_minmaxTemps_prelim.csv")
 
 ## OLD - Measured estimate of DEE from DLW in CO2
