@@ -11,7 +11,8 @@ hmr <- 10.3*bmr #in ml O~2~/h
 flmr <- 0.5*hmr #in ml O~2~/h
 
 ## Traditional activity budget
-## ACT = 70% resting + 15% hovering + 15% flying; assuming 15 daylight hours, in ml O~2~/h
+## ACT = 70% resting + 15% hovering + 15% flying; assuming 14 daylight hours, in ml O~2~/h
+## End Nov 2016 to Dec 5, 2016 - used 15 daylight hours
 ACT_trad <- (0.7*15*(rmr-bmr)) + (0.15*15*(hmr-bmr)) + (0.15*15*(flmr-bmr))
 ACT_trad # in ml O~2~/day
 
@@ -61,15 +62,16 @@ tremax_hc_1306 <- Results$MaxTemp_thermo_day[1]
 tremax_hc_2706 <- Results$MaxTemp_thermo_day[2]
 tremax_sc_0207 <- Results$MaxTemp_thermo_day[4]
 
-Results$DEE_randTemp[1] <- ACT + nee_hc_pre + tre_hc_1306
-Results$DEE_minTemp[1] <- ACT + nee_hc_pre + tremin_hc_1306
-Results$DEE_maxTemp[1] <- ACT + nee_hc_pre + tremax_hc_1306
-Results$DEE_randTemp[2] <- ACT + nee_hc_pre + tre_hc_2706
-Results$DEE_minTemp[2] <- ACT + nee_hc_pre + tremin_hc_2706
-Results$DEE_maxTemp[2] <- ACT + nee_hc_pre + tremax_hc_2706
-Results$DEE_randTemp[4] <- ACT + nee_sc_pre + tre_sc_0207
-Results$DEE_minTemp[4] <- ACT + nee_sc_pre + tremin_sc_0207
-Results$DEE_maxTemp[4] <- ACT + nee_sc_pre + tremax_sc_0207
+## In ml O2 consumed/day
+Results$DEE_randTemp[1] <- ACT_trad + nee_hc_pre + tre_hc_1306
+Results$DEE_minTemp[1] <- ACT_trad + nee_hc_pre + tremin_hc_1306
+Results$DEE_maxTemp[1] <- ACT_trad + nee_hc_pre + tremax_hc_1306
+Results$DEE_randTemp[2] <- ACT_trad + nee_hc_pre + tre_hc_2706
+Results$DEE_minTemp[2] <- ACT_trad + nee_hc_pre + tremin_hc_2706
+Results$DEE_maxTemp[2] <- ACT_trad + nee_hc_pre + tremax_hc_2706
+Results$DEE_randTemp[4] <- ACT_trad + nee_sc_pre + tre_sc_0207
+Results$DEE_minTemp[4] <- ACT_trad + nee_sc_pre + tremin_sc_0207
+Results$DEE_maxTemp[4] <- ACT_trad + nee_sc_pre + tremax_sc_0207
 
 ## To get a per hour CO2 estimate, multiply by RQ and divide by 24
 DEE_model_hr <- DEE_model*0.85/24
