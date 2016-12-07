@@ -5,6 +5,7 @@ library(MCMCglmm)
 library(nlme)
 library(ape)
 library(geiger)
+library(caper)
 
 wdMS <- setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
 wdMS
@@ -39,13 +40,15 @@ rownames(tips)<-tips$tips
 tre1<-treedata(tree, tips)$phy
 plot(tre1)
 
-#turn the phylogeny into an inverse matrix
-inv.phylo<-inverseA(tre1,nodes="TIPS",scale=TRUE)
-#set up a prior for a phylogenetic mixed model
-prior<-list(G=list(G1=list(V=1,nu=0.02)),R=list(V=1,nu=0.02))
-#run the hierarchical phyogenetic model, the name of the species (repeated across rows of observations) 
-#should be in a column called "taxon", "data" here should be all your data
-#First testing the effect of mass on rate of occurrence of torpor; rate of occurence is the percentage of individuals of the species
-#that used torpor
-torpor$taxon <- torpor$Species
-m1<-MCMCglmm(Rate_occurrence~Mass, random=~taxon, ginverse = list(phylo=inv.phylo$Ainv), prior=prior, data=freq_table, verbose=FALSE)
+#prepare data for pgls using pruned data, data you want to run and the column that matches the two in this case, "Species"
+data<-comparative.data(tre1,freq_table,"Species")
+#run the phyogenetic model
+#First testing the effect of mass on rate of occurrence of torpor; rate of occurence is the percentage of 
+#individuals of the species that used torpor; first using Brownian motion
+m0<-pgls(Rate_occurrence ~ mass,data)
+#now using Pagel's lambda tree transform
+m1<-pgls(Rate_occurrence ~ mass,data, lambda="ML")
+#extract the AIC to compare models using these data. m1 is better
+AIC(m0)
+AIC(m1)
+summary(m1)
