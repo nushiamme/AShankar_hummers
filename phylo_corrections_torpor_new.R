@@ -52,3 +52,16 @@ m1<-pgls(Rate_occurrence ~ mass,data, lambda="ML")
 AIC(m0)
 AIC(m1)
 summary(m1)
+
+## Now, to run Bayesian models with repeated measures per species (i.e. multiple individuals per species), we setup an
+#inverse matrix and set up a prior
+#Using a Bayesian rather than a maximum likelihood model because with an ML model we could include repeated measures, OR
+#we could include a phylogenetic structure. But to get a hierarchy, with both a phylogeny and then repeated measures 
+#within the phylogeny, we need 
+#turn the phylogeny into an inverse matrix
+inv.phylo<-inverseA(tre1,nodes="TIPS",scale=TRUE)
+#set up a prior for a phylogenetic mixed model
+prior<-list(G=list(G1=list(V=1,nu=0.02)),R=list(V=1,nu=0.02))
+#run the hierarchical phyogenetic model, the name of the species (repeated across rows of observations) 
+m2<-MCMCglmm(Rate_occurrence~Mass, random=~phylo, ginverse = list(phylo=inv.phylo$Ainv), prior=prior, 
+             data=freq_table, verbose=FALSE)

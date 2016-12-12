@@ -18,7 +18,7 @@ layout <- list(
   title = "Waaaves in r",
   scene = list(bgcolor = "rgb(244, 244, 248)"))
 
-response <- py$plotly(data,
+response <- py$(data,
                       kwargs = list(
                         layout = layout,
                         filename = "waves example",
