@@ -10,6 +10,7 @@ library(caper)
 setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
 
 torpor <- read.csv("Torpor_table_plot_Mar26.csv") #Torpor data file, each row is an individual
+torpor$NEE_MassCorrected<- torpor$NEE_kJ/(torpor$Mass^(2/3))
 freq_table <- read.csv("Frequency_torpor.csv") #Table with data for rate of occurrence of torpor per species; each row is a species
 
 mass.agg <- aggregate(torpor$Mass,   #Get mean mass per species
@@ -68,6 +69,9 @@ torpor$Hours2[is.na(torpor$Hours2==TRUE)] <- 0
 m2<-MCMCglmm(NEE_kJ~Mass+Hours2+Tc_min_C, random=~Species, ginverse = list(Species=inv.phylo$Ainv), prior=prior, 
              data=torpor, verbose=FALSE)
 
+m3<-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C, random=~Species, ginverse = list(Species=inv.phylo$Ainv), prior=prior, 
+             data=torpor, verbose=FALSE)
+
 ## Without any phylogenetic corrections- shows that results have an inflated significance when phylo corrections are 
 #not done
-m3<-MCMCglmm(NEE_kJ~Mass+Hours2+Tc_min_C, data=torpor)
+m4<-MCMCglmm(NEE_kJ~Mass+Hours2+Tc_min_C, data=torpor)

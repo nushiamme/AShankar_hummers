@@ -16,10 +16,11 @@ library(dplyr)
 library(rgl)
 
 ## setwd and read in file
-#wdMac<- setwd("/Users/anushashankar/Dropbox/Hummingbird energetics/Tables_for_paper")
 #wdMac
-wdMS <- setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
+#setwd("/Users/anushashankar/Dropbox/Hummingbird energetics/Tables_for_paper")
 #wdMS
+setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
+
 torpor <- read.csv("Torpor_table_plot_Mar26.csv")
 freq_table <- read.csv("Frequency_torpor.csv")
 freq_sites <- read.csv("Frequency_torpor_sites.csv")
@@ -139,7 +140,7 @@ freq_table$mass <- mass.agg$Mass
 #### General functions ####
 ## Saving standard theme  
 my_theme <- theme_classic(base_size = 30) + 
-  theme(axis.title.y = element_text(vjust = 2),
+  theme(axis.title.y = element_text(color = "black", vjust = 2),
         panel.border = element_rect(colour = "black", fill=NA))
 
 ## To arrange graphs
@@ -243,39 +244,40 @@ energy_plot
 
 ## Temp-trop Plot for Mass-corrected Nighttime energy expenditure
 energyM_temptrop <- ggplot(torpor, aes(Temptrop, NEE_MassCorrected)) + my_theme + geom_boxplot() + xlab("Region") +
-  ylab(bquote('NEE Mass-corrected (kJ/' ~M^(-2/3)*')')) + 
-  stat_summary(fun.data = give.n, geom = "text", vjust=-3.5, size=10)
+  ylab(expression(paste(('NEE Mass-corrected\n(kJ/'~M^(-0.66)*')')))) + 
+  theme(axis.title.y=element_text(vjust=0.1, hjust = 0.5)) +
+  stat_summary(fun.data = give.n, geom = "text", vjust=-2, size=5)
 energyM_temptrop
 
-## Frequency of torpor use
+## Frequency of torpor usex
 freqplot <- ggplot(freq_table, aes(Temptrop, prop)) + geom_boxplot() + 
-  ylab("Rate of occurrence of torpor (%)") +  xlab("Region") + my_theme + 
-  stat_summary(fun.data = give.n, geom = "text", vjust=-1, size=10)
+  ylab("Rate of occurrence\nof torpor (%)") +  xlab("Region") + my_theme + 
+  stat_summary(fun.data = give.n, geom = "text", vjust=-1, size=5)
 freqplot
 
 ## Hours torpid temptrop
 hours_temptrop <- ggplot(na.omit(torpor[,c("Species","Hours_torpid", "Temptrop")]), 
                          aes(Temptrop, Hours_torpid)) + 
   geom_boxplot() + my_theme + ylab("Torpor duration (hours)") + xlab("Region") + 
-  stat_summary(fun.data = give.n, geom = "text", size=8, vjust=-1)
+  stat_summary(fun.data = give.n, geom = "text", size=5, vjust=-1)
 hours_temptrop
 
 ## Plot for proportion hours spent torpid
 prop_hours_plot <- ggplot(na.omit(torpor[,c("Species","Hours_torpid","Site_new","Temptrop","Prop_hours")]), 
                      aes(Temptrop, as.numeric(as.character((Prop_hours))))) + 
   geom_boxplot() + my_theme + ylab("Percentage of hours spent torpid") + xlab("Region") +
-  stat_summary(fun.data = give.n, geom = "text", size=8, vjust=-1)
+  stat_summary(fun.data = give.n, geom = "text", size=5, vjust=-1)
 prop_hours_plot
 
 ## Savings temptrop
 temptrop_savings <- ggplot(m.temptrop[m.temptrop$variable=="Percentage_avg",], 
                            aes(Temptrop, 100-(value))) + 
   geom_boxplot() + my_theme + ylab("Hourly torpid energy savings (%)") + xlab("Region") +
-  stat_summary(fun.data = give.n, geom = "text", size=8, vjust=-3)
+  stat_summary(fun.data = give.n, geom = "text", size=5, vjust=-3)
 temptrop_savings
 
-grid.arrange(energyM_temptrop, freqplot, hours_temptrop, temptrop_savings, 
-             nrow=2, ncol=2, bottom = textGrob("Region",gp=gpar(fontsize=25)))
+grid.arrange(energyM_temptrop, freqplot, hours_temptrop, prop_hours_plot, temptrop_savings, 
+             nrow=3, ncol=2, bottom = textGrob("Region",gp=gpar(fontsize=20)))
 
 #### Basic frequency, NEE and hours plots ####
 
