@@ -179,6 +179,18 @@ Ta.xlab <- expression(atop(paste("Ambient Temperature (", degree,"C)")))
 Tc_min.xlab <- expression(atop(paste("Minimum Chamber Temperature (", degree,"C)")))
 NEE_corrlab <- bquote('Nighttime energy expenditure (kJ/' ~M^(0.67)*')')
 
+element_custom <- function() {
+  structure(list(), class = c("element_custom", "element_text"))
+}
+
+element_grob.element_custom <- function(element, label="", ...)  {
+  
+  mytheme <- ttheme_minimal(core = list(fg_params = list(parse=TRUE, 
+                                                         hjust=0, x=0.1)))
+  disect <- strsplit(label, "\\n")[[1]]
+  tableGrob(as.matrix(disect), theme=mytheme)
+}
+
 ####### Trying out Log-log NEE-mass######
 test_log_col <- ggplot(torpor, aes(Mass, NEE_kJ)) +
   scale_x_log10() + scale_y_log10() +
@@ -243,9 +255,11 @@ energy_plot <- ggplot(torpor, aes(Temptrop, NEE_kJ)) + my_theme + geom_boxplot()
 energy_plot
 
 ## Temp-trop Plot for Mass-corrected Nighttime energy expenditure
+#heightDetails.gtable <- function(x) sum(x$heights)
 energyM_temptrop <- ggplot(torpor, aes(Temptrop, NEE_MassCorrected)) + my_theme + geom_boxplot() + xlab("Region") +
   ylab(expression(paste(('NEE Mass-corrected\n(kJ/'~M^(-0.66)*')')))) + 
-  theme(axis.title.y=element_text(vjust=0.1, hjust = 0.5)) +
+  theme(axis.title.y = element_text(vjust=-0.1)) +
+  #(my_theme %+replace% theme(axis.title.y = element_custom())) +
   stat_summary(fun.data = give.n, geom = "text", vjust=-2, size=5)
 energyM_temptrop
 

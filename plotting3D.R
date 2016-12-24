@@ -18,8 +18,20 @@ layout <- list(
   title = "Waaaves in r",
   scene = list(bgcolor = "rgb(244, 244, 248)"))
 
-response <- py$(data,
+response <- py$plotly(data,
                       kwargs = list(
                         layout = layout,
                         filename = "waves example",
                         fileopt = "overwrite"))
+
+df.list <- list(x = 1:100,
+                y = 500:599,
+                z = matrix(rnorm(10000), nrow = 100))
+
+df.dataframe <- data.frame(x1 = 1:100,
+                           y1 = 500:599,
+                           z1 = sample(1:200, size = 100))
+
+
+# Works fine
+plot_ly(x = df.list$x1, y = df.dataframe$y1, z = df.dataframe$z1, type = "surface")
