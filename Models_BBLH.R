@@ -94,13 +94,7 @@ Results$DLW_max[4] <- (max(bblh_dlw$kJ_day[bblh_dlw$Day==2]))*1000/20.5
 
 Results
 
-melt
-ggplot(Results, aes())
 #write.csv(Results, "Summary_minmaxTemps_prelim.csv")
 
 ## OLD - Measured estimate of DEE from DLW in CO2
 dlw <- 51.3
-
-## Percentage the model is off from the mean DLW estimate
-per.off <- ((dlw - DEE_model_hr)/dlw)*100
-per.off
