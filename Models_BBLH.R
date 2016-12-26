@@ -3,6 +3,37 @@
 ## November 14, 2016
 
 ## Read in bblh_tatc, torpor, bblh_dlw csv's
+setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget")
+
+## Read in file with temperature from each sensor per hour per site (hence temp "details")
+temp_details <- read.csv("BBLH_temperatures_compiled.csv")
+
+## Read in compiled Ta and Tc temps 
+bblh_tatc <- read.csv("BBLH_TcTa_2013.csv")
+
+## Read in premelted dataframes with temperatures and calculated thermoregulatory costs
+m.te_det <- read.csv("Melted_Te_thermo.csv")
+m.ta_det <- read.csv("Melted_Ta_thermo.csv")
+
+##DLW files
+dlw <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper\\DLW_data2.csv")
+dlw <- dlw[dlw$Reasonable_not=="Y",]
+
+dlw_bblh <- read.csv("DLW_summary.csv")
+dlw_bblh$Site_monsoon <- paste(dlw_bblh$Site, dlw_bblh$Pre_post_monsoon, sep="_") # column combining site and monsoon status
+dlw_bblh$Initial_mass_g <- as.numeric(as.character(dlw_bblh$Initial_mass_g))
+
+## TNZ files
+bblh_tnz <- read.csv("Energy budget data\\BroadBill.csv")
+## Merged N? and N in Excel (first 3 N's were N?) because the points looked similar
+bblh_tnz$N_T <- factor(bblh_tnz$N_T, levels=c('T', 'N'))
+
+#### Reading in Torpor files ####
+## Pulling in BBLH torpor data
+torpor <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper\\Torpor_table_plot_Mar26.csv")
+torpor$AvgEE_normo_MassCorrected <- torpor$Avg_EE_hourly_normo/(torpor$Mass^(2/3))
+torpor$AvgEE_torpid_MassCorrected <- torpor$Avg_EE_hourly_torpid/(torpor$Mass^(2/3))
+BBLH_torpor <- subset(torpor, Species=="BBLH")
 
 ## Measured values in ml O~2~/h (bmr calculated in "costa_MR_temperature.R")
 bmr <- 0.2385*60 #in ml O~2~/h
