@@ -80,11 +80,17 @@ dee_BBLH_site <- ggplot(dlw_bblh, aes(Initial_mass_g, kJ_day)) + my_theme +
 plot(dee_BBLH_site, fig.align='left')
 
 ## DEE by site and pre- and post-monsoon
-dee_BBLH_site <- ggplot(dlw_bblh, aes(Site_monsoon, kJ_day)) + geom_boxplot() + 
+dee_BBLH_site_monsoon_plot <- ggplot(dlw_bblh, aes(Site_monsoon, kJ_day)) + geom_boxplot() + 
   my_theme + geom_point(aes(shape=Pre_post_monsoon), size=5, alpha=0.4, col="blue") + 
   scale_shape_manual("Season\n", values=c(20,3), labels=c("Pre-monsoon", "Post-monsoon"), breaks=c("Pre", "Post")) + 
   ylab("Daily energy expenditure (kJ/day)") + xlab("Site")
 plot(dee_BBLH_site, fig.align='left')
+
+dee_BBLH_site <- ggplot(dlw_bblh[dlw_bblh$Pre_post_monsoon=="Pre",], aes(Site, kJ_day)) + geom_boxplot() + 
+  my_theme + geom_point(size=5, alpha=0.4, col="blue") + 
+  scale_shape_manual("Season\n", values=c(20,3), labels=c("Pre-monsoon", "Post-monsoon"), breaks=c("Pre", "Post")) + 
+  ylab("Daily energy expenditure (kJ/day)") + xlab("Site")
+dee_BBLH_site
 
 #### Torpor plots ####
 

@@ -4,12 +4,46 @@
 library(plotly)
 py <- plot_ly()
 
+library(rgl)
+
 energymodels <- 
   read.csv("C:\\Users/ANUSHA/Dropbox/Anusha Committee/BBLH_EnergyBudget/Trial_EnergyBudget_models_act_thermo.csv")
 
-df.list <- list(x1 = energymodels$Thermoreg_mlO2_daytime,
+energymodels2 <- 
+  read.csv("C:\\Users/ANUSHA/Dropbox/Anusha Committee/BBLH_EnergyBudget/Trial_EnergyBudget_models_act_thermo_redone.csv")
+
+energymodels$Thermoreg_scenario <- as.factor(as.character(energymodels$Thermoreg_scenario))
+levels(energymodels$Thermoreg_scenario) <- c("Min_cost", "Rand_cost_min", "Rand_cost_median", "Rand_cost_max",
+                                             "Max_cost")
+
+energymodels2$Thermoreg_scenario <- as.factor(as.character(energymodels$Thermoreg_scenario))
+levels(energymodels2$Thermoreg_scenario) <- c("Min_cost", "Rand_cost_min", "Rand_cost_median", "Rand_cost_max",
+                                             "Max_cost")
+## With quantiles to select min and max thermo costs
+ggplot(energymodels, aes(Thermoreg_scenario, Daytime_EE)) + 
+  geom_point(aes(col=Site), size=3) +
+  facet_grid(~Activity_budget_type) + theme_classic(base_size = 20) + 
+  theme(panel.border = element_rect(colour = "black", fill=NA), axis.text.x = element_text(angle=90, vjust=-0.05),
+        strip.text.x = element_text(size = 15))
+
+## Selecting just top highest and lowest thermo costs
+ggplot(energymodels2, aes(Thermoreg_scenario, Daytime_EE)) + 
+  geom_point(aes(col=Site), size=3) +
+  facet_grid(~Activity_budget_type) + theme_classic(base_size = 20) + 
+  theme(panel.border = element_rect(colour = "black", fill=NA), axis.text.x = element_text(angle=90, vjust=-0.05),
+        strip.text.x = element_text(size = 15))
+
+df.list <- as.data.frame(x1 = energymodels$Thermoreg_mlO2_daytime,
                 y1 = energymodels$Activity_cost_mlO2_daytime,
                 z1 = energymodels$Daytime_EE)
+
+plot3d(x = energymodels$Thermoreg_mlO2_daytime,
+       y = energymodels$Activity_cost_mlO2_daytime,
+       z = energymodels$Daytime_EE, type="s", col="red", xlab="Thermoreg", ylab="Activity", zlab="Daytime EE",
+       size=2, radius=10, box=F)
+quads3d(x=209.6:315.9, y=358.53:814.64,
+        z=568.13:1130.54, col="purple")
+
 
 x_vec = c(seq(-5, 4.9, 0.1))
 x_matrix = matrix(c(x_vec), nrow = 100, ncol = 1)

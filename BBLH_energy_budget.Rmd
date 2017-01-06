@@ -48,7 +48,8 @@ a.dlw <- aggregate(dlw_bblh$kJ_day, by = list(dlw_bblh$Site, dlw_bblh$Day, dlw_b
 ###### General functions #####
 ## Generic plot theme
 my_theme <- theme_classic(base_size = 30) + 
-  theme(panel.border = element_rect(colour = "black", fill=NA))
+  theme(panel.border = element_rect(colour = "black", fill=NA), axis.text.x = element_text(colour='black'),
+        axis.text.y = element_text(colour='black'))
 
 lm_eqn <- function(table, y, x){
   m <- lm(y ~ x, table);
@@ -91,10 +92,14 @@ dee_BBLH_site <- ggplot(dlw_bblh, aes(Initial_mass_g, kJ_day)) + my_theme +
   ylab("Daily energy expenditure (kJ/day)") + xlab("Initial mass (g)")
 plot(dee_BBLH_site, fig.align='left')
 
+#### Temp ####
 ## DEE by site and pre- and post-monsoon
-dee_BBLH_site <- ggplot(dlw_bblh, aes(Site_monsoon, kJ_day)) + geom_boxplot() + my_theme + geom_point(aes(shape=Pre_post_monsoon), size=5, alpha=0.4) + scale_shape_manual("Season\n", values=c(19,17), labels=c("Pre-monsoon", "Post-monsoon"), breaks=c("Pre", "Post")) + ylab("Daily energy expenditure (kJ/day)") + xlab("Site and monsoon status")
-plot(dee_BBLH_site, fig.align='left')
-
+dee_BBLH_site_monsoon <- ggplot(dlw_bblh, aes(Site_proxy, kJ_day)) + geom_boxplot() + my_theme + 
+  geom_point(aes(shape=Pre_post_monsoon), size=5, alpha=0.4) + scale_shape_manual("Season\n", values=c(19,17)) + 
+  ylab("Daily energy expenditure (kJ/day)") + xlab("Site and monsoon status") +
+  scale_x_discrete(breaks=c("A","B","C","D"),
+                   labels=c("HC pre", "HC post", "SC pre", "SC post"))
+plot(dee_BBLH_site_monsoon, fig.align='left')
 
 #### Torpor plots ####
 
