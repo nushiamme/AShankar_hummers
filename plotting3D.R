@@ -12,26 +12,78 @@ energymodels <-
 energymodels2 <- 
   read.csv("C:\\Users/ANUSHA/Dropbox/Anusha Committee/BBLH_EnergyBudget/Trial_EnergyBudget_models_act_thermo_redone.csv")
 
-energymodels$Thermoreg_scenario <- as.factor(as.character(energymodels$Thermoreg_scenario))
-levels(energymodels$Thermoreg_scenario) <- c("Min_cost", "Rand_cost_min", "Rand_cost_median", "Rand_cost_max",
-                                             "Max_cost")
-
-energymodels2$Thermoreg_scenario <- as.factor(as.character(energymodels$Thermoreg_scenario))
-levels(energymodels2$Thermoreg_scenario) <- c("Min_cost", "Rand_cost_min", "Rand_cost_median", "Rand_cost_max",
-                                             "Max_cost")
 ## With quantiles to select min and max thermo costs
 ggplot(energymodels, aes(Thermoreg_scenario, Daytime_EE)) + 
   geom_point(aes(col=Site), size=3) +
   facet_grid(~Activity_budget_type) + theme_classic(base_size = 20) + 
-  theme(panel.border = element_rect(colour = "black", fill=NA), axis.text.x = element_text(angle=90, vjust=-0.05),
-        strip.text.x = element_text(size = 15))
+  theme(panel.border = element_rect(colour = "black", fill=NA), 
+        axis.text.x = element_text(angle=90, vjust=-0.05),
+        strip.text.x = element_text(size = 15)) 
 
 ## Selecting just top highest and lowest thermo costs
-ggplot(energymodels2, aes(Thermoreg_scenario, Daytime_EE)) + 
-  geom_point(aes(col=Site), size=3) +
-  facet_grid(~Activity_budget_type) + theme_classic(base_size = 20) + 
-  theme(panel.border = element_rect(colour = "black", fill=NA), axis.text.x = element_text(angle=90, vjust=-0.05),
-        strip.text.x = element_text(size = 15))
+#energymodels2$Thermoreg_scenario <- factor(energymodels2$Thermoreg_scenario, 
+ #                                          levels= c("Min_cost", "Rand_cost_min", "Rand_cost_median", 
+  #                                                   "Rand_cost_max", "Max_cost"))
+ggplot(energymodels2, aes(Site_proxy, Daytime_EE_kJ)) + 
+  geom_point(aes(col=Thermoreg_scenario), size=3, alpha=0.7) +  
+  scale_colour_brewer(palette="Set1", guide = guide_legend(title = "Thermoregulatory \n scenario")) +
+  facet_grid(~Activity_budget_type) + theme_classic(base_size = 25) + 
+  scale_x_discrete(breaks=c('A','B','C','D'),
+                   labels=c("HC Pre", "HC Post", "SC Pre", "SC Post")) +
+  theme(panel.border = element_rect(colour = "black", fill=NA), 
+        axis.text.x = element_text(angle=45, margin=margin(30,0,0,0)),
+        strip.text.x = element_text(size = 20), plot.title = element_text(hjust = 0.5, size=20),
+        legend.key.size = unit(1.5, 'lines')) + 
+  xlab("Site and Monsoon status") + ylab("Daytime energy expenditure (kJ)") +
+  ggtitle("Activity costs Hover_Fly_Perch")
+
+energymodels2$NEE_low_high <- as.factor(energymodels2$NEE_low_high)
+ggplot(NULL, aes(Site_proxy, kJ_day)) + 
+  geom_boxplot(data=dlw_bblh, aes(Site_proxy, kJ_day), alpha=0.5) +
+  geom_point(data=energymodels2, aes(Site_proxy, kJ_day, col=Thermoreg_scenario, 
+                 shape=energymodels2$NEE_low_high), size=3, alpha=0.7) +  
+  scale_colour_brewer(palette="Set1", guide = guide_legend(title = "Thermoregulatory \n scenario")) +
+  scale_shape_discrete(guide=guide_legend(title="NEE kJ")) +
+  facet_grid(.~Activity_budget_type) + theme_classic(base_size = 25) + 
+  scale_x_discrete(breaks=c('A','B','C','D'),
+                   labels=c("HC Pre", "HC Post", "SC Pre", "SC Post")) +
+  theme(panel.border = element_rect(colour = "black", fill=NA), 
+        axis.text.x = element_text(angle=45, margin=margin(30,0,0,0)),
+        strip.text.x = element_text(size = 20), plot.title = element_text(hjust = 0.5, size=20),
+        legend.key.size = unit(1.5, 'lines')) + 
+  xlab("Site and Monsoon status") + ylab("Daytime energy expenditure (kJ)") +
+  ggtitle("Activity costs Hover_Fly_Perch")
+
+ggplot(NULL, aes(Site_proxy, kJ_day)) + 
+  geom_boxplot(data=dlw_bblh, aes(Site_proxy, kJ_day), alpha=0.5) +
+  geom_point(data=dlw_bblh, aes(Site_proxy, kJ_day), size=5, alpha=0.1) +
+  geom_point(data=energymodels2, aes(Site_proxy, kJ_day, 
+                                     col=Thermoreg_scenario, shape=NEE_low_high), size=3, alpha=0.7) +  
+  scale_colour_brewer(palette="Set1", guide = guide_legend(title = "Thermoregulatory \n scenario")) +
+  scale_shape_discrete(guide=guide_legend(title="NEE kJ")) +
+  facet_grid(.~Activity_budget_type) + theme_classic(base_size = 25) + 
+  scale_x_discrete(breaks=c('A','B','C','D'),
+                   labels=c("HC Pre", "HC Post", "SC Pre", "SC Post")) +
+  theme(panel.border = element_rect(colour = "black", fill=NA), 
+        axis.text.x = element_text(angle=45, margin=margin(30,0,0,0)),
+        strip.text.x = element_text(size = 20), plot.title = element_text(hjust = 0.5, size=20),
+        legend.key.size = unit(1.5, 'lines')) + 
+  xlab("Site and Monsoon status") + ylab("Daily energy expenditure (kJ)") +
+  ggtitle("Activity costs Hover_Fly_Perch")
+
+
+
+dlw_bblh
+ggplot(NULL, aes(Site_proxy, Daytime_EE_kJ)) + 
+  geom_boxplot(data=dlw_bblh, aes(Site_proxy, kJ_day), alpha=0.5) +
+  geom_point(data=energymodels2, aes(col=Activity_budget_type), size=3, alpha=0.7) + 
+    theme_classic(base_size = 25) + 
+  scale_colour_brewer(palette="Set1") +
+  scale_x_discrete(breaks=c('A','B','C','D'),
+                   labels=c("HC Pre", "HC Post", "SC Pre", "SC Post")) +
+  theme(panel.border = element_rect(colour = "black", fill=NA), 
+        axis.text.x = element_text(angle=45, margin=margin(30,0,0,0)),
+        strip.text.x = element_text(size = 20)) 
 
 df.list <- as.data.frame(x1 = energymodels$Thermoreg_mlO2_daytime,
                 y1 = energymodels$Activity_cost_mlO2_daytime,
@@ -94,9 +146,9 @@ surf3D(x = energymodels$Thermoreg_mlO2_daytime,
        colkey=FALSE
        )
 
-surf3D(x = 1
-       y = data.frame(c(energymodels$Thermoreg_mlO2_daytime, energymodels$Daytime_EE))
-       z = energymodels$Activity_cost_mlO2_daytime
+surf3D(x = 1,
+       y = data.frame(c(energymodels$Thermoreg_mlO2_daytime, energymodels$Daytime_EE)),
+       z = energymodels$Activity_cost_mlO2_daytime,
        colvar=x
        )
 

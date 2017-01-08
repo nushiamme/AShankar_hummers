@@ -202,7 +202,8 @@ maxTemp_therm <- function (list_day) {
   })
   test <- do.call(sum, iter)
   # make ddmm variable to call date and month for file name
-  ddmm <- paste(list_day[[1]][1,3], list_day[[1]][1,4], sep="0") # can use zero to separate because months in study 
+  # can use zero to separate because months in study 
+  ddmm <- paste(list_day[[1]][1,3], list_day[[1]][1,4], sep="0") 
   # were single digit (i.e. <10)
   saveRDS(iter, paste("Thermo_iterations//iter_max//" , ddmm, "_itermax", ".RDS", sep = ""))
   saveRDS(test, paste("Thermo_iterations//test_max//", ddmm, "_testmax", ".RDS", sep = ""))
@@ -230,7 +231,8 @@ maxTemp2_therm <- function (list_day) {
   })
   test <- do.call(sum, iter)
   # make ddmm variable to call date and month for file name
-  ddmm_site <- paste(list_day[[1]][1,3], list_day[[1]][1,4], list_day[[1]][1,2], sep="_") # can use zero to separate because months in study 
+  # can use zero to separate because months in study 
+  ddmm_site <- paste(list_day[[1]][1,3], list_day[[1]][1,4], list_day[[1]][1,2], sep="_") 
   # were single digit (i.e. <10)
   saveRDS(iter, paste("Thermo_iterations//iter_max2//" , ddmm_site, "_itermax2", ".RDS", sep = ""))
   saveRDS(test, paste("Thermo_iterations//test_max2//", ddmm_site, "_testmax2", ".RDS", sep = ""))
@@ -292,34 +294,57 @@ ggplot(m.te_hour, aes(Sensor, Te)) + geom_point(size=4) + my_theme +
   ggtitle("Harshaw July 8, 2013, 7am")
 
 #Operative temp 13 June, 2013, HC
-ggplot(m.te_det[m.te_det$DayMonth=="13,6",], aes(Hour, Te)) + geom_point(size=4) + my_theme + 
+ggplot(m.te_det[m.te_det$DayMonth=="13,6" & m.ta_det$Site=="HC",], aes(Hour, Te)) + geom_point(size=4) + my_theme + 
   ylab(Te.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
   ggtitle("Harshaw June 13, 2013")
 
 #Ambient temp 13 June, 2013, HC
-ggplot(m.ta_det[m.ta_det$DayMonth=="13,6",], aes(Hour, Ta)) + geom_point(size=4) + my_theme + 
+ggplot(m.ta_det[m.ta_det$DayMonth=="13,6" & m.ta_det$Site=="HC",], aes(Hour, Ta)) + 
+  geom_point(size=4) + my_theme + 
   ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
   ggtitle("Harshaw June 13, 2013")
 
 #Operative temp 27 June, 2013, HC
-ggplot(m.te_det[m.te_det$DayMonth=="27,6",], aes(Hour, Te)) + geom_point(size=4) + my_theme + 
+ggplot(m.te_det[m.te_det$DayMonth=="27,6" & m.ta_det$Site=="HC",], aes(Hour, Te)) + geom_point(size=4) + my_theme + 
   ylab(Te.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
   ggtitle("Harshaw June 27, 2013")
 
 #Ambient temp 27 June, 2013, HC
-ggplot(m.ta_det[m.ta_det$DayMonth=="27,6",], aes(Hour, Ta)) + geom_point(size=4) + my_theme + 
+ggplot(m.ta_det[m.ta_det$DayMonth=="27,6" & m.ta_det$Site=="HC",], aes(Hour, Ta)) + geom_point(size=4) + my_theme + 
   ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
   ggtitle("Harshaw June 27, 2013")
 
+#Ambient temp 9 July, 2013, HC
+ggplot(m.ta_det[m.ta_det$DayMonth=="9,7" & m.ta_det$Site=="HC",], aes(Hour, Ta)) + geom_point(size=4) + my_theme + 
+  ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1), 
+                       plot.title = element_text(hjust = 0.5)) + ylim(5,55) +
+  ggtitle("Harshaw July 9, 2013")
+
 #Operative temp 2 July, 2013, SC
-ggplot(m.te_det[m.te_det$DayMonth=="2,7",], aes(Hour, Te)) + geom_point(size=4) + my_theme + 
+ggplot(m.te_det[m.te_det$DayMonth=="2,7" & m.ta_det$Site=="SC",], aes(Hour, Te)) + geom_point(size=4) + my_theme + 
   ylab(Te.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
   ggtitle("Sonoita July 2, 2013")
 
 #Ambient temp 2 July, 2013, SC
-ggplot(m.ta_det[m.ta_det$DayMonth=="2,7",], aes(Hour, Ta)) + geom_point(size=4) + my_theme + 
+ggplot(m.ta_det[m.ta_det$DayMonth=="2,6" & m.ta_det$Site=="SC",], aes(Hour, Ta)) + geom_point(size=4) + my_theme + 
   ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
   ggtitle("Sonoita July 2, 2013")
+
+#Ambient temp 9 July, 2013, SC
+temp_SC_0907.agg <- aggregate(m.ta_det$Ta[m.ta_det$DayMonth=="9,7" & m.ta_det$Site=="SC"], 
+                       by=list(as.factor(as.character(
+                         m.ta_det[m.ta_det$DayMonth=="9,7" & m.ta_det$Site=="SC",]$Hour))), 
+                       FUN="mean", na.rm=T)
+names(temp_SC_0907.agg) <- c("Hour", "Ta")
+temp_SC_0907.agg$Hour <- as.factor(temp_SC_0907.agg$Hour)
+
+ggplot(temp_SC_0907.agg, aes(Hour, Ta)) + geom_point() +
+  geom_point(m.ta_det[m.ta_det$DayMonth=="9,7" & m.ta_det$Site=="SC",], aes(Hour, Ta),size=4, alpha=0.4) +
+  #geom_point(temp_SC_0907.agg, aes(Hour, Ta), col='red') + my_theme + 
+  ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1), 
+                       plot.title = element_text(hjust = 0.5)) + ylim(5,55) +
+  ggtitle("Sonoita July 9, 2013")
+
 
 ggplot(m.temp[m.temp$Site=="HC",], aes(Sensor, Temp)) + geom_point() + my_theme 
   facet_grid(Hour~.)

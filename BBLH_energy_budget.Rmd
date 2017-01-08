@@ -94,8 +94,9 @@ plot(dee_BBLH_site, fig.align='left')
 
 #### Temp ####
 ## DEE by site and pre- and post-monsoon
-dee_BBLH_site_monsoon <- ggplot(dlw_bblh, aes(Site_proxy, kJ_day)) + geom_boxplot() + my_theme + 
-  geom_point(aes(shape=Pre_post_monsoon), size=5, alpha=0.4) + scale_shape_manual("Season\n", values=c(19,17)) + 
+dee_BBLH_site_monsoon <- ggplot(dlw_bblh, aes(Site_proxy, kJ_day)) + geom_boxplot(col='black') + my_theme + 
+  geom_point(aes(col=Pre_post_monsoon), size=5, alpha=0.4) + 
+  scale_color_manual("Season\n", values=c('red','black'), labels=c("Post-monsoon", "Pre-monsoon")) + 
   ylab("Daily energy expenditure (kJ/day)") + xlab("Site and monsoon status") +
   scale_x_discrete(breaks=c("A","B","C","D"),
                    labels=c("HC pre", "HC post", "SC pre", "SC post"))
