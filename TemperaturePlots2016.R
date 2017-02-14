@@ -11,7 +11,7 @@ setwd("C://Users//ANUSHA//Dropbox//Hummingbird energetics//Tables_for_paper/")
 
 ## Read in files
 tatc <- read.csv("TempSummary_AllSites.csv")
-## Made these two in R with the aggregating chunk, so avoid that if reading these in
+## Made these two in R with the aggregating chunk below, so avoid that chunk if reading these two in
 tc_summ <- read.csv("Tc_AllSites_summ.csv")
 ta_summ <- read.csv("Ta_AllSites_summ.csv")
 
@@ -104,32 +104,36 @@ tatc_summ <- merge(ta_summ, tc_summ, by=c("Site", "Hour2"))
 tatc_summ$Site <- factor(tatc_summ$Site, levels=c('HC','SC','SWRS','MQ','SL'))
 
 #### Plots ####
-## Chamber Temp plots by hour, per site
-ChambTemp <- ggplot(m.tc, aes(Hour,Temperature, alpha=Variable)) + my_theme + facet_grid(.~Site) +  
-  geom_point(aes(group=Variable, col=Variable), size=1.5) +
-  geom_line(aes(group=Variable, col=Variable), size=1.5) +
-  scale_color_manual(values=c("Black", "Blue", "Red")) +
-  scale_alpha_manual(values = c(1, 0.5, 0.5)) +
-  theme(axis.text.x = element_text(angle = 90, size=15), legend.position="none", plot.title = element_text(size = 30),
-        panel.grid.major.y = element_line(size=.1, color="grey75"), strip.text.x = element_text(size = 15)) + 
-  xlab("Hour") + ylab(Tc.lab) + ggtitle("Sites") + scale_x_discrete(labels=Hour_labels)
-ChambTemp
-
+## Ambient temp plots by hour, per site
 AmbTemp <- ggplot(m.ta, aes(Hour,Temperature, alpha=Variable)) + facet_grid(.~Site) +  my_theme +
-  geom_point(aes(group=Variable, col=Variable), size=1.5) +
+  facet_grid(~Site, labeller = labeller(Site = label_wrap_gen(10))) +
+  #geom_point(aes(group=Variable, col=Variable), size=1.5) +
   geom_line(aes(group=Variable, col=Variable), size=1.5) +
   scale_color_manual(values=c("Black", "Blue", "Red")) +
   scale_alpha_manual(values = c(1, 0.5, 0.5)) +
   theme(axis.text.x = element_text(angle = 90, size=15), legend.position="none", plot.title = element_text(size = 30),
-        panel.grid.major.y = element_line(size=.1, color="grey75"), strip.text.x = element_text(size = 15)) +
-  xlab("Hour") + ylab(Ta.lab) + ggtitle("Sites") +
-  scale_x_discrete(labels=Hour_labels)
+        panel.grid.major.y = element_line(size=.1, color="grey75"), strip.text.x = element_text(size = 18),
+        axis.title.y=element_text(vjust=-3)) +
+  xlab("Hour") + ylab(Ta.lab) + ggtitle("a.") + scale_x_discrete(labels=Hour_labels)
 AmbTemp
+
+## Chamber Temp plots by hour, per site
+ChambTemp <- ggplot(m.tc, aes(Hour,Temperature, alpha=Variable)) + my_theme + 
+  facet_grid(~Site, labeller = labeller(Site = label_wrap_gen(10))) +
+  #geom_point(aes(group=Variable, col=Variable), size=1.5) +
+  geom_line(aes(group=Variable, col=Variable), size=1.5) +
+  scale_color_manual(values=c("Black", "Blue", "Red")) +
+  scale_alpha_manual(values = c(1, 0.5, 0.5)) +
+  theme(axis.text.x = element_text(angle = 90, size=15), legend.position="none", plot.title = element_text(size = 30),
+        panel.grid.major.y = element_line(size=.1, color="grey75"), strip.text.x = element_text(size = 18),
+        axis.title.y=element_text(vjust=-3)) + 
+  xlab("Hour") + ylab(Tc.lab) + ggtitle("b.") + scale_x_discrete(labels=Hour_labels)
+ChambTemp
 
 ## Old ambient temp - Black with "Error bars" depicting max and min temps
 AmbTemp <- ggplot(ta_summ, aes(Hour2,Mean_Ta)) + my_theme + facet_grid(.~Site) +  
   geom_point(aes(group=Site), size=1.5) +
-  geom_line(aes(group=Site), ) +
+  geom_line(aes(group=Site)) +
   geom_errorbar(aes(ymin= Min_Ta, ymax= Max_Ta), alpha=0.6, width=.1, position=pd) +
   theme(axis.text.x = element_text(angle = 90, size=15), legend.position="none") +
   xlab("Hour") + ylab(Ta.lab) + ggtitle("Sites") + theme(plot.title = element_text(size = 20)) +
