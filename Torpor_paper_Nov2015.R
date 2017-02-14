@@ -139,7 +139,7 @@ freq_table$mass <- mass.agg$Mass
 
 #### General functions ####
 ## Saving standard theme  
-my_theme <- theme_classic(base_size = 15) + 
+my_theme <- theme_classic(base_size = 30) + 
   theme(axis.title.y = element_text(color = "black", vjust = 2),
         panel.border = element_rect(colour = "black", fill=NA))
 

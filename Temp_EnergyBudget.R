@@ -163,7 +163,7 @@ minTemp_therm(talist_sc_0207)
 #minTemp_therm(talist_hc_1107) # Doesn't work because temp data unavailable
 #minTemp_therm(talist_sc_1607) # Doesn't work because temp data unavailable
 
-## Using new method of seelcting top four temps, not quantiles
+## Using new method of selecting top four temps, not quantiles
 minTemp2_therm <- function (list_day) {
   iter <- lapply(list_day, function(x) {
     if(as.numeric(as.character(x$Hour[1]))<=1900 & 
