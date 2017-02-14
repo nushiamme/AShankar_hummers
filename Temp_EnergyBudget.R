@@ -309,6 +309,20 @@ ggplot(m.te_det[m.te_det$DayMonth=="27,6" & m.ta_det$Site=="HC",], aes(Hour, Te)
   ylab(Te.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
   ggtitle("Harshaw June 27, 2013")
 
+temp_HC_2706.agg <- aggregate(m.ta_det$Ta[m.ta_det$DayMonth=="27,6" & m.ta_det$Site=="HC"], 
+                              by=list(as.factor(as.character(
+                                m.ta_det[m.ta_det$DayMonth=="27,6" & m.ta_det$Site=="HC",]$Hour))), 
+                              FUN="mean", na.rm=T)
+names(temp_HC_2706.agg) <- c("Hour", "Ta")
+temp_HC_2706.agg$Hour <- as.factor(temp_HC_2706.agg$Hour)
+
+ggplot(temp_HC_2706.agg, aes(Hour, Ta)) +
+  geom_point(data=m.ta_det[m.ta_det$DayMonth=="27,6" & m.ta_det$Site=="HC",], aes(Hour, Ta),size=4, alpha=0.3) +
+  geom_line(data=temp_HC_2706.agg, aes(Hour, Ta, group='Hour'), col='red', size=3) + my_theme + 
+  ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1), 
+                       plot.title = element_text(hjust = 0.5)) + ylim(5,55) +
+  ggtitle("Harshaw June 27, 2013")
+
 #Ambient temp 27 June, 2013, HC
 ggplot(m.ta_det[m.ta_det$DayMonth=="27,6" & m.ta_det$Site=="HC",], aes(Hour, Ta)) + geom_point(size=4) + my_theme + 
   ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
@@ -316,6 +330,20 @@ ggplot(m.ta_det[m.ta_det$DayMonth=="27,6" & m.ta_det$Site=="HC",], aes(Hour, Ta)
 
 #Ambient temp 9 July, 2013, HC
 ggplot(m.ta_det[m.ta_det$DayMonth=="9,7" & m.ta_det$Site=="HC",], aes(Hour, Ta)) + geom_point(size=4) + my_theme + 
+  ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1), 
+                       plot.title = element_text(hjust = 0.5)) + ylim(5,55) +
+  ggtitle("Harshaw July 9, 2013")
+
+temp_HC_0907.agg <- aggregate(m.ta_det$Ta[m.ta_det$DayMonth=="9,7" & m.ta_det$Site=="HC"], 
+                              by=list(as.factor(as.character(
+                                m.ta_det[m.ta_det$DayMonth=="9,7" & m.ta_det$Site=="HC",]$Hour))), 
+                              FUN="mean", na.rm=T)
+names(temp_HC_0907.agg) <- c("Hour", "Ta")
+temp_HC_0907.agg$Hour <- as.factor(temp_HC_0907.agg$Hour)
+
+ggplot(temp_HC_0907.agg, aes(Hour, Ta)) +
+  geom_point(data=m.ta_det[m.ta_det$DayMonth=="9,7" & m.ta_det$Site=="HC",], aes(Hour, Ta),size=4, alpha=0.3) +
+  geom_line(data=temp_HC_0907.agg, aes(Hour, Ta, group='Hour'), col='red', size=3) + my_theme + 
   ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1), 
                        plot.title = element_text(hjust = 0.5)) + ylim(5,55) +
   ggtitle("Harshaw July 9, 2013")
@@ -330,6 +358,20 @@ ggplot(m.ta_det[m.ta_det$DayMonth=="2,6" & m.ta_det$Site=="SC",], aes(Hour, Ta))
   ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
   ggtitle("Sonoita July 2, 2013")
 
+temp_SC_0207.agg <- aggregate(m.ta_det$Ta[m.ta_det$DayMonth=="2,7" & m.ta_det$Site=="SC"], 
+                              by=list(as.factor(as.character(
+                                m.ta_det[m.ta_det$DayMonth=="2,7" & m.ta_det$Site=="SC",]$Hour))), 
+                              FUN="mean", na.rm=T)
+names(temp_SC_0207.agg) <- c("Hour", "Ta")
+temp_SC_0207.agg$Hour <- as.factor(temp_SC_0207.agg$Hour)
+
+ggplot(temp_SC_0207.agg, aes(Hour, Ta)) +
+  geom_point(data=m.ta_det[m.ta_det$DayMonth=="2,7" & m.ta_det$Site=="SC",], aes(Hour, Ta),size=4, alpha=0.3) +
+  geom_line(data=temp_SC_0207.agg, aes(Hour, Ta, group='Hour'), col='red', size=3) + my_theme + 
+  ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1), 
+                       plot.title = element_text(hjust = 0.5)) + ylim(5,55) +
+  ggtitle("Sonoita July 2, 2013")
+
 #Ambient temp 9 July, 2013, SC
 temp_SC_0907.agg <- aggregate(m.ta_det$Ta[m.ta_det$DayMonth=="9,7" & m.ta_det$Site=="SC"], 
                        by=list(as.factor(as.character(
@@ -338,9 +380,9 @@ temp_SC_0907.agg <- aggregate(m.ta_det$Ta[m.ta_det$DayMonth=="9,7" & m.ta_det$Si
 names(temp_SC_0907.agg) <- c("Hour", "Ta")
 temp_SC_0907.agg$Hour <- as.factor(temp_SC_0907.agg$Hour)
 
-ggplot(temp_SC_0907.agg, aes(Hour, Ta)) + geom_point() +
-  geom_point(m.ta_det[m.ta_det$DayMonth=="9,7" & m.ta_det$Site=="SC",], aes(Hour, Ta),size=4, alpha=0.4) +
-  #geom_point(temp_SC_0907.agg, aes(Hour, Ta), col='red') + my_theme + 
+ggplot(temp_SC_0907.agg, aes(Hour, Ta)) +
+  geom_point(data=m.ta_det[m.ta_det$DayMonth=="9,7" & m.ta_det$Site=="SC",], aes(Hour, Ta),size=4, alpha=0.3) +
+  geom_line(data=temp_SC_0907.agg, aes(Hour, Ta, group='Hour'), col='red', size=3) + my_theme + 
   ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1), 
                        plot.title = element_text(hjust = 0.5)) + ylim(5,55) +
   ggtitle("Sonoita July 9, 2013")
