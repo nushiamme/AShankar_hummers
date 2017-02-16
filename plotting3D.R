@@ -12,6 +12,21 @@ energymodels <-
 energymodels2 <- 
   read.csv("C:\\Users/ANUSHA/Dropbox/Anusha Committee/BBLH_EnergyBudget/Trial_EnergyBudget_models_act_thermo_redone.csv")
 
+## Range of results of the thermoregulatory models
+# Pull out all the minimum costs
+vec1 <- energymodels2$Daytime_EE_kJ[energymodels2$Thermoreg_scenario=="Min_cost"]
+# Max costs
+vec2 <- energymodels2$Daytime_EE_kJ[energymodels2$Thermoreg_scenario=="Max_cost"]
+# Difference between the two models
+mean(vec2-vec1)
+sd(vec2-vec1)
+# Randomized models, min and max
+vec3 <- energymodels2$Daytime_EE_kJ[energymodels2$Thermoreg_scenario=="Rand_cost_min"]
+vec4 <- energymodels2$Daytime_EE_kJ[energymodels2$Thermoreg_scenario=="Rand_cost_max"]
+# Difference between the two models
+mean(vec4-vec3)
+sd(vec4-vec3)
+
 ## With quantiles to select min and max thermo costs
 ggplot(energymodels, aes(Thermoreg_scenario, Daytime_EE)) + 
   geom_point(aes(col=Site), size=3) +
