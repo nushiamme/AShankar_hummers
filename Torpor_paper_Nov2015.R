@@ -179,17 +179,18 @@ Ta.xlab <- expression(atop(paste("Ambient Temperature (", degree,"C)")))
 Tc_min.xlab <- expression(atop(paste("Minimum Chamber Temperature (", degree,"C)")))
 NEE_corrlab <- bquote('Nighttime energy expenditure (kJ/' ~M^(0.67)*')')
 
-element_custom <- function() {
-  structure(list(), class = c("element_custom", "element_text"))
-}
+#### Not using- made a function for axis text wrapping, didn't really work well as is ####
+#element_custom <- function() {
+ # structure(list(), class = c("element_custom", "element_text"))
+#}
 
-element_grob.element_custom <- function(element, label="", ...)  {
+#element_grob.element_custom <- function(element, label="", ...)  {
   
-  mytheme <- ttheme_minimal(core = list(fg_params = list(parse=TRUE, 
-                                                         hjust=0, x=0.1)))
-  disect <- strsplit(label, "\\n")[[1]]
-  tableGrob(as.matrix(disect), theme=mytheme)
-}
+ # mytheme <- ttheme_minimal(core = list(fg_params = list(parse=TRUE, 
+ #                                                        hjust=0, x=0.1)))
+#  disect <- strsplit(label, "\\n")[[1]]
+  #tableGrob(as.matrix(disect), theme=mytheme)
+#}
 
 ####### Trying out Log-log NEE-mass######
 test_log_col <- ggplot(torpor, aes(Mass, NEE_kJ)) +
@@ -327,11 +328,13 @@ freq_site_plot <- ggplot(freq_sites, aes(Species, Rate.of.occurrence)) +
 freq_site_plot
 
 ## Hours torpid
-hours_plot <- ggplot(na.omit(torpor[,c("Species","Hours_torpid","Site_new")]),
+torpor$Site_full <- torpor$Site_new
+levels(torpor$Site_full) <- c("Harshaw", "Sonoita", "Southwest Research Station", "Maqui", "Santa Lucia")
+hours_plot <- ggplot(na.omit(torpor[,c("Species","Hours_torpid","Site_full")]),
                      aes(Species, Hours_torpid)) + 
-  geom_boxplot(outlier.size = 3) + my_theme +
-  facet_grid(.~Site_new, scale="free_x", space="free") + 
-  ylab("Hours Torpid") + theme(legend.position="none") +
+  geom_boxplot(outlier.size = 3, fill="light grey") + my_theme +
+  facet_grid(~Site_full, labeller = labeller(Site_full = label_wrap_gen(10)), scale="free_x", space="free") +
+  ylab("Hours Torpid") + theme(legend.position="none") + ggtitle("b.") +
   stat_summary(position = position_nudge(y = 0.98), fun.data = give.n, geom = "text", size=8)
 hours_plot
 

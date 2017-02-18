@@ -107,14 +107,14 @@ tatc_summ$Site <- factor(tatc_summ$Site, levels=c('HC','SC','SWRS','MQ','SL'))
 ## Ambient temp plots by hour, per site
 AmbTemp <- ggplot(m.ta, aes(Hour,Temperature, alpha=Variable)) + facet_grid(.~Site) +  my_theme +
   facet_grid(~Site, labeller = labeller(Site = label_wrap_gen(10))) +
-  #geom_point(aes(group=Variable, col=Variable), size=1.5) +
+  scale_x_discrete(labels=Hour_labels) +
   geom_line(aes(group=Variable, col=Variable), size=1.5) +
   scale_color_manual(values=c("Black", "Blue", "Red")) +
   scale_alpha_manual(values = c(1, 0.5, 0.5)) +
   theme(axis.text.x = element_text(angle = 90, size=15), legend.position="none", plot.title = element_text(size = 30),
         panel.grid.major.y = element_line(size=.1, color="grey75"), strip.text.x = element_text(size = 18),
-        axis.title.y=element_text(vjust=-3)) +
-  xlab("Hour") + ylab(Ta.lab) + ggtitle("a.") + scale_x_discrete(labels=Hour_labels)
+        axis.title.y=element_text(vjust=-3)) + #xlim("1900", "2200", "100", "400", "700") +
+  xlab("Hour") + ylab(Ta.lab) + ggtitle("a.") 
 AmbTemp
 
 ## Chamber Temp plots by hour, per site

@@ -27,6 +27,16 @@ vec4 <- energymodels2$Daytime_EE_kJ[energymodels2$Thermoreg_scenario=="Rand_cost
 mean(vec4-vec3)
 sd(vec4-vec3)
 
+## Range of results of the activity budget models
+## Lowest ACT costs
+vec5 <- energymodels2$Daytime_EE_kJ[energymodels2$Activity_budget_type=="5_20_75"]
+# Max costs
+vec6 <- energymodels2$Daytime_EE_kJ[energymodels2$Activity_budget_type=="25_30_45"]
+# Difference between the two models
+mean(vec6-vec5)
+sd(vec6-vec5)
+
+
 ## With quantiles to select min and max thermo costs
 ggplot(energymodels, aes(Thermoreg_scenario, Daytime_EE)) + 
   geom_point(aes(col=Site), size=3) +
@@ -53,10 +63,11 @@ ggplot(energymodels2, aes(Site_proxy, Daytime_EE_kJ)) +
   ggtitle("Activity costs Hover_Fly_Perch")
 
 energymodels2$NEE_low_high <- as.factor(energymodels2$NEE_low_high)
+# Whole model with DLW, activity costs, and thermoregulatory costs
 ggplot(NULL, aes(Site_proxy, kJ_day)) + 
-  geom_boxplot(data=dlw_bblh, aes(Site_proxy, kJ_day), alpha=0.5) +
-  geom_point(data=energymodels2, aes(Site_proxy, kJ_day, col=Thermoreg_scenario, 
-                 shape=energymodels2$NEE_low_high), size=3, alpha=0.7) +  
+  geom_boxplot(data=dlw_bblh, aes(Site_proxy, kJ_day), alpha=0.5, fill="light grey") +
+  geom_point(data=energymodels2, aes(Site_proxy, kJ_day, 
+                                     col=Thermoreg_scenario, shape=NEE_low_high), size=5, alpha=0.5) +  
   scale_colour_brewer(palette="Set1", guide = guide_legend(title = "Thermoregulatory \n scenario")) +
   scale_shape_discrete(guide=guide_legend(title="NEE kJ")) +
   facet_grid(.~Activity_budget_type) + theme_classic(base_size = 25) + 
@@ -66,7 +77,7 @@ ggplot(NULL, aes(Site_proxy, kJ_day)) +
         axis.text.x = element_text(angle=45, margin=margin(30,0,0,0)),
         strip.text.x = element_text(size = 20), plot.title = element_text(hjust = 0.5, size=20),
         legend.key.size = unit(1.5, 'lines')) + 
-  xlab("Site and Monsoon status") + ylab("Daytime energy expenditure (kJ)") +
+  xlab("Site and Monsoon status") + ylab("Daily energy expenditure (kJ)") +
   ggtitle("Activity costs Hover_Fly_Perch")
 
 ggplot(NULL, aes(Site_proxy, kJ_day)) + 
