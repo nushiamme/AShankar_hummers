@@ -143,6 +143,10 @@ my_theme <- theme_classic(base_size = 30) +
   theme(axis.title.y = element_text(color = "black", vjust = 2),
         panel.border = element_rect(colour = "black", fill=NA))
 
+my_theme2 <- theme_classic(base_size = 15) + 
+  theme(axis.title.y = element_text(color = "black", vjust = 2),
+        panel.border = element_rect(colour = "black", fill=NA))
+
 ## To arrange graphs
 lay_out = function(...) {    
   x <- list(...)
@@ -257,43 +261,44 @@ energy_plot
 
 ## Temp-trop Plot for Mass-corrected Nighttime energy expenditure
 #heightDetails.gtable <- function(x) sum(x$heights)
-energyM_temptrop <- ggplot(torpor, aes(Temptrop, NEE_MassCorrected)) + my_theme + geom_boxplot(fill= "light grey") + 
+energyM_temptrop <- ggplot(torpor, aes(Temptrop, NEE_MassCorrected)) + my_theme2 + 
+  geom_boxplot(fill= "light grey") + 
   xlab("Region") + ylab(expression(paste(('NEE Mass-corrected (kJ/'~M^(-0.66)*')')))) + 
   theme(axis.title.y = element_text(vjust=-0.1)) +
   #(my_theme %+replace% theme(axis.title.y = element_custom())) +
   stat_summary(fun.data = give.n, geom = "text", vjust=-1, size=5) +
-  theme(axis.title.x = element_blank())
+  theme(axis.title.x = element_blank()) + ggtitle("a.")
 energyM_temptrop
 
 ## Frequency of torpor usex
 freqplot <- ggplot(freq_table, aes(Temptrop, prop)) + geom_boxplot(fill= "light grey") + 
-  ylab("Rate of occurrence\nof torpor (%)") +  xlab("Region") + my_theme + 
+  ylab("Frequency of torpor use (%)") +  xlab("Region") + my_theme2 + 
   stat_summary(fun.data = give.n, geom = "text", vjust=-1.5, size=5) +
-  theme(axis.title.x = element_blank())
+  theme(axis.title.x = element_blank()) + ggtitle("b.")
 freqplot
 
 ## Hours torpid temptrop
 hours_temptrop <- ggplot(na.omit(torpor[,c("Species","Hours_torpid", "Temptrop")]), 
                          aes(Temptrop, Hours_torpid)) + 
-  geom_boxplot(fill= "light grey") + my_theme + ylab("Torpor duration (hours)") + xlab("Region") + 
+  geom_boxplot(fill= "light grey") + my_theme2 + ylab("Torpor duration (hours)") + xlab("Region") + 
   stat_summary(fun.data = give.n, geom = "text", size=5, vjust=-1) +
-  theme(axis.title.x = element_blank())
+  theme(axis.title.x = element_blank()) + ggtitle("c.")
 hours_temptrop
 
 ## Plot for proportion hours spent torpid
 prop_hours_plot <- ggplot(na.omit(torpor[,c("Species","Hours_torpid","Site_new","Temptrop","Prop_hours")]), 
                      aes(Temptrop, as.numeric(as.character((Prop_hours))))) + 
-  geom_boxplot(fill= "light grey") + my_theme + ylab("Percentage of hours spent torpid") + xlab("Region") +
+  geom_boxplot(fill= "light grey") + my_theme2 + ylab("Percentage of hours spent torpid") + xlab("Region") +
   stat_summary(fun.data = give.n, geom = "text", size=5, vjust=-1) +
-  theme(axis.title.x = element_blank())
+  theme(axis.title.x = element_blank()) + ggtitle("d.")
 prop_hours_plot
 
 ## Savings temptrop
 temptrop_savings <- ggplot(m.temptrop[m.temptrop$variable=="Percentage_avg",], 
                            aes(Temptrop, 100-(value))) + 
-  geom_boxplot(fill= "light grey") + my_theme + ylab("Hourly torpid energy savings (%)") + #xlab("Region") +
+  geom_boxplot(fill= "light grey") + my_theme2 + ylab("Hourly torpid energy savings (%)") + #xlab("Region") +
   stat_summary(fun.data = give.n, geom = "text", size=5, vjust=-1.7) +
-  theme(axis.title.x = element_blank())
+  theme(axis.title.x = element_blank()) + ggtitle("e.")
 temptrop_savings
 
 grid.arrange(energyM_temptrop, freqplot, hours_temptrop, prop_hours_plot, temptrop_savings, 
@@ -707,9 +712,9 @@ m_BBLH_avgEE_normo_Tcmin_eq
 ## BBLH Avg mass-corrected hourly torpid EE vs. min Tc with regression line
 m_BBLH_avgEE_torpid_Tcmin_eq <- ggplot(BBLH_torpor, aes(as.numeric(Tc_min_C), 
                                                      AvgEE_torpid_MassCorrected)) + 
-  my_theme + geom_point(size=4) + geom_smooth(method=lm) +
-  #geom_text(x = 14, y = 0.07, label = lm_eqn(BBLH_torpor, BBLH_torpor$AvgEE_torpid_MassCorrected, 
-   #                                          BBLH_torpor$Tc_min_C), parse=T, size=8) +
+  my_theme + geom_point(size=4) + geom_smooth(method=lm) + facet_grid(~Site) +
+  geom_text(x = 14, y = 0.07, label = lm_eqn(BBLH_torpor, BBLH_torpor$AvgEE_torpid_MassCorrected, 
+                                            BBLH_torpor$Tc_min_C), parse=T, size=8) +
   ylab("Avg BBLH EE torpid (kJ/g)") + xlab(Tc_min.xlab) 
 m_BBLH_avgEE_torpid_Tcmin_eq
 
@@ -726,12 +731,12 @@ m_BBLH_tor_nor$variable <- factor(m_BBLH_tor_nor$variable,
 
 ## Both normo and torpid avg EE for BBLH on same graph
 BBLH_tor_nor <- ggplot(m_BBLH_tor_nor, aes(as.numeric(Tc_min_C), value, shape=variable)) +
-  geom_point(aes(shape=variable), size=6) + my_theme +
+  geom_point(aes(shape=variable), size=6) + my_theme2 +
   geom_smooth(method=lm, size=1, col="black") + 
   scale_shape_manual("Hourly Energy Expenditure\n", 
                      values=c(16,1), labels=c("Normothermic", "Torpid")) +
   theme(legend.key.height=unit(3,"line"), legend.position="bottom", axis.title.y = element_text(vjust = 2)) +
-  ylab("Mean BBLH Energy Expenditure (kJ/g)") + xlab(Tc.xlab) + ggtitle("a.")
+  ylab("Mean BBLH Energy Expenditure (kJ/g)") + xlab(Tc.xlab) + ggtitle("b.")
 BBLH_tor_nor 
 
 grid.arrange(m_BBLH_avgEE_normo_Tcmin_eq, m_BBLH_avgEE_torpid_Tcmin_eq, nrow=1, ncol=2)
@@ -832,12 +837,12 @@ GCB_tor_nor_col <- ggplot(m_GCB_tor_nor, aes(as.numeric(Tc_min_C), value, color=
 GCB_tor_nor_col
 
 GCB_tor_nor <- ggplot(m_GCB_tor_nor, aes(as.numeric(Tc_min_C), value, shape=variable)) +
-  my_theme +  geom_point(aes(shape=variable), size=6) + 
+  my_theme2 +  geom_point(aes(shape=variable), size=6) + 
   geom_smooth(method=lm, size=1, col="black") + 
   scale_shape_manual("Hourly Energy Expenditure:\n", 
                      values=c(16,1), labels=c("Normothermic", "Torpid")) +
   theme(legend.key.height=unit(1,"line"),
-        legend.position="bottom", axis.title.y = element_text(vjust = 2)) + ggtitle("b.") +
+        legend.position="bottom", axis.title.y = element_text(vjust = 2)) + ggtitle("a.") +
   ylab("Mean GCB Energy Expenditure (kJ/g)") + xlab(Tc.xlab)
 GCB_tor_nor 
 
@@ -855,7 +860,7 @@ grid_arrange_shared_legend <- function(...) {
     heights = unit.c(unit(1, "npc") - lheight, lheight))
 }
 
-grid_arrange_shared_legend(BBLH_tor_nor, GCB_tor_nor)
+grid_arrange_shared_legend(GCB_tor_nor, BBLH_tor_nor)
 
 library(gtable)
 g1 <- ggplotGrob(BBLH_tor_nor)
