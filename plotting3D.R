@@ -1,16 +1,18 @@
 ## 3D surface plot of daily energy expenditure vs. activity and temperature
 
 # Sign in to plotly - like Git
-library(plotly)
-py <- plot_ly()
+#library(plotly)
+#py <- plot_ly()
+library(ggplot2)
 
-library(rgl)
+#library(rgl)
 
-energymodels <- 
-  read.csv("C:\\Users/ANUSHA/Dropbox/Anusha Committee/BBLH_EnergyBudget/Trial_EnergyBudget_models_act_thermo.csv")
+setwd("C:\\Users/shankar/Dropbox/Anusha Committee/BBLH_EnergyBudget/")
+energymodels <- read.csv("Trial_EnergyBudget_models_act_thermo.csv")
 
-energymodels2 <- 
-  read.csv("C:\\Users/ANUSHA/Dropbox/Anusha Committee/BBLH_EnergyBudget/Trial_EnergyBudget_models_act_thermo_redone.csv")
+energymodels2 <- read.csv("Trial_EnergyBudget_models_act_thermo_redone.csv")
+
+dlw_bblh <- read.csv("DLW_summary.csv")
 
 ## Range of results of the thermoregulatory models
 # Pull out all the minimum costs
@@ -26,6 +28,7 @@ vec4 <- energymodels2$Daytime_EE_kJ[energymodels2$Thermoreg_scenario=="Rand_cost
 # Difference between the two models
 mean(vec4-vec3)
 sd(vec4-vec3)
+
 
 ## Range of results of the activity budget models
 ## Lowest ACT costs
@@ -51,51 +54,52 @@ ggplot(energymodels, aes(Thermoreg_scenario, Daytime_EE)) +
   #                                                   "Rand_cost_max", "Max_cost"))
 ggplot(energymodels2, aes(Site_proxy, Daytime_EE_kJ)) + 
   geom_point(aes(col=Thermoreg_scenario), size=3, alpha=0.7) +  
-  scale_colour_brewer(palette="Set1", guide = guide_legend(title = "Thermoregulatory \n scenario")) +
+  scale_colour_brewer(palette="Set1", guide = guide_legend(title = "Thermoregulatory \n model")) +
   facet_grid(~Activity_budget_type) + theme_classic(base_size = 25) + 
   scale_x_discrete(breaks=c('A','B','C','D'),
                    labels=c("HC Pre", "HC Post", "SC Pre", "SC Post")) +
   theme(panel.border = element_rect(colour = "black", fill=NA), 
         axis.text.x = element_text(angle=45, margin=margin(30,0,0,0)),
         strip.text.x = element_text(size = 20), plot.title = element_text(hjust = 0.5, size=20),
-        legend.key.size = unit(1.5, 'lines')) + 
+        legend.key.size = unit(1.5, 'lines'), legend.title.align=0.5) + 
   xlab("Site and Monsoon status") + ylab("Daytime energy expenditure (kJ)") +
-  ggtitle("Activity costs Hover_Fly_Perch")
+  ggtitle("Daytime activity costs Hover_Fly_Perch")
 
 energymodels2$NEE_low_high <- as.factor(energymodels2$NEE_low_high)
+levels(energymodels2$NEE_low_high) <- c("No torpor used", "Torpor used")
 # Whole model with DLW, activity costs, and thermoregulatory costs
 ggplot(NULL, aes(Site_proxy, kJ_day)) + 
   geom_boxplot(data=dlw_bblh, aes(Site_proxy, kJ_day), alpha=0.5, fill="light grey") +
   geom_point(data=energymodels2, aes(Site_proxy, kJ_day, 
                                      col=Thermoreg_scenario, shape=NEE_low_high), size=5, alpha=0.5) +  
-  scale_colour_brewer(palette="Set1", guide = guide_legend(title = "Thermoregulatory \n scenario")) +
-  scale_shape_discrete(guide=guide_legend(title="NEE kJ")) +
+  scale_colour_brewer(palette="Set1", guide = guide_legend(title = "Thermoregulatory \n model")) +
+  scale_shape_discrete(guide=guide_legend(title="Nighttime energy expenditure")) +
   facet_grid(.~Activity_budget_type) + theme_classic(base_size = 25) + 
   scale_x_discrete(breaks=c('A','B','C','D'),
                    labels=c("HC Pre", "HC Post", "SC Pre", "SC Post")) +
   theme(panel.border = element_rect(colour = "black", fill=NA), 
         axis.text.x = element_text(angle=45, margin=margin(30,0,0,0)),
         strip.text.x = element_text(size = 20), plot.title = element_text(hjust = 0.5, size=20),
-        legend.key.size = unit(1.5, 'lines')) + 
+        legend.key.size = unit(1.5, 'lines'), legend.title.align=0.5) + 
   xlab("Site and Monsoon status") + ylab("Daily energy expenditure (kJ)") +
-  ggtitle("Activity costs Hover_Fly_Perch")
+  ggtitle("Daytime activity costs Hover_Fly_Perch")
 
 ggplot(NULL, aes(Site_proxy, kJ_day)) + 
   geom_boxplot(data=dlw_bblh, aes(Site_proxy, kJ_day), alpha=0.5) +
-  geom_point(data=dlw_bblh, aes(Site_proxy, kJ_day), size=5, alpha=0.1) +
+  #geom_point(data=dlw_bblh, aes(Site_proxy, kJ_day), size=5, alpha=0.1) +
   geom_point(data=energymodels2, aes(Site_proxy, kJ_day, 
                                      col=Thermoreg_scenario, shape=NEE_low_high), size=3, alpha=0.7) +  
-  scale_colour_brewer(palette="Set1", guide = guide_legend(title = "Thermoregulatory \n scenario")) +
-  scale_shape_discrete(guide=guide_legend(title="NEE kJ")) +
+  scale_colour_brewer(palette="Set1", guide = guide_legend(title = "Thermoregulatory \n model")) +
+  scale_shape_discrete(guide=guide_legend(title="Nighttime energy \n expenditure")) +
   facet_grid(.~Activity_budget_type) + theme_classic(base_size = 25) + 
   scale_x_discrete(breaks=c('A','B','C','D'),
                    labels=c("HC Pre", "HC Post", "SC Pre", "SC Post")) +
   theme(panel.border = element_rect(colour = "black", fill=NA), 
         axis.text.x = element_text(angle=45, margin=margin(30,0,0,0)),
         strip.text.x = element_text(size = 20), plot.title = element_text(hjust = 0.5, size=20),
-        legend.key.size = unit(1.5, 'lines')) + 
+        legend.key.size = unit(1.5, 'lines'), legend.title.align=0.5) + 
   xlab("Site and Monsoon status") + ylab("Daily energy expenditure (kJ)") +
-  ggtitle("Activity costs Hover_Fly_Perch")
+  ggtitle("Daytime activity costs Hover_Fly_Perch")
 
 
 
