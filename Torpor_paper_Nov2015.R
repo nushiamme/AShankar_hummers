@@ -252,7 +252,7 @@ energy_plot
 #heightDetails.gtable <- function(x) sum(x$heights)
 energyM_temptrop <- ggplot(torpor, aes(Temptrop, NEE_MassCorrected)) + my_theme2 + 
   geom_boxplot(fill= "light grey") + 
-  xlab("Region") + ylab(expression(paste(('NEE Mass-corrected (kJ/'~M^(-0.66)*')')))) + 
+  xlab("Region") + ylab(NEE_corrlab) + 
   theme(axis.title.y = element_text(vjust=-0.1)) +
   #(my_theme %+replace% theme(axis.title.y = element_custom())) +
   stat_summary(fun.data = give.n, geom = "text", vjust=-1, size=5) +
@@ -369,9 +369,10 @@ BBLH_energyM_hours <- ggplot(BBLH_torpor, aes(Hours_torpid, NEE_MassCorrected)) 
 BBLH_energyM_hours
 
 ## Energy vs. hours torpid, without species labeled- for retreat
-energy_hours_spUnlabeled <- ggplot(torpor, aes(Hours_torpid, NEE_MassCorrected)) +  
+energy_hours_spUnlabeled <- ggplot(torpor, aes(Hours_torpid2, NEE_MassCorrected)) +  
   geom_point(size=4) + my_theme + geom_smooth(method=lm, color="black") +
-  geom_text(x = 7, y = 6, label = paste("R^2 :", " 0.311",sep=""), parse=T, size=10) +
+  geom_text(x = 7, y = 6, label = paste("R^2 :", " 0.51", sep=""), parse=T, size=10) +
+  geom_text(x = 7, y = 5, label = paste("N =", " 42", sep=""), parse=F, size=10) +
   labs(shape='Species') + scale_color_brewer(palette = "Set1") +
   ylab(NEE_corrlab) + xlab("Torpor duration")
 energy_hours_spUnlabeled
