@@ -11,7 +11,8 @@ setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
 
 torpor <- read.csv("Torpor_table_plot_Mar26.csv") #Torpor data file, each row is an individual
 torpor$NEE_MassCorrected<- torpor$NEE_kJ/(torpor$Mass^(2/3))
-freq_table <- read.csv("Frequency_torpor.csv") #Table with data for rate of occurrence of torpor per species; each row is a species
+#Table with data for rate of occurrence of torpor per species; each row is a species
+freq_table <- read.csv("Frequency_torpor.csv") 
 
 mass.agg <- aggregate(torpor$Mass,   #Get mean mass per species
                       by=list(torpor$Species), 
@@ -41,7 +42,8 @@ rownames(tips)<-tips$tips
 tre1<-treedata(tree, tips)$phy
 plot(tre1)
 
-#prepare data for pgls using pruned data, data you want to run and the column that matches the two in this case, "Species"
+#prepare data for pgls using pruned data, data you want to run and the column that matches the two 
+#in this case, "Species"
 data<-comparative.data(tre1,freq_table,"Species")
 #run the phyogenetic model
 #First testing the effect of mass on rate of occurrence of torpor; rate of occurence is the percentage of 
@@ -54,10 +56,11 @@ AIC(m0)
 AIC(m1)
 summary(m1)
 
-## Now, to run Bayesian models with repeated measures per species (i.e. multiple individuals per species), we setup an
-#inverse matrix and set up a prior
-#Using a Bayesian rather than a maximum likelihood model because with an ML model we could include repeated measures, OR
-#we could include a phylogenetic structure. But to get a hierarchy, with both a phylogeny and then repeated measures 
+## Now, to run Bayesian models with repeated measures per species (i.e. multiple individuals per species), 
+#we setup an inverse matrix and set up a prior
+#Using a Bayesian rather than a maximum likelihood model because with an ML model we could include 
+#repeated measures, OR we could include a phylogenetic structure. 
+#But to get a hierarchy, with both a phylogeny and then repeated measures 
 #within the phylogeny, we need turn the phylogeny into an inverse matrix
 inv.phylo<-inverseA(tre1,nodes="TIPS",scale=TRUE)
 #set up a prior for a phylogenetic mixed model
@@ -66,12 +69,12 @@ prior<-list(G=list(G1=list(V=1,nu=0.02)),R=list(V=1,nu=0.02))
 #First converting NA's in Hours_torpid into 0's.
 torpor$Hours2 <- torpor$Hours_torpid
 torpor$Hours2[is.na(torpor$Hours2==TRUE)] <- 0
-m2<-MCMCglmm(NEE_kJ~Mass+Hours2+Tc_min_C, random=~Species, ginverse = list(Species=inv.phylo$Ainv), prior=prior, 
-             data=torpor, verbose=FALSE)
+m2<-MCMCglmm(NEE_kJ~Mass+Hours2+Tc_min_C, random=~Species, ginverse = list(Species=inv.phylo$Ainv), 
+             prior=prior, data=torpor, verbose=FALSE)
 
-m3<-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C, random=~Species, ginverse = list(Species=inv.phylo$Ainv), prior=prior, 
-             data=torpor, verbose=FALSE)
+m3<-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C, random=~Species, 
+             ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, verbose=FALSE)
 
-## Without any phylogenetic corrections- shows that results have an inflated significance when phylo corrections are 
-#not done
+## Without any phylogenetic corrections- shows that results have an inflated significance when 
+#phylo corrections are not done
 m4<-MCMCglmm(NEE_kJ~Mass+Hours2+Tc_min_C, data=torpor)
