@@ -16,8 +16,8 @@ library(dplyr)
 library(rgl)
 
 ## setwd and read in file
-#wdMac
-#setwd("/Users/anushashankar/Dropbox/Hummingbird energetics/Tables_for_paper")
+#wdCH
+setwd("C:\\Users\\shankar\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
 #wdMS
 setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
 
@@ -166,9 +166,9 @@ give.n <- function(x){
 }
 
 ## Function for adding a regression equation to graphs
-## (Where table= the file name, y= column name for y in the equation and x= column name for x)
-lm_eqn <- function(table, y, x){
-  m <- lm(y ~ x, table);
+## (Where y= table$column for y in the equation and x= table$column for x)
+lm_eqn <- function(y, x){
+  m <- lm(y ~ x);
   eq <- substitute(italic(y) == 
                      a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
                    list(a = format(coef(m)[1], digits = 2), 
@@ -183,20 +183,8 @@ Ta.xlab <- expression(atop(paste("Ambient Temperature (", degree,"C)")))
 Tc_min.xlab <- expression(atop(paste("Minimum Chamber Temperature (", degree,"C)")))
 NEE_corrlab <- bquote('Nighttime energy expenditure (kJ/' ~M^(0.67)*')')
 
-#### Not using- made a function for axis text wrapping, didn't really work well as is ####
-#element_custom <- function() {
- # structure(list(), class = c("element_custom", "element_text"))
-#}
 
-#element_grob.element_custom <- function(element, label="", ...)  {
-  
- # mytheme <- ttheme_minimal(core = list(fg_params = list(parse=TRUE, 
- #                                                        hjust=0, x=0.1)))
-#  disect <- strsplit(label, "\\n")[[1]]
-  #tableGrob(as.matrix(disect), theme=mytheme)
-#}
-
-####### Trying out Log-log NEE-mass######
+#### Trying out Log-log NEE-mass######
 test_log_col <- ggplot(torpor, aes(Mass, NEE_kJ)) +
   scale_x_log10() + scale_y_log10() +
   geom_point(alpha=0.2) + theme_bw() + geom_smooth(method='lm') +
@@ -236,12 +224,13 @@ savings_mass
 
 summary(lm(torpor$Percentage_avg[!is.na(torpor$Percentage_avg)] ~ torpor$Mass[!is.na(torpor$Percentage_avg)]))
 
-## BBLH torpor plots
-BBLH_tor <- ggplot(torpor[torpor$Species=="BBLH",], aes(Tc_min_C, AvgEE_torpid_MassCorrected)) + geom_point(size=5) + my_theme
+## BBLH torpor plots - ignore
+BBLH_tor <- ggplot(torpor[torpor$Species=="BBLH",], aes(Tc_min_C, AvgEE_torpid_MassCorrected)) + geom_point(size=5) +
+  my_theme
 BBLH_tor
 summary(lm(AvgEE_torpid_MassCorrected~Tc_min_C, data=torpor[torpor$Species=="BBLH",]))
 
-##### Comparing temperate and tropical species, and BBLH across sites ##########
+#### Comparing temperate and tropical species, and BBLH across sites ##########
 ## Comparing HC and SC BBLH energy expenditure in torpor
 ggplot(BBLH_torpor, aes(Site, AvgEE_torpid_MassCorrected)) + my_theme +
   geom_boxplot() + geom_point(aes(col=Tc_min_C), size=5) + 
@@ -358,11 +347,11 @@ energyM_BBLH <- ggplot(torpor[torpor$Species=="BBLH",], aes(Site_new, NEE_MassCo
 energyM_BBLH
 
 ## Energy vs. hours torpid, species labeled
-energyM_hours <- ggplot(torpor, aes(Hours_torpid, NEE_MassCorrected)) +  my_theme +
+energyM_hours <- ggplot(torpor, aes(Hours_torpid2, NEE_MassCorrected)) +  my_theme +
   geom_point(aes(shape = factor(Species)), size=4) + theme_bw(base_size=30) +
   scale_shape_manual(values=c(3,1,2,0,15,16,17,23)) +
   geom_smooth(method=lm, color="black") +
-  geom_text(x = 5, y = 4.5, label = lm_eqn(torpor, torpor$NEE_MassCorrected, torpor$Hours_torpid), 
+  geom_text(x = 5, y = 4.5, label = lm_eqn(torpor$NEE_MassCorrected, torpor$Hours_torpid2), 
             parse=T, size=10) +
   labs(shape='Species') + scale_color_brewer(palette = "Set1") + theme_bw(base_size=30) +
   ylab(NEE_corrlab) + xlab("Torpor duration")
@@ -544,7 +533,7 @@ avg_torpid_EE <- ggplot(torpor, aes(Tc_mean_C, Avg_EE_hourly_torpid)) +  theme_b
         axis.title.y = element_text(size=16, face="bold"), axis.text.y = element_text(size=14)) 
 avg_torpid_EE
 
-######### Mass-corrected Min and avg graphs ####
+#### Mass-corrected Min and avg graphs ####
 ## Mass-corrected Min normo EE by Tc
 m_min_normo_EE <- ggplot(torpor, aes(as.numeric(Tc_mean_C), 
                                      as.numeric(MinEE_normo_MassCorrected))) +  
@@ -1016,7 +1005,7 @@ lm_normo_Tc_mean <- lm(torpor$AvgEE_normo_MassCorrected ~ torpor$Tc_mean_C)
 plot(lm_normo_Tc_mean)
 lines(torpor$Tc_mean_C, predict(lm_normo_Tc_mean), col='red', type='b')
 quad_avgEE_normo_Tcmean <- lm(torpor$AvgEE_normo_MassCorrected ~ torpor$Tc_mean_C) + 
-  I(torpor$Tc_mean_C_sq))
+  I(torpor$Tc_mean_C_sq)
 predictedEE_normo_Tcmean <- predict(quad_avgEE_normo,list(Temp=torpor$Tc_mean_C, 
                                                           Temp2=torpor$Tc_mean_C_sq))
 ## Plot avg normo EE vs. mean temperatures
@@ -1024,7 +1013,7 @@ plot(torpor$Tc_mean_C, torpor$AvgEE_normo_MassCorrected, pch=16, xlab = "Mean Te
      ylab = "Avg normo EE Mass-corrected", cex.lab = 1.3, col = "blue")
 lines(sort(torpor$Tc_mean_C), predictedEE_normo[order(torpor$Tc_mean_C)], col='red', type='b') 
 
-##### PCA - Looks Awesome in 3D ######
+#### PCA - Looks Awesome in 3D ######
 t.pc <- torpor[,c("NEE_kJ", "Hours_torpid2", "Tc_min_C", "Percentage_avg")]
 names(t.pc) <- c("NEE", "Torpor_duration", "Min Tc", "Hourly_energy_savings")
 t.pc$Hourly_energy_savings <- as.numeric(t.pc$Hourly_energy_savings)
