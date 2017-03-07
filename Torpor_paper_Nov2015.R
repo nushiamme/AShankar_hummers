@@ -55,7 +55,8 @@ torpor$Hours_torpid2[is.na(torpor$Hours_torpid2)] <- 0
 torpor$savings <- 100-torpor$Percentage_avg
 
 m.temptrop <- melt(torpor, id.vars = c("Temptrop", "Species", "Site"), 
-                   measure.vars =  c("Hours_torpid", "Prop_hours", "NEE_kJ", "Percentage_avg", "NEE_MassCorrected", "Mass"))
+                   measure.vars =  c("Hours_torpid", "Prop_hours", "NEE_kJ", "Percentage_avg",
+                                     "NEE_MassCorrected", "Mass"))
 
 rate_site <- data.frame(table(torpor$Site,torpor$Torpid_not))
 names(rate_site) <- c("Site", "Torpid_not", "N")
@@ -370,7 +371,7 @@ BBLH_energyM_hours
 
 ## Energy vs. hours torpid, without species labeled- for retreat
 energy_hours_spUnlabeled <- ggplot(torpor, aes(Hours_torpid2, NEE_MassCorrected)) +  
-  geom_point(size=4) + my_theme + geom_smooth(method=lm, color="black") +
+  geom_point(size=4) + my_theme + geom_smooth(method='loess', color="black") +
   geom_text(x = 7, y = 6, label = paste("R^2 :", " 0.51", sep=""), parse=T, size=10) +
   geom_text(x = 7, y = 5, label = paste("N =", " 42", sep=""), parse=F, size=10) +
   labs(shape='Species') + scale_color_brewer(palette = "Set1") +
