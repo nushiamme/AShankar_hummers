@@ -99,7 +99,7 @@ dee_BBLH_site_monsoon <- ggplot(dlw_bblh, aes(Site_proxy, kJ_day)) + geom_boxplo
   scale_color_manual("Season\n", values=c('red','black'), labels=c("Post-monsoon", "Pre-monsoon")) + 
   ylab("Daily energy expenditure (kJ/day)") + xlab("Site and monsoon status") +
   scale_x_discrete(breaks=c("A","B","C","D"),
-                   labels=c("HC pre", "HC post", "SC pre", "SC post"))
+                   labels=c("Harshaw pre", "Harshaw post", "Sonoita pre", "Sonoita post"))
 plot(dee_BBLH_site_monsoon, fig.align='left')
 
 #### Torpor plots ####

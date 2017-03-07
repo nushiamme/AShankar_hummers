@@ -57,9 +57,9 @@ ggplot(energymodels2, aes(Site_proxy, Daytime_EE_kJ)) +
   scale_colour_brewer(palette="Set1", guide = guide_legend(title = "Thermoregulatory \n model")) +
   facet_grid(~Activity_budget_type) + theme_classic(base_size = 25) + 
   scale_x_discrete(breaks=c('A','B','C','D'),
-                   labels=c("HC Pre", "HC Post", "SC Pre", "SC Post")) +
+                   labels=c("Hawshaw Pre", "Harshaw Post", "Sonoita Pre", "Sonoita Post")) +
   theme(panel.border = element_rect(colour = "black", fill=NA), 
-        axis.text.x = element_text(angle=45, margin=margin(30,0,0,0)),
+        axis.text.x = element_text(angle=45, margin=margin(30,0,0,0), hjust = 0.75),
         strip.text.x = element_text(size = 20), plot.title = element_text(hjust = 0.5, size=20),
         legend.key.size = unit(1.5, 'lines'), legend.title.align=0.5) + 
   xlab("Site and Monsoon status") + ylab("Daytime energy expenditure (kJ)") +
@@ -93,11 +93,12 @@ ggplot(NULL, aes(Site_proxy, kJ_day)) +
   scale_shape_discrete(guide=guide_legend(title="Nighttime energy \n expenditure")) +
   facet_grid(.~Activity_budget_type) + theme_classic(base_size = 25) + 
   scale_x_discrete(breaks=c('A','B','C','D'),
-                   labels=c("HC Pre", "HC Post", "SC Pre", "SC Post")) +
+                   labels=c("Harshaw Pre", "Harshaw Post", "Sonoita Pre", "Sonoita Post")) +
   theme(panel.border = element_rect(colour = "black", fill=NA), 
-        axis.text.x = element_text(angle=45, margin=margin(30,0,0,0)),
+        axis.text.x = element_text(angle=45, margin=margin(30,0,0,0), hjust=0.75),
         strip.text.x = element_text(size = 20), plot.title = element_text(hjust = 0.5, size=20),
         legend.key.size = unit(1.5, 'lines'), legend.title.align=0.5) + 
+  guides(fill=guide_legend(keywidth=0.1, keyheight =0.5, default.unit="inch")) +
   xlab("Site and Monsoon status") + ylab("Daily energy expenditure (kJ)") +
   ggtitle("Daytime activity costs Hover_Fly_Perch")
 

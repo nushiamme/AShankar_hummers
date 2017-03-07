@@ -69,7 +69,8 @@ dee_BBLH_monsoon <- ggplot(dlw_bblh, aes(Initial_mass_g, kJ_day)) + my_theme +
   ylab("Daily energy expenditure (kJ/day)") + xlab("Initial mass (g)")
 dee_BBLH_monsoon
 
-summary(lm(dlw_bblh$kJ_day[dlw_bblh$Pre_post_monsoon=="Post"] ~ dlw_bblh$Initial_mass_g[dlw_bblh$Pre_post_monsoon=="Post"]))
+summary(lm(dlw_bblh$kJ_day[dlw_bblh$Pre_post_monsoon=="Post"] ~ 
+             dlw_bblh$Initial_mass_g[dlw_bblh$Pre_post_monsoon=="Post"]))
 
 ## DEE by site
 dee_BBLH_site <- ggplot(dlw_bblh, aes(Initial_mass_g, kJ_day)) + my_theme +
@@ -84,7 +85,13 @@ dee_BBLH_site_monsoon_plot <- ggplot(dlw_bblh, aes(Site_monsoon, kJ_day)) + geom
   my_theme + geom_point(aes(shape=Pre_post_monsoon), size=5, alpha=0.4, col="blue") + 
   scale_shape_manual("Season\n", values=c(20,3), labels=c("Pre-monsoon", "Post-monsoon"), breaks=c("Pre", "Post")) + 
   ylab("Daily energy expenditure (kJ/day)") + xlab("Site")
-plot(dee_BBLH_site, fig.align='left')
+dee_BBLH_site_monsoon_plot
+
+dee_BBLH_site_monsoon_plot <- ggplot(dlw_bblh, aes(Site_monsoon, kJ_day)) + geom_boxplot() + 
+  my_theme + geom_point(aes(col=Pre_post_monsoon), size=5, alpha=0.4, col="blue") + 
+  scale_shape_manual("Season\n", values=c(20,3), labels=c("Pre-monsoon", "Post-monsoon"), breaks=c("Pre", "Post")) + 
+  ylab("Daily energy expenditure (kJ/day)") + xlab("Site")
+dee_BBLH_site_monsoon_plot
 
 dee_BBLH_site <- ggplot(dlw_bblh[dlw_bblh$Pre_post_monsoon=="Pre",], aes(Site, kJ_day)) + geom_boxplot() + 
   my_theme + geom_point(size=5, alpha=0.4, col="blue") + 
@@ -124,7 +131,8 @@ nee.hc/dee.hc
 nee.sc/dee.sc
 
 #### T-tests for site and monsoon differences ####
-t.test(m.bblh$value[m.bblh$variable=="DEE_kJ" & m.bblh$Site=="HC"], m.bblh$value[m.bblh$variable=="DEE_kJ" & m.bblh$Site=="SC"], na.rm=T)
+t.test(m.bblh$value[m.bblh$variable=="DEE_kJ" & m.bblh$Site=="HC"], 
+       m.bblh$value[m.bblh$variable=="DEE_kJ" & m.bblh$Site=="SC"], na.rm=T)
 Premonsoon <- dlw[dlw$Pre_post_monsoon=="Pre",]
 Postmonsoon <- dlw[dlw$Pre_post_monsoon=="Post",]
 t.test(Premonsoon$kJ_day[Premonsoon$Site=="HC"], Premonsoon$kJ_day[Premonsoon$Site=="SC"], paired = F) ## Not significant
