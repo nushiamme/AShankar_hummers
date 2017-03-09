@@ -10,7 +10,7 @@ library(data.table)
 
 #### Reading in files and reshaping ####
 ## Set wd
-setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget")
+setwd("C:\\Users\\shankar\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget")
 
 ## Read in file with temperature from each sensor per hour per site (hence temp "details")
 temp_details <- read.csv("BBLH_temperatures_compiled.csv")
@@ -288,13 +288,15 @@ Results$MaxTemp_thermo_day[5] <- readRDS("Thermo_iterations\\test_max2\\9_7_SC_t
 write.csv(Results, "Summary_minmaxTemps_prelim.csv")
 
 #### Plots #####
+#Operative temperature, July 8, 2013, HC
 m.te_hour <- m.te_det[m.te_det$Hour==700 & m.te_det$DayMonth=="8,7" & m.te_det$Site=="HC",]
 ggplot(m.te_hour, aes(Sensor, Te)) + geom_point(size=4) + my_theme + 
   ylab(Te.lab) +
   ggtitle("Harshaw July 8, 2013, 7am")
 
 #Operative temp 13 June, 2013, HC
-ggplot(m.te_det[m.te_det$DayMonth=="13,6" & m.ta_det$Site=="HC",], aes(Hour, Te)) + geom_point(size=4) + my_theme + 
+ggplot(m.te_det[m.te_det$DayMonth=="13,6" & m.te_det$Site=="HC",], aes(Hour, Te)) + my_theme + 
+  geom_point(data=m.te_det[m.te_det$DayMonth=="13,6" & m.ta_det$Site=="HC",], aes(Hour, Te), size=4) + 
   ylab(Te.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
   ggtitle("Harshaw June 13, 2013")
 
@@ -304,8 +306,27 @@ ggplot(m.ta_det[m.ta_det$DayMonth=="13,6" & m.ta_det$Site=="HC",], aes(Hour, Ta)
   ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
   ggtitle("Harshaw June 13, 2013")
 
+#Operative and Ambient temp 13 June, 2013, HC
+ggplot(NULL, aes(Hour, Te)) + my_theme + 
+  geom_point(data=m.te_det[m.te_det$DayMonth=="13,6" & m.te_det$Site=="HC",], aes(Hour, Te), size=4, col="black") + 
+  geom_point(data=m.ta_det[m.ta_det$DayMonth=="13,6" & m.ta_det$Site=="HC",], aes(Hour, Ta), col="red") +
+  ylab(Te.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
+  ggtitle("Harshaw June 13, 2013")
+
 #Operative temp 27 June, 2013, HC
-ggplot(m.te_det[m.te_det$DayMonth=="27,6" & m.ta_det$Site=="HC",], aes(Hour, Te)) + geom_point(size=4) + my_theme + 
+ggplot(m.te_det[m.te_det$DayMonth=="27,6" & m.te_det$Site=="HC",], aes(Hour, Te)) + geom_point(size=4) + my_theme + 
+  ylab(Te.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
+  ggtitle("Harshaw June 27, 2013")
+
+#Ambient temp 27 June, 2013, HC
+ggplot(m.ta_det[m.ta_det$DayMonth=="27,6" & m.ta_det$Site=="HC",], aes(Hour, Ta)) + geom_point(size=4) + my_theme + 
+  ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
+  ggtitle("Harshaw June 27, 2013")
+
+#Operative and Ambient temp 27 June, 2013, HC
+ggplot(NULL, aes(Hour, Te)) + my_theme + 
+  geom_point(data=m.te_det[m.te_det$DayMonth=="27,6" & m.te_det$Site=="HC",], aes(Hour, Te), size=4, col="black") + 
+  geom_point(data=m.ta_det[m.ta_det$DayMonth=="27,6" & m.ta_det$Site=="HC",], aes(Hour, Ta), col="red") +
   ylab(Te.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
   ggtitle("Harshaw June 27, 2013")
 
@@ -323,10 +344,26 @@ ggplot(temp_HC_2706.agg, aes(Hour, Ta)) +
                        plot.title = element_text(hjust = 0.5)) + ylim(5,55) +
   ggtitle("Harshaw June 27, 2013")
 
-#Ambient temp 27 June, 2013, HC
-ggplot(m.ta_det[m.ta_det$DayMonth=="27,6" & m.ta_det$Site=="HC",], aes(Hour, Ta)) + geom_point(size=4) + my_theme + 
+## Ambient temps, 2 July 2013, HC
+ggplot(m.ta_det[m.ta_det$DayMonth=="2,7" & m.ta_det$Site=="HC",], aes(Hour, Ta)) + geom_point(size=4) + my_theme + 
   ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
-  ggtitle("Harshaw June 27, 2013")
+  ggtitle("Harshaw July 2, 2013")
+
+
+## Ambient and Operative, 2 July 2013, HC
+ggplot(NULL, aes(Hour, Ta)) + my_theme + 
+  geom_point(data=m.te_det[m.te_det$DayMonth=="2,7" & m.te_det$Site=="HC",], aes(Hour, Te, col=Te), col="black", size=4) +
+  geom_point(data=m.ta_det[m.ta_det$DayMonth=="2,7" & m.ta_det$Site=="HC",], aes(Hour, Ta, col=Ta), col="red") +
+  ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
+  ggtitle("Harshaw July 2, 2013")
+
+## Putting one day each of pre- and post- monsoon for HC on the same plot
+ggplot(m.ta_det[m.ta_det$Site=="HC",], aes(Hour, Ta)) + my_theme + 
+  geom_point(data=m.ta_det[m.ta_det$DayMonth=="27,6",], aes(Hour, Ta, col=DayMonth), col="black", size=4) +
+  geom_point(data=m.ta_det[m.ta_det$DayMonth=="2,7",], aes(Hour, Ta, col=DayMonth), col="red") +
+  ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1, size=20), 
+                       plot.title = element_text(size=25, hjust=0.5)) + 
+  ylim(5,55) + ggtitle("Harshaw pre- and post-monsoon, 2013")
 
 #Ambient temp 9 July, 2013, HC
 ggplot(m.ta_det[m.ta_det$DayMonth=="9,7" & m.ta_det$Site=="HC",], aes(Hour, Ta)) + geom_point(size=4) + my_theme + 
@@ -349,7 +386,7 @@ ggplot(temp_HC_0907.agg, aes(Hour, Ta)) +
   ggtitle("Harshaw July 9, 2013")
 
 #Operative temp 2 July, 2013, SC
-ggplot(m.te_det[m.te_det$DayMonth=="2,7" & m.ta_det$Site=="SC",], aes(Hour, Te)) + geom_point(size=4) + my_theme + 
+ggplot(m.te_det[m.te_det$DayMonth=="2,7" & m.te_det$Site=="SC",], aes(Hour, Te)) + geom_point(size=4) + my_theme + 
   ylab(Te.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
   ggtitle("Sonoita July 2, 2013")
 
@@ -357,6 +394,14 @@ ggplot(m.te_det[m.te_det$DayMonth=="2,7" & m.ta_det$Site=="SC",], aes(Hour, Te))
 ggplot(m.ta_det[m.ta_det$DayMonth=="2,6" & m.ta_det$Site=="SC",], aes(Hour, Ta)) + geom_point(size=4) + my_theme + 
   ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
   ggtitle("Sonoita July 2, 2013")
+
+#Operative and ambient temps 2 July, 2013, SC
+ggplot(NULL, aes(Hour, Ta)) + my_theme + 
+  geom_point(data=m.te_det[m.te_det$DayMonth=="2,7" & m.te_det$Site=="SC",], aes(Hour, Te), col="black", size=4) +
+  geom_point(data=m.ta_det[m.ta_det$DayMonth=="2,7" & m.ta_det$Site=="SC",], aes(Hour, Ta), col="red") + 
+  ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
+  ggtitle("Sonoita July 2, 2013")
+
 
 temp_SC_0207.agg <- aggregate(m.ta_det$Ta[m.ta_det$DayMonth=="2,7" & m.ta_det$Site=="SC"], 
                               by=list(as.factor(as.character(
