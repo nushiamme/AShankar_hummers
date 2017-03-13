@@ -1,9 +1,10 @@
 ## 3D surface plot of daily energy expenditure vs. activity and temperature
 
 # Sign in to plotly - like Git
-#library(plotly)
-#py <- plot_ly()
+library(plotly)
+py <- plot_ly()
 library(ggplot2)
+library(rgl)
 
 #library(rgl)
 
