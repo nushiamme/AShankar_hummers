@@ -111,10 +111,10 @@ AmbTemp <- ggplot(m.ta, aes(Hour,Temperature, alpha=Variable)) + facet_grid(.~Si
   geom_line(aes(group=Variable, col=Variable), size=1.5) +
   scale_color_manual(values=c("Black", "Blue", "Red")) +
   scale_alpha_manual(values = c(1, 0.5, 0.5)) +
-  theme(axis.text.x = element_text(angle = 90, size=15), legend.position="none", plot.title = element_text(size = 30),
+  theme(axis.text.x = element_text(angle = 60, size=12, hjust=1), legend.position="none", plot.title = element_text(size = 30),
         panel.grid.major.y = element_line(size=.1, color="grey75"), strip.text.x = element_text(size = 18),
         axis.title.y=element_text(vjust=-3)) + #xlim("1900", "2200", "100", "400", "700") +
-  xlab("Hour") + ylab(Ta.lab) + ggtitle("a.") 
+  xlab("Hour") + ylab(Ta.lab) #+ ggtitle("a.") 
 AmbTemp
 
 ## Chamber Temp plots by hour, per site
@@ -124,10 +124,10 @@ ChambTemp <- ggplot(m.tc, aes(Hour,Temperature, alpha=Variable)) + my_theme +
   geom_line(aes(group=Variable, col=Variable), size=1.5) +
   scale_color_manual(values=c("Black", "Blue", "Red")) +
   scale_alpha_manual(values = c(1, 0.5, 0.5)) +
-  theme(axis.text.x = element_text(angle = 90, size=15), legend.position="none", plot.title = element_text(size = 30),
+  theme(axis.text.x = element_text(angle = 60, size=12, hjust=1), legend.position="none", plot.title = element_text(size = 30),
         panel.grid.major.y = element_line(size=.1, color="grey75"), strip.text.x = element_text(size = 18),
         axis.title.y=element_text(vjust=-3)) + 
-  xlab("Hour") + ylab(Tc.lab) + ggtitle("b.") + scale_x_discrete(labels=Hour_labels)
+  xlab("Hour") + ylab(Tc.lab) + scale_x_discrete(labels=Hour_labels) #+ ggtitle("b.")
 ChambTemp
 
 ## Old ambient temp - Black with "Error bars" depicting max and min temps

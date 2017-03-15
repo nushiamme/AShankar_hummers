@@ -71,10 +71,11 @@ torpor$Hours2 <- torpor$Hours_torpid
 torpor$Hours2[is.na(torpor$Hours2==TRUE)] <- 0
 m2<-MCMCglmm(NEE_kJ~Mass+Hours2+Tc_min_C, random=~Species, ginverse = list(Species=inv.phylo$Ainv), 
              prior=prior, data=torpor, verbose=FALSE)
+summary(m2)
 
 m3<-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C, random=~Species, 
              ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, verbose=FALSE)
-
+summary(m3)
 ## Without any phylogenetic corrections- shows that results have an inflated significance when 
 #phylo corrections are not done
 m4<-MCMCglmm(NEE_kJ~Mass+Hours2+Tc_min_C, data=torpor)
