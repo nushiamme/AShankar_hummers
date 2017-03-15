@@ -22,7 +22,7 @@ setwd("C:\\Users\\shankar\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
 setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
 
 torpor <- read.csv("Torpor_table_plot_Mar26.csv")
-torpor_old <- read.csv("Torpor_table_plot_Dec9_with_BBLH05_nectar_consumption.csv", sep = ",")
+torpor_old <- read.csv("Torpor_table_plot_Dec9_with_BBLH05_nectar_consumption.csv", sep = ";")
 freq_table <- read.csv("Frequency_torpor.csv")
 freq_sites <- read.csv("Frequency_torpor_sites.csv")
 tempsumm <- read.csv("Temp_summary.csv")
@@ -52,6 +52,9 @@ freq_sites$Site_new <- factor(freq_sites$Site, levels=c('HC','SC','SWRS','MQ','S
 ## Create Hours_torpid2 column and change NA's to 0's for lm analyses; keep original Hours_torpid column with NA's
 torpor$Hours_torpid2 <- torpor$Hours_torpid
 torpor$Hours_torpid2[is.na(torpor$Hours_torpid2)] <- 0
+
+torpor_old$Hours_torpid2 <- torpor_old$Hours_torpid
+torpor_old$Hours_torpid2[torpor_old$Hours_torpid2==0] <- NA
 
 ## Savings column
 torpor$savings <- 100-torpor$Percentage_avg
@@ -185,7 +188,7 @@ Tc.xlab <- expression(atop(paste("Chamber Temperature (", degree,"C)")))
 Ta.xlab <- expression(atop(paste("Ambient Temperature (", degree,"C)")))
 Tc_min.xlab <- expression(atop(paste("Minimum Chamber Temperature (", degree,"C)")))
 NEE_corrlab <- bquote('Nighttime energy expenditure (kJ/' ~M^(0.67)*')')
-
+Nec_consump_lab <- bquote('Nectar consumption/' ~M^(0.67)*'')
 
 #### Trying out Log-log NEE-mass######
 test_log_col <- ggplot(torpor, aes(Mass, NEE_kJ)) +
@@ -305,20 +308,22 @@ freqmass
 
 summary(lm(freq_table$Rate_occurrence ~ freq_table$mass))
 
-## Trying to see if nectar consumption might have affected time of entry into torpor
-nec_time <- ggplot(torpor_old[!is.na(torpor$EntryTime_new),], aes(Hours_torpid, (Nectar_consumption/Mass))) + my_theme + 
+## Trying to see if nectar consumption might have affected duration of torpor
+nec_duration <- ggplot(torpor_old[!is.na(torpor_old$Hours_torpid2),], 
+                       aes(Hours_torpid2, (Nectar_consumption/(Mass^(0.67))))) + my_theme + 
   geom_point(aes(col=Species), size=4) + geom_smooth(method=lm, color="black") + scale_color_brewer(palette = "Set1") +
-  geom_text(x = 4, y = 0.2, label = lm_eqn(torpor$NEE_MassCorrected, torpor$Hours_torpid2), 
-            parse=T, size=5) +
-  xlab("Torpor duration") +  ylab("Nectar consumption/Mass")
-nec_time
+  geom_text(x = 4, y = 0.32, label = lm_eqn((torpor_old$Nectar_consumption/(torpor_old$Mass^0.67)), torpor_old$Hours_torpid2), 
+            parse=T, size=8) + theme(legend.key.height=unit(3,"line")) +
+  xlab("Torpor duration") +  ylab(Nec_consump_lab)
+nec_duration
 
-
-nec_time <- ggplot(torpor_old[!is.na(torpor_old$),], aes(EntryTime_new, (Nectar_consumption/Mass))) + my_theme + 
-  geom_point(aes(col=Species), size=4) + geom_smooth(method=lm, color="black") + scale_color_brewer(palette = "Set1") +
-  geom_text(x = 4, y = 0.2, label = lm_eqn(torpor$NEE_MassCorrected, torpor$Hours_torpid2), 
-            parse=T, size=5) +
-  xlab("Torpor duration") +  ylab("Nectar consumption/Mass")
+## Nectar consumption vs. hour of entry into torpor
+nec_time <- ggplot(torpor_old[!is.na(torpor_old$Time_numeric),], aes(Time_numeric, (Nectar_consumption/(Mass^(0.67))))) + 
+  my_theme + geom_point(aes(col=Species), size=5) + geom_smooth(method=lm, color="black") +
+  scale_color_brewer(palette = "Set1") +
+  geom_text(x = 4, y = 0.32, label = lm_eqn((torpor_old$Nectar_consumption/(torpor_old$Mass^0.67)), torpor_old$Time_numeric), 
+            parse=T, size=8) + theme(legend.key.height=unit(3,"line")) +
+  xlab("Hour of entry") +  ylab(Nec_consump_lab)
 nec_time
 
 ## Frequency of torpor use
