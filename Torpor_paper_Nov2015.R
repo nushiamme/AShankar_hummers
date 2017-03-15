@@ -22,6 +22,7 @@ setwd("C:\\Users\\shankar\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
 setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
 
 torpor <- read.csv("Torpor_table_plot_Mar26.csv")
+torpor_old <- read.csv("Torpor_table_plot_Dec9_with_BBLH05_nectar_consumption.csv", sep = ",")
 freq_table <- read.csv("Frequency_torpor.csv")
 freq_sites <- read.csv("Frequency_torpor_sites.csv")
 tempsumm <- read.csv("Temp_summary.csv")
@@ -42,9 +43,10 @@ torpor$MinEE_torpid_MassCorrected <- as.numeric(torpor$Min_EE_torpid)/(torpor$Ma
 
 # Line to arrange Site facets in sensible order
 torpor$Site_new <- factor(torpor$Site, levels=c('HC','SC','SWRS','MQ','SL'))
-torpor$EntryTime_new <- factor(torpor$Time_of_entry, 
+torpor_old$EntryTime_new <- factor(torpor_old$Time_of_entry, 
                                levels=c('2000', '2100', '2130', '2200', '2230',
-                                        '2300', '2400', '100', '130', '330', '200', '500'))
+                                        '2300', '2400', '100', '130', '200', '330', '500'))
+
 freq_sites$Site_new <- factor(freq_sites$Site, levels=c('HC','SC','SWRS','MQ','SL'))
 
 ## Create Hours_torpid2 column and change NA's to 0's for lm analyses; keep original Hours_torpid column with NA's
@@ -304,9 +306,19 @@ freqmass
 summary(lm(freq_table$Rate_occurrence ~ freq_table$mass))
 
 ## Trying to see if nectar consumption might have affected time of entry into torpor
-nec_time <- ggplot(torpor, aes(EntryTime_new, Nectar_consumption)) + my_theme + 
-  geom_point(aes(col=Species), size=4) + geom_smooth(method = lm, col='black') + scale_color_brewer(palette = "Set1") +
-  xlab("Time of entry") +  ylab("Nectar consumption (g)")
+nec_time <- ggplot(torpor_old[!is.na(torpor$EntryTime_new),], aes(Hours_torpid, (Nectar_consumption/Mass))) + my_theme + 
+  geom_point(aes(col=Species), size=4) + geom_smooth(method=lm, color="black") + scale_color_brewer(palette = "Set1") +
+  geom_text(x = 4, y = 0.2, label = lm_eqn(torpor$NEE_MassCorrected, torpor$Hours_torpid2), 
+            parse=T, size=5) +
+  xlab("Torpor duration") +  ylab("Nectar consumption/Mass")
+nec_time
+
+
+nec_time <- ggplot(torpor_old[!is.na(torpor_old$),], aes(EntryTime_new, (Nectar_consumption/Mass))) + my_theme + 
+  geom_point(aes(col=Species), size=4) + geom_smooth(method=lm, color="black") + scale_color_brewer(palette = "Set1") +
+  geom_text(x = 4, y = 0.2, label = lm_eqn(torpor$NEE_MassCorrected, torpor$Hours_torpid2), 
+            parse=T, size=5) +
+  xlab("Torpor duration") +  ylab("Nectar consumption/Mass")
 nec_time
 
 ## Frequency of torpor use
