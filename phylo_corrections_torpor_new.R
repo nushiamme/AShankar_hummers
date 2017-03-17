@@ -69,6 +69,7 @@ prior<-list(G=list(G1=list(V=1,nu=0.02)),R=list(V=1,nu=0.02))
 #First converting NA's in Hours_torpid into 0's.
 torpor$Hours2 <- torpor$Hours_torpid
 torpor$Hours2[is.na(torpor$Hours2==TRUE)] <- 0
+## Without mass-corrections - don't use
 m2<-MCMCglmm(NEE_kJ~Mass+Hours2+Tc_min_C, random=~Species, ginverse = list(Species=inv.phylo$Ainv), 
              prior=prior, data=torpor, verbose=FALSE)
 summary(m2)
