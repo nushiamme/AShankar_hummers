@@ -1096,6 +1096,16 @@ t.test(m.nee$value[m.nee$Temptrop=="Temperate"], m.nee$value[m.nee$Temptrop=="Tr
        paired = F)
 t.test(m.nee$value[m.nee$Site=="SC"], m.nee$value[m.nee$Site=="HC"], 
        paired = F)
+m.tor <- m.temptrop[m.temptrop$variable=="NEE_MassCorrected" & !is.na(m.temptrop$value[m.temptrop$variable=="Hours_torpid"]),]
+m.nor <- m.temptrop[m.temptrop$variable=="NEE_MassCorrected" & is.na(m.temptrop$value[m.temptrop$variable=="Hours_torpid"]),]
+t.test(m.tor$value[m.nee$Site=="SC"], m.tor$value[m.nee$Site=="HC"], paired = F)
+
+# Difference between normothermic and torpid NEE in Sonoita birds
+(mean(m.tor$value[m.tor$Site=="SC"])/mean(m.nor$value[m.nor$Site=="SC"]))*100
+# Difference in NEE between SC and HC torpid birds
+((mean(m.tor$value[m.nee$Site=="SC"]) - mean(m.tor$value[m.nee$Site=="HC"]))/(mean(m.tor$value[m.nee$Site=="SC"])))*100
+## Diference in NEE between  MAHU and BLUH
+((mean(5.459978,5.349119) - mean(5.195791, 4.780688, 6.583659, 4.320507))/mean(5.459978,5.349119))*100
 
 ## Rate of occurrence
 t.test(freq_table$Rate_occurrence[freq_table$Temptrop=="Temperate"], 
