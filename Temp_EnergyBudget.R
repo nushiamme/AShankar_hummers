@@ -8,6 +8,7 @@ library(ggplot2)
 library(dplyr)
 library(data.table)
 library(grid)
+library(gridExtra)
 
 #### Reading in files and reshaping ####
 ## Set wd
@@ -34,6 +35,8 @@ my_theme <- theme_classic(base_size = 30) +
 
 Te.lab <- expression(atop(paste("Operative Temperature ( ", degree,"C)")))
 Ta.lab <- expression(atop(paste("Ambient Temperature ( ", degree,"C)")))
+
+
 
 #### Building a model for thermoregulatory costs ####
 
@@ -340,7 +343,8 @@ temp_HC_2706.agg$Hour <- as.factor(temp_HC_2706.agg$Hour)
 
 p1 <- ggplot(temp_HC_2706.agg, aes(Hour, Ta)) +
   geom_point(data=m.ta_det[m.ta_det$DayMonth=="27,6" & m.ta_det$Site=="HC",], aes(Hour, Ta),size=4, alpha=0.3) +
-  geom_line(data=temp_HC_2706.agg, aes(Hour, Ta, group='Hour'), col='red', size=3) + my_theme +  ylim(5,55) +
+  geom_line(data=temp_HC_2706.agg, aes(Hour, Ta, group='Hour'), col='black', size=3) + 
+  my_theme +  ylim(5,55) +
   ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 60, hjust = 1, size=15), 
                        plot.title = element_text(hjust = 0.5), axis.title.y = element_text(vjust = -2, size=25)) +
   geom_text(x = 7, y = 50, label = "Harshaw June 27, 2013", size=8)
@@ -381,7 +385,8 @@ temp_HC_0907.agg$Hour <- as.factor(temp_HC_0907.agg$Hour)
 
 p2 <- ggplot(temp_HC_0907.agg, aes(Hour, Ta)) +
   geom_point(data=m.ta_det[m.ta_det$DayMonth=="9,7" & m.ta_det$Site=="HC",], aes(Hour, Ta),size=4, alpha=0.3) +
-  geom_line(data=temp_HC_0907.agg, aes(Hour, Ta, group='Hour'), col='red', size=3) + my_theme + ylim(5,55) +
+  geom_line(data=temp_HC_0907.agg, aes(Hour, Ta, group='Hour'), col='black', size=3) + 
+  my_theme + ylim(5,55) +
   ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 60, hjust = 1, size=15), 
                        plot.title = element_text(hjust = 0.5), axis.title.y = element_text(vjust = -2, size=25)) + 
   geom_text(x = 7, y = 50, label = "Harshaw July 9, 2013", size=8)
@@ -413,7 +418,8 @@ temp_SC_0207.agg$Hour <- as.factor(temp_SC_0207.agg$Hour)
 
 p3 <- ggplot(temp_SC_0207.agg, aes(Hour, Ta)) +
   geom_point(data=m.ta_det[m.ta_det$DayMonth=="2,7" & m.ta_det$Site=="SC",], aes(Hour, Ta),size=4, alpha=0.3) +
-  geom_line(data=temp_SC_0207.agg, aes(Hour, Ta, group='Hour'), col='red', size=3) + my_theme + ylim(5,55) +
+  geom_line(data=temp_SC_0207.agg, aes(Hour, Ta, group='Hour'), col='black', size=3) + 
+  my_theme + ylim(5,55) +
   ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 60, hjust = 1, size=15), 
                        plot.title = element_text(hjust = 0.5), axis.title.y = element_text(vjust = -2, size=25)) + 
   geom_text(x = 7, y = 50, label = "Sonoita July 2, 2013", size=8)
@@ -428,7 +434,8 @@ temp_SC_0907.agg$Hour <- as.factor(temp_SC_0907.agg$Hour)
 
 p4 <- ggplot(temp_SC_0907.agg, aes(Hour, Ta)) +
   geom_point(data=m.ta_det[m.ta_det$DayMonth=="9,7" & m.ta_det$Site=="SC",], aes(Hour, Ta),size=4, alpha=0.3) +
-  geom_line(data=temp_SC_0907.agg, aes(Hour, Ta, group='Hour'), col='red', size=3) + my_theme + ylim(5,55) +
+  geom_line(data=temp_SC_0907.agg, aes(Hour, Ta, group='Hour'), col='black', size=3) + 
+  my_theme + ylim(5,55) +
   ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 60, hjust = 1, size=15), 
                        plot.title = element_text(hjust = 0.5), axis.title.y = element_text(vjust = -2, size=25)) + 
   geom_text(x = 7, y = 50, label = "Sonoita July 9, 2013", size=8)
