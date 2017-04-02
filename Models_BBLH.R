@@ -3,7 +3,7 @@
 ## November 14, 2016
 
 ## Read in bblh_tatc, torpor, bblh_dlw csv's
-setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget")
+setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
 
 ## Read in file with temperature from each sensor per hour per site (hence temp "details")
 temp_details <- read.csv("BBLH_temperatures_compiled.csv")

@@ -11,7 +11,7 @@ library(grid)
 
 #### Reading in files and reshaping ####
 ## Set wd
-setwd("C:\\Users\\shankar\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget")
+setwd("C:\\Users\\shankar\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
 
 ## Read in file with temperature from each sensor per hour per site (hence temp "details")
 temp_details <- read.csv("BBLH_temperatures_compiled.csv")

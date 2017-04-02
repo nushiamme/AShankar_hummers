@@ -10,7 +10,7 @@ library(reshape)
 ## NOTE: masses for SC pre- vs. post-monsoon might be significantly different - check
 ## from "C:\Users\ANUSHA\Dropbox\DLW_paper\BBLH 2013 Poster Data.xlsx"
 
-setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget")
+setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
 ## Includes data from XXXX papers.
 
 dlw <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper\\DLW_data2.csv")
