@@ -9,9 +9,9 @@ library(rgl)
 #library(rgl)
 
 setwd("C:\\Users/shankar/Dropbox/Anusha Committee/BBLH_EnergyBudget/")
-energymodels <- read.csv("Trial_EnergyBudget_models_act_thermo.csv")
+#energymodels <- read.csv("Trial_EnergyBudget_models_act_thermo.csv")
 
-energymodels2 <- read.csv("Trial_EnergyBudget_models_act_thermo_redone.csv")
+energymodels2 <- read.csv("Trial_EnergyBudget_models_act_thermo_redone.csv", sep=";")
 
 dlw_bblh <- read.csv("DLW_summary.csv")
 
@@ -30,7 +30,6 @@ vec4 <- energymodels2$Daytime_EE_kJ[energymodels2$Thermoreg_scenario=="Rand_cost
 mean(vec4-vec3)
 sd(vec4-vec3)
 
-
 ## Range of results of the activity budget models
 ## Lowest ACT costs
 vec5 <- energymodels2$Daytime_EE_kJ[energymodels2$Activity_budget_type=="5_20_75"]
@@ -40,7 +39,27 @@ vec6 <- energymodels2$Daytime_EE_kJ[energymodels2$Activity_budget_type=="25_30_4
 mean(vec6-vec5)
 sd(vec6-vec5)
 
+m_energymodels <- as.data.frame(as.list(aggregate(energymodels2$kJ_day,
+                           by=list(energymodels2$Activity_budget_type,
+                                   energymodels2$NEE_low_high,
+                                   energymodels2$Site_proxy),
+                           FUN = function(x) c(mi = min(x), mn = mean(x), mx = max(x)))))
+names(m_energymodels) <- c("Activity_budget_type", "Torpor_use", "Site_proxy",  
+                           "Min_kJ_day", "kJ_day", "Max_kJ_day")
+m_energymodels$no <- seq(1:length(m_energymodels$Max_kJ_day))
 
+## use for just viewing activity differences, with all thermo and NEE variation incorporated
+m_energymodels2 <- as.data.frame(as.list(aggregate(energymodels2$kJ_day,
+                                                  by=list(energymodels2$Activity_budget_type,
+                                                          energymodels2$Site_proxy),
+                                                  FUN = function(x) c(mi = min(x), mn = mean(x), mx = max(x)))))
+names(m_energymodels2) <- c("Activity_budget_type", "Site_proxy",
+                           "Min_kJ_day", "kJ_day", "Max_kJ_day")
+m_energymodels2$no <- seq(1:length(m_energymodels2$Max_kJ_day))
+m_energymodels2
+
+
+#### plots ####
 ## With quantiles to select min and max thermo costs
 ggplot(energymodels, aes(Thermoreg_scenario, Daytime_EE)) + 
   geom_point(aes(col=Site), size=3) +
@@ -69,21 +88,87 @@ ggplot(energymodels2, aes(Site_proxy, Daytime_EE_kJ)) +
 energymodels2$NEE_low_high <- as.factor(energymodels2$NEE_low_high)
 levels(energymodels2$NEE_low_high) <- c("No torpor used", "Torpor used")
 # Whole model with DLW, activity costs, and thermoregulatory costs
-ggplot(NULL, aes(Site_proxy, kJ_day)) + 
+ggplot(NULL, aes(Site_proxy, kJ_day)) + my_theme +
+  facet_grid(.~Activity_budget_type) +
   geom_boxplot(data=dlw_bblh, aes(Site_proxy, kJ_day), alpha=0.5, fill="light grey") +
-  geom_point(data=energymodels2, aes(Site_proxy, kJ_day, 
+  geom_point(data=energymodels2, aes(Site_proxy, kJ_day,
                                      col=Thermoreg_scenario, shape=NEE_low_high), size=5, alpha=0.5) +  
   scale_colour_brewer(palette="Set1", guide = guide_legend(title = "Thermoregulatory \n model")) +
   scale_shape_discrete(guide=guide_legend(title="Nighttime energy expenditure")) +
-  facet_grid(.~Activity_budget_type) + theme_classic(base_size = 25) + 
   scale_x_discrete(breaks=c('A','B','C','D'),
-                   labels=c("HC Pre", "HC Post", "SC Pre", "SC Post")) +
-  theme(panel.border = element_rect(colour = "black", fill=NA), 
-        axis.text.x = element_text(angle=45, margin=margin(30,0,0,0)),
+                   labels=c("Harshaw Pre", "Harshaw Post", "Sonoita Pre", "Sonoita Post")) +
+  theme(axis.text.x = element_text(angle=45, margin=margin(30,0,0,0), hjust=0.75),
+        #strip.text.x = element_text(size = 20), plot.title = element_text(hjust = 0.5, size=20),
+        legend.key.size = unit(1.5, 'lines'), legend.title.align=0.5) + 
+  xlab("Site and Monsoon status") + ylab("Daily energy expenditure (kJ)") +
+  ggtitle("Daytime activity costs Hover_Fly_Perch")
+
+# Whole model with DLW, activity costs, and thermoregulatory costs. Trying to make separate points and ranges for each scenario
+ggplot(NULL, aes(Site_proxy, kJ_day)) + my_theme +
+  geom_boxplot(data=dlw_bblh, aes(Site_proxy, kJ_day), alpha=0.5, fill="light grey") +
+  geom_point(data=energymodels2, aes(Site_proxy, kJ_day,
+                                     color=Activity_budget_type, shape=NEE_low_high), size=5, alpha=0.5) +  
+  geom_linerange(data=energymodels2[energymodels2$Activity_budget_type=="15_15_70",], 
+                 aes(Site_proxy, ymin= min(kJ_day), ymax=max(kJ_day),
+                                         color=Activity_budget_type, size=NEE_low_high), alpha=0.5, size=2) +  
+  scale_colour_brewer(palette="Set1", guide = guide_legend(title = "Activity scenario")) +
+  scale_shape_discrete(guide=guide_legend(title="Nighttime energy expenditure")) +
+  scale_x_discrete(breaks=c('A','B','C','D'),
+                   labels=c("Harshaw Pre", "Harshaw Post", "Sonoita Pre", "Sonoita Post")) +
+  theme(axis.text.x = element_text(angle=45, margin=margin(30,0,0,0), hjust=0.75),
         strip.text.x = element_text(size = 20), plot.title = element_text(hjust = 0.5, size=20),
         legend.key.size = unit(1.5, 'lines'), legend.title.align=0.5) + 
   xlab("Site and Monsoon status") + ylab("Daily energy expenditure (kJ)") +
   ggtitle("Daytime activity costs Hover_Fly_Perch")
+
+ggplot(energymodels2, aes(Site_proxy, kJ_day)) + my_theme +
+  geom_point(aes(Site_proxy, kJ_day,
+                                     color=Activity_budget_type, shape=NEE_low_high), size=5, alpha=0.5) +  
+  geom_linerange(data=energymodels2[energymodels2$Activity_budget_type=="15_15_70",], 
+                 aes(Site_proxy, ymin= min(kJ_day), ymax=max(kJ_day),
+                     color=Activity_budget_type, size=NEE_low_high), alpha=0.5, size=2) +  
+  geom_linerange(data=energymodels2[energymodels2$Activity_budget_type=="15_15_70",], 
+                 aes(Site_proxy, ymin= min(kJ_day), ymax=max(kJ_day),
+                     color=Activity_budget_type, size=NEE_low_high), alpha=0.5, size=2) +  
+  scale_colour_brewer(palette="Set1", guide = guide_legend(title = "Activity scenario")) +
+  scale_shape_discrete(guide=guide_legend(title="Nighttime energy expenditure")) +
+  scale_x_discrete(breaks=c('A','B','C','D'),
+                   labels=c("Harshaw Pre", "Harshaw Post", "Sonoita Pre", "Sonoita Post")) +
+  theme(axis.text.x = element_text(angle=45, margin=margin(30,0,0,0), hjust=0.75),
+        strip.text.x = element_text(size = 20), plot.title = element_text(hjust = 0.5, size=20),
+        legend.key.size = unit(1.5, 'lines'), legend.title.align=0.5) + 
+  xlab("Site and Monsoon status") + ylab("Daily energy expenditure (kJ)") +
+  ggtitle("Daytime activity costs Hover_Fly_Perch")
+
+#### temp ####
+## Good plot with just activity and ranges
+ggplot(NULL, aes(Site_proxy, kJ_day)) + my_theme +
+  geom_boxplot(data=dlw_bblh,aes(Site_proxy, kJ_day), alpha=0.5, fill="light grey") + 
+  scale_x_discrete(breaks=c('A','B','C','D'), labels=c("Harshaw Pre", "Harshaw Post", "Sonoita Pre", "Sonoita Post")) +
+  geom_linerange(data=m_energymodels2, aes(x=Site_proxy, ymin = Min_kJ_day, ymax = Max_kJ_day, color = Activity_budget_type), 
+               position=position_dodge(width=0.4), size = 3, alpha = 0.3) + 
+  geom_point(data=m_energymodels2, aes(Site_proxy, kJ_day, color = Activity_budget_type),
+             position=position_dodge(width=0.4), size=3) +
+  ylim(9, 41) + my_theme + theme(legend.key.size = unit(2, 'lines')) + xlab("Site and monsoon status") + 
+  ylab("Daily Energy Expenditure (kJ)")
+
+### Trial
+ggplot(NULL, aes(Site_proxy, kJ_day)) + my_theme +
+  geom_boxplot(data=dlw_bblh,aes(Site_proxy, kJ_day), alpha=0.5, fill="light grey") + 
+  scale_x_discrete(breaks=c('A','B','C','D'), labels=c("Harshaw Pre", "Harshaw Post", "Sonoita Pre", "Sonoita Post")) +
+  geom_linerange(data=m_energymodels, aes(x=Site_proxy, ymin = Min_kJ_day, ymax = Max_kJ_day, color = Activity_budget_type, 
+                                            linetype=Torpor_use), position=position_dodge(width=0.4), alpha = 0.5, size=2) +
+  scale_linetype_manual(values=c("solid", "solid")) +
+  geom_point(data=m_energymodels, aes(Site_proxy, kJ_day, color = Activity_budget_type, shape=Torpor_use),
+             position=position_dodge(width=0.4), size=4) +
+  scale_shape_manual(values=c(19, 2)) +
+  my_theme + theme(legend.position = "bottom", legend.direction = "vertical", legend.key.size = unit(2, 'lines'))
+
+
+#scale_x_continuous("Site and monsoon status",breaks=c(1.5, 4.5, 7.5, 10.5), 
+#                  labels=c("Harshaw Pre","Harshaw Post", "Sonoita Pre", "Sonoita Post")) +
+#size=Torpor_use
+  
 
 ggplot(NULL, aes(Site_proxy, kJ_day)) + 
   geom_boxplot(data=dlw_bblh, aes(Site_proxy, kJ_day), alpha=0.5) +

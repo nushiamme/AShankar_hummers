@@ -10,10 +10,10 @@ library(reshape)
 ## NOTE: masses for SC pre- vs. post-monsoon might be significantly different - check
 ## from "C:\Users\ANUSHA\Dropbox\DLW_paper\BBLH 2013 Poster Data.xlsx"
 
-setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
+setwd("C:\\Users\\shankar\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
 ## Includes data from XXXX papers.
 
-dlw <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper\\DLW_data2.csv")
+dlw <- read.csv("C:\\Users\\shankar\\Dropbox\\DLW_paper\\DLW_data2.csv")
 dlw <- dlw[dlw$Reasonable_not=="Y",]
 
 dlw_bblh <- read.csv("DLW_summary.csv")
@@ -21,13 +21,14 @@ dlw_bblh$Site_monsoon <- paste(dlw_bblh$Site, dlw_bblh$Pre_post_monsoon, sep="_"
 dlw_bblh$Initial_mass_g <- as.numeric(as.character(dlw_bblh$Initial_mass_g))
 
 ## TNZ files
-bblh_tnz <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Energy budget data\\BroadBill.csv")
+bblh_tnz <- read.csv("C:\\Users\\shankar\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Energy budget data\\BroadBill.csv")
 ## Merged N? and N in Excel (first 3 N's were N?) because the points looked similar
 bblh_tnz$N_T <- factor(bblh_tnz$N_T, levels=c('T', 'N'))
 
 #### Reading in Torpor files ####
 ## Pulling in BBLH torpor data
-torpor <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper\\Torpor_table_plot_Mar26.csv")
+torpor <- read.csv("C:\\Users\\shankar\\Dropbox\\Hummingbird energetics\\Submission_Oct2016\\Torpor_individual_summaries.csv",
+                  sep = ";")
 torpor$AvgEE_normo_MassCorrected <- torpor$Avg_EE_hourly_normo/(torpor$Mass^(2/3))
 torpor$AvgEE_torpid_MassCorrected <- torpor$Avg_EE_hourly_torpid/(torpor$Mass^(2/3))
 BBLH_torpor <- subset(torpor, Species=="BBLH")
@@ -50,6 +51,10 @@ lm_eqn <- function(table, y, x){
                         b = format(coef(m)[2], digits = 2), 
                         r2 = format(summary(m)$r.squared, digits = 3)))
   as.character(as.expression(eq));                 
+}
+
+give.n <- function(x){
+  return(c(y = mean(x), label = length(x)))
 }
 
 ## Axis titles
@@ -114,6 +119,7 @@ ggplot(BBLH_torpor, aes(Site, AvgEE_normo_MassCorrected)) + my_theme +
 #### Combining DLW and torpor plots ####
 ## Remember- m.bblh only has pre-monsoon data
 ggplot(m.bblh, aes(Site, value)) + geom_boxplot(aes(col=variable)) + my_theme + 
+  stat_summary(fun.data = give.n, geom = "text", vjust=-1.5, size=5) +
   scale_color_manual("Energy expenditure", labels=c("24-hour daily", "Nighttime"), values=c("black", "#ff0000")) + 
   ylab("kiloJoules")
 
