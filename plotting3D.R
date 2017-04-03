@@ -113,7 +113,7 @@ m_energymodels2$no <- seq(1:length(m_energymodels2$Max_kJ_day))
 m_energymodels2
 
 m_energymodels2$Site_proxy2 <- m_energymodels2$Site_proxy
-levels(m_energymodels2$Site_proxy2) <- c("1", "2", "3", "4")
+levels(m_energymodels2$Site_proxy2) <- c("Aa", "Bb", "Cc", "Dd")
 
 #### plots ####
 ## With quantiles to select min and max thermo costs
@@ -202,11 +202,12 @@ ggplot(NULL, aes(Site_proxy, kJ_day)) + my_theme +
   geom_boxplot(data=dlw_bblh,aes(Site_proxy, kJ_day), alpha=0.5, fill="light grey") + 
   geom_linerange(data=m_energymodels2, aes(x=Site_proxy2, ymin = Min_kJ_day, ymax = Max_kJ_day,
                                            color = Activity_budget_type), 
-               position=position_dodge(width=0.4), size = 3, alpha = 0.5) + 
+               position=position_dodge(width=0.4), size = 3, alpha = 0.7) + 
   geom_point(data=m_energymodels2, aes(Site_proxy2, kJ_day, color = Activity_budget_type),
-             position_jitter(width = 0.5), size=3) +
-  scale_x_discrete(breaks=c('A', 'B', 'C', 'D'), 
-                   labels=c("Harshaw Pre", "Harshaw Post", "Sonoita Pre", "Sonoita Post")) +
+             position=position_dodge(width=0.4), size=3) +
+  scale_x_discrete(breaks=c('A', 'Aa','B', 'Bb', 'C', 'Cc', 'D', 'Dd'), 
+                   labels=c("Harshaw Pre", " ", "Harshaw Post", " ", "Sonoita Pre",
+                            " ", "Sonoita Post", " ")) +
     ylim(9, 41) + my_theme + theme(legend.key.size = unit(2, 'lines')) + xlab("Site and monsoon status") + 
   ylab("Daily Energy Expenditure (kJ)")
 
