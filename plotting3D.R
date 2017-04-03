@@ -279,16 +279,17 @@ ggplot(NULL, aes(Site_proxy, Daytime_EE_kJ)) +
 ## Just DLW boxplots and points for Figure 2 (as of April 3, 2017)
 ggplot(dlw_bblh, aes(Site_proxy, kJ_day)) + 
   geom_boxplot(alpha=0.5, fill="light grey") +
-  geom_point(size=3, alpha=0.7) + 
+  geom_point(aes(col=Band_no, size=Band_no), alpha=0.7) + 
   theme_classic(base_size = 25) + 
-  scale_colour_brewer(palette="Set1") +
+  scale_colour_manual(values=c("black", "red", "green", "purple")) +
+  scale_size_manual(values=c(2, 4, 4, 4)) +
   scale_x_discrete(breaks=c('A','B','C','D'),
                    labels=c("Harshaw Pre", "Harshaw Post", "Sonoita Pre", "Sonoita Post")) +
   stat_summary(fun.data = give.n, geom = "text", hjust=-1.5, vjust=-2.5, size=5) +
   theme(panel.border = element_rect(colour = "black", fill=NA), 
         axis.text.x = element_text(margin=margin(30,0,0,0), hjust=0.75),
-        #axis.title.x = element_text(margin=margin(0,30,0,0)),
-        strip.text.x = element_text(size = 20)) + xlab("Site and monsoon status") + 
+        strip.text.x = element_text(size = 20), legend.position = 'none') + 
+  xlab("Site and monsoon status") + 
   ylab("24-hour energy expenditure")
 
 df.list <- as.data.frame(x1 = energymodels$Thermoreg_mlO2_daytime,
