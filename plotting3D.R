@@ -196,7 +196,6 @@ ggplot(energymodels2, aes(Site_proxy, kJ_day)) + my_theme +
   xlab("Site and Monsoon status") + ylab("Daily energy expenditure (kJ)") +
   ggtitle("Daytime activity costs Hover_Fly_Perch")
 
-#### temp ####
 ## Good plot with just activity and ranges
 ggplot(NULL, aes(Site_proxy, kJ_day)) + my_theme +
   geom_boxplot(data=dlw_bblh,aes(Site_proxy, kJ_day), alpha=0.5, fill="light grey") + 
@@ -245,12 +244,6 @@ ggplot(NULL, aes(Site_proxy, kJ_day)) + my_theme +
   scale_shape_manual(values=c(19, 2)) +
   my_theme + theme(legend.position = "bottom", legend.direction = "vertical", legend.key.size = unit(2, 'lines'))
 
-
-#scale_x_continuous("Site and monsoon status",breaks=c(1.5, 4.5, 7.5, 10.5), 
-#                  labels=c("Harshaw Pre","Harshaw Post", "Sonoita Pre", "Sonoita Post")) +
-#size=Torpor_use
-  
-
 ggplot(NULL, aes(Site_proxy, kJ_day)) + 
   geom_boxplot(data=dlw_bblh, aes(Site_proxy, kJ_day), alpha=0.5) +
   #geom_point(data=dlw_bblh, aes(Site_proxy, kJ_day), size=5, alpha=0.1) +
@@ -282,6 +275,21 @@ ggplot(NULL, aes(Site_proxy, Daytime_EE_kJ)) +
   theme(panel.border = element_rect(colour = "black", fill=NA), 
         axis.text.x = element_text(angle=45, margin=margin(30,0,0,0)),
         strip.text.x = element_text(size = 20)) 
+
+## Just DLW boxplots and points for Figure 2 (as of April 3, 2017)
+ggplot(dlw_bblh, aes(Site_proxy, kJ_day)) + 
+  geom_boxplot(alpha=0.5, fill="light grey") +
+  geom_point(size=3, alpha=0.7) + 
+  theme_classic(base_size = 25) + 
+  scale_colour_brewer(palette="Set1") +
+  scale_x_discrete(breaks=c('A','B','C','D'),
+                   labels=c("Harshaw Pre", "Harshaw Post", "Sonoita Pre", "Sonoita Post")) +
+  stat_summary(fun.data = give.n, geom = "text", hjust=-1.5, vjust=-2.5, size=5) +
+  theme(panel.border = element_rect(colour = "black", fill=NA), 
+        axis.text.x = element_text(margin=margin(30,0,0,0), hjust=0.75),
+        #axis.title.x = element_text(margin=margin(0,30,0,0)),
+        strip.text.x = element_text(size = 20)) + xlab("Site and monsoon status") + 
+  ylab("24-hour energy expenditure")
 
 df.list <- as.data.frame(x1 = energymodels$Thermoreg_mlO2_daytime,
                 y1 = energymodels$Activity_cost_mlO2_daytime,
