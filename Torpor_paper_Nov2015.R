@@ -14,6 +14,7 @@ library(MASS)
 library(ggbiplot)
 library(dplyr)
 library(rgl)
+library(gtable)
 
 ## setwd and read in file
 #wdCH
@@ -181,6 +182,22 @@ lm_eqn <- function(y, x){
                         b = format(coef(m)[2], digits = 2), 
                         r2 = format(summary(m)$r.squared, digits = 3)))
   as.character(as.expression(eq));                 
+}
+
+## Arrange plots (vertically stacked) in a single window with shared legend 
+## (use for BBLH and GCB tor_nor plots)
+## Needs libraries grid and gridExtra and ggplot2 to be read in before it works properly.
+grid_arrange_shared_legend <- function(...) {
+  plots <- list(...)
+  g <- ggplotGrob(plots[[1]] + theme(legend.position="bottom"))$grobs
+  legend <- g[[which(sapply(g, function(x) x$name) == "guide-box")]]
+  lheight <- sum(legend$height)
+  grid.arrange(
+    do.call(arrangeGrob, lapply(plots, function(x)
+      x + theme(legend.position="none"))),
+    legend,
+    ncol = 1,
+    heights = unit.c(unit(1, "npc") - lheight, lheight))
 }
 
 #code for including degree symbol in axis labels
@@ -854,23 +871,9 @@ GCB_tor_nor <- ggplot(m_GCB_tor_nor, aes(as.numeric(Tc_min_C), value, shape=vari
   ylab("Mean GCB Energy Expenditure (kJ/g)") + xlab(Tc.xlab)
 GCB_tor_nor 
 
-## Arrange BBLH and GCB tor_nor plots in a single window
-grid_arrange_shared_legend <- function(...) {
-  plots <- list(...)
-  g <- ggplotGrob(plots[[1]] + theme(legend.position="bottom"))$grobs
-  legend <- g[[which(sapply(g, function(x) x$name) == "guide-box")]]
-  lheight <- sum(legend$height)
-  grid.arrange(
-    do.call(arrangeGrob, lapply(plots, function(x)
-      x + theme(legend.position="none"))),
-    legend,
-    ncol = 1,
-    heights = unit.c(unit(1, "npc") - lheight, lheight))
-}
-
+## Arrange GCB_tor_nor and  BBLH_tor_nor together with shared legend
 grid_arrange_shared_legend(GCB_tor_nor, BBLH_tor_nor)
 
-library(gtable)
 g1 <- ggplotGrob(BBLH_tor_nor)
 g1 <- gtable_add_cols(g1, unit(0,"mm")) # add a column for missing legend
 g2 <- ggplotGrob(GCB_tor_nor)
