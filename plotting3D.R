@@ -5,16 +5,70 @@ library(plotly)
 py <- plot_ly()
 library(ggplot2)
 library(rgl)
+library(gridExtra)
 
 #library(rgl)
 
 setwd("C:\\Users/shankar/Dropbox/Anusha Committee/BBLH_EnergyBudget/")
+setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")## laptop
 #energymodels <- read.csv("Trial_EnergyBudget_models_act_thermo.csv")
 
 energymodels2 <- read.csv("Trial_EnergyBudget_models_act_thermo_redone.csv", sep=";")
 
 dlw_bblh <- read.csv("DLW_summary.csv")
 
+#### General functions ####
+my_theme <- theme_classic(base_size = 30) + 
+  theme(panel.border = element_rect(colour = "black", fill=NA))
+
+my_theme <- theme_classic(base_size = 15) + 
+  theme(panel.border = element_rect(colour = "black", fill=NA))
+
+lm_eqn <- function(table, y, x){
+  m <- lm(y ~ x, table);
+  eq <- substitute(italic(y) == 
+                     a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
+                   list(a = format(coef(m)[1], digits = 2), 
+                        b = format(coef(m)[2], digits = 2), 
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));                 
+}
+
+give.n <- function(x){
+  return(c(y = mean(x), label = length(x)))
+}
+
+## Axis titles
+Temp.lab <- expression(atop(paste("Temperature (", degree,"C)")))
+
+## Place plots side by side with shared legend
+grid_arrange_shared_legend_hori <- function(..., nrow = 1, ncol = length(list(...)), position = c("bottom", "right")) {
+  
+  plots <- list(...)
+  position <- match.arg(position)
+  g <- ggplotGrob(plots[[1]] + theme(legend.position = position))$grobs
+  legend <- g[[which(sapply(g, function(x) x$name) == "guide-box")]]
+  lheight <- sum(legend$height)
+  lwidth <- sum(legend$width)
+  gl <- lapply(plots, function(x) x + theme(legend.position = "none"))
+  gl <- c(gl, nrow = nrow, ncol = ncol)
+  
+  combined <- switch(position,
+                     "bottom" = arrangeGrob(do.call(arrangeGrob, gl),
+                                            legend,
+                                            ncol = 1,
+                                            heights = unit.c(unit(1, "npc") - lheight, lheight)),
+                     "right" = arrangeGrob(do.call(arrangeGrob, gl),
+                                           legend,
+                                           ncol = 2,
+                                           widths = unit.c(unit(1, "npc") - lwidth, lwidth)))
+  grid.newpage()
+  grid.draw(combined)
+  
+}
+
+
+#### New data frames or vectors ####
 ## Range of results of the thermoregulatory models
 # Pull out all the minimum costs
 vec1 <- energymodels2$Daytime_EE_kJ[energymodels2$Thermoreg_scenario=="Min_cost"]
@@ -58,6 +112,8 @@ names(m_energymodels2) <- c("Activity_budget_type", "Site_proxy",
 m_energymodels2$no <- seq(1:length(m_energymodels2$Max_kJ_day))
 m_energymodels2
 
+m_energymodels2$Site_proxy2 <- m_energymodels2$Site_proxy
+levels(m_energymodels2$Site_proxy2) <- c("1", "2", "3", "4")
 
 #### plots ####
 ## With quantiles to select min and max thermo costs
@@ -144,13 +200,37 @@ ggplot(energymodels2, aes(Site_proxy, kJ_day)) + my_theme +
 ## Good plot with just activity and ranges
 ggplot(NULL, aes(Site_proxy, kJ_day)) + my_theme +
   geom_boxplot(data=dlw_bblh,aes(Site_proxy, kJ_day), alpha=0.5, fill="light grey") + 
-  scale_x_discrete(breaks=c('A','B','C','D'), labels=c("Harshaw Pre", "Harshaw Post", "Sonoita Pre", "Sonoita Post")) +
-  geom_linerange(data=m_energymodels2, aes(x=Site_proxy, ymin = Min_kJ_day, ymax = Max_kJ_day, color = Activity_budget_type), 
-               position=position_dodge(width=0.4), size = 3, alpha = 0.3) + 
-  geom_point(data=m_energymodels2, aes(Site_proxy, kJ_day, color = Activity_budget_type),
-             position=position_dodge(width=0.4), size=3) +
+  geom_linerange(data=m_energymodels2, aes(x=Site_proxy2, ymin = Min_kJ_day, ymax = Max_kJ_day,
+                                           color = Activity_budget_type), 
+               position=position_dodge(width=0.4), size = 3, alpha = 0.5) + 
+  geom_point(data=m_energymodels2, aes(Site_proxy2, kJ_day, color = Activity_budget_type),
+             position_jitter(width = 0.5), size=3) +
+  scale_x_discrete(breaks=c('A', 'B', 'C', 'D'), 
+                   labels=c("Harshaw Pre", "Harshaw Post", "Sonoita Pre", "Sonoita Post")) +
+    ylim(9, 41) + my_theme + theme(legend.key.size = unit(2, 'lines')) + xlab("Site and monsoon status") + 
+  ylab("Daily Energy Expenditure (kJ)")
+
+## Just model points
+model_plot <- ggplot(data=m_energymodels2, aes(Site_proxy, kJ_day)) + my_theme +
+  geom_linerange(aes(x=Site_proxy, ymin = Min_kJ_day, ymax = Max_kJ_day,
+                                           color = Activity_budget_type), 
+                 position=position_dodge(width=0.4), size = 3, alpha = 0.5) + 
+  geom_point(data=m_energymodels2, aes(Site_proxy2, kJ_day, color = Activity_budget_type), size=3,
+             position=position_dodge(width=0.4)) +
+  scale_x_discrete(breaks=c('A', 'B', 'C', 'D'), 
+                   labels=c("Harshaw Pre", "Harshaw Post", "Sonoita Pre", "Sonoita Post")) +
+  ylim(9, 41) + my_theme + theme(legend.key.size = unit(2, 'lines'), legend.position = "bottom") + 
+  xlab("Site and monsoon status") + ylab("Daily Energy Expenditure (kJ)")
+
+## Just boxplots from DLW
+dlw_plot <- ggplot(data=dlw_bblh,aes(Site_proxy, kJ_day)) + my_theme +
+  geom_boxplot(alpha=0.5, fill="light grey") + 
+  scale_x_discrete(breaks=c('A', 'B', 'C', 'D'), 
+                   labels=c("Harshaw Pre", "Harshaw Post", "Sonoita Pre", "Sonoita Post")) +
   ylim(9, 41) + my_theme + theme(legend.key.size = unit(2, 'lines')) + xlab("Site and monsoon status") + 
   ylab("Daily Energy Expenditure (kJ)")
+
+grid_arrange_shared_legend_hori(model_plot, dlw_plot)
 
 ### Trial
 ggplot(NULL, aes(Site_proxy, kJ_day)) + my_theme +
