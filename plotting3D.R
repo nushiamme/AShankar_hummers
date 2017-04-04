@@ -196,19 +196,20 @@ ggplot(energymodels2, aes(Site_proxy, kJ_day)) + my_theme +
   xlab("Site and Monsoon status") + ylab("Daily energy expenditure (kJ)") +
   ggtitle("Daytime activity costs Hover_Fly_Perch")
 
-## Good plot with just activity and ranges
+## Good plot with adjacent dlw and model vals
 ggplot(NULL, aes(Site_proxy, kJ_day)) + my_theme +
   geom_boxplot(data=dlw_bblh,aes(Site_proxy, kJ_day), alpha=0.5, fill="light grey") + 
   geom_linerange(data=m_energymodels2, aes(x=Site_proxy2, ymin = Min_kJ_day, ymax = Max_kJ_day,
                                            color = Activity_budget_type), 
-               position=position_dodge(width=0.4), size = 3, alpha = 0.7) + 
+                 position=position_dodge(width=0.4), size = 3, alpha = 0.7) + 
   geom_point(data=m_energymodels2, aes(Site_proxy2, kJ_day, color = Activity_budget_type),
              position=position_dodge(width=0.4), size=3) +
-  scale_x_discrete(breaks=c('A', 'Aa','B', 'Bb', 'C', 'Cc', 'D', 'Dd'), 
+  scale_x_discrete(breaks=c('A', 'Aa', 'B', 'Bb', 'C', 'Cc', 'D', 'Dd'), 
                    labels=c("Harshaw Pre", " ", "Harshaw Post", " ", "Sonoita Pre",
                             " ", "Sonoita Post", " ")) +
-    ylim(9, 41) + my_theme + theme(legend.key.size = unit(2, 'lines')) + xlab("Site and monsoon status") + 
-  ylab("Daily Energy Expenditure (kJ)")
+  ylim(9, 41) + my_theme + theme(legend.key.size = unit(2, 'lines'), 
+                                 axis.ticks = element_blank(), axis.text.x = element_text(hjust=-0.01)) + 
+  xlab("Site and monsoon status") + ylab("Daily Energy Expenditure (kJ)")
 
 ## Just model points
 model_plot <- ggplot(data=m_energymodels2, aes(Site_proxy, kJ_day)) + my_theme +
