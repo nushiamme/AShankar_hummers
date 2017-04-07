@@ -76,6 +76,11 @@ summary(m2)
 
 m3<-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C, random=~Species, 
              ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, verbose=FALSE)
+
+torpor$savings <- 100-torpor$Percentage_avg
+
+torpor$savings
+
 summary(m3)
 ## Without any phylogenetic corrections- shows that results have an inflated significance when 
 #phylo corrections are not done
