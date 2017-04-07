@@ -15,10 +15,19 @@ torpor$NEE_MassCorrected<- torpor$NEE_kJ/(torpor$Mass^(2/3))
 torpor$Hours2 <- torpor$Hours_torpid
 torpor$Hours2[is.na(torpor$Hours2==TRUE)] <- 0
 #Making a column for energy savings as a proportion of energy expenditure (normothermic-torpor)/torpor
+torpor$savings <- 100-torpor$Percentage_avg
 torpor$savings2 <- 100-torpor$Percentage_avg
-##### CHANGE THIS - ASK Liliana
 torpor$savings2[is.na(torpor$savings2)] <- 0
-torpor$savings2 <- scale(torpor$savings2, center=T, scale=F)[,1]
+#torpor$savings2 <- scale(torpor$savings2, center=T, scale=F)[,1] # to center savings on zero
+
+## To make column where savings is a binned, ordinal value.
+torpor$savings_quantile <- with(torpor, factor(
+  findInterval(savings2, c(-Inf,
+                       unique(quantile(savings2, probs=seq(0,1, by=0.25))), Inf)), 
+  labels=c("1","2","3","4")
+))
+torpor$savings_quantile <- as.numeric(savings_torpor$quantile)
+
 #Make Temptrop into a binary variable
 torpor$Temptrop2 <- as.character(torpor$Temptrop)
 torpor$Temptrop2[torpor$Temptrop2=="Temperate"] <- 0
@@ -88,14 +97,31 @@ m2<-MCMCglmm(NEE_kJ~Mass+Hours2+Tc_min_C, random=~Species, ginverse = list(Speci
              prior=prior, data=torpor, verbose=FALSE)
 summary(m2)
 
+m3a<-MCMCglmm(NEE_MassCorrected~Mass, random=~Species, 
+              ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, verbose=FALSE)
+summary(m3a)
+
+
+m3b<-MCMCglmm(NEE_MassCorrected~Hours2, random=~Species, 
+              ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, verbose=FALSE)
+summary(m3b)
+
+m3c<-MCMCglmm(NEE_MassCorrected~Tc_min_C, random=~Species, 
+              ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, verbose=FALSE)
+summary(m3c)
+
+m3d<-MCMCglmm(NEE_MassCorrected~Hours2+Tc_min_C, random=~Species, 
+              ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, verbose=FALSE)
+summary(m3d)
+
 ## Used this model up to April 2017
 m3<-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C, random=~Species, 
              ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, verbose=FALSE)
 summary(m3)
 
 ## New model including energy savings and temp/trop
-m4<-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C+savings, random=~Species, 
-             ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor[torpor$Hours2!=0,], verbose=FALSE)
+m4<-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C+savings_quantile, random=~Species, 
+             ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, verbose=FALSE)
 summary(m4)
 
 ## Without any phylogenetic corrections- shows that results have an inflated significance when 
