@@ -97,10 +97,43 @@ m2<-MCMCglmm(NEE_kJ~Mass+Hours2+Tc_min_C, random=~Species, ginverse = list(Speci
              prior=prior, data=torpor, verbose=FALSE)
 summary(m2)
 
+## The next few models, from m3a to m4, try out NEE_MassCorrected ~ of each variable and then the best ones together. 
+## Running them multiple times and saving into a list
+models_list <- list()
+model_DIC <- data.frame(matrix(ncol = 3, nrow = 6))
+names(model_DIC) <- c("Model", "DIC", "pMCMC")
+model_DIC$Model <- c("Mass", "Duration", "Tc_min_C", "Duration_Tc", "Mass_Duration_Tc", "All")
+
+## Make a list with the names of the predictor vairable from the torpor dataframe that are being used in this model
+## i.e. Species, Mass, Tc_min_C, Hours2 and savings_quantile
+varlist <- names(torpor)[3,9,22,31,34]
+
+models <- lapply(varlist, function(x) {
+  lm(substitute(read ~ i, list(i = as.name(x))), data = hsb2)
+})
+hier_bay_mod <- function(torpor){
+  
+  model_glmm <- MCMCglmm(NEE_MassCorrected~Mass, random=~Species, 
+                         ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, verbose=FALSE)
+  
+  model_summary <- summary(model_glmm)
+  my_model_dat <- data.frame("Predictor"=mod_var, "DIC"=model_summary$DIC,
+                             "Intercept"=model_summary$solutions[1,1], "Int_Lower_CI"=model_summary$solutions[1,2],
+                             "Int_Upper_CI"=model_summary$solutions[1,3], "Int_Eff_samp"=model_summary$solutions[1,4],
+                             "Int_pMCMC"=model_summary$solutions[1,5], "Beta"=model_summary$solutions[2,1],
+                             "B_Lower_CI"=model_summary$solutions[2,2], "B_Upper_CI"=model_summary$solutions[2,3],
+                             "B_Eff_samp"=model_summary$solutions[2,4], "B_pMCMC"=model_summary$solutions[2,5])
+  
+  write.table(my_model_dat, file=paste("Models/All_vars", "_", "_modelsummary.txt", sep=""))
+
+  save(model_glmm, file=paste("Models/All_vars", "_", "_mod.rda", sep=""))
+  print(paste("Ok, model rda has been saved for ", mod_var, "!", sep=""))
+  
+}
+
 m3a<-MCMCglmm(NEE_MassCorrected~Mass, random=~Species, 
               ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, verbose=FALSE)
 summary(m3a)
-
 
 m3b<-MCMCglmm(NEE_MassCorrected~Hours2, random=~Species, 
               ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, verbose=FALSE)
@@ -120,9 +153,32 @@ m3<-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C, random=~Species,
 summary(m3)
 
 ## New model including energy savings and temp/trop
+m4a <- MCMCglmm(NEE_MassCorrected~savings_quantile, random=~Species, 
+                ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, verbose=FALSE)
+summary(m4a)
+
+m4b <- MCMCglmm(NEE_MassCorrected~Hours2+Tc_min_C+savings_quantile, random=~Species, 
+                ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, verbose=FALSE)
+## To increase number of iterations, can add  verbose=T, nitt = 100000, burnin=500, thin = 100)
+summary(m4b)
+
+## Trying a model with savings as percentages,not as ordinal bins
+m4c <- MCMCglmm(NEE_MassCorrected~savings, random=~Species, 
+                ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor[torpor$Hours2!=0,], verbose=FALSE)
+summary(m4c)
+
 m4<-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C+savings_quantile, random=~Species, 
              ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, verbose=FALSE)
 summary(m4)
+
+## Write results into dataframe
+model_DIC$DIC <- c(m3a$DIC, m3b$DIC, m3c$DIC, m3d$DIC, m3$DIC, m4$DIC)
+
+model_DIC$pMCMC <- c("0.054", "<0.001", "0.726", "<0.001, 0.82", "0.114, <0.001, 0.052", "0.130, <0.001, 0.052, 0.554")
+
+models_list[[4]] <- model_DIC
+models_list
+
 
 ## Without any phylogenetic corrections- shows that results have an inflated significance when 
 #phylo corrections are not done
