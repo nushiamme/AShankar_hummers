@@ -47,6 +47,11 @@ names(mass.agg) <- c("Species", "Mass")
 mass.agg
 freq_table$mass <- mass.agg$Mass # Add mass data to freq_table
 
+torpor$Temptrop2 <- as.character(torpor$Temptrop)
+torpor$Temptrop2[torpor$Temptrop2=="Temperate"] <- 1
+torpor$Temptrop2[torpor$Temptrop2=="Tropical"] <- 0
+torpor$Temptrop2 <- as.numeric(torpor$Temptrop2)
+
 tree<-read.tree("hum294.tre")
 #show tip names
 tree$tip.label
@@ -159,15 +164,17 @@ summary(m4a)
 
 m4b <- MCMCglmm(NEE_MassCorrected~Hours2+Tc_min_C+savings_quantile, random=~Species, 
                 ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, verbose=FALSE)
-## To increase number of iterations, can add  verbose=T, nitt = 100000, burnin=500, thin = 100)
 summary(m4b)
+## To increase number of iterations, can add  (verbose=T, nitt = 100000, burnin=500, thin = 100) within the MCMCglmm command
+## And to see how fast they converge, do plot(m4b$Sol)
+
 
 ## Trying a model with savings as percentages,not as ordinal bins
 m4c <- MCMCglmm(NEE_MassCorrected~savings, random=~Species, 
                 ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor[torpor$Hours2!=0,], verbose=FALSE)
 summary(m4c)
 
-m4<-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C+savings_quantile, random=~Species, 
+m4<-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C+savings_quantile+Temptrop2, random=~Species, 
              ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, verbose=FALSE)
 summary(m4)
 
@@ -179,8 +186,12 @@ model_DIC$pMCMC <- c("0.054", "<0.001", "0.726", "<0.001, 0.82", "0.114, <0.001,
 models_list[[4]] <- model_DIC
 models_list
 
+### TRying a model with temptrop as a binary variable
+m5<-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C+savings_quantile+Temptrop2, random=~Species, 
+             ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, verbose=FALSE)
+summary(m5)
 
 ## Without any phylogenetic corrections- shows that results have an inflated significance when 
 #phylo corrections are not done
-m5<-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C+savings, data=torpor[torpor$Hours2!=0,])
-summary(m5)
+m6<-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C+savings, data=torpor[torpor$Hours2!=0,])
+summary(m6)
