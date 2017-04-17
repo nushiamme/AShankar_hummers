@@ -1077,7 +1077,6 @@ anova(lm(AvgEE_torpid_MassCorrected~Site_new+Species+Tc_min_C+Mass, data = torpo
 ## Anova with NEE
 anova(lm(NEE_MassCorrected~Site_new+Species+Tc_min_C+Mass, data = torpor))
 
-
 #### T-tests ######
 ## Subsetting melted dataframe to get just depth values. Then subtracting from 100 to make them hourly savings.
 m.savings <- m.temptrop[m.temptrop$variable=="Percentage_avg",]
