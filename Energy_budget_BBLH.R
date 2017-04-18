@@ -164,4 +164,24 @@ bblh_MR_temp <- ggplot(bblh_tnz, aes(Temp_C, VO2)) + my_theme +
   scale_x_continuous(breaks=seq(0,40,5))
 bblh_MR_temp
 
+## Just torpor data
+bblh_MR_tor <- ggplot(bblh_tnz[bblh_tnz$N_T=="T",], aes(Temp_C, VO2)) + my_theme +
+  geom_point(size=5) + 
+  geom_smooth(stat='smooth', method='loess', data=bblh_tnz[bblh_tnz$N_T=="T",],
+              aes(Temp_C, VO2), col="black", alpha=0.2) +
+  ylab("Oxygen consumption (ml/min)") + xlab(Temp.lab) + 
+  theme(axis.title.y = element_text(size=25), axis.title.x = element_text(size=25)) +
+  scale_x_continuous(breaks=seq(0,40,5))
+bblh_MR_tor
+
+## Just torpor data
+bblh_MR_tor <- ggplot(bblh_tnz[bblh_tnz$N_T=="T",], aes(Temp_C, VO2)) + my_theme +
+  geom_point(col="red", size=4) + 
+  geom_smooth(stat='smooth', method='loess', data=bblh_tnz[bblh_tnz$N_T=="T",],
+              aes(Temp_C, VO2), col="red", alpha=0.2) +
+  ylab("Oxygen consumption (ml/min)") + xlab(Temp.lab) + 
+  theme(axis.title.y = element_text(size=25), axis.title.x = element_text(size=25)) +
+  scale_x_continuous(breaks=seq(0,40,5))
+bblh_MR_tor
+
 bblh_LCT_eqn <- lm(bblh_tnz$Normothermic~bblh_tnz$Temp_C)
