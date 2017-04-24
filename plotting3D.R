@@ -9,7 +9,7 @@ library(gridExtra)
 
 #library(rgl)
 
-setwd("C:\\Users/shankar/Dropbox/Anusha Committee/BBLH_EnergyBudget/")
+setwd("C:\\Users\\shankar\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
 setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")## laptop
 #energymodels <- read.csv("Trial_EnergyBudget_models_act_thermo.csv")
 
@@ -21,7 +21,7 @@ dlw_bblh <- read.csv("DLW_summary.csv")
 my_theme <- theme_classic(base_size = 30) + 
   theme(panel.border = element_rect(colour = "black", fill=NA))
 
-my_theme <- theme_classic(base_size = 15) + 
+my_theme2 <- theme_classic(base_size = 15) + 
   theme(panel.border = element_rect(colour = "black", fill=NA))
 
 lm_eqn <- function(table, y, x){
@@ -143,6 +143,7 @@ ggplot(energymodels2, aes(Site_proxy, Daytime_EE_kJ)) +
 
 energymodels2$NEE_low_high <- as.factor(energymodels2$NEE_low_high)
 levels(energymodels2$NEE_low_high) <- c("No torpor used", "Torpor used")
+
 # Whole model with DLW, activity costs, and thermoregulatory costs
 ggplot(NULL, aes(Site_proxy, kJ_day)) + my_theme +
   facet_grid(.~Activity_budget_type) +
@@ -198,17 +199,18 @@ ggplot(energymodels2, aes(Site_proxy, kJ_day)) + my_theme +
 
 ## Good plot with adjacent dlw and model vals
 ggplot(NULL, aes(Site_proxy, kJ_day)) + my_theme +
-  geom_boxplot(data=dlw_bblh,aes(Site_proxy, kJ_day), alpha=0.5, fill="light grey") + 
+  geom_boxplot(data=dlw_bblh,aes(Site_proxy, kJ_day), alpha=0.5, fill="grey90",  width = 0.5) + 
   geom_linerange(data=m_energymodels2, aes(x=Site_proxy2, ymin = Min_kJ_day, ymax = Max_kJ_day,
                                            color = Activity_budget_type), 
-                 position=position_dodge(width=0.4), size = 3, alpha = 0.7) + 
+                 position=position_dodge(width=0.4), size = 5, alpha = 0.6) + 
   geom_point(data=m_energymodels2, aes(Site_proxy2, kJ_day, color = Activity_budget_type),
-             position=position_dodge(width=0.4), size=3) +
+             position=position_dodge(width=0.4), size=5) +
+  scale_color_manual(values = c('olivedrab3', 'orangered2', 'slateblue4')) +
   scale_x_discrete(breaks=c('A', 'Aa', 'B', 'Bb', 'C', 'Cc', 'D', 'Dd'), 
                    labels=c("Harshaw Pre", " ", "Harshaw Post", " ", "Sonoita Pre",
                             " ", "Sonoita Post", " ")) +
   ylim(9, 41) + my_theme + theme(legend.key.size = unit(2, 'lines'), 
-                                 axis.ticks = element_blank(), axis.text.x = element_text(hjust=-0.01)) + 
+                                 axis.ticks = element_blank(), axis.text.x = element_text(hjust=-0.1)) + 
   xlab("Site and monsoon status") + ylab("Daily Energy Expenditure (kJ)")
 
 ## Just model points
