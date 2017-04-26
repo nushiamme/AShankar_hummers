@@ -94,21 +94,21 @@ mean(vec6-vec5)
 sd(vec6-vec5)
 
 m_energymodels <- as.data.frame(as.list(aggregate(energymodels2$kJ_day,
-                           by=list(energymodels2$Activity_budget_type,
-                                   energymodels2$NEE_low_high,
-                                   energymodels2$Site_proxy),
-                           FUN = function(x) c(mi = min(x), mn = mean(x), mx = max(x)))))
+                                                  by=list(energymodels2$Activity_budget_type,
+                                                          energymodels2$NEE_low_high,
+                                                          energymodels2$Site_proxy),
+                                                  FUN = function(x) c(mi = min(x), mn = mean(x), mx = max(x)))))
 names(m_energymodels) <- c("Activity_budget_type", "Torpor_use", "Site_proxy",  
                            "Min_kJ_day", "kJ_day", "Max_kJ_day")
 m_energymodels$no <- seq(1:length(m_energymodels$Max_kJ_day))
 
 ## use for just viewing activity differences, with all thermo and NEE variation incorporated
 m_energymodels2 <- as.data.frame(as.list(aggregate(energymodels2$kJ_day,
-                                                  by=list(energymodels2$Activity_budget_type,
-                                                          energymodels2$Site_proxy),
-                                                  FUN = function(x) c(mi = min(x), mn = mean(x), mx = max(x)))))
+                                                   by=list(energymodels2$Activity_budget_type,
+                                                           energymodels2$Site_proxy),
+                                                   FUN = function(x) c(mi = min(x), mn = mean(x), mx = max(x)))))
 names(m_energymodels2) <- c("Activity_budget_type", "Site_proxy",
-                           "Min_kJ_day", "kJ_day", "Max_kJ_day")
+                            "Min_kJ_day", "kJ_day", "Max_kJ_day")
 m_energymodels2$no <- seq(1:length(m_energymodels2$Max_kJ_day))
 m_energymodels2
 
@@ -126,8 +126,8 @@ ggplot(energymodels, aes(Thermoreg_scenario, Daytime_EE)) +
 
 ## Selecting just top highest and lowest thermo costs
 #energymodels2$Thermoreg_scenario <- factor(energymodels2$Thermoreg_scenario, 
- #                                          levels= c("Min_cost", "Rand_cost_min", "Rand_cost_median", 
-  #                                                   "Rand_cost_max", "Max_cost"))
+#                                          levels= c("Min_cost", "Rand_cost_min", "Rand_cost_median", 
+#                                                   "Rand_cost_max", "Max_cost"))
 ggplot(energymodels2, aes(Site_proxy, Daytime_EE_kJ)) + 
   geom_point(aes(col=Thermoreg_scenario), size=3, alpha=0.7) +  
   scale_colour_brewer(palette="Set1", guide = guide_legend(title = "Thermoregulatory \n model")) +
@@ -167,7 +167,7 @@ ggplot(NULL, aes(Site_proxy, kJ_day)) + my_theme +
                                      color=Activity_budget_type, shape=NEE_low_high), size=5, alpha=0.5) +  
   geom_linerange(data=energymodels2[energymodels2$Activity_budget_type=="15_15_70",], 
                  aes(Site_proxy, ymin= min(kJ_day), ymax=max(kJ_day),
-                                         color=Activity_budget_type, size=NEE_low_high), alpha=0.5, size=2) +  
+                     color=Activity_budget_type, size=NEE_low_high), alpha=0.5, size=2) +  
   scale_colour_brewer(palette="Set1", guide = guide_legend(title = "Activity scenario")) +
   scale_shape_discrete(guide=guide_legend(title="Nighttime energy expenditure")) +
   scale_x_discrete(breaks=c('A','B','C','D'),
@@ -180,7 +180,7 @@ ggplot(NULL, aes(Site_proxy, kJ_day)) + my_theme +
 
 ggplot(energymodels2, aes(Site_proxy, kJ_day)) + my_theme +
   geom_point(aes(Site_proxy, kJ_day,
-                                     color=Activity_budget_type, shape=NEE_low_high), size=5, alpha=0.5) +  
+                 color=Activity_budget_type, shape=NEE_low_high), size=5, alpha=0.5) +  
   geom_linerange(data=energymodels2[energymodels2$Activity_budget_type=="15_15_70",], 
                  aes(Site_proxy, ymin= min(kJ_day), ymax=max(kJ_day),
                      color=Activity_budget_type, size=NEE_low_high), alpha=0.5, size=2) +  
@@ -216,7 +216,7 @@ ggplot(NULL, aes(Site_proxy, kJ_day)) + my_theme +
 ## Just model points
 model_plot <- ggplot(data=m_energymodels2, aes(Site_proxy, kJ_day)) + my_theme +
   geom_linerange(aes(x=Site_proxy, ymin = Min_kJ_day, ymax = Max_kJ_day,
-                                           color = Activity_budget_type), 
+                     color = Activity_budget_type), 
                  position=position_dodge(width=0.4), size = 3, alpha = 0.5) + 
   geom_point(data=m_energymodels2, aes(Site_proxy2, kJ_day, color = Activity_budget_type), size=3,
              position=position_dodge(width=0.4)) +

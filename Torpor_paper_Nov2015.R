@@ -85,16 +85,16 @@ nee.agg
 
 ## Mass-corrected NEE aggregate
 neet.agg <- aggregate(torpor$NEE_MassCorrected, 
-                     by=list(torpor$Torpid_not, torpor$Site_new, 
-                             torpor$Species), 
-                     FUN="mean", na.rm=T)
+                      by=list(torpor$Torpid_not, torpor$Site_new, 
+                              torpor$Species), 
+                      FUN="mean", na.rm=T)
 names(neet.agg) <- c("Torpid_not", "Site", "Species", "NEE Mass corrected (kJ/g^(2/3))")
 neet.agg
 
 mass1.agg <- aggregate(torpor$Mass, 
-                      by=list(torpor$Torpid_not, torpor$Site_new, 
-                              torpor$Species), 
-                      FUN="mean", na.rm=T)
+                       by=list(torpor$Torpid_not, torpor$Site_new, 
+                               torpor$Species), 
+                       FUN="mean", na.rm=T)
 names(mass1.agg) <- c("Torpid_not", "Site", "Species", "Mass")
 mass1.agg
 
@@ -113,23 +113,23 @@ hours.agg
 
 ## Whole animal O2 consumption summary
 o2.agg <- aggregate(torpor$O2_ml_min, 
-                      by=list(torpor$Torpid_not, torpor$Site_new, 
-                              torpor$Species), 
-                      FUN="mean", na.rm=T)
+                    by=list(torpor$Torpid_not, torpor$Site_new, 
+                            torpor$Species), 
+                    FUN="mean", na.rm=T)
 names(o2.agg) <- c("Torpid_not", "Site", "Species", "Oxygen_ml_min")
 o2.agg
 
 ## Make table to summarize savings
 savings.agg <- aggregate(torpor$savings, 
-                       by=list(torpor$Site_new, 
-                               torpor$Species), 
-                       FUN="mean", na.rm=T)
+                         by=list(torpor$Site_new, 
+                                 torpor$Species), 
+                         FUN="mean", na.rm=T)
 names(savings.agg) <- c("Site", "Species", "Hourly Torpid Savings (%)")
 savings.agg
 
 mass.agg <- aggregate(torpor$Mass, 
-                         by=list(torpor$Species), 
-                         FUN="mean", na.rm=T)
+                      by=list(torpor$Species), 
+                      FUN="mean", na.rm=T)
 names(mass.agg) <- c("Species", "Mass")
 mass.agg
 
@@ -139,7 +139,7 @@ freq_table$mass <- mass.agg$Mass
 
 ## Melt torpor file to get Frequency of torpor use
 #m.tor_not <- melt(torpor, id.vars = c("Species", "Site", "Day", "Month", "Year"), 
- #                 measure.vars="Torpid_not")
+#                 measure.vars="Torpid_not")
 
 ##To subset variables within melted data frame and plot in ggplot, 
 ##add to ggplot(x=,*,subset=.(variable=="NEE_kJ")*)## Function to arrange plots
