@@ -45,8 +45,8 @@ torpor$MinEE_torpid_MassCorrected <- as.numeric(torpor$Min_EE_torpid)/(torpor$Ma
 # Line to arrange Site facets in sensible order
 torpor$Site_new <- factor(torpor$Site, levels=c('HC','SC','SWRS','MQ','SL'))
 torpor_old$EntryTime_new <- factor(torpor_old$Time_of_entry, 
-                               levels=c('2000', '2100', '2130', '2200', '2230',
-                                        '2300', '2400', '100', '130', '200', '330', '500'))
+                                   levels=c('2000', '2100', '2130', '2200', '2230',
+                                            '2300', '2400', '100', '130', '200', '330', '500'))
 
 freq_sites$Site_new <- factor(freq_sites$Site, levels=c('HC','SC','SWRS','MQ','SL'))
 
@@ -77,9 +77,9 @@ GCB_torpor <- subset(torpor, Species=="GCB")
 
 ## Make table to summarize savings
 nee.agg <- aggregate(torpor$NEE_kJ, 
-                         by=list(torpor$Torpid_not, torpor$Site_new, 
-                                 torpor$Species), 
-                         FUN="mean", na.rm=T)
+                     by=list(torpor$Torpid_not, torpor$Site_new, 
+                             torpor$Species), 
+                     FUN="mean", na.rm=T)
 names(nee.agg) <- c("Torpid_not", "Site", "Species", "NEE_kJ")
 nee.agg
 
@@ -230,7 +230,7 @@ summary(lm(AvgEE_torpid_MassCorrected ~ Mass + Hours_torpid2 + Tc_min_C, data = 
 
 #### Depth plots #####
 torpor$Species2 <- factor(torpor$Species,
-       levels = c('BBLH','MAHU','GCB','FBB','TBH', "WNJ"), ordered = T)
+                          levels = c('BBLH','MAHU','GCB','FBB','TBH', "WNJ"), ordered = T)
 
 ## Also plotted tropical-temperate by changing aes(Species2...) to (Temptrop...) and vice versa
 savings_plot <- ggplot(torpor[!is.na(torpor$Percentage_avg),], aes(Species2, (100 - Percentage_avg))) + 
@@ -299,7 +299,7 @@ hours_temptrop
 
 ## Plot for proportion hours spent torpid
 prop_hours_plot <- ggplot(na.omit(torpor[,c("Species","Hours_torpid","Site_new","Temptrop","Prop_hours")]), 
-                     aes(Temptrop, as.numeric(as.character((Prop_hours))))) + 
+                          aes(Temptrop, as.numeric(as.character((Prop_hours))))) + 
   geom_boxplot(fill= "light grey") + my_theme2 + ylab("Percentage of hours spent torpid") + xlab("Region") +
   stat_summary(fun.data = give.n, geom = "text", size=5, vjust=-1) +
   theme(axis.title.x = element_blank()) + ggtitle("d.")
