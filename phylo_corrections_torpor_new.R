@@ -7,9 +7,10 @@ library(ape)
 library(geiger)
 library(caper)
 
-setwd("C:\\Users\\shankar\\Dropbox\\Hummingbird energetics\\Submission_Oct2016")
+setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Submission_Oct2016")
 
-torpor <- read.csv("Torpor_individual_summaries.csv", sep=";") #Torpor data file, each row is an individual
+torpor <- read.csv("Torpor_individual_summaries.csv") #Torpor data file, each row is an individual
+tor_freq <- read.csv("Torpor_freq.csv")
 torpor$NEE_MassCorrected<- torpor$NEE_kJ/(torpor$Mass^(2/3))
 #First converting NA's in Hours_torpid into 0's.
 torpor$Hours2 <- torpor$Hours_torpid
@@ -82,6 +83,8 @@ data<-comparative.data(tre1,freq_table,"Species")
 m0<-pgls(Freq_torpor ~ mass,data)
 #now using Pagel's lambda tree transform
 m1<-pgls(Freq_torpor ~ mass,data, lambda="ML")
+
+M
 #extract the AIC to compare models using these data. m1 is better
 AIC(m0)
 AIC(m1)
@@ -174,6 +177,7 @@ m4c <- MCMCglmm(NEE_MassCorrected~savings, random=~Species,
                 ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor[torpor$Hours2!=0,], verbose=FALSE)
 summary(m4c)
 
+## Binned savings
 m4<-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C+savings_quantile+Temptrop2, random=~Species, 
              ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, verbose=FALSE)
 summary(m4)
@@ -186,7 +190,7 @@ model_DIC$pMCMC <- c("0.054", "<0.001", "0.726", "<0.001, 0.82", "0.114, <0.001,
 models_list[[4]] <- model_DIC
 models_list
 
-### TRying a model with temptrop as a binary variable
+### TRying a model with temptrop as a binary variable - this is the model I'm using(?)
 m5<-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C+savings_quantile+Temptrop2, random=~Species, 
              ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, verbose=FALSE)
 summary(m5)
@@ -195,3 +199,8 @@ summary(m5)
 #phylo corrections are not done
 m6<-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C+savings, data=torpor[torpor$Hours2!=0,])
 summary(m6)
+
+## Frequency converted into bernoulli individual-level torpor-not variable
+mfreq1 <- MCMCglmm(tornor~indMass, random=~Species, family='categorical',
+                          ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=tor_freq, verbose=FALSE)
+summary(mfreq1)
