@@ -27,7 +27,7 @@ torpor$savings_quantile <- with(torpor, factor(
                        unique(quantile(savings2, probs=seq(0,1, by=0.25))), Inf)), 
   labels=c("1","2","3","4")
 ))
-torpor$savings_quantile <- as.numeric(savings_torpor$quantile)
+torpor$savings_quantile <- as.numeric(torpor$savings_quantile)
 
 #Make Temptrop into a binary variable
 torpor$Temptrop2 <- as.character(torpor$Temptrop)
@@ -84,7 +84,6 @@ m0<-pgls(Freq_torpor ~ mass,data)
 #now using Pagel's lambda tree transform
 m1<-pgls(Freq_torpor ~ mass,data, lambda="ML")
 
-M
 #extract the AIC to compare models using these data. m1 is better
 AIC(m0)
 AIC(m1)
@@ -197,10 +196,11 @@ summary(m5)
 
 ## Without any phylogenetic corrections- shows that results have an inflated significance when 
 #phylo corrections are not done
-m6<-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C+savings, data=torpor[torpor$Hours2!=0,])
+m6 <-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C+savings, data=torpor[torpor$Hours2!=0,])
 summary(m6)
 
-## Frequency converted into bernoulli individual-level torpor-not variable
+## Frequency converted into bernoulli individual-level torpor-not
 mfreq1 <- MCMCglmm(tornor~indMass, random=~Species, family='categorical',
                           ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=tor_freq, verbose=FALSE)
 summary(mfreq1)
+
