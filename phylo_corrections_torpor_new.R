@@ -74,6 +74,7 @@ rownames(tips)<-tips$tips
 tre1<-treedata(tree, tips)$phy
 plot(tre1)
 
+## NOT USING this model for frequency any more. Go to end of script for current frequency model (mfreq1)
 #prepare data for pgls using pruned data, data you want to run and the column that matches the two 
 #in this case, "Species"
 data<-comparative.data(tre1,freq_table,"Species")
@@ -200,6 +201,7 @@ m6 <-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C+savings, data=torpor[torpor
 summary(m6)
 
 ## Frequency converted into bernoulli individual-level torpor-not
+## This is the model I am finally using for frequency
 mfreq1 <- MCMCglmm(tornor~indMass, random=~Species, family='categorical',
                           ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=tor_freq, verbose=FALSE)
 summary(mfreq1)
