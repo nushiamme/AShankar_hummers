@@ -11,6 +11,8 @@ setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Submission_Oct2016")
 
 torpor <- read.csv("Torpor_individual_summaries.csv") #Torpor data file, each row is an individual
 tor_freq <- read.csv("Torpor_freq.csv")
+
+#### Adding columns ####
 torpor$NEE_MassCorrected<- torpor$NEE_kJ/(torpor$Mass^(2/3))
 #First converting NA's in Hours_torpid into 0's.
 torpor$Hours2 <- torpor$Hours_torpid
@@ -53,6 +55,8 @@ torpor$Temptrop2[torpor$Temptrop2=="Temperate"] <- 1
 torpor$Temptrop2[torpor$Temptrop2=="Tropical"] <- 0
 torpor$Temptrop2 <- as.numeric(torpor$Temptrop2)
 
+
+#### Phylogenetic components ####
 tree<-read.tree("hum294.tre")
 #show tip names
 tree$tip.label
@@ -74,10 +78,13 @@ rownames(tips)<-tips$tips
 tre1<-treedata(tree, tips)$phy
 plot(tre1)
 
+#### SKIP ####
 ## NOT USING this model for frequency any more. Go to end of script for current frequency model (mfreq1)
 #prepare data for pgls using pruned data, data you want to run and the column that matches the two 
 #in this case, "Species"
 data<-comparative.data(tre1,freq_table,"Species")
+
+
 #run the phyogenetic model
 #Testing the effect of mass on rate of occurrence of torpor; Freq_torpor (frequency of torpor) is the percentage of 
 #individuals of the species that used torpor; first using Brownian motion
@@ -90,6 +97,7 @@ AIC(m0)
 AIC(m1)
 summary(m1)
 
+#### Models ####
 ## Now, to run Bayesian models with repeated measures per species (i.e. multiple individuals per species), 
 #we setup an inverse matrix and set up a prior
 #Using a Bayesian rather than a maximum likelihood model because with an ML model we could include 
@@ -202,7 +210,7 @@ summary(m6)
 
 ## Frequency converted into bernoulli individual-level torpor-not
 ## This is the model I am finally using for frequency
-mfreq1 <- MCMCglmm(tornor~indMass, random=~Species, family='categorical',
-                          ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=tor_freq, verbose=FALSE)
+mfreq1 <- MCMCglmm(Tornor~Mass, random=~Species, family='categorical',
+                          ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, 
+                   verbose=FALSE, nitt = 300000, thin = 1000)
 summary(mfreq1)
-

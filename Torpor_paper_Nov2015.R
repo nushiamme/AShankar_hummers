@@ -7,8 +7,8 @@ library(ggplot2)
 library(reshape)
 library(gridExtra)
 library(grid)
-library(wq)
-library(gam)
+#library(wq)
+#library(gam)
 library(foreign)
 library(MASS)
 library(ggbiplot)
@@ -17,13 +17,11 @@ library(rgl)
 library(gtable)
 
 ## setwd and read in file
-#wdCH
-setwd("C:\\Users\\shankar\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
 #wdMS
 setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
 
-torpor <- read.csv("Torpor_table_plot_Mar26.csv", sep=";")
-torpor_old <- read.csv("Torpor_table_plot_Dec9_with_BBLH05_nectar_consumption.csv", sep = ";")
+torpor <- read.csv("Torpor_table_plot_Mar26.csv")
+#torpor_old <- read.csv("Torpor_table_plot_Dec9_with_BBLH05_nectar_consumption.csv", sep = ";")
 freq_table <- read.csv("Frequency_torpor.csv")
 freq_sites <- read.csv("Frequency_torpor_sites.csv")
 tempsumm <- read.csv("Temp_summary.csv")
@@ -44,9 +42,9 @@ torpor$MinEE_torpid_MassCorrected <- as.numeric(torpor$Min_EE_torpid)/(torpor$Ma
 
 # Line to arrange Site facets in sensible order
 torpor$Site_new <- factor(torpor$Site, levels=c('HC','SC','SWRS','MQ','SL'))
-torpor_old$EntryTime_new <- factor(torpor_old$Time_of_entry, 
-                                   levels=c('2000', '2100', '2130', '2200', '2230',
-                                            '2300', '2400', '100', '130', '200', '330', '500'))
+#torpor_old$EntryTime_new <- factor(torpor_old$Time_of_entry, 
+ #                                  levels=c('2000', '2100', '2130', '2200', '2230',
+  #                                          '2300', '2400', '100', '130', '200', '330', '500'))
 
 freq_sites$Site_new <- factor(freq_sites$Site, levels=c('HC','SC','SWRS','MQ','SL'))
 
@@ -54,8 +52,8 @@ freq_sites$Site_new <- factor(freq_sites$Site, levels=c('HC','SC','SWRS','MQ','S
 torpor$Hours_torpid2 <- torpor$Hours_torpid
 torpor$Hours_torpid2[is.na(torpor$Hours_torpid2)] <- 0
 
-torpor_old$Hours_torpid2 <- torpor_old$Hours_torpid
-torpor_old$Hours_torpid2[torpor_old$Hours_torpid2==0] <- NA
+#torpor_old$Hours_torpid2 <- torpor_old$Hours_torpid
+#torpor_old$Hours_torpid2[torpor_old$Hours_torpid2==0] <- NA
 
 ## Savings column
 torpor$savings <- 100-torpor$Percentage_avg
