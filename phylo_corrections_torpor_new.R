@@ -30,12 +30,15 @@ torpor$savings_quantile <- with(torpor, factor(
   labels=c("1","2","3","4")
 ))
 torpor$savings_quantile <- as.numeric(torpor$savings_quantile)
+torpor$savings_quantile2 <- as.factor(torpor$savings_quantile)
 
 #Make Temptrop into a binary variable
 torpor$Temptrop2 <- as.character(torpor$Temptrop)
 torpor$Temptrop2[torpor$Temptrop2=="Temperate"] <- 0
 torpor$Temptrop2[torpor$Temptrop2=="Tropical"] <- 1
 torpor$Temptrop2<- as.numeric(torpor$Temptrop2)
+
+torpor$Temptrop3 <- as.factor(torpor$Temptrop2) 
 
 #Combine duration and savings to make a composite measure
 torpor$combined <- torpor$Hours2*torpor$savings2
@@ -49,12 +52,6 @@ mass.agg <- aggregate(torpor$Mass,   #Get mean mass per species
 names(mass.agg) <- c("Species", "Mass")
 mass.agg
 freq_table$mass <- mass.agg$Mass # Add mass data to freq_table
-
-torpor$Temptrop2 <- as.character(torpor$Temptrop)
-torpor$Temptrop2[torpor$Temptrop2=="Temperate"] <- 1
-torpor$Temptrop2[torpor$Temptrop2=="Tropical"] <- 0
-torpor$Temptrop2 <- as.numeric(torpor$Temptrop2)
-
 
 #### Phylogenetic components ####
 tree<-read.tree("hum294.tre")
@@ -106,7 +103,8 @@ summary(m1)
 #within the phylogeny, we need turn the phylogeny into an inverse matrix
 inv.phylo<-inverseA(tre1,nodes="TIPS",scale=TRUE)
 #set up a prior for a phylogenetic mixed model
-prior<-list(G=list(G1=list(V=1,nu=0.02)),R=list(V=1,nu=0.02))
+#changed nu from 0.002 to 1 for both G and R on May 22
+prior<-list(G=list(G1=list(V=1,nu=1)),R=list(V=1,nu=1)) 
 #run the hierarchical phyogenetic model, the name of the species (repeated across rows of observations) 
 ## Without mass-corrections - don't use
 m2<-MCMCglmm(NEE_kJ~Mass+Hours2+Tc_min_C, random=~Species, ginverse = list(Species=inv.phylo$Ainv), 
@@ -193,15 +191,24 @@ summary(m4)
 ## Write results into dataframe
 model_DIC$DIC <- c(m3a$DIC, m3b$DIC, m3c$DIC, m3d$DIC, m3$DIC, m4$DIC)
 
-model_DIC$pMCMC <- c("0.054", "<0.001", "0.726", "<0.001, 0.82", "0.114, <0.001, 0.052", "0.130, <0.001, 0.052, 0.554")
+model_DIC$pMCMC <- c("0.054", "<0.001", "0.726", "<0.001, 0.82", "0.114,
+                     <0.001, 0.052", "0.130, <0.001, 0.052, 0.554")
 
 models_list[[4]] <- model_DIC
 models_list
 
-### TRying a model with temptrop as a binary variable - this is the model I'm using(?)
-m5<-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C+savings_quantile+Temptrop2, random=~Species, 
-             ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, verbose=FALSE)
+### TRying a model with temptrop as a binary variable - this is the model I'm using
+# savings_quantile2 and Temptrop3 are both saved as factors
+m5<-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C+savings_quantile2+Temptrop3, 
+             random=~Species, ginverse = list(Species=inv.phylo$Ainv), 
+             prior=prior, data=torpor, verbose=FALSE, nitt = 1e6, thin = 500, burnin = 10000)
 summary(m5)
+par(mar = rep(2, 4))
+plot(m5)
+
+m5b<-MCMCglmm(NEE_MassCorrected~Mass+Hours2*Tc_min_C, random=~Species, 
+             ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, verbose=FALSE)
+summary(m5b)
 
 ## Without any phylogenetic corrections- shows that results have an inflated significance when 
 #phylo corrections are not done
@@ -212,5 +219,5 @@ summary(m6)
 ## This is the model I am finally using for frequency
 mfreq1 <- MCMCglmm(Tornor~Mass, random=~Species, family='categorical',
                           ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, 
-                   verbose=FALSE, nitt = 300000, thin = 1000)
+                   verbose=FALSE, nitt = 500000, thin = 1000)
 summary(mfreq1)
