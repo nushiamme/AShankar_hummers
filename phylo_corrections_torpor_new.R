@@ -191,8 +191,7 @@ summary(m4)
 ## Write results into dataframe
 model_DIC$DIC <- c(m3a$DIC, m3b$DIC, m3c$DIC, m3d$DIC, m3$DIC, m4$DIC)
 
-model_DIC$pMCMC <- c("0.054", "<0.001", "0.726", "<0.001, 0.82", "0.114,
-                     <0.001, 0.052", "0.130, <0.001, 0.052, 0.554")
+#model_DIC$pMCMC <- c()
 
 models_list[[4]] <- model_DIC
 models_list
