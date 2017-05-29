@@ -12,7 +12,7 @@ library(gridExtra)
 
 #### Reading in files and reshaping ####
 ## Set wd
-setwd("C:\\Users\\shankar\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
+setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
 
 ## Read in file with temperature from each sensor per hour per site (hence temp "details")
 temp_details <- read.csv("BBLH_temperatures_compiled.csv")
@@ -35,8 +35,6 @@ my_theme <- theme_classic(base_size = 30) +
 
 Te.lab <- expression(atop(paste("Operative Temperature ( ", degree,"C)")))
 Ta.lab <- expression(atop(paste("Ambient Temperature ( ", degree,"C)")))
-
-
 
 #### Building a model for thermoregulatory costs ####
 
@@ -326,6 +324,18 @@ ggplot(m.te_det[m.te_det$DayMonth=="27,6" & m.te_det$Site=="HC",], aes(Hour, Te)
 ggplot(m.ta_det[m.ta_det$DayMonth=="27,6" & m.ta_det$Site=="HC",], aes(Hour, Ta)) + geom_point(size=4) + my_theme + 
   ylab(Ta.lab) + theme(axis.text.x = element_text(angle = 90, hjust = 1)) + ylim(5,55) +
   ggtitle("Harshaw June 27, 2013")
+
+# Using these for results section on Ta in paper
+min(m.ta_det$Ta[m.ta_det$DayMonth=="27,6" & m.ta_det$Site=="HC"]) #HC pre-monsoon min
+max(m.ta_det$Ta[m.ta_det$DayMonth=="27,6" & m.ta_det$Site=="HC"]) #HC pre-monsoon max
+min(m.ta_det$Ta[m.ta_det$DayMonth=="27,6" & m.ta_det$Site=="SC"]) #SC pre-monsoon min
+max(m.ta_det$Ta[m.ta_det$DayMonth=="27,6" & m.ta_det$Site=="SC"]) #SC pre-monsoon max
+
+min(m.ta_det$Ta[m.ta_det$DayMonth=="9,7" & m.ta_det$Site=="HC"]) #HC post-monsoon min
+max(m.ta_det$Ta[m.ta_det$DayMonth=="9,7" & m.ta_det$Site=="HC"]) #HC post-monsoon max
+min(m.ta_det$Ta[m.ta_det$DayMonth=="9,7" & m.ta_det$Site=="SC"]) #SC post-monsoon min
+max(m.ta_det$Ta[m.ta_det$DayMonth=="9,7" & m.ta_det$Site=="SC"]) #SC post-monsoon max
+
 
 #Operative and Ambient temp 27 June, 2013, HC
 ggplot(NULL, aes(Hour, Te)) + my_theme + 
