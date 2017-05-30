@@ -4,14 +4,17 @@
 ## For BBLH energy budget paper
 
 ## Reading in packages
-library(ggplot2)
-library(reshape)
+require(ggplot2)
+require(reshape)
+require(plyr)
 
 ## Set working directory
-setwd("C:\\Users\\shankar\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
+setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
 
-## Reda in file
+## Read in file
 floral <- read.csv("FloralCensus_cropped.csv", sep=";")
+floral$Site_monsoon <- paste(floral$Site,floral$Pre_post_monsoon, sep = "_")
+floral$Pre_post_monsoon <- factor(floral$Pre_post_monsoon, levels = c("Pre", "Post"))
 head(floral)
 
 ## Saving standard theme  
@@ -28,8 +31,15 @@ give.n <- function(x){
 }
 
 ## plot of flowers per site and month
-ggplot(floral, aes(Site,(TotalFlowers/length(unique(Date))))) + geom_bar(stat="identity", width=0.5) + 
-  my_theme + facet_grid(.~Pre_post_monsoon)# + geom_text(aes(label = length(unique(Date))), stat= "count", vjust = -.5)
-  
-  geom_text(aes(length(unique(floral$Date)), vjust=4, size=10))
+flor_sum <- ddply(floral,~Site_monsoon,summarise,
+                  scaled_flowers=sum(TotalFlowers)/(length(unique(Date))))
+flor_sum$Site_monsoon <- factor(flor_sum$Site_monsoon, 
+                                   levels = c("HC_Pre", "PL/SC_Pre", "HC_Post", "PL/SC_Post"))
+
+ggplot(flor_sum, aes(Site_monsoon, scaled_flowers)) + 
+  geom_bar(stat = "identity", width=0.5) + my_theme
+
+ggplot(floral, aes(Site,(TotalFlowers))) + 
+  geom_bar(stat="identity", width=0.5) + 
+  my_theme + facet_grid(.~Pre_post_monsoon)
 
