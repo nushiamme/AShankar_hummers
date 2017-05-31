@@ -234,4 +234,4 @@ hist(sqrt(mfreq1$VCV[,1]),100, xlab="Species SD", main= "posterior distribution"
 mean(mfreq1$VCV[,1]<10) # This is quite high, so Species variance seems to be small
 #especially when compared with error variance:
 hist(sqrt(mfreq1$VCV[,2]),100, xlab="Error SD", main="posterior distribution") ## Need to check
-#what this means- not normal!
+#what this means- it's not normally distributed
