@@ -222,7 +222,8 @@ mfreq1 <- MCMCglmm(Tornor~Mass, random=~Species, family='categorical',
                           ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, 
                    verbose=FALSE, nitt = 1000000, thin = 1000)
 summary(mfreq1)
-#Using this site as a guide: 
+
+#Using this site as a guide (Thanks Marisa): 
 #http://www.maths.bath.ac.uk/~jjf23/mixchange/onewayanova.html#mcmcglmm
 lattice::xyplot(mfreq1$Sol) # Check for stability in the iterations, for intercept first
 autocorr.plot(mfreq1$Sol) # check for autocorrelation in intercept
