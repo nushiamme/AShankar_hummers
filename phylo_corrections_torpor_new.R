@@ -220,7 +220,7 @@ summary(m6)
 ## This is the model I am finally using for frequency
 mfreq1 <- MCMCglmm(Tornor~Mass, random=~Species, family='categorical',
                           ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, 
-                   verbose=FALSE, nitt = 1000000, thin = 1000)
+                   verbose=FALSE, nitt = 5e6, thin = 1000)
 summary(mfreq1)
 
 #Using this site as a guide (Thanks Marisa): 
@@ -232,7 +232,7 @@ autocorr.plot(mfreq1$VCV) # Check for autocorrelation in variance terms; there i
 hist(sqrt(mfreq1$VCV[,1]),100, xlab="Species SD", main= "posterior distribution") # high 
 #probability that Species SD is very small; The probability that Species variance is less than
 # 10 is
-mean(mfreq1$VCV[,1]<10) # This is quite high, so Species variance seems to be small
+mean(mfreq1$VCV[,1]<1) # This is quite high, so Species variance seems to be small
 #especially when compared with error variance:
 hist(sqrt(mfreq1$VCV[,2]),100, xlab="Error SD", main="posterior distribution") ## Need to check
 #what this means- it's not normally distributed
