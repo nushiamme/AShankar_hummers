@@ -200,7 +200,7 @@ models_list
 
 ### TRying a model with temptrop as a binary variable - this is the model I'm using
 # savings_quantile2 and Temptrop3 are both saved as factors
-m5<-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C+savings_quantile2+Temptrop3, 
+m5<-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C+savings_quantile+Temptrop3, 
              random=~Species, ginverse = list(Species=inv.phylo$Ainv), 
              prior=prior, data=torpor, verbose=FALSE, nitt = 1e6, thin = 500, burnin = 10000)
 summary(m5)
