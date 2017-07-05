@@ -28,6 +28,8 @@ Tbs_test <-
 Tbs_test2 <- 
   read.csv("C://Users//ANUSHA//Dropbox//Data 2015//Data 2016 season//Torpor_2016//Body_temp//EG16_0718_METY_Tc_plot.csv")
 
+m.ta_all <- melt(Ta_all, id.vars = c("Month", "Day", "Year", "Hour"), measure.vars="Temperature")
+
 ## Experiment to check whether iButtons are working as expected and not heating things up
 my_theme <- theme_classic(base_size = 30) + 
   theme(axis.title.y = element_text(vjust = 2),
@@ -91,6 +93,32 @@ names(Ta_daily_summ) <- c("Site", "Year", "Month", "Day", "daynight", "Mean_Ta",
 ## Writing the summary ambient temperatures file to csv
 write.csv(Ta_daily_summ, file = "EC_Ta_summary.csv")
 
+## Summaries of Ta_all file
+Ta_mean <- aggregate(Ta_all$Temperature, by=list(Ta_all$Hour, Ta_all$am_pm), FUN="mean")
+names(Ta_mean) <- c("Hour", "am_pm", "Ta_mean")
+Ta_min <- aggregate(Ta_all$Temperature, by=list(Ta_all$Hour, Ta_all$am_pm), FUN="min")
+names(Ta_min) <- c("Hour", "am_pm", "Ta_min")
+Ta_max <- aggregate(Ta_all$Temperature, by=list(Ta_all$Hour, Ta_all$am_pm), FUN="max")
+names(Ta_max) <- c("Hour", "am_pm", "Ta_max")
+
+Ta_all_summ <- merge(Ta_mean, Ta_min, by=c("Hour", "am_pm"))
+Ta_all_summ <- merge(Ta_all_summ, Ta_max, by=c("Hour", "am_pm"))
+m.ta_all_summ <- melt(Ta_all_summ, id.vars=c("Hour", "am_pm"), 
+                      measure.vars=c("Ta_mean", "Ta_min", "Ta_max"))
+m.ta_all_summ$Hour_pasted <- paste(m.ta_all_summ$Hour, m.ta_all_summ$am_pm)
+m.ta_all_summ$Hour_pasted <- as.factor(m.ta_all_summ$Hour_pasted)
+levels(m.ta_all_summ$Hour_pasted) <- c("0100", "1300", "1000", "2200", "1100", "2300", "2400",
+                                       "1200", "0200", "1400", "0300", "1500", "0400", "1600",
+                                       "0500", "1700", "0600", "1800","0700", "1900","0800",
+                                       "2000", "0900", "2100")
+
+m.ta_all_summ$Hour_pasted <- factor(m.ta_all_summ$Hour_pasted, 
+                                            levels=c('0500', '0600', '0700','0800', '0900', 
+                                                     '1000', '1100','1200', '1300', '1400', 
+                                                     '1500', '1600', '1700', '1800', '1900',
+                                                     '2000', '2100', '2200','2300', '2400', 
+                                                     '0100', '0200', '0300','0400'))
+
 ## Doing same summaries for chamber temperature
 Tc_mean <- aggregate(Tc$Temperature, 
                            by=list(Tc$Expt, Tc$Year, Tc$Month, Tc$Day, Tc$daynight, Tc$Hour, 
@@ -134,6 +162,14 @@ head(Tc_summ_night)
 ##### Plots #######
 ## Creating an object for x axis label to be Ta
 Ta.xlab <- expression(atop(paste("Ambient Temperature (", degree,"C)")))
+
+## Plotting summary of Ta_all at La Paz
+ggplot(m.ta_all_summ, aes(Hour_pasted, value)) + my_theme +
+  geom_line(aes(group=variable, col=variable), size=1.5) +
+  scale_color_manual(values=c("Black", "Blue", "Red")) +
+  scale_alpha_manual(values = c(1, 0.5, 0.5)) + 
+  theme(axis.text.x = element_text(angle = 60, size=12, hjust=1)) +
+  xlab("Hour") + ylab(Ta.lab)
 
 ## making a separate object to be able to plot single day's temperature
 OneDay_samp <- Ta_all[Ta_all$Day=="2"&Ta_all$Month=="1",]
