@@ -24,7 +24,7 @@ dlw_bblh$Site_monsoon <- paste(dlw_bblh$Site, dlw_bblh$Pre_post_monsoon, sep="_"
 dlw_bblh$Initial_mass_g <- as.numeric(as.character(dlw_bblh$Initial_mass_g))
 
 ## TNZ files
-bblh_tnz <- read.csv("Energy budget data\\BroadBill.csv")
+bblh_tnz <- read.csv("BroadBill.csv")
 ## Merged N? and N in Excel (first 3 N's were N?) because the points looked similar
 bblh_tnz$N_T <- factor(bblh_tnz$N_T, levels=c('T', 'N'))
 

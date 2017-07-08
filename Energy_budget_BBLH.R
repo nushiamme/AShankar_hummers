@@ -21,7 +21,7 @@ dlw_bblh$Site_monsoon <- paste(dlw_bblh$Site, dlw_bblh$Pre_post_monsoon, sep="_"
 dlw_bblh$Initial_mass_g <- as.numeric(as.character(dlw_bblh$Initial_mass_g))
 
 ## TNZ files
-bblh_tnz <- read.csv("BroadBill.csv")
+bblh_tnz <- read.csv("..\\Energy budget data\\BroadBill.csv")
 ## Merged N? and N in Excel (first 3 N's were N?) because the points looked similar
 bblh_tnz$N_T <- factor(bblh_tnz$N_T, levels=c('T', 'N'))
 
@@ -156,10 +156,10 @@ summary(lm(dlw$kJ_day[dlw$Pre_post_monsoon=="Pre" & dlw$Site==c("HC", "SC")] ~
 
 #### Thermoregulatory costs ####
 bblh_MR_temp <- ggplot(bblh_tnz, aes(Temp_C, VO2)) + my_theme +
-  geom_point(aes(col=N_T, shape=N_T), size=4) + 
+  geom_point(aes(shape=N_T, color=N_T)) + 
   scale_color_manual("Torpor/ \n Normothermy", labels=c("Torpor", "Normothermy"), values=c("#ff0000", "blue")) +
   scale_shape_manual("Torpor/ \n Normothermy", labels=c("Torpor", "Normothermy"), values=c(1,19)) +
-  geom_smooth(stat='smooth', method='lm', data=bblh_tnz[bblh_tnz$N_T=="N",], 
+  geom_smooth(stat='smooth', method='lm', data=bblh_tnz[bblh_tnz$N_T == "N",], 
               aes(Temp_C, VO2, group=N_T, col=N_T), alpha=0.2) +
   geom_smooth(stat='smooth', method='loess', data=bblh_tnz[bblh_tnz$N_T=="T",],
               aes(Temp_C, VO2, group=N_T, col=N_T), alpha=0.2) +
@@ -167,6 +167,16 @@ bblh_MR_temp <- ggplot(bblh_tnz, aes(Temp_C, VO2)) + my_theme +
   scale_x_continuous(breaks=seq(0,40,5))
 bblh_MR_temp
 
+bblh_MR_normo <- ggplot(bblh_tnz, aes(Temp_C, Normothermic)) + my_theme +
+  geom_point() + 
+  geom_smooth(stat='smooth', method='lm', data=bblh_tnz, 
+              aes(Temp_C, Normothermic)) +
+  ylab(expression(VO["2"] (ml/min))) + xlab(Temp.lab) + 
+  theme(legend.key.height=unit(3,"line")) +
+  scale_x_continuous(breaks=seq(0,40,5))
+bblh_MR_normo
+lm(bblh_tnz$Normothermic~bblh_tnz$Temp_C)
+            
 ## Just torpor data
 bblh_MR_tor <- ggplot(bblh_tnz[bblh_tnz$N_T=="T",], aes(Temp_C, VO2)) + my_theme +
   geom_point(size=5) + 

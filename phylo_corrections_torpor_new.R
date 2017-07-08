@@ -148,33 +148,40 @@ hier_bay_mod <- function(torpor){
 }
 
 m3a<-MCMCglmm(NEE_MassCorrected~Mass, random=~Species, 
-              ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, verbose=FALSE)
+              ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, 
+              verbose=FALSE, nitt = 5e6, thin = 1000)
 summary(m3a)
 
 m3b<-MCMCglmm(NEE_MassCorrected~Hours2, random=~Species, 
-              ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, verbose=FALSE)
+              ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, 
+              verbose=FALSE, nitt = 5e6, thin = 1000)
 summary(m3b)
 
 m3c<-MCMCglmm(NEE_MassCorrected~Tc_min_C, random=~Species, 
-              ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, verbose=FALSE)
+              ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, 
+              verbose=FALSE, nitt = 5e6, thin = 1000)
 summary(m3c)
 
 m3d<-MCMCglmm(NEE_MassCorrected~Hours2+Tc_min_C, random=~Species, 
-              ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, verbose=FALSE)
+              ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, 
+              verbose=FALSE, nitt = 5e6, thin = 1000)
 summary(m3d)
 
 ## Used this model up to April 2017
 m3<-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C, random=~Species, 
-             ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, verbose=FALSE)
+             ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, 
+             verbose=FALSE, nitt = 5e6, thin = 1000)
 summary(m3)
 
 ## New model including energy savings and temp/trop
 m4a <- MCMCglmm(NEE_MassCorrected~savings_quantile, random=~Species, 
-                ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, verbose=FALSE)
+                ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, 
+                verbose=FALSE, nitt = 5e6, thin = 1000)
 summary(m4a)
 
 m4b <- MCMCglmm(NEE_MassCorrected~Hours2+Tc_min_C+savings_quantile, random=~Species, 
-                ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, verbose=FALSE)
+                ginverse = list(Species=inv.phylo$Ainv), prior=prior, data=torpor, 
+                verbose=FALSE, nitt = 5e6, thin = 1000)
 summary(m4b)
 ## To increase number of iterations, can add  (verbose=T, nitt = 100000, burnin=500, thin = 100) within the MCMCglmm command
 ## And to see how fast they converge, do plot(m4b$Sol)
@@ -198,11 +205,11 @@ model_DIC$DIC <- c(m3a$DIC, m3b$DIC, m3c$DIC, m3d$DIC, m3$DIC, m4$DIC)
 models_list[[4]] <- model_DIC
 models_list
 
-### TRying a model with temptrop as a binary variable - this is the model I'm using
+### This is the model I'm using
 # savings_quantile2 and Temptrop3 are both saved as factors
-m5<-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C+savings_quantile+Temptrop3, 
+m5<-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C+savings_quantile, 
              random=~Species, ginverse = list(Species=inv.phylo$Ainv), 
-             prior=prior, data=torpor, verbose=FALSE, nitt = 1e6, thin = 500, burnin = 10000)
+             prior=prior, data=torpor, verbose=FALSE, nitt = 5e6, thin = 1000)
 summary(m5)
 par(mar = rep(2, 4))
 plot(m5)
