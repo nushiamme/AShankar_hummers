@@ -11,7 +11,8 @@ library(gridExtra)
 setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")## laptop
 #energymodels <- read.csv("Trial_EnergyBudget_models_act_thermo.csv")
 
-energymodels2 <- read.csv("Trial_EnergyBudget_models_act_thermo_redone.csv", sep=";")
+energymodels2 <- read.csv("Trial_EnergyBudget_models_act_thermo_redone.csv")
+energymodels3 <- read.csv("Trial_EnergyBudget_models_act_thermo_Jul2017.csv")
 
 dlw_bblh <- read.csv("DLW_summary.csv")
 
@@ -113,6 +114,20 @@ m_energymodels2
 m_energymodels2$Site_proxy2 <- m_energymodels2$Site_proxy
 levels(m_energymodels2$Site_proxy2) <- c("Aa", "Bb", "Cc", "Dd")
 
+## With BMR variation
+## use for just viewing activity differences, with all thermo and NEE variation incorporated
+m_energymodels3 <- as.data.frame(as.list(aggregate(energymodels3$kJ_adjBMR_day,
+                                                   by=list(energymodels3$Activity_budget_type,
+                                                           energymodels3$Site_proxy),
+                                                   FUN = function(x) c(mi = min(x), mn = mean(x), mx = max(x)))))
+names(m_energymodels3) <- c("Activity_budget_type", "Site_proxy",
+                            "Min_kJ_day", "kJ_day", "Max_kJ_day")
+m_energymodels3$no <- seq(1:length(m_energymodels3$Max_kJ_day))
+m_energymodels3
+
+m_energymodels3$Site_proxy2 <- m_energymodels3$Site_proxy
+levels(m_energymodels3$Site_proxy2) <- c("Aa", "Bb", "Cc", "Dd")
+
 #### plots ####
 ## With quantiles to select min and max thermo costs
 ggplot(energymodels, aes(Thermoreg_scenario, Daytime_EE)) + 
@@ -200,13 +215,17 @@ ggplot(NULL, aes(Site_proxy, kJ_day)) + my_theme +
   geom_boxplot(data=dlw_bblh,aes(Site_proxy, kJ_day), alpha=0.5, fill="grey90",  width = 0.5) + 
   geom_linerange(data=m_energymodels2, aes(x=Site_proxy2, ymin = Min_kJ_day, ymax = Max_kJ_day,
                                            color = Activity_budget_type), 
-                 position=position_dodge(width=0.4), size = 5, alpha = 0.6) + 
+                 position=position_dodge(width=0.4), size = 5, alpha = 0.7) + 
   geom_point(data=m_energymodels2, aes(Site_proxy2, kJ_day, color = Activity_budget_type),
              position=position_dodge(width=0.4), size=5) +
   scale_color_manual(values = c('olivedrab3', 'orangered2', 'slateblue4')) +
   scale_x_discrete(breaks=c('A', 'Aa', 'B', 'Bb', 'C', 'Cc', 'D', 'Dd'), 
                    labels=c("Harshaw Pre", " ", "Harshaw Post", " ", "Sonoita Pre",
                             " ", "Sonoita Post", " ")) +
+  #this is for BMR variation
+  geom_linerange(data=m_energymodels3, aes(x=Site_proxy2, ymin = Min_kJ_day, ymax = Max_kJ_day, 
+                                           color = Activity_budget_type), 
+                 position=position_dodge(width=0.4), size = 3, alpha = 0.5) + 
   ylim(9, 41) + my_theme + theme(legend.key.size = unit(2, 'lines'), 
                                  axis.ticks = element_blank(), axis.text.x = element_text(hjust=-0.1)) + 
   xlab("Site and monsoon status") + ylab("Daily Energy Expenditure (kJ)")
