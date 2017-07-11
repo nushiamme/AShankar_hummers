@@ -1,5 +1,6 @@
-## Energy budgeting in a temperate hummingbird
-## Paper Authors: Anusha Shankar, Donald R. Powers, Susan Wethington, Joseph R. Canepa, Catherine H. Graham
+## Daily energy budgeting in a temperate hummingbird
+## Paper Authors: Anusha Shankar, Donald R. Powers, Susan Wethington, 
+# Joseph R. Canepa, Catherine H. Graham
 ## Script by: Anusha Shankar
 ## Start date: Wednesday, August 31, 2016
 ## Last updated: September 22, 2016

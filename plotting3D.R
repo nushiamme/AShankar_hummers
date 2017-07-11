@@ -2,14 +2,12 @@
 
 # Sign in to plotly - like Git
 library(plotly)
-py <- plot_ly()
 library(ggplot2)
 library(rgl)
 library(gridExtra)
 
 #library(rgl)
 
-setwd("C:\\Users\\shankar\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
 setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")## laptop
 #energymodels <- read.csv("Trial_EnergyBudget_models_act_thermo.csv")
 
