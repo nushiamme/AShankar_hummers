@@ -51,6 +51,11 @@ ACT # in ml O~2~/day
 ACT <- (0.6*15*(rmr-bmr)) + (0.2*15*(hmr-bmr)) + (0.2*15*(flmr-bmr))
 ACT # in ml O~2~/day
 
+## Slightly modified act budget
+## ACT = 20% resting + 40% hovering + 40% flying; assuming 15 daylight hours, in ml O~2~/h
+ACT_4 <- (0.2*15*(rmr-bmr)) + (0.4*15*(hmr-bmr)) + (0.4*15*(flmr-bmr))
+ACT_4 # in ml O~2~/day
+
 ### Let's build the models and see what we get!
 ## In O2 ml/min
 tre_hc_pre <- sum(bblh_tatc$thermo_mlO2_tamean[bblh_tatc$mmdd=="6/15" & 
