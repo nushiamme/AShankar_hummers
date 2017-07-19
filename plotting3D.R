@@ -22,7 +22,7 @@ dlw_bblh <- read.csv("DLW_summary.csv")
 my_theme <- theme_classic(base_size = 30) + 
   theme(panel.border = element_rect(colour = "black", fill=NA))
 
-my_theme2 <- theme_classic(base_size = 15) + 
+my_theme2 <- theme_classic(base_size = 10) + 
   theme(panel.border = element_rect(colour = "black", fill=NA))
 
 lm_eqn <- function(table, y, x){
@@ -94,6 +94,7 @@ vec6 <- energymodels2$Daytime_EE_kJ[energymodels2$Activity_budget_type=="25_30_4
 mean(vec6-vec5)
 sd(vec6-vec5)
 
+#### Aggregating ####
 m_energymodels <- as.data.frame(as.list(aggregate(energymodels2$kJ_day,
                                                   by=list(energymodels2$Activity_budget_type,
                                                           energymodels2$NEE_low_high,
@@ -137,13 +138,23 @@ m_energymodels4 <- as.data.frame(as.list(aggregate(energymodels4$kJ_adjBMR_day,
                                                            energymodels4$BMR_assump,
                                                            energymodels4$Site_proxy),
                                                    FUN = function(x) c(mi = min(x), mn = mean(x), mx = max(x)))))
-names(m_energymodels4) <- c("Activity_budget_type", "Site_proxy",
+names(m_energymodels4) <- c("Activity_budget_type", "BMR_category", "Site_proxy",
                             "Min_kJ_day", "kJ_day", "Max_kJ_day")
-m_energymodels4$no <- seq(1:length(m_energymodels4$Max_kJ_day))
 m_energymodels4
 
-m_energymodels4$Site_proxy2 <- m_energymodels4$Site_proxy
-levels(m_energymodels4$Site_proxy2) <- c("Aa", "Bb", "Cc", "Dd")
+m_energymodels4$Activity_budget_type <- factor(m_energymodels4$Activity_budget_type,
+                                        levels= c("5_20_75", "15_15_70", "25_30_45","40_40_20"))
+
+## Without aggregating by BMR category
+m_energymodels5 <- as.data.frame(as.list(aggregate(energymodels4$kJ_adjBMR_day,
+                                                   by=list(energymodels4$Activity_budget_type,
+                                                           energymodels4$Site_proxy),
+                                                   FUN = function(x) c(mi = min(x), mn = mean(x), mx = max(x)))))
+names(m_energymodels5) <- c("Activity_budget_type", "Site_proxy",
+                            "Min_kJ_day", "kJ_day", "Max_kJ_day")
+m_energymodels5$Activity_budget_type <- factor(m_energymodels5$Activity_budget_type,
+                                      levels= c("5_20_75", "15_15_70", "25_30_45","40_40_20"))
+
 
 #### plots ####
 ## With quantiles to select min and max thermo costs
@@ -246,27 +257,26 @@ ggplot(NULL, aes(Site_proxy, kJ_day)) + my_theme +
 ## Good plot with adjacent dlw and model vals
 ## and including variation in BMR, including suggestions from Simone
 ggplot(NULL, aes(Site_proxy, kJ_day)) + my_theme +
-  geom_boxplot(data=dlw_bblh,aes(Site_proxy, kJ_day), fill="grey90",  width = 0.5) + 
-  geom_linerange(data=m_energymodels4, 
+  geom_boxplot(data=dlw_bblh,aes(Site_proxy, kJ_day), fill="grey90",  width = 0.5, lwd=1) + 
+  geom_linerange(data=m_energymodels5, 
                  aes(x=Site_proxy, ymin = Min_kJ_day, ymax = Max_kJ_day,
                                            color = Activity_budget_type), 
-                 position=position_dodge(width=0.4), size = 5, alpha = 0.4) + 
-  geom_point(data=m_energymodels4, aes(Site_proxy, kJ_day, color = Activity_budget_type),
-             position=position_dodge(width=0.4), 
-             size=5) +
-  scale_color_manual(values = c('olivedrab3', 'orangered2', 'slateblue4', 'purple')) +
+                 position=position_dodge(width=0.4), size = 3, alpha=0.3) + 
+  geom_linerange(data=m_energymodels4[m_energymodels4$BMR_category=="BMR_mean",],
+                 aes(x=Site_proxy, ymin = Min_kJ_day, ymax = Max_kJ_day, 
+                                           color = Activity_budget_type), 
+                 position=position_dodge(width=0.4), 
+                 size = 5, alpha = 0.3) + 
+  geom_point(data=m_energymodels4[m_energymodels4$BMR_category=="BMR_mean",],
+             aes(Site_proxy, kJ_day, color = Activity_budget_type),
+             position=position_dodge(width=0.4), size=4) +
+  scale_color_manual(values = c('olivedrab3', 'orangered2', 'slateblue4', 'violet')) +
   scale_x_discrete(breaks=c('A', 'B', 'C', 'D'), 
                    labels=c("Harshaw Pre", "Harshaw Post", "Sonoita Pre",
                             "Sonoita Post")) +
-  #this is for BMR variation
-  geom_linerange(data=m_energymodels4[energymodels4$BMR_assump=="BMR_mean",]
-                 , aes(x=Site_proxy, ymin = Min_kJ_day, ymax = Max_kJ_day, 
-                                           color = Activity_budget_type), 
-                 position=position_dodge(width=0.4), 
-                 size = 3, alpha = 0.3) + 
   ylim(9, 41) + my_theme + theme(legend.key.size = unit(2, 'lines'), 
                                  axis.ticks = element_blank(), axis.text.x = element_text(size=20)) + 
-  xlab("Site and monsoon status") + ylab("Daily Energy Expenditure (kJ)")
+  xlab("Site and monsoon status") + ylab("24-hour Energy Expenditure (kJ)")
 
 ## Just model points
 model_plot <- ggplot(data=m_energymodels2, aes(Site_proxy, kJ_day)) + my_theme +
@@ -281,13 +291,14 @@ model_plot <- ggplot(data=m_energymodels2, aes(Site_proxy, kJ_day)) + my_theme +
   xlab("Site and monsoon status") + ylab("Daily Energy Expenditure (kJ)")
 
 ## Just boxplots from DLW
-dlw_plot <- ggplot(data=dlw_bblh,aes(Site_proxy, kJ_day)) + my_theme +
+dlw_plot <- ggplot(data=dlw_bblh,aes(Site_proxy, kJ_day)) + my_theme2 +
   geom_boxplot(alpha=0.5, fill="light grey") + 
   scale_x_discrete(breaks=c('A', 'B', 'C', 'D'), 
                    labels=c("Harshaw Pre", "Harshaw Post", "Sonoita Pre", "Sonoita Post")) +
-  ylim(9, 41) + my_theme + theme(legend.key.size = unit(2, 'lines')) + xlab("Site and monsoon status") + 
-  ylab("Daily Energy Expenditure (kJ)")
-
+  ylim(9, 41) + theme(legend.key.size = unit(2, 'lines')) + 
+  xlab("Site and monsoon status") + 
+  ylab("24-hour Energy Expenditure (kJ)")
+dlw_plot
 grid_arrange_shared_legend_hori(model_plot, dlw_plot)
 
 ### Trial
