@@ -256,8 +256,8 @@ ggplot(NULL, aes(Site_proxy, kJ_day)) + my_theme +
 
 ## Good plot with adjacent dlw and model vals
 ## and including variation in BMR, including suggestions from Simone
-ggplot(NULL, aes(Site_proxy, kJ_day)) + my_theme +
-  geom_boxplot(data=dlw_bblh,aes(Site_proxy, kJ_day), fill="grey90",  width = 0.5, lwd=1) + 
+ggplot(NULL, aes(Site_proxy, kJ_day)) +
+  #geom_boxplot(data=dlw_bblh,aes(Site_proxy, kJ_day), fill="grey90",  width = 0.5, lwd=1) + 
   geom_linerange(data=m_energymodels5, 
                  aes(x=Site_proxy, ymin = Min_kJ_day, ymax = Max_kJ_day,
                                            color = Activity_budget_type), 
@@ -270,12 +270,16 @@ ggplot(NULL, aes(Site_proxy, kJ_day)) + my_theme +
   geom_point(data=m_energymodels4[m_energymodels4$BMR_category=="BMR_mean",],
              aes(Site_proxy, kJ_day, color = Activity_budget_type),
              position=position_dodge(width=0.4), size=4) +
-  scale_color_manual(values = c('olivedrab3', 'orangered2', 'slateblue4', 'violet')) +
+  scale_color_manual(values = c('olivedrab3', 'orangered2', 'slateblue4', 'violet'), 
+                     guide = guide_legend(title = "Activity \n budget type")) +
   scale_x_discrete(breaks=c('A', 'B', 'C', 'D'), 
                    labels=c("Harshaw Pre", "Harshaw Post", "Sonoita Pre",
                             "Sonoita Post")) +
   ylim(9, 41) + my_theme + theme(legend.key.size = unit(2, 'lines'), 
-                                 axis.ticks = element_blank(), axis.text.x = element_text(size=20)) + 
+                                 legend.key.height = unit(3, 'lines'),
+                                 axis.ticks = element_blank(), 
+                                 axis.text.x = element_text(size=18), 
+                                 legend.title.align = 0.5) +
   xlab("Site and monsoon status") + ylab("24-hour Energy Expenditure (kJ)")
 
 ## Just model points
@@ -300,6 +304,8 @@ dlw_plot <- ggplot(data=dlw_bblh,aes(Site_proxy, kJ_day)) + my_theme2 +
   ylab("24-hour Energy Expenditure (kJ)")
 dlw_plot
 grid_arrange_shared_legend_hori(model_plot, dlw_plot)
+
+grid.arrange(dlw1, dlw2, nrow=2, ncol=1)
 
 ### Trial
 ggplot(NULL, aes(Site_proxy, kJ_day)) + my_theme +
