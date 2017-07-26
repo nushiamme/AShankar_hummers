@@ -19,7 +19,7 @@ energymodels4 <- read.csv("Trial_EnergyBudget_models_act_thermo_Jul2017_2.csv") 
 dlw_bblh <- read.csv("DLW_summary.csv")
 
 #### General functions ####
-my_theme <- theme_classic(base_size = 30) + 
+my_theme <- theme_classic(base_size = 32) + 
   theme(panel.border = element_rect(colour = "black", fill=NA))
 
 my_theme2 <- theme_classic(base_size = 10) + 
@@ -143,7 +143,7 @@ names(m_energymodels4) <- c("Activity_budget_type", "BMR_category", "Site_proxy"
 m_energymodels4
 
 m_energymodels4$Activity_budget_type <- factor(m_energymodels4$Activity_budget_type,
-                                        levels= c("5_20_75", "15_15_70", "25_30_45","40_40_20"))
+                                    levels= c("40_40_20", "25_30_45", "15_15_70", "5_20_75"))
 
 ## Without aggregating by BMR category
 m_energymodels5 <- as.data.frame(as.list(aggregate(energymodels4$kJ_adjBMR_day,
@@ -153,7 +153,7 @@ m_energymodels5 <- as.data.frame(as.list(aggregate(energymodels4$kJ_adjBMR_day,
 names(m_energymodels5) <- c("Activity_budget_type", "Site_proxy",
                             "Min_kJ_day", "kJ_day", "Max_kJ_day")
 m_energymodels5$Activity_budget_type <- factor(m_energymodels5$Activity_budget_type,
-                                      levels= c("5_20_75", "15_15_70", "25_30_45","40_40_20"))
+                                      levels= c("40_40_20", "25_30_45", "15_15_70", "5_20_75"))
 
 
 #### plots ####
@@ -254,22 +254,48 @@ ggplot(NULL, aes(Site_proxy, kJ_day)) + my_theme +
                                  axis.ticks = element_blank(), axis.text.x = element_text(hjust=-0.1)) + 
   xlab("Site and monsoon status") + ylab("Daily Energy Expenditure (kJ)")
 
+#### Final plot for poster ####
 ## Good plot with adjacent dlw and model vals
 ## and including variation in BMR, including suggestions from Simone
 ggplot(NULL, aes(Site_proxy, kJ_day)) +
-  #geom_boxplot(data=dlw_bblh,aes(Site_proxy, kJ_day), fill="grey90",  width = 0.5, lwd=1) + 
+  geom_boxplot(data=dlw_bblh,aes(Site_proxy, kJ_day), fill="grey90",  width = 0.5, lwd=1) + 
   geom_linerange(data=m_energymodels5, 
                  aes(x=Site_proxy, ymin = Min_kJ_day, ymax = Max_kJ_day,
                                            color = Activity_budget_type), 
-                 position=position_dodge(width=0.4), size = 3, alpha=0.3) + 
+                 position=position_dodge(width=0.4), size = 4, alpha=0.2) + 
   geom_linerange(data=m_energymodels4[m_energymodels4$BMR_category=="BMR_mean",],
                  aes(x=Site_proxy, ymin = Min_kJ_day, ymax = Max_kJ_day, 
                                            color = Activity_budget_type), 
                  position=position_dodge(width=0.4), 
-                 size = 5, alpha = 0.3) + 
+                 size = 6, alpha = 0.2) + 
   geom_point(data=m_energymodels4[m_energymodels4$BMR_category=="BMR_mean",],
              aes(Site_proxy, kJ_day, color = Activity_budget_type),
              position=position_dodge(width=0.4), size=4) +
+  scale_color_manual(values = c('darkgreen', 'orangered2', 'slateblue4', 'violetred3'), 
+                     guide = guide_legend(title = "Activity budget \n percent time \n hover_fly_perch")) +
+  scale_x_discrete(breaks=c('A', 'B', 'C', 'D'), 
+                   labels=c("Harshaw \n Pre", "Harshaw \n Post", "Sonoita \n Pre",
+                            "Sonoita \n Post")) +
+  ylim(9, 41) + my_theme + theme(legend.key.size = unit(4, 'lines'), 
+                                 legend.key.height = unit(4, 'lines'),
+                                 legend.margin = margin(t=0.5, unit='cm'),
+                                 legend.title.align = 0.5,
+                                 legend.text.align = 0.5,
+                                 legend.text=element_text(size=32),
+                                 axis.ticks.x = element_blank(),
+                                 axis.ticks.y = element_line(size=2),
+                                 axis.text = element_text(color = 'black', size=32, hjust=0.5),
+                                 axis.title = element_text(face='bold'),
+                                 axis.title.y = element_text(hjust=0.5)) +
+  xlab("Site and monsoon status") + ylab("Daily \n energy expenditure (kJ)")
+
+## Plotting just boxplot but keeping scaling of graph by setting alpha = 0 on the other layers
+ggplot(NULL, aes(Site_proxy, kJ_day)) +
+  geom_boxplot(data=dlw_bblh,aes(Site_proxy, kJ_day), fill="grey90",  width = 0.5, lwd=1) + 
+  geom_linerange(data=m_energymodels5, 
+                 aes(x=Site_proxy, ymin = Min_kJ_day, ymax = Max_kJ_day,
+                     color = Activity_budget_type), 
+                 position=position_dodge(width=0.4), size = 3, alpha=0) + 
   scale_color_manual(values = c('olivedrab3', 'orangered2', 'slateblue4', 'violet'), 
                      guide = guide_legend(title = "Activity \n budget type")) +
   scale_x_discrete(breaks=c('A', 'B', 'C', 'D'), 
@@ -278,7 +304,6 @@ ggplot(NULL, aes(Site_proxy, kJ_day)) +
   ylim(9, 41) + my_theme + theme(legend.key.size = unit(2, 'lines'), 
                                  legend.key.height = unit(3, 'lines'),
                                  axis.ticks = element_blank(), 
-                                 axis.text.x = element_text(size=18), 
                                  legend.title.align = 0.5) +
   xlab("Site and monsoon status") + ylab("24-hour Energy Expenditure (kJ)")
 
@@ -304,8 +329,6 @@ dlw_plot <- ggplot(data=dlw_bblh,aes(Site_proxy, kJ_day)) + my_theme2 +
   ylab("24-hour Energy Expenditure (kJ)")
 dlw_plot
 grid_arrange_shared_legend_hori(model_plot, dlw_plot)
-
-grid.arrange(dlw1, dlw2, nrow=2, ncol=1)
 
 ### Trial
 ggplot(NULL, aes(Site_proxy, kJ_day)) + my_theme +
@@ -337,8 +360,6 @@ ggplot(NULL, aes(Site_proxy, kJ_day)) +
   xlab("Site and Monsoon status") + ylab("Daily energy expenditure (kJ)") +
   ggtitle("Daytime activity costs Hover_Fly_Perch")
 
-
-
 dlw_bblh
 ggplot(NULL, aes(Site_proxy, Daytime_EE_kJ)) + 
   geom_boxplot(data=dlw_bblh, aes(Site_proxy, kJ_day), alpha=0.5) +
@@ -354,18 +375,19 @@ ggplot(NULL, aes(Site_proxy, Daytime_EE_kJ)) +
 ## Just DLW boxplots and points with recap individuals colored for Figure 2 (as of April 3, 2017)
 ggplot(dlw_bblh, aes(Site_proxy, kJ_day)) + 
   geom_boxplot(alpha=0.5, fill="light grey") +
-  geom_point(aes(col=Band_no, size=Band_no), alpha=0.7) + 
-  theme_classic(base_size = 25) + 
+  geom_point(aes(col=Band_no, size=Band_no), alpha=0.9) + my_theme +
   scale_colour_manual(values=c("black", "red", "green", "purple")) +
-  scale_size_manual(values=c(2, 4, 4, 4)) +
+  scale_size_manual(values=c(4, 6, 6, 6)) +
   scale_x_discrete(breaks=c('A','B','C','D'),
-                   labels=c("Harshaw Pre", "Harshaw Post", "Sonoita Pre", "Sonoita Post")) +
-  stat_summary(fun.data = give.n, geom = "text", hjust=-1.5, vjust=-2.5, size=5) +
-  theme(panel.border = element_rect(colour = "black", fill=NA), 
-        axis.text.x = element_text(margin=margin(30,0,0,0), hjust=0.75),
-        strip.text.x = element_text(size = 20), legend.position = 'none') + 
+                   labels=c("Harshaw \n Pre", "Harshaw \n Post", "Sonoita \n Pre", "Sonoita \n Post")) +
+  stat_summary(fun.data = give.n, geom = "text", hjust=-0.5, vjust=-1.8, size=9) +
+  theme(legend.position = 'none', axis.ticks.x = element_blank(),
+        axis.ticks.y = element_line(size=2),
+        axis.text = element_text(color = 'black', size=32, hjust=0.5),
+        axis.title = element_text(face='bold'),
+        axis.title.y = element_text(hjust=0.5)) +
   xlab("Site and monsoon status") + 
-  ylab("24-hour energy expenditure (kJ)")
+  ylab("Daily \n energy expenditure (kJ)")
 
 df.list <- as.data.frame(x1 = energymodels$Thermoreg_mlO2_daytime,
                 y1 = energymodels$Activity_cost_mlO2_daytime,
