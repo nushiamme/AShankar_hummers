@@ -41,7 +41,7 @@ Tropical birds have been found to have significantly lower BMR than temperate bi
 ```{r, echo=F, fig.cap="blah"}
 library(ggplot2)
 
-setwd("C:\\Users\\shankar\\Dropbox\\DLW_paper")
+setwd("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper")
 ## Includes data from XXXX papers.
 dlw <- read.csv("DLW_data2.csv")
 dlw <- dlw[dlw$Reasonable_not=="Y",]
@@ -76,7 +76,8 @@ A log-log plot of hummingbird daily energy expenditure (kJ) vs. mass (g), includ
 #Species-wise log-log plot of DEE vs. mass
 dlw_sp_mean_log <- ggplot(dlw_mean, aes(log(Mass_g), log(kJ_day))) + 
   geom_point(aes(col=Species), size=6) + my_theme + geom_smooth(method=lm)+
-  theme(legend.key.height = unit(3, "line")) + xlab("log(Mass)") + ylab("log(Energy expenditure (kJ/day))") +
+  theme(legend.key.height = unit(3, "line")) + 
+  xlab("log(Mass)") + ylab("log(Energy expenditure (kJ/day))") +
   geom_text(x = 1.5, y = 4.5, label = lm_eqn(log(dlw_mean$kJ_day), log(dlw_mean$Mass_g)), parse=T, size=10)
 #plot(dlw_sp_mean_log, fig.align='left')
 

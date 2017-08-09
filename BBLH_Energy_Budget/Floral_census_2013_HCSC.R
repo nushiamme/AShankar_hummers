@@ -7,16 +7,27 @@
 require(ggplot2)
 require(reshape)
 require(plyr)
+require(dplyr)
 
 ## Set working directory
 setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
 
 ## Read in file
+floralsumm <- read.csv("HC_SCSNA_ANUSHA_e_summaries.csv")
+floralsumm$Site <- revalue(floralsumm$Site, c("HC"="Harshaw", "PLSC"="Sonoita"))
 floral <- read.csv("FloralCensus_cropped.csv", sep=";")
 floral$Site_monsoon <- paste(floral$Site,floral$Pre_post_monsoon, sep = "_")
 floral$Pre_post_monsoon <- factor(floral$Pre_post_monsoon, levels = c("Pre", "Post"))
 head(floral)
 
+#### New columns/dataframes ####
+flo <- group_by(floralsumm, Site, Transect, Month)
+dflo <- summarize(flo, Flowers = sum(Flowers, na.rm = T))
+dhumm <- summarize(flo, Hummcount = sum(HummSp, na.rm=T))
+dfru <- summarize(flo, Fruits = sum(Fruits, na.rm=T))
+dbud <- summarize(flo, Buds = sum(Buds, na.rm=T))
+
+#### General functions ####
 ## Saving standard theme  
 my_theme <- theme_classic(base_size = 30) + 
   theme(axis.title.y = element_text(color = "black", vjust = 2),
@@ -30,6 +41,57 @@ give.n <- function(x){
   return(c(y = mean(x), label = length(x)))
 }
 
+
+#### Plots ####
+## From what Susan sent by Claudia
+##Summary stats of phenology, comparing sites
+sum(floralsumm$Flowers[floralsumm$Site=="HC"])
+sum(floralsumm$Flowers[floralsumm$Site=="PLSC"])
+
+## Plot sum of flowers by site
+ggplot(dflo, aes(Site, Flowers)) + geom_bar(stat='identity') + my_theme
+## Sum of flowers per transect
+flo_plot_t <- ggplot(dflo, aes(Transect, log(Flowers))) + 
+  geom_bar(stat='identity') + my_theme + 
+  facet_grid(~Site, scales='free') +
+  theme(axis.title.x = element_blank(), axis.text.x = element_text(angle=60, size=15)) +
+  ylim(0,12)
+
+ggplot(dflo, aes(Month, log(Flowers))) + 
+  geom_point(size=3) + my_theme + 
+  facet_grid(~Site, scales='free') +
+  theme(axis.title.x = element_blank(), axis.text.x = element_text(angle=60, size=15)) +
+  ylim(0,12)
+
+## Fruits
+fru_plot_t <- ggplot(dfru, aes(Transect, log(Fruits))) + geom_bar(stat='identity') + my_theme +
+  facet_grid(~Site, scales='free') +
+  theme(axis.text.x = element_text(angle=60, size=15)) +
+  ylim(0,12)
+
+##Buds
+buds_plot_t <- ggplot(dbud, aes(Transect, log(Buds))) + geom_bar(stat='identity') + my_theme +
+  facet_grid(~Site, scales='free') +
+  theme(axis.title.x = element_blank(), axis.text.x = element_text(angle=60, size=15)) +
+  ylim(0,12)
+
+## Hummingbird detections
+humm_plot_t <- ggplot(dhumm, aes(Month, Hummcount)) + geom_bar(stat='identity') + my_theme +
+  facet_grid(~Site, scales='free') +
+  theme(axis.text.x = element_text(angle=60, size=15)) +
+  ylab("Hummingbird \n detections") 
+
+grid.arrange(flo_plot_t, buds_plot_t, fru_plot_t, humm_plot_t, ncol=2, nrow=2)
+
+## Plotting flowers and hummingbird detections on same plot- doesn't work too well
+ggplot(NULL, aes(Transect, log(Flowers))) + 
+  my_theme +
+  geom_bar(data=dflo, aes(Transect, log(Flowers)), stat='identity') + 
+  geom_point(data=dhumm, aes(Transect, Hummcount), col='red', size=3) +
+  facet_grid(~Site, scales='free') +
+  theme(axis.text.x = element_text(angle=60, size=15))
+
+## From old Access database
 ## plot of flowers per site and month
 flor_sum <- ddply(floral,~Site_monsoon,summarise,
                   scaled_flowers=sum(TotalFlowers)/(length(unique(Date))))
@@ -42,4 +104,3 @@ ggplot(flor_sum, aes(Site_monsoon, scaled_flowers)) +
 ggplot(floral, aes(Site,(TotalFlowers))) + 
   geom_bar(stat="identity", width=0.5) + 
   my_theme + facet_grid(.~Pre_post_monsoon)
-
