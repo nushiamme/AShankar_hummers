@@ -372,10 +372,13 @@ ggplot(NULL, aes(Site_proxy, Daytime_EE_kJ)) +
         axis.text.x = element_text(angle=45, margin=margin(30,0,0,0)),
         strip.text.x = element_text(size = 20)) 
 
+dlw_bblh$ind_band <- dlw_bblh$Band_no
+dlw_bblh$ind_band[dlw_bblh$ind_band==""] <- NA
 ## Just DLW boxplots and points with recap individuals colored for Figure 2 (as of April 3, 2017)
 ggplot(dlw_bblh, aes(Site_proxy, kJ_day)) + 
   geom_boxplot(alpha=0.5, fill="light grey") +
   geom_point(aes(col=Band_no, size=Band_no), alpha=0.9) + my_theme +
+  geom_line(data=dlw_bblh[!is.na(dlw_bblh$ind_band),], aes(group=ind_band, col=ind_band), size=1) +
   scale_colour_manual(values=c("black", "red", "green", "purple")) +
   scale_size_manual(values=c(4, 6, 6, 6)) +
   scale_x_discrete(breaks=c('A','B','C','D'),
