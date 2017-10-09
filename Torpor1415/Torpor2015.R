@@ -25,9 +25,9 @@ krugertab <- read.csv("Lit_Kruger1982.csv")
 k_melt <- read.csv("Lit_Kruger1982_modified.csv")
 
 ## For Nat Geo demo
-gcbnight <- read.csv("Plotting_DailyGraphs_in_R//E14_0720_GCB.csv")
-gcbsumm <- read.csv("Plotting_DailyGraphs_in_R//E14_0720_GCB_summary.csv")
-birdsumms <- read.csv("Plotting_DailyGraphs_in_R//E14_bird_summaries_toplot.csv")
+gcbnight <- read.csv("Plotting_DailyGraphs_torpor_in_R//E14_0720_GCB.csv")
+gcbsumm <- read.csv("Plotting_DailyGraphs_torpor_in_R//E14_0720_GCB_summary.csv")
+birdsumms <- read.csv("Plotting_DailyGraphs_torpor_in_R//E14_bird_summaries_toplot.csv")
 
 m.krug <- melt(krugertab, id.vars = c("Species", "Sex", "Mean_mass_g", "Temp"), 
      measure.vars = c("MR_day_J_g_hr", "MR_night_J_g_hr", "MR_torpor_J_g_hr"))
@@ -285,7 +285,7 @@ dev.off()
 energy_metyagcu <- ggplot(o.tor_sub, aes(Hourly, EE_J)) + theme_bw(base_size=18) +
   geom_line(aes(group=BirdID, col=Species), size=1.5) + facet_wrap(~BirdID, scales="free_x") +
   geom_point() + geom_text(aes(label=Tc_min), vjust=-1) + 
-  geom_text(aes(label=Ta_day_min), col="red", vjust=1) +
+  #geom_text(aes(label=Ta_day_min), col="red", vjust=1) +
   #annotate("text", x=7, y=2100, label= paste("Ta daytime min = ", o.tor_sub$Ta_day_min)) + 
   ylab("Hourly energy expenditure (J)") + scale_color_manual(values=c("#000080", "#ff0000")) +
   scale_y_continuous(breaks=c(0,100,200,300,500,1000,1500,2000))+
@@ -297,6 +297,23 @@ energy_metyagcu <- ggplot(o.tor_sub, aes(Hourly, EE_J)) + theme_bw(base_size=18)
         panel.border = element_rect(colour = "black", fill=NA)) +
   xlab("Hour step (Birdno_ArmyTime)") # + scale_x_discrete(labels=o.tor_sub$Time)
 energy_metyagcu
+
+#For Nat His talk
+energy_mety <- ggplot(o.tor_sub[o.tor_sub$Species=="METY",], aes(Hourly, EE_J)) + theme_bw(base_size=18) +
+  geom_line(aes(group=BirdID, col=Species), size=1.5) + facet_wrap(~BirdID, scales="free_x") +
+  geom_point() + #geom_text(aes(label=Tc_min), vjust=-1) + 
+  #geom_text(aes(label=Ta_day_min), col="red", vjust=1) +
+  #annotate("text", x=7, y=2100, label= paste("Ta daytime min = ", o.tor_sub$Ta_day_min)) + 
+  ylab("Hourly energy expenditure (J)") + scale_color_manual(values=c("#000080", "#ff0000")) +
+  scale_y_continuous(breaks=c(0,100,200,300,500,1000,1500,2000))+
+  theme(axis.text.x = element_blank(), 
+        panel.grid.major.x = element_blank(), 
+        panel.grid.major.y = element_line(size=.1, color="grey"),
+        panel.grid.minor = element_blank(),
+        strip.background = element_blank(), strip.text = element_blank(),
+        panel.border = element_rect(colour = "black", fill=NA)) +
+  xlab("Nighttime Hour") # + scale_x_discrete(labels=o.tor_sub$Time)
+energy_mety
 
 ## just agcu
 energy_metyagcu <- ggplot(o.tor_sub, aes(Hourly, EE_J)) + theme_bw(base_size=18) +
