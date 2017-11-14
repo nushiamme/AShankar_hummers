@@ -5,14 +5,23 @@ library(animation)
 library(magick)
 library(caTools)
 library(png)
+library(gapminder)
+library(ggplot2)
+#devtools::install_github("dgrtwo/gganimate")
+library(gganimate)
 
+setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
 
-setwd("C:\\Users\\ANUSHA\\Desktop\\gif_files")
+gcb_0720 <- read.csv("E14_0720_GCB_no_bsln.csv")
+
+my_theme <- theme_classic(base_size = 30) + 
+  theme(axis.title.y = element_text(vjust = 2),
+        panel.border = element_rect(colour = "black", fill=NA))
 
 im.convert("*.png", output = "bm-animation1.gif")
 
 image <- readPNG(system.file("*.png"))
-write.gif(delay = 3, image = *.png, filename = "example.gif")
+write.gif(delay = 3, image = "*.png", filename = "example.gif")
 
 frames = 50
 
@@ -44,3 +53,15 @@ saveGIF({
 
 setwd(".\\gif_files")
 shell(' "C:\\Program Files\\ImageMagick-7.0.7-Q16\\magick.exe" magick -delay 80 *.png example_1.gif')
+
+# Make a ggplot, but add frame=year: one image per year
+#gpminder_data <- gapminder::gapminder
+
+gcb_gif <- ggplot(gcb_0720, aes(Time_hour, EE_J, frame = TimeSlot)) +
+  geom_point() +  my_theme #+ scales
+
+# Make the animation!
+gganimate(gcb_gif)
+
+# Save it to Gif
+gganimate(p_gif, "271_gganimate.gif")
