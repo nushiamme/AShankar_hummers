@@ -63,14 +63,14 @@ names(torCol) <- levels(gcb_0720$Category)
 colScale <- scale_colour_manual(name = "Category", values = torCol)
 for (tslot in unique(gcb_0720$TimeSlot)){
   p_temp <- subset(gcb_0720, TimeSlot==tslot)
-  gcb_gif_temp <- ggplot(p_temp, aes(Time2, EE_J, 
-                                     frame = Time_chunks, col=Category)) +
+  gcb_gif_temp <- ggplot(p_temp, aes(Time2, EE_J, frame = Time_chunks, col=Category)) +
     geom_path(aes(cumulative=T)) +
     my_theme + colScale + 
-    theme(axis.text.x = element_text(angle=60, hjust=1)) +
-    xlim(0,4060) + ylim(0,50) + 
+    theme(axis.text.x = element_text(angle=60, hjust=1, size=20),
+          legend.key.height=unit(3,"line")) +
+    ylim(0,50) + 
     xlab("Time (seconds)") + ylab("Energy expenditure (J)")
-  gganimate(gcb_gif_temp, paste("gcb0720_trial_",tslot,".gif"), interval=0.05)
+  gganimate(gcb_gif_temp, paste("gcb0720_trial2_",tslot,".gif"), interval=0.05)
 }
 
 gcb_gif_1 <- ggplot(gcb_0720[gcb_0720$TimeSlot==1,], aes(Time2, EE_J, frame = Time_chunks, col=Category)) +
