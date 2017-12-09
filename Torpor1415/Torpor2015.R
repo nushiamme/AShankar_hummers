@@ -25,7 +25,7 @@ krugertab <- read.csv("Lit_Kruger1982.csv")
 k_melt <- read.csv("Lit_Kruger1982_modified.csv")
 
 
-##Code for Anita project - 2015 and 2016 torpor data
+##Code for Anita project - 2015 and 2016 torpor datacd "E:\cd
 tor_am <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Data 2015\\all_torpor_data.csv")
 
 tor_am$NEE_MC <- tor_am$NEE/(tor_am$Av_mass^(2/3))
