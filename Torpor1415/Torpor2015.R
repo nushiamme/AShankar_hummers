@@ -24,6 +24,19 @@ litnew <- read.csv("LitStudy_andKruger2.csv")
 krugertab <- read.csv("Lit_Kruger1982.csv")
 k_melt <- read.csv("Lit_Kruger1982_modified.csv")
 
+
+##Code for Anita project - 2015 and 2016 torpor data
+tor_am <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Data 2015\\all_torpor_data.csv")
+
+tor_am$NEE_MC <- tor_am$NEE/(tor_am$Av_mass^(2/3))
+
+n_fun <- function(Species){
+  return(data.frame(y = median(Species), label = paste0("n = ",length(Species)),"\n"))
+}
+ggplot(tor_am, aes(Species, NEE_MC))  + geom_boxplot() + geom_point(aes(col=Species)) + geom_point(aes(Species, mean(NEE_MC))) +  
+  stat_summary(fun.data = n_fun, geom = "text", vjust = -2, size = 8) + my_theme
+### end code for Anita project
+
 ## For Nat Geo demo
 gcbnight <- read.csv("Plotting_DailyGraphs_torpor_in_R//E14_0720_GCB.csv")
 gcbsumm <- read.csv("Plotting_DailyGraphs_torpor_in_R//E14_0720_GCB_summary.csv")
