@@ -36,7 +36,7 @@ for (tslot in unique(gcb_0720$TimeSlot)){
   gcb_gif_temp <- ggplot(p_temp, aes(Time2, EE_J, frame = Time_chunks, col=Category)) +
     geom_path(aes(cumulative=T)) +
     my_theme_blank + colScale + 
-    theme(axis.text.x = element_text(angle=60, hjust=1, size=20),
+    theme(axis.text.x = element_text(angle=30, hjust=1, size=20),
           legend.key.height=unit(3,"line"),
           axis.line.x = element_line(colour = "grey50"),
           axis.line.y = element_line(colour = "grey50")) +
@@ -57,17 +57,20 @@ gcb_gif_5 <- ggplot(gcb_0720[gcb_0720$TimeSlot==5,], aes(Time2, EE_J, frame = Ti
                                                         axis.line.y = element_line(colour = "grey50")) +
   scale_color_manual(values = c("black", "red")) + xlab("Time") #+ xlim(0,4060)
 
+## Animate torpor entry
 gcb_gif_5_6 <- ggplot(gcb_0720[gcb_0720$TimeSlot==c(5,6),], aes(Time_hour, EE_J, frame = Time_chunks, col=Category)) +
   geom_path() + my_theme_blank + theme(axis.text.x = element_text(angle=60, hjust=1, size=20),
                                                         axis.line.x = element_line(colour = "grey50"),
                                                         axis.line.y = element_line(colour = "grey50")) +
   scale_color_manual(values = c("black", "red")) + xlab("Time") #+ xlim(0,4060)
 
+## Plotting torpor entry
 gcb_gif_5_6 <- ggplot(gcb_0720[gcb_0720$TimeSlot==c(5,6),], aes(SampleNo, EE_J, col=Category)) +
   geom_path() + my_theme_blank + theme(axis.text.x = element_text(angle=30, hjust=1, size=20),
                                        axis.line.x = element_line(colour = "grey50"),
                                        axis.line.y = element_line(colour = "grey50")) +
   scale_color_manual(values = c("black", "red")) + xlab("Time") #+ xlim(0,4060)
+gcb_gif_5_6 ## plot still graph
 
 # Make the animation!
 gganimate(gcb_gif_5_6, interval=0.075, ani.width=1500, ani.height=800)
