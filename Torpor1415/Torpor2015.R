@@ -45,6 +45,7 @@ birdsumms <- read.csv("Plotting_DailyGraphs_torpor_in_R//E14_bird_summaries_topl
 m.krug <- melt(krugertab, id.vars = c("Species", "Sex", "Mean_mass_g", "Temp"), 
      measure.vars = c("MR_day_J_g_hr", "MR_night_J_g_hr", "MR_torpor_J_g_hr"))
 names(m.krug) <- c("Species", "Sex", "Mass", "Temp", "Measure", "Value")
+levels(litstudy$Torpid_not) <- c("Normothermic", "Torpid", "Unknown")
 
 ## Min chamber temo in deg. C axis label
 Tc_min.xlab <- expression(atop(paste("Minimum Chamber Temperature (", degree,"C)")))
@@ -97,20 +98,31 @@ krugerplot_sp <- ggplot(m.krug[m.krug$Species=="Aglaectis cupripennis",], aes(Te
   scale_y_continuous(breaks=c(0,50,100,200,400,600)) + theme(panel.grid.major.y = element_line(size=.1, color="grey"))
 krugerplot_sp
 
-### Plot literature review values ######
-litplot <- ggplot(litstudy, aes(Tc_min, EE_J)) +  
+### Plot literature review plut study values ######
+litplotstudy <- ggplot(litstudy, aes(Tc_min, EE_J)) +  
   theme_bw(base_size = 20) + geom_point(aes(col=Torpid_not, shape=Study_lit), size=4) +
   scale_shape_manual(values=c(20,3)) + facet_grid(~Mass_categ) +
   theme(strip.background = element_blank(),
         panel.border = element_rect(colour = "black", fill=NA)) + xlab(Tc_min.xlab) +
   ylab("Energy expenditure (J)")
+litplotstudy
+grid.text(unit(0.5,"npc"),0.99,label = "Mass in grams", gp=gpar(fontsize=20))
+
+## Plot just lit values
+litplot <- ggplot(litstudy[litstudy$Study_lit=="Lit",], aes(Tc_min, EE_J)) +  
+  my_theme + geom_point(aes(col=Torpid_not), size=4) +
+  scale_color_manual(values=c('black', '#ff3333')) + 
+  facet_grid(.~Mass_categ) + 
+  theme(legend.key.height = unit(3,"line"), plot.title = element_text(hjust = 0.5, size=20)) +
+  xlab(Tc_min.xlab) + ylab("Energy expenditure (J)") + ggtitle("Mass category")
 litplot
 grid.text(unit(0.5,"npc"),0.99,label = "Mass in grams", gp=gpar(fontsize=20))
+
 
 ## With Kruger et al. 1982 data added in
 litplotnew <- ggplot(litnew, aes(Temp, EE_J/Mass)) +  
   theme_bw(base_size = 20) + geom_point(aes(col=Torpid_not, shape=Study_lit), size=4) +
-  scale_shape_manual(values=c(20,3)) + #facet_grid(~Mass) +
+  scale_shape_manual(values=c(20,3)) + facet_grid(~Mass) +
   theme(strip.background = element_blank(),
         panel.border = element_rect(colour = "black", fill=NA)) + xlab(Tc_min.xlab) +
   ylab("Energy expenditure (J/g*hr)")
