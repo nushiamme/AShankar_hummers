@@ -100,13 +100,13 @@ krugerplot_sp
 
 ### Plot literature review plut study values ######
 litplotstudy <- ggplot(litstudy, aes(Tc_min, EE_J)) +  
-  theme_bw(base_size = 20) + geom_point(aes(col=Torpid_not, shape=Study_lit), size=4) +
-  scale_shape_manual(values=c(20,3)) + facet_grid(~Mass_categ) +
-  theme(strip.background = element_blank(),
-        panel.border = element_rect(colour = "black", fill=NA)) + xlab(Tc_min.xlab) +
-  ylab("Energy expenditure (J)")
+  geom_point(aes(col=Torpid_not, shape=Study_lit), size=4) +
+  scale_shape_manual(values=c(20,3)) + facet_grid(~Mass_categ) + my_theme +
+  scale_color_manual(values=c('black', '#ff3333', '#9999ff')) +
+  theme(legend.key.height = unit(3,"line"), plot.title = element_text(hjust = 0.5, size=20),
+        axis.text.x = element_text(size=15)) + 
+  xlab(Tc_min.xlab) + ylab("Energy expenditure (J)") + ggtitle("Mass category")
 litplotstudy
-grid.text(unit(0.5,"npc"),0.99,label = "Mass in grams", gp=gpar(fontsize=20))
 
 ## Plot just lit values
 litplot <- ggplot(litstudy[litstudy$Study_lit=="Lit",], aes(Tc_min, EE_J)) +  
@@ -116,8 +116,6 @@ litplot <- ggplot(litstudy[litstudy$Study_lit=="Lit",], aes(Tc_min, EE_J)) +
   theme(legend.key.height = unit(3,"line"), plot.title = element_text(hjust = 0.5, size=20)) +
   xlab(Tc_min.xlab) + ylab("Energy expenditure (J)") + ggtitle("Mass category")
 litplot
-grid.text(unit(0.5,"npc"),0.99,label = "Mass in grams", gp=gpar(fontsize=20))
-
 
 ## With Kruger et al. 1982 data added in
 litplotnew <- ggplot(litnew, aes(Temp, EE_J/Mass)) +  
