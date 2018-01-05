@@ -108,6 +108,16 @@ litplotstudy <- ggplot(litstudy, aes(Tc_min, EE_J)) +
   xlab(Tc_min.xlab) + ylab("Energy expenditure (J)") + ggtitle("Mass category")
 litplotstudy
 
+## Subsetting one mass category
+litplotstudy_7.5 <- ggplot(litstudy[litstudy$Mass_categ==7.5,], aes(Tc_min, EE_J)) +  
+  geom_point(aes(col=Torpid_not, shape=Study_lit), size=4) +
+  scale_shape_manual(values=c(20,3)) + facet_grid(~Mass_categ) + my_theme +
+  scale_color_manual(values=c('black', '#ff3333', '#9999ff')) +
+  theme(legend.key.height = unit(3,"line"), plot.title = element_text(hjust = 0.5, size=20),
+        axis.text.x = element_text(size=15)) + 
+  xlab(Tc_min.xlab) + ylab("Energy expenditure (J)") + ggtitle("Mass category")
+litplotstudy_7.5
+
 ## Plot just lit values
 litplot <- ggplot(litstudy[litstudy$Study_lit=="Lit",], aes(Tc_min, EE_J)) +  
   my_theme + geom_point(aes(col=Torpid_not), size=4) +
