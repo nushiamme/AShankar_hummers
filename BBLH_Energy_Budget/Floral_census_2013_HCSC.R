@@ -15,9 +15,9 @@ setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
 setwd("/Users/anshankar/Dropbox/Anusha Committee/BBLH_EnergyBudget/Tables")
 
 ## Read in file
-floralsumm <- read.csv("HC_SCSNA_ANUSHA_e_summaries.csv")
-floralsumm2 <- read.csv("FloralCensus_new.csv")
-scrop <- read.csv("StandingCropData_new.csv")
+floralsumm <- read.csv("HC_SCSNA_ANUSHA_e_summaries.csv") #ver2
+floralsumm2 <- read.csv("FloralCensus_new.csv") #ver3
+scrop <- read.csv("StandingCropData_new.csv") #ver3
 floralsumm$Site <- revalue(floralsumm$Site, c("HC"="Harshaw", "PLSC"="Sonoita"))
 #floralsumm2$Site <- revalue(floralsumm2$Site, c("HC"="Harshaw", "PLSC"="Sonoita"))
 scrop$Site <- revalue(scrop$Site, c("HC"="Harshaw", "PL/SC"="Sonoita"))
@@ -68,12 +68,14 @@ sum(floralsumm2$TotalFlowers[floralsumm2$Site=="PLSC"])
 ## Plot sum of calories by site
 ggplot(dcal[dcal$Site %in% c("Harshaw", "Sonoita"),], aes(Site, Calories)) + geom_bar(stat='identity') + my_theme + facet_grid(.~Pre_post)
 
+ggplot(dcal, aes(Site, Calories)) + geom_bar(stat='identity') + my_theme + facet_grid(.~Pre_post)
+
 ## Plot sum of flowers by site
 ggplot(dflo, aes(Site, Flowers)) + geom_bar(stat='identity') + my_theme
 ## Sum of flowers per transect
 flo_plot_t <- ggplot(dflo, aes(Transect, log(Flowers))) + 
   geom_bar(stat='identity') + my_theme + 
-  facet_grid(~Site, scales='free') +
+  facet_grid(Month~Site, scales='free') +
   theme(axis.title.x = element_blank(), axis.text.x = element_text(angle=60, size=15)) +
   ylim(0,12)
 

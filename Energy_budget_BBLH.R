@@ -24,6 +24,7 @@ dlw <- dlw[dlw$Reasonable_not=="Y",]
 
 dlw_bblh <- read.csv("DLW_summary.csv")
 dlw_bblh$Site_monsoon <- paste(dlw_bblh$Site, dlw_bblh$Pre_post_monsoon, sep="_") # column combining site and monsoon status
+dlw_bblh$Site_monsoon <- factor(dlw_bblh$Site_monsoon, levels=c('HC_Pre','HC_Post','SC_Pre','SC_Post'))
 dlw_bblh$Initial_mass_g <- as.numeric(as.character(dlw_bblh$Initial_mass_g))
 
 ## TNZ files
@@ -91,13 +92,14 @@ dee_BBLH_site <- ggplot(dlw_bblh, aes(Initial_mass_g, kJ_day)) + my_theme +
   ylab("Daily energy expenditure (kJ/day)") + xlab("Initial mass (g)")
 plot(dee_BBLH_site, fig.align='left')
 
-## DEE by site and pre- and post-monsoon
+## DEE by site and pre- and post-monsoon, points different for pre- and -post
 dee_BBLH_site_monsoon_plot <- ggplot(dlw_bblh, aes(Site_monsoon, kJ_day)) + geom_boxplot() + 
   my_theme + geom_point(aes(shape=Pre_post_monsoon), size=5, alpha=0.4, col="blue") + 
   scale_shape_manual("Season\n", values=c(20,3), labels=c("Pre-monsoon", "Post-monsoon"), breaks=c("Pre", "Post")) + 
-  ylab("Daily energy expenditure (kJ/day)") + xlab("Site")
+  ylab("Daily energy expenditure (kJ/day)") + xlab("Site") + theme(legend.key.height = unit(3, 'lines'))
 dee_BBLH_site_monsoon_plot
 
+## Points all the same
 dee_BBLH_site_monsoon_plot <- ggplot(dlw_bblh, aes(Site_monsoon, kJ_day)) + geom_boxplot() + 
   my_theme + geom_point(aes(col=Pre_post_monsoon), size=5, alpha=0.4, col="blue") + 
   scale_shape_manual("Season\n", values=c(20,3), labels=c("Pre-monsoon", "Post-monsoon"), breaks=c("Pre", "Post")) + 
