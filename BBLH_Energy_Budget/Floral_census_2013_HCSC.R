@@ -11,11 +11,17 @@ require(dplyr)
 
 ## Set working directory
 setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
+## wd at GFU
+setwd("/Users/anshankar/Dropbox/Anusha Committee/BBLH_EnergyBudget/Tables")
 
 ## Read in file
 floralsumm <- read.csv("HC_SCSNA_ANUSHA_e_summaries.csv")
+floralsumm2 <- read.csv("FloralCensus_new.csv")
+scrop <- read.csv("StandingCropData_new.csv")
 floralsumm$Site <- revalue(floralsumm$Site, c("HC"="Harshaw", "PLSC"="Sonoita"))
-floral <- read.csv("FloralCensus_cropped.csv", sep=";")
+#floralsumm2$Site <- revalue(floralsumm2$Site, c("HC"="Harshaw", "PLSC"="Sonoita"))
+scrop$Site <- revalue(scrop$Site, c("HC"="Harshaw", "PL/SC"="Sonoita"))
+floral <- read.csv("FloralCensus_cropped_commas.csv")
 floral$Site_monsoon <- paste(floral$Site,floral$Pre_post_monsoon, sep = "_")
 floral$Pre_post_monsoon <- factor(floral$Pre_post_monsoon, levels = c("Pre", "Post"))
 head(floral)
@@ -26,6 +32,13 @@ dflo <- summarize(flo, Flowers = sum(Flowers, na.rm = T))
 dhumm <- summarize(flo, Hummcount = sum(HummSp, na.rm=T))
 dfru <- summarize(flo, Fruits = sum(Fruits, na.rm=T))
 dbud <- summarize(flo, Buds = sum(Buds, na.rm=T))
+
+#### New columns/dataframes, Jan 12 ####
+crop <- group_by(scrop, Site, Year, Pre_post, Transect)
+dcal <- summarize(crop, Calories = sum(Calories, na.rm = T))
+dhumm <- summarize(flo, Hummcount = sum(HummSp, na.rm=T))
+dfru <- summarize(flo, TotalFruits = sum(TotalFruits, na.rm=T))
+dbud <- summarize(flo, TotalBuds = sum(TotalBuds, na.rm=T))
 
 #### General functions ####
 ## Saving standard theme  
@@ -45,8 +58,15 @@ give.n <- function(x){
 #### Plots ####
 ## From what Susan sent by Claudia
 ##Summary stats of phenology, comparing sites
-sum(floralsumm$Flowers[floralsumm$Site=="HC"])
-sum(floralsumm$Flowers[floralsumm$Site=="PLSC"])
+sum(floralsumm2$TotalFlowers[floralsumm2$Site=="HC"])
+sum(floralsumm2$TotalFlowers[floralsumm2$Site=="PLSC"])
+
+##Using database Susan sent in Oct 2017
+sum(scrop$Calories[scrop$Site=="Sonoita" & scrop$Month==6])
+sum(floralsumm2$TotalFlowers[floralsumm2$Site=="PLSC"])
+
+## Plot sum of calories by site
+ggplot(dcal[dcal$Site %in% c("Harshaw", "Sonoita"),], aes(Site, Calories)) + geom_bar(stat='identity') + my_theme + facet_grid(.~Pre_post)
 
 ## Plot sum of flowers by site
 ggplot(dflo, aes(Site, Flowers)) + geom_bar(stat='identity') + my_theme
