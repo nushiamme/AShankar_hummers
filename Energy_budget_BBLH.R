@@ -12,10 +12,15 @@ library(reshape)
 ## from "C:\Users\ANUSHA\Dropbox\DLW_paper\BBLH 2013 Poster Data.xlsx"
 
 setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
+## wd at GFU
+setwd("/Users/anshankar/Dropbox/Anusha Committee/BBLH_EnergyBudget/Tables")
 ## Includes data from XXXX papers.
 
 dlw <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper\\DLW_data2.csv")
+##At GFU
+dlw <- read.csv("/Users/anshankar/Dropbox/DLW_paper/DLW_data2.csv")
 dlw <- dlw[dlw$Reasonable_not=="Y",]
+
 
 dlw_bblh <- read.csv("DLW_summary.csv")
 dlw_bblh$Site_monsoon <- paste(dlw_bblh$Site, dlw_bblh$Pre_post_monsoon, sep="_") # column combining site and monsoon status
