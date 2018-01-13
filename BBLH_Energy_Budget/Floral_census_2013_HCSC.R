@@ -16,29 +16,25 @@ setwd("/Users/anshankar/Dropbox/Anusha Committee/BBLH_EnergyBudget/Tables")
 
 ## Read in file
 floralsumm <- read.csv("HC_SCSNA_ANUSHA_e_summaries.csv") #ver2
-floralsumm2 <- read.csv("FloralCensus_new.csv") #ver3
+floralsumm2 <- read.csv("FloralCensusData2013.csv") #ver3 
 scrop <- read.csv("StandingCropData_new.csv") #ver3
 floralsumm$Site <- revalue(floralsumm$Site, c("HC"="Harshaw", "PLSC"="Sonoita"))
-#floralsumm2$Site <- revalue(floralsumm2$Site, c("HC"="Harshaw", "PLSC"="Sonoita"))
-scrop$Site <- revalue(scrop$Site, c("HC"="Harshaw", "PL/SC"="Sonoita"))
-floral <- read.csv("FloralCensus_cropped_commas.csv")
+scrop$Site <- revalue(scrop$Site, c("HC"="Harshaw", "PL/SC"="Sonoita")) #ver3
+floral <- read.csv("FloralCensus_cropped_commas.csv") #ver2
 floral$Site_monsoon <- paste(floral$Site,floral$Pre_post_monsoon, sep = "_")
 floral$Pre_post_monsoon <- factor(floral$Pre_post_monsoon, levels = c("Pre", "Post"))
 head(floral)
 
 #### New columns/dataframes ####
-flo <- group_by(floralsumm, Site, Transect, Month)
-dflo <- summarize(flo, Flowers = sum(Flowers, na.rm = T))
+flo <- group_by(floralsumm2, Site, Transect, Pre_post)
+dflo <- summarize(flo, Flowers = sum(TotalFlowers, na.rm = T))
 dhumm <- summarize(flo, Hummcount = sum(HummSp, na.rm=T))
 dfru <- summarize(flo, Fruits = sum(Fruits, na.rm=T))
 dbud <- summarize(flo, Buds = sum(Buds, na.rm=T))
 
 #### New columns/dataframes, Jan 12 ####
-crop <- group_by(scrop, Site, Year, Pre_post, Transect)
-dcal <- summarize(crop, Calories = sum(Calories, na.rm = T))
-dhumm <- summarize(flo, Hummcount = sum(HummSp, na.rm=T))
-dfru <- summarize(flo, TotalFruits = sum(TotalFruits, na.rm=T))
-dbud <- summarize(flo, TotalBuds = sum(TotalBuds, na.rm=T))
+dcrop <- group_by(scrop, Site, Year, Pre_post, Transect)
+dcrop_summ <- summarize(dcrop, Calories = sum(Calories, na.rm = T))
 
 #### General functions ####
 ## Saving standard theme  
@@ -56,6 +52,11 @@ give.n <- function(x){
 
 
 #### Plots ####
+## From #ver3 (November 2017) Standing Crop data
+ggplot(dcrop_summ[dcrop_summ$Site %in% c("Harshaw", "Sonoita"),], aes(Transect, Calories)) + geom_point(aes(col=Pre_post, shape=Site), size=4) + 
+  scale_color_manual(values = c('red', 'black')) + scale_shape_manual(values=c(20,3)) +
+  my_theme +  theme(axis.text.x = element_text(size=15, angle=30, vjust=0.5), legend.key.height = unit(3, 'lines'))
+
 ## From what Susan sent by Claudia
 ##Summary stats of phenology, comparing sites
 sum(floralsumm2$TotalFlowers[floralsumm2$Site=="HC"])
@@ -66,12 +67,23 @@ sum(scrop$Calories[scrop$Site=="Sonoita" & scrop$Month==6])
 sum(floralsumm2$TotalFlowers[floralsumm2$Site=="PLSC"])
 
 ## Plot sum of calories by site
-ggplot(dcal[dcal$Site %in% c("Harshaw", "Sonoita"),], aes(Site, Calories)) + geom_bar(stat='identity') + my_theme + facet_grid(.~Pre_post)
+ggplot(dcal[dcal$Site %in% c("Harshaw", "Sonoita") & dcal$Year==2013,], aes(Transect, (Calories*4.18))) + 
+  geom_bar(aes(fill=Site), stat='identity') + my_theme + theme(axis.text.x = element_text(angle=60, size=15, vjust=0.5)) +
+         facet_grid(.~Pre_post, scales='free') + ylab("kiloJoules")
 
-ggplot(dcal, aes(Site, Calories)) + geom_bar(stat='identity') + my_theme + facet_grid(.~Pre_post)
+ggplot(dcal, aes(Site, (Calories))) + geom_bar(stat='identity') + my_theme + facet_grid(.~Pre_post) 
 
 ## Plot sum of flowers by site
-ggplot(dflo, aes(Site, Flowers)) + geom_bar(stat='identity') + my_theme
+ggplot(dflo[dflo$Site %in% c("Harshaw", "Sonoita"),], aes(Transect, Flowers)) + 
+  geom_bar(aes(fill=Site), stat='identity') + facet_grid(~Pre_post) + my_theme + 
+  theme(axis.title.x = element_blank(), axis.text.x = element_text(angle=60, size=15, vjust=0.5))
+
+## Plot sum of flowers by site
+ggplot(dflo[dflo$Site %in% c("Harshaw", "Sonoita"),], aes(Transect, log(Flowers))) + 
+  geom_bar(aes(fill=Site), stat='identity') + facet_grid(~Pre_post, scales='free') + my_theme + 
+  theme(axis.title.x = element_blank(), axis.text.x = element_text(angle=60, size=15, vjust=0.5))
+
+
 ## Sum of flowers per transect
 flo_plot_t <- ggplot(dflo, aes(Transect, log(Flowers))) + 
   geom_bar(stat='identity') + my_theme + 
