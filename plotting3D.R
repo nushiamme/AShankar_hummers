@@ -8,10 +8,12 @@ library(gridExtra)
 
 #library(rgl)
 
-setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")## laptop
-#energymodels <- read.csv("Trial_EnergyBudget_models_act_thermo.csv")
+#setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")## laptop
+## wd at GFU
+setwd("/Users/anshankar/Dropbox/Anusha Committee/BBLH_EnergyBudget/Tables")
 
-energymodels2 <- read.csv("Trial_EnergyBudget_models_act_thermo_redone.csv")
+#energymodels <- read.csv("Trial_EnergyBudget_models_act_thermo.csv")
+#energymodels2 <- read.csv("Trial_EnergyBudget_models_act_thermo_redone.csv")
 energymodels3 <- read.csv("Trial_EnergyBudget_models_act_thermo_Jul2017.csv") #includes BMR variation but not
 #new activity budget scenario
 energymodels4 <- read.csv("Trial_EnergyBudget_models_act_thermo_Jul2017_2.csv") #incl BMR and new act budget scenario
@@ -68,8 +70,8 @@ grid_arrange_shared_legend_hori <- function(..., nrow = 1, ncol = length(list(..
   
 }
 
-
-#### New data frames or vectors ####
+#### Old, ignore? #####
+### New data frames or vectors ###
 ## Range of results of the thermoregulatory models
 # Pull out all the minimum costs
 vec1 <- energymodels2$Daytime_EE_kJ[energymodels2$Thermoreg_scenario=="Min_cost"]
@@ -117,6 +119,7 @@ m_energymodels2
 m_energymodels2$Site_proxy2 <- m_energymodels2$Site_proxy
 levels(m_energymodels2$Site_proxy2) <- c("Aa", "Bb", "Cc", "Dd")
 
+#### Jul 2017 - Jan 2018 ####
 ## With BMR variation
 ## use for just viewing activity differences, with all thermo and NEE variation incorporated
 m_energymodels3 <- as.data.frame(as.list(aggregate(energymodels3$kJ_adjBMR_day,
@@ -254,7 +257,7 @@ ggplot(NULL, aes(Site_proxy, kJ_day)) + my_theme +
                                  axis.ticks = element_blank(), axis.text.x = element_text(hjust=-0.1)) + 
   xlab("Site and monsoon status") + ylab("Daily Energy Expenditure (kJ)")
 
-#### Final plot for poster ####
+#### Final plot for IUPS 2017 poster ####
 ## Good plot with adjacent dlw and model vals
 ## and including variation in BMR, including suggestions from Simone
 ggplot(NULL, aes(Site_proxy, kJ_day)) +
