@@ -136,17 +136,21 @@ levels(m_energymodels3$Site_proxy2) <- c("Aa", "Bb", "Cc", "Dd")
 
 ## With extremely high activity budget model included
 ## use for just viewing activity differences, with all thermo and NEE variation incorporated
+levels(energymodels4$Thermoreg_scenario)[match("Rand_cost_median",levels(energymodels4$Thermoreg_scenario))] <- "Random"
 m_energymodels4 <- as.data.frame(as.list(aggregate(energymodels4$kJ_adjBMR_day,
                                                    by=list(energymodels4$Activity_budget_type,
                                                            energymodels4$BMR_assump,
+                                                           energymodels4$Thermoreg_scenario,
                                                            energymodels4$Site_proxy),
                                                    FUN = function(x) c(mi = min(x), mn = mean(x), mx = max(x)))))
-names(m_energymodels4) <- c("Activity_budget_type", "BMR_category", "Site_proxy",
+names(m_energymodels4) <- c("Activity_budget_type", "BMR_category", "Thermoreg_scenario", "Site_proxy",
                             "Min_kJ_day", "kJ_day", "Max_kJ_day")
 m_energymodels4
 
 m_energymodels4$Activity_budget_type <- factor(m_energymodels4$Activity_budget_type,
-                                    levels= c("40_40_20", "25_30_45", "15_15_70", "5_20_75"))
+                                    levels= c("5_20_75", "15_15_70", "25_30_45", "40_40_20"))
+m_energymodels4$Activity_bmr_thermo <- paste(m_energymodels4$Activity_budget_type, 
+                                             m_energymodels4$BMR_category, m_energymodels4$Thermoreg_scenario, sep= "_")
 
 ## Without aggregating by BMR category
 m_energymodels5 <- as.data.frame(as.list(aggregate(energymodels4$kJ_adjBMR_day,
@@ -156,10 +160,27 @@ m_energymodels5 <- as.data.frame(as.list(aggregate(energymodels4$kJ_adjBMR_day,
 names(m_energymodels5) <- c("Activity_budget_type", "Site_proxy",
                             "Min_kJ_day", "kJ_day", "Max_kJ_day")
 m_energymodels5$Activity_budget_type <- factor(m_energymodels5$Activity_budget_type,
-                                      levels= c("40_40_20", "25_30_45", "15_15_70", "5_20_75"))
+                                      levels= c("5_20_75", "15_15_70", "25_30_45", "40_40_20"))
+
+energymodels6 <- energymodels4[energymodels4$Thermoreg_scenario != "Rand_cost_min" & energymodels4$Thermoreg_scenario != "Rand_cost_max",]
+energymodels6$Activity_BMR_Thermo_NEE <- paste(energymodels6$Activity_budget_type, energymodels6$BMR_assump, 
+                                            energymodels6$Thermoreg_scenario, energymodels6$NEE_low_high, sep="_")
+energymodels6$Activity_budget_type <- factor(energymodels6$Activity_budget_type,
+                                             levels= c("5_20_75", "15_15_70", "25_30_45", "40_40_20"))
+m_energymodels_stack <- melt(energymodels6, id.vars=c("Activity_BMR_Thermo_NEE", "kJ_adjBMR_day"), 
+                             measure.vars = c("Thermo_adj_kJ_day", "Nighttime_energy_kJ", "Act_kJ_day"))
+m_energymodels_stack <- m_energymodels6[order(as.numeric(as.character(m_energymodels6$kJ_adjBMR_day))),]
+g <- ggplot(x, aes(reorder(variable, value), value))
 
 
 #### plots ####
+## Trying stacked bar plots for breaking down energy budget
+ggplot(m_energymodels_stack, aes(x=Activity_BMR_Thermo_NEE, y=value, fill=variable)) + 
+  geom_bar(position="fill", stat="identity") +
+  xlab("\n Category") +
+  ylab("kJ per day\n") +
+  my_theme + theme(axis.text.x = element_text(angle=60, size=10, vjust=0.5))
+
 ## With quantiles to select min and max thermo costs
 ggplot(energymodels, aes(Thermoreg_scenario, Daytime_EE)) + 
   geom_point(aes(col=Site), size=3) +
