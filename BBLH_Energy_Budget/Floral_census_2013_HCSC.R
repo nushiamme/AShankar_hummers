@@ -8,9 +8,10 @@ require(ggplot2)
 require(reshape)
 require(plyr)
 require(dplyr)
+require(ggthemes) ## Trying out Tufteboxplot
 
 ## Set working directory
-setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
+#setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
 ## wd at GFU
 setwd("/Users/anshankar/Dropbox/Anusha Committee/BBLH_EnergyBudget/Tables")
 
@@ -53,9 +54,26 @@ give.n <- function(x){
 
 #### Plots ####
 ## From #ver3 (November 2017) Standing Crop data
-ggplot(dcrop_summ[dcrop_summ$Site %in% c("Harshaw", "Sonoita"),], aes(Transect, Calories)) + geom_point(aes(col=Pre_post, shape=Site), size=4) + 
-  scale_color_manual(values = c('red', 'black')) + scale_shape_manual(values=c(20,3)) +
+ggplot(dcrop_summ[dcrop_summ$Site %in% c("Harshaw", "Sonoita"),], aes(Transect, Calories)) + 
+  geom_bar(stat="identity", aes(fill=Pre_post), size=4) + 
+  scale_fill_manual(values = c('red', 'black')) + scale_shape_manual(values=c(20,3)) +
   my_theme +  theme(axis.text.x = element_text(size=15, angle=30, vjust=0.5), legend.key.height = unit(3, 'lines'))
+
+## Number of flowers
+dflo$Site_Pre_post <- paste(dflo$Site, dflo$Pre_post, sep="_")
+ggplot(dflo[dflo$Site %in% c("Harshaw", "Sonoita"),], aes(Transect, log(Flowers))) + facet_grid(~Site, scales="free_x") +
+  geom_bar(stat="identity", aes(fill=Pre_post), size=4) + 
+  #scale_fill_manual(values = c('red', 'black')) +
+  my_theme +  theme(axis.text.x = element_text(size=15, angle=90), legend.key.height = unit(3, 'lines'))
+
+## Good plot of flowers at HC and SC
+ggplot(dflo[dflo$Site %in% c("Harshaw", "Sonoita"),], aes(Transect, log(Flowers), label=Flowers)) + 
+  facet_grid(~Site, scales="free_x") + #coord_flip() +
+  #geom_tufteboxplot() +
+  geom_point(aes(color=Pre_post, size=Flowers)) + #ylim(-3, 15) +
+  geom_text(hjust=0, nudge_x = 0.1, nudge_y=0.3, size=5) +
+  scale_color_manual(values = c('red', 'black')) +
+  my_theme +  theme(axis.text.x = element_text(size=15, angle=30, vjust=0.9, hjust=1), legend.key.height = unit(3, 'lines'))
 
 ## From what Susan sent by Claudia
 ##Summary stats of phenology, comparing sites
@@ -80,7 +98,8 @@ ggplot(dflo[dflo$Site %in% c("Harshaw", "Sonoita"),], aes(Transect, Flowers)) +
 
 ## Plot sum of flowers by site
 ggplot(dflo[dflo$Site %in% c("Harshaw", "Sonoita"),], aes(Transect, log(Flowers))) + 
-  geom_bar(aes(fill=Site), stat='identity') + facet_grid(~Pre_post, scales='free') + my_theme + 
+  geom_bar(aes(fill=Site), stat='identity') + 
+  facet_grid(~Pre_post, scales='free') + my_theme + 
   theme(axis.title.x = element_blank(), axis.text.x = element_text(angle=60, size=15, vjust=0.5))
 
 
