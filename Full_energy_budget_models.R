@@ -14,13 +14,14 @@ library(tidyverse) #for the stacked bar plot- labeled as such in case you want t
 #setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")## laptop
 ## wd at GFU
 setwd("/Users/anshankar/Dropbox/Anusha Committee/BBLH_EnergyBudget/Tables")
-
 #energymodels <- read.csv("Trial_EnergyBudget_models_act_thermo.csv")
 #energymodels2 <- read.csv("Trial_EnergyBudget_models_act_thermo_redone.csv")
 energymodels3 <- read.csv("Trial_EnergyBudget_models_act_thermo_Jul2017.csv") #includes BMR variation but not
 #new activity budget scenario
 ## Modified Trial_EnergyBudget_models_act_thermo_Jul2017_2.csv slightly:
 energymodels4 <- read.csv("Trial_EnergyBudget_models_act_thermo_Jan2018.csv") #incl BMR and new act budget scenario and torpor split
+act_models <- read.csv("Activity_modeled.csv") #Varying HMR, FLMR, RMR
+dee_act <- read.csv("DEE_for_activity_models.csv")
 
 dlw_bblh <- read.csv("DLW_summary.csv")
 
@@ -101,6 +102,10 @@ mean(vec6-vec5)
 sd(vec6-vec5)
 
 #### Aggregating ####
+dlw_summ <- as.data.frame(as.list(aggregate(dlw_bblh$kJ_day,
+                                by=list(dlw_bblh$Site_monsoon),
+                                FUN = function(x) c(mi = min(x), mn = mean(x), mx = max(x)))))
+
 m_energymodels <- as.data.frame(as.list(aggregate(energymodels2$kJ_day,
                                                   by=list(energymodels2$Activity_budget_type,
                                                           energymodels2$NEE_low_high,
@@ -124,6 +129,18 @@ m_energymodels2$Site_proxy2 <- m_energymodels2$Site_proxy
 levels(m_energymodels2$Site_proxy2) <- c("Aa", "Bb", "Cc", "Dd")
 
 #### Jul 2017 - Jan 2018 ####
+## Activity modeled - melt dataframe
+m_act <- melt(act_models, id.vars = c("Cost_scenario", "Activity_budget_type", 
+                                      "HMR_scenario", "FLMR_scenario", "RMR_scenario"), measure.vars = "ACT_kJ_day")
+names(m_act)[names(m_act) == 'value'] <- 'Activity_kJ_daytime'
+m_act$Cost_scenario <- factor(m_act$Cost_scenario, as.character(unique(m_act$Cost_scenario)))
+m_act$Activity_budget_type <- factor(m_act$Activity_budget_type, levels= c("5_20_75", "15_15_70", "25_30_45", "40_40_20"))
+
+m_dee <- melt(dee_act, id.vars = c("Cost_scenario", "Activity_budget_type", 
+                                      "DLW_scenario"), measure.vars = "DEE_kJ_day")
+m_dee$Cost_scenario <- factor(m_dee$Cost_scenario, as.character(unique(m_dee$Cost_scenario)))
+
+#### Old ####
 ## With BMR variation
 ## use for just viewing activity differences, with all thermo and NEE variation incorporated
 m_energymodels3 <- as.data.frame(as.list(aggregate(energymodels3$kJ_adjBMR_day,
@@ -138,6 +155,7 @@ m_energymodels3
 m_energymodels3$Site_proxy2 <- m_energymodels3$Site_proxy
 levels(m_energymodels3$Site_proxy2) <- c("Aa", "Bb", "Cc", "Dd")
 
+#### Jan 2018 ####
 ## With extremely high activity budget model included
 ## use for just viewing activity differences, with all thermo and NEE variation incorporated
 levels(energymodels4$Thermoreg_scenario)[match("Rand_cost_median",levels(energymodels4$Thermoreg_scenario))] <- "random"
@@ -216,6 +234,21 @@ ggplot(m_energymodels_stack[m_energymodels_stack$Site_date=="HC1306",], aes(Ther
   my_theme + theme(axis.text.x = element_text(angle=30, size=15, hjust=0.5, vjust=0.5),
                    legend.key.height=unit(3, 'lines'), plot.title = element_text(hjust=0.5)) + 
   guides(fill = guide_legend(title="Energy budget \n component"))
+
+#Activity modeled
+ggplot(m_act, aes(Cost_scenario, Activity_kJ_daytime)) + facet_grid(~Activity_budget_type, scales='free_x') + 
+  my_theme + geom_point(aes(col=HMR_scenario, shape=FLMR_scenario), size=4) + 
+  theme(axis.text.x=element_text(angle=90, size=10), legend.key.height=unit(3, 'lines')) +
+  guides(colour = guide_legend(override.aes = list(size=4)), size=F)
+
+ggplot() + 
+  geom_point(data=m_act, aes(Cost_scenario, Activity_kJ_daytime, col=HMR_scenario, shape=FLMR_scenario), size=4) +
+  geom_boxplot(data=m_dee, aes(Cost_scenario, value)) +
+  facet_grid(~Activity_budget_type, scales='free_x') + my_theme +
+  ylab("kiloJoules per day") +
+  theme(axis.text.x=element_text(angle=90, size=10), legend.key.height=unit(3, 'lines')) +
+  guides(colour = guide_legend(override.aes = list(size=4)), size=F)
+
 
 ## With quantiles to select min and max thermo costs
 ggplot(energymodels, aes(Thermoreg_scenario, Daytime_EE)) + 
