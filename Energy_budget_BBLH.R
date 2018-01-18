@@ -33,7 +33,7 @@ bblh_tnz <- read.csv("../Energy budget data/BroadBill.csv")
 bblh_tnz$N_T <- factor(bblh_tnz$N_T, levels=c('T', 'N'))
 
 #### Reading in Torpor files ####
-## Pulling in BBLH torpor data
+## Pulling in BBLH torpor data - UPDATE
 torpor <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Submission_Oct2016\\Torpor_individual_summaries.csv")
 
 torpor$AvgEE_normo_MassCorrected <- torpor$Avg_EE_hourly_normo/(torpor$Mass^(2/3))
