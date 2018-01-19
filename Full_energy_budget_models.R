@@ -25,6 +25,10 @@ dee_act <- read.csv("DEE_for_activity_models.csv")
 
 dlw_bblh <- read.csv("DLW_summary.csv")
 
+valida_A <- read.csv("Validation_Enrichment_dose_A.csv")
+valida_B <- read.csv("Validation_enrichment_eqb_B.csv")
+valida_C <- read.csv("Validation_CO2produc_dose_C.csv")
+
 #### General functions ####
 my_theme <- theme_classic(base_size = 32) + 
   theme(panel.border = element_rect(colour = "black", fill=NA))
@@ -209,6 +213,24 @@ m_energymodels_stack$Thermoreg_scenario <- factor(m_energymodels_stack$Thermoreg
 
 
 #### plots ####
+
+#### DLW Validation plots ####
+# Enrichment vs. DLW dose (g)
+ggplot(valida_A, aes(DLW_dose_g, O_18_Enrichment_ppm, col=Treatment)) + geom_point(size=3, alpha=0.9) + my_theme +
+  scale_color_manual(values = c("black", "grey70")) + xlab("DLW dose (g)") + ylab(bquote(~O^18~ 'Enrichment (ppm)')) +
+  geom_smooth(method='lm') + theme(legend.key.height=unit(3, 'lines')) + ylim(0,6000)
+
+# Initial enrichment vs equilibration time
+ggplot(valida_B, aes(Eqb_time_min, Initial_enrichment_ppm_per_mg)) + geom_point(size=3, alpha=0.9) + my_theme +
+  xlab("Equilibration time (min)") + ylab("Initial enrichment (ppm/mg)") +
+  geom_smooth(method='lm') + ylim(0,30)
+
+# CO2 production vs. DLW dose (g)
+ggplot(valida_C, aes(DLW_dose_g, CO2_production_mL_h)) + geom_point(size=3, alpha=0.9) + my_theme +
+  xlab("DLW dose (g)") + ylab(bquote(~CO[2]~ 'production (mL/hr)')) +
+  geom_smooth(method='lm') + theme(legend.key.height=unit(3, 'lines')) + ylim(0,80)
+
+#### Activity plots ####
 ## Trying stacked bar plots for breaking down energy budget, just one site+date at a time
 ggplot(m_energymodels_stack[m_energymodels_stack$Site_date=="SC207",], aes(Thermoreg_scenario, y=value, fill=variable)) + 
   facet_grid(~Activity_budget_type, scales='free_x') +
@@ -249,7 +271,7 @@ ggplot() +
   theme(axis.text.x=element_text(angle=90, size=10), legend.key.height=unit(3, 'lines')) +
   guides(colour = guide_legend(override.aes = list(size=4)), size=F)
 
-
+#### Thermoreg variation ####
 ## With quantiles to select min and max thermo costs
 ggplot(energymodels, aes(Thermoreg_scenario, Daytime_EE)) + 
   geom_point(aes(col=Site), size=3) +
