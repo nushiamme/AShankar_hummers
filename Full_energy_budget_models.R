@@ -7,6 +7,7 @@ library(rgl)
 library(dplyr) # Trying this out for stacking NEE with and without torpor
 library(reshape2) # Trying this out for stacking NEE with and without torpor
 library(gridExtra)
+library(cowplot) #for plot_grid function instead of grid.arrange
 library(tidyverse) #for the stacked bar plot- labeled as such in case you want to delete this later
 
 #library(rgl)
@@ -20,6 +21,7 @@ energymodels3 <- read.csv("Trial_EnergyBudget_models_act_thermo_Jul2017.csv") #i
 #new activity budget scenario
 ## Modified Trial_EnergyBudget_models_act_thermo_Jul2017_2.csv slightly:
 energymodels4 <- read.csv("Trial_EnergyBudget_models_act_thermo_Jan2018.csv") #incl BMR and new act budget scenario and torpor split
+energymodels_jan <- read.csv("Jan_all_new_models.csv") #Includes min and max 24h cost by varying activity; per activity, thermo, NEE and BMR scenario
 act_models <- read.csv("Activity_modeled.csv") #Varying HMR, FLMR, RMR
 dee_act <- read.csv("DEE_for_activity_models.csv")
 
@@ -160,6 +162,22 @@ m_energymodels3$Site_proxy2 <- m_energymodels3$Site_proxy
 levels(m_energymodels3$Site_proxy2) <- c("Aa", "Bb", "Cc", "Dd")
 
 #### Jan 2018 ####
+## With activity variation included
+m_energymodels_jan <- as.data.frame(as.list(aggregate(energymodels_jan$kJ_adjBMR_day,
+                                                   by=list(energymodels_jan$Activity_budget_type,
+                                                           energymodels_jan$BMR_assump,
+                                                           energymodels_jan$Thermoreg_scenario,
+                                                           energymodels_jan$Site_proxy),
+                                                   FUN = function(x) c(mi = min(x), mn = mean(x), mx = max(x)))))
+names(m_energymodels_jan) <- c("Activity_budget_type", "BMR_category", "Thermoreg_scenario", "Site_proxy",
+                            "Min_kJ_day", "kJ_day", "Max_kJ_day")
+m_energymodels_jan
+
+m_energymodels_jan$Activity_budget_type <- factor(m_energymodels_jan$Activity_budget_type,
+                                               levels= c("5_20_75", "15_15_70", "25_30_45", "40_40_20"))
+m_energymodels_jan$Activity_bmr_thermo <- paste(m_energymodels_jan$Activity_budget_type, 
+                                             m_energymodels_jan$BMR_category, m_energymodels_jan$Thermoreg_scenario, sep= "_")
+
 ## With extremely high activity budget model included
 ## use for just viewing activity differences, with all thermo and NEE variation incorporated
 levels(energymodels4$Thermoreg_scenario)[match("Rand_cost_median",levels(energymodels4$Thermoreg_scenario))] <- "random"
@@ -211,9 +229,58 @@ m_energymodels_stack$Activity_budget_type <- factor(m_energymodels_stack$Activit
 m_energymodels_stack$Thermoreg_scenario <- factor(m_energymodels_stack$Thermoreg_scenario,
                                                     levels= c("Tminimum", "Trandom", "Tmaximum"))
 
+### Stacked bar for energy budget, with activity variability
+energymodelsjan2 <- energymodels_jan[energymodels_jan$BMR_assump != "BMR_min" & energymodels_jan$BMR_assump != "BMR_max" &
+                                 energymodels_jan$Thermoreg_scenario != "Rand_cost_min" & energymodels_jan$Thermoreg_scenario != "Rand_cost_max",]
+energymodelsjan2$Site_date <- paste(energymodelsjan2$Site, energymodelsjan2$Day, "0", energymodelsjan2$Month, sep="")
+energymodelsjan2$Thermoreg_scenario <- paste("T", energymodelsjan2$Thermoreg_scenario, sep="")
+energymodelsjan2$Thermo_NEE <- paste(energymodelsjan2$Thermoreg_scenario, energymodelsjan2$NEE_low_high, sep="_")
+energymodelsjan2$Activity_budget_type <- factor(energymodelsjan2$Activity_budget_type,
+                                             levels= c("5_20_75", "15_15_70", "25_30_45", "40_40_20"))
+m_energymodels_stack2 <- melt(energymodelsjan2, 
+                             id.vars=c("kJ_adjBMR_day", "Activity_budget_type", 
+                                       "Site_date", "Thermoreg_scenario"), 
+                             measure.vars = c("NEE_addon_noTorpor", "NEE_high_torpor", "Act_kJ_day", "Thermo_adj_kJ_day"))
+
+m_energymodels_stack_min <- melt(energymodelsjan2, 
+                                 id.vars=c("kJ_min_day", "Activity_budget_type", 
+                                           "Site_date", "Thermoreg_scenario"), 
+                                 measure.vars = c("NEE_addon_noTorpor", "NEE_high_torpor", "ACT_min_kJ_daytime", "Thermo_adj_kJ_day"))
+
+m_energymodels_stack_max <- melt(energymodelsjan2, 
+                                 id.vars=c("kJ_max_day", "Activity_budget_type", 
+                                           "Site_date", "Thermoreg_scenario"), 
+                                 measure.vars = c("NEE_addon_noTorpor", "NEE_high_torpor", "ACT_max_kJ_daytime", "Thermo_adj_kJ_day"))
+
+m_energymodels_stack2$Activity_budget_type <- factor(m_energymodels_stack2$Activity_budget_type,
+                                                    levels= c("5_20_75", "15_15_70", "25_30_45", "40_40_20"))
+m_energymodels_stack2$Thermoreg_scenario <- factor(m_energymodels_stack2$Thermoreg_scenario,
+                                                  levels= c("TMinimum", "TRandom", "TMaximum"))
+
+m_energymodels_stack_min$Activity_budget_type <- factor(m_energymodels_stack2$Activity_budget_type,
+                                                     levels= c("5_20_75", "15_15_70", "25_30_45", "40_40_20"))
+m_energymodels_stack_min$Thermoreg_scenario <- factor(m_energymodels_stack2$Thermoreg_scenario,
+                                                   levels= c("TMinimum", "TRandom", "TMaximum"))
+
+m_energymodels_stack_max$Activity_budget_type <- factor(m_energymodels_stack2$Activity_budget_type,
+                                                     levels= c("5_20_75", "15_15_70", "25_30_45", "40_40_20"))
+m_energymodels_stack_max$Thermoreg_scenario <- factor(m_energymodels_stack2$Thermoreg_scenario,
+                                                   levels= c("TMinimum", "TRandom", "TMaximum"))
+
+activitymodels_24h <- energymodels_jan[energymodels_jan$BMR_assump != "BMR_min" & energymodels_jan$BMR_assump != "BMR_max" &
+                                       energymodels_jan$Thermoreg_scenario == "Random",]
+activitymodels_24h$Site_date <- paste(activitymodels_24h$Site, activitymodels_24h$Day, "0", activitymodels_24h$Month, sep="")
+activitymodels_24h$Activity_budget_type <- factor(energymodelsjan2$Activity_budget_type,
+                                                levels= c("5_20_75", "15_15_70", "25_30_45", "40_40_20"))
+m_activity_stack <- melt(activitymodels_24h, 
+                             id.vars=c("Activity_budget_type", 
+                                       "Site_date", "Thermoreg_scenario"), 
+                             measure.vars = c("kJ_min_day", "kJ_adjBMR_day", "kJ_max_day"))
+m_activity_stack$Activity_budget_type <- factor(m_activity_stack$Activity_budget_type,
+                                                  levels= c("5_20_75", "15_15_70", "25_30_45", "40_40_20"))
+
 
 #### plots ####
-
 #### DLW Validation plots ####
 # Enrichment vs. DLW dose (g)
 ggplot(valida_A, aes(DLW_dose_g, O_18_Enrichment_ppm, col=Treatment)) + geom_point(size=3, alpha=0.9) + my_theme +
@@ -232,7 +299,7 @@ ggplot(valida_C, aes(DLW_dose_g, CO2_production_mL_h)) + geom_point(size=3, alph
 
 #### Activity plots ####
 ## Trying stacked bar plots for breaking down energy budget, just one site+date at a time
-ggplot(m_energymodels_stack[m_energymodels_stack$Site_date=="SC207",], aes(Thermoreg_scenario, y=value, fill=variable)) + 
+ggplot(m_energymodels_stack2[m_energymodels_stack2$Site_date=="SC207",], aes(Thermoreg_scenario, y=value, fill=variable)) + 
   facet_grid(~Activity_budget_type, scales='free_x') +
   geom_bar(stat="identity") +
   scale_fill_manual(labels = c("Nighttime no torpor", "Nighttime with torpor", "Daytime activity", "Thermoregulation + BMR"),
@@ -244,18 +311,88 @@ ggplot(m_energymodels_stack[m_energymodels_stack$Site_date=="SC207",], aes(Therm
                    legend.key.height=unit(3, 'lines'), plot.title = element_text(hjust=0.5)) + 
   guides(fill = guide_legend(title="Energy budget \n component"))
 
-## Trying stacked bar plots for breaking down energy budget, for Harshaw 1306
-ggplot(m_energymodels_stack[m_energymodels_stack$Site_date=="HC1306",], aes(Thermoreg_scenario, y=value, fill=variable)) + 
-  facet_grid(~Activity_budget_type, scales='free_x') +
-  geom_bar(stat="identity") +
-  scale_fill_manual(labels = c("Nighttime less torpor", "Nighttime full torpor", "Daytime activity", "Thermoregulation + BMR"),
+## Trying stacked bar plots for breaking down energy budget, with mean variable activity, for Harshaw 1306
+ggplot() + 
+  geom_bar(data=m_energymodels_stack2[m_energymodels_stack2$Site_date=="HC1306",], aes(Thermoreg_scenario, y=value, fill=variable),
+           stat="identity") +
+  scale_fill_manual(labels = c("Nighttime less torpor", "Nighttime full torpor", "Mean Daytime activity", "Thermoregulation + BMR"),
                     values = c("#B47ED5", "lavender", "red", "dark blue")) +
+  geom_boxplot(data=m_dee, aes(Cost_scenario, value)) +
+  geom_point(data=m_energymodels_stack2[m_energymodels_stack2$Site_date=="HC1306",], aes(Thermoreg_scenario, y=kJ_adjBMR_day)) +
+  facet_grid(~Activity_budget_type, scales='free_x') +
   xlab("Thermoregulatory scenarios") +
   ylab("kiloJoules per day\n") +
-  ggtitle("Harshaw Creek pre-monsoon") +
-  my_theme + theme(axis.text.x = element_text(angle=30, size=15, hjust=0.5, vjust=0.5),
+  ggtitle("Harshaw Creek pre-monsoon") + ylim(0,45) +
+  my_theme + theme(axis.text.x = element_text(angle=90, size=15, hjust=0.5),
                    legend.key.height=unit(3, 'lines'), plot.title = element_text(hjust=0.5)) + 
   guides(fill = guide_legend(title="Energy budget \n component"))
+
+## Trying stacked bar plots for breaking down MIN energy budget, with mean variable activity, for Harshaw 1306
+ggplot() + 
+  geom_bar(data=m_energymodels_stack_min[m_energymodels_stack_min$Site_date=="HC1306",], aes(Thermoreg_scenario, y=value, fill=variable),
+           stat="identity") +
+  scale_fill_manual(labels = c("Nighttime less torpor", "Nighttime full torpor", "Min Daytime activity", "Thermoregulation + BMR"),
+                    values = c("#B47ED5", "lavender", "red", "dark blue")) +
+  geom_boxplot(data=m_dee, aes(Cost_scenario, value)) +
+  geom_point(data=m_energymodels_stack_min[m_energymodels_stack_min$Site_date=="HC1306",], aes(Thermoreg_scenario, y=kJ_min_day)) +
+  facet_grid(~Activity_budget_type, scales='free_x') +
+  xlab("Thermoregulatory scenarios") +
+  ylab("kiloJoules per day\n") +
+  ggtitle("Harshaw Creek pre-monsoon") + ylim(0,45) +
+  my_theme + theme(axis.text.x = element_text(angle=90, size=15, hjust=0.5),
+                   legend.key.height=unit(3, 'lines'), plot.title = element_text(hjust=0.5)) + 
+  guides(fill = guide_legend(title="Energy budget \n component"))
+
+## Trying stacked bar plots for breaking down MAX energy budget, with mean variable activity, for Harshaw 1306
+ggplot() + 
+  geom_bar(data=m_energymodels_stack_max[m_energymodels_stack_max$Site_date=="HC1306",], aes(Thermoreg_scenario, y=value, fill=variable),
+           stat="identity") +
+  scale_fill_manual(labels = c("Nighttime less torpor", "Nighttime full torpor", "Max Daytime activity", "Thermoregulation + BMR"),
+                    values = c("#B47ED5", "lavender", "red", "dark blue")) +
+  geom_boxplot(data=m_dee, aes(Cost_scenario, value)) +
+  geom_point(data=m_energymodels_stack_max[m_energymodels_stack_max$Site_date=="HC1306",], aes(Thermoreg_scenario, y=kJ_max_day)) +
+  facet_grid(~Activity_budget_type, scales='free_x') +
+  xlab("Thermoregulatory scenarios") +
+  ylab("kiloJoules per day\n") +
+  ggtitle("Harshaw Creek pre-monsoon") + ylim(0,45) +
+  my_theme + theme(axis.text.x = element_text(angle=90, size=15, hjust=0.5),
+                   legend.key.height=unit(3, 'lines'), plot.title = element_text(hjust=0.5)) + 
+  guides(fill = guide_legend(title="Energy budget \n component"))
+
+## Variable activity, DEE, for Harshaw 1306
+p.act <- ggplot() + 
+  geom_bar(data=m_activity_stack[m_activity_stack$Site_date=="HC1306",], aes(variable, y=value, fill=variable),
+           stat="identity") +
+  scale_fill_manual(labels = c("Low", "Mean", "High"),
+                    #values = c("grey70", "grey50", "grey40")) +
+                    values = c("palevioletred1", "orangered1", "red3")) +
+  scale_x_discrete(labels=c("Low\n", "Mean\n", "High\n")) +
+  #geom_boxplot(data=m_dee, aes(Cost_scenario, value)) +
+  facet_grid(~Activity_budget_type, scales='free_x') +
+  xlab("Activity costs") +
+  ylab("kiloJoules per day") +
+  ggtitle("Harshaw Creek pre-monsoon") + ylim(0,45) +
+  my_theme + theme(axis.text.x = element_text(size=15),
+                   legend.key.height=unit(3, 'lines'), plot.title = element_text(hjust=0.5),
+                   panel.grid.major.y = element_line( size=.1, color="grey" ),
+                   strip.background = element_blank(),
+                   strip.text = element_blank()) + 
+  guides(fill = guide_legend(title="Activity costs \n per unit time \n"))
+
+## DEE plot
+p.dlw <- ggplot() +
+  geom_boxplot(data=dlw_bblh, aes(Site_proxy, kJ_day)) +
+  scale_x_discrete(breaks=c('A','B','C','D'),
+                   labels=c("Harshaw \nPre", "Harshaw \nduring", "Sonoita \nPre", "Sonoita \nduring")) +
+  xlab("Site and monsoon status") +
+  ylab("kiloJoules per day") +
+  ylim(0,45) +
+  ggtitle("Doubly Labeled Water values") +
+  my_theme + theme(axis.text.x = element_text(size=15),
+                   legend.key.height=unit(3, 'lines'), plot.title = element_text(hjust=0.5),
+                   panel.grid.major.y = element_line( size=.1, color="grey")) 
+
+plot_grid(p.dlw, p.act, rel_widths = c(1, 1.75))
 
 #Activity modeled
 ggplot(m_act, aes(Cost_scenario, Activity_kJ_daytime)) + facet_grid(~Activity_budget_type, scales='free_x') + 

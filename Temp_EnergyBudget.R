@@ -13,6 +13,8 @@ library(gridExtra)
 #### Reading in files and reshaping ####
 ## Set wd
 setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
+## wd at GFU
+setwd("/Users/anshankar/Dropbox/Anusha Committee/BBLH_EnergyBudget/Tables")
 
 ## Read in file with temperature from each sensor per hour per site (hence temp "details")
 temp_details <- read.csv("BBLH_temperatures_compiled.csv")
