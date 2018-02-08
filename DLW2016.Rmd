@@ -41,11 +41,14 @@ Tropical birds have been found to have significantly lower BMR than temperate bi
 ```{r, echo=F, fig.cap="blah"}
 library(ggplot2)
 
-setwd("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper")
+#setwd("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper")
+setwd("/Users/anshankar/Dropbox/DLW_paper")
 ## Includes data from XXXX papers.
 dlw <- read.csv("DLW_data2.csv")
 dlw <- dlw[dlw$Reasonable_not=="Y",]
 
+my_theme <- theme_classic(base_size = 15) + 
+  theme(panel.border = element_rect(colour = "black", fill=NA)) 
 
 ## Aggregate data frame by mean.
 dlw_mean <- data.frame()
@@ -75,32 +78,33 @@ A log-log plot of hummingbird daily energy expenditure (kJ) vs. mass (g), includ
 ```{r, echo=F, fig.cap=""}
 #Species-wise log-log plot of DEE vs. mass
 dlw_sp_mean_log <- ggplot(dlw_mean, aes(log(Mass_g), log(kJ_day))) + 
-  geom_point(aes(col=Species), size=6) + my_theme + geom_smooth(method=lm)+
-  theme(legend.key.height = unit(3, "line")) + 
+  geom_point(aes(col=Species), size=6) + geom_smooth(method=lm)+ my_theme + 
+  theme(legend.key.height = unit(1, "line")) + 
   xlab("log(Mass)") + ylab("log(Energy expenditure (kJ/day))") +
-  geom_text(x = 1.5, y = 4.5, label = lm_eqn(log(dlw_mean$kJ_day), log(dlw_mean$Mass_g)), parse=T, size=10)
-#plot(dlw_sp_mean_log, fig.align='left')
+  geom_text(x = 1.5, y = 4.5, label = lm_eqn(log(dlw_mean$kJ_day), log(dlw_mean$Mass_g)), parse=T)
+plot(dlw_sp_mean_log, fig.align='left')
 
 dlw_sp_mean <- ggplot(dlw_mean, aes(Mass_g, kJ_day)) + 
   geom_point(aes(col=Species), size=4) + theme_bw() + geom_smooth(method=lm) +
-  theme(legend.key.height = unit(3, "line"))
-#plot(dlw_sp_mean, fig.align='left')
+  theme(legend.key.height = unit(1, "line"))
+plot(dlw_sp_mean, fig.align='left')
 ```
 
 Mass-corrected daily energy expenditure vs. Mass, colored by species
 ```{r, echo=F}
 dee_per_gram <- ggplot(dlw, aes(Initial_mass, kJ_dayg)) + 
-  geom_point(aes(col=Species), size=2, shape=16) + theme_bw() + scale_color_brewer(palette="Paired") +
+  geom_point(aes(col=Species), size=2, shape=16) + theme_bw() + #scale_color_brewer(palette="Paired") +
   ylab("kJ per day*g") + xlab("Initial mass (g)")
-#plot(dee_per_gram, fig.align='left')
+plot(dee_per_gram, fig.align='left')
 ```
 
 
 ```{r, echo=F}
 dee_total <- ggplot(subset(dlw,Reasonable_not %in% "Y"), aes(Initial_mass, kJ_day)) + 
   geom_point(aes(col=Species), size=2, shape=16) + theme_bw() + 
-  scale_color_brewer(palette="Paired") + ylab("kJ per day") + xlab("Initial mass (g)")
-#plot(dee_total, fig.align='left')
+  #scale_color_brewer(palette="Paired") + 
+  ylab("kJ per day") + xlab("Initial mass (g)")
+plot(dee_total, fig.align='left')
 
 ##To do: all birds combined, and then on Ecuador and on AZ birds separately
 dee_indiv_log <- ggplot(dlw_mean, aes(log(Mass_g), log(kJ_day))) + 
@@ -109,28 +113,27 @@ dee_indiv_log <- ggplot(dlw_mean, aes(log(Mass_g), log(kJ_day))) +
   ylab("Log(kJ per day)")  + geom_smooth(method=lm) + 
   theme(strip.background = element_blank(), 
         panel.border = element_rect(colour = "black", fill=NA), legend.key.height=unit(2,"line"))
-#plot(dee_indiv_log)
+plot(dee_indiv_log)
 
 dee_indiv_EC <- ggplot(subset(dlw,Big_site %in% "EC"), aes(log(Initial_mass), log(kJ_day))) +
   geom_point(aes(shape=Species), size=5) + theme_classic(base_size=30) + xlab("Log(Mass (g))") + 
   ylab("Log(kJ per day)")  + geom_smooth(method=lm) + 
   theme(strip.background = element_blank(), 
         panel.border = element_rect(colour = "black", fill=NA), legend.key.height=unit(2,"line"))
-#dee_indiv_EC
+dee_indiv_EC
 
 dee_indiv_AZ <- ggplot(subset(dlw,Big_site %in% "AZ"), aes(log(Initial_mass), log(kJ_day))) +
   geom_point(aes(shape=Species), size=5) + theme_classic(base_size=30) + xlab("Log(Mass (g))") + 
   ylab("Log(kJ per day)")  + geom_smooth(method=lm) + 
   theme(strip.background = element_blank(), 
         panel.border = element_rect(colour = "black", fill=NA), legend.key.height=unit(2,"line"))
-#dee_indiv_AZ
+dee_indiv_AZ
 
 dee_indiv_CR <- ggplot(subset(dlw,Big_site %in% "CR"), aes(log(Initial_mass), log(kJ_day))) +
   geom_point(aes(shape=Species), size=5) + theme_classic(base_size=30) + xlab("Log(Mass (g))") + 
   ylab("Log(kJ per day)")  + geom_smooth(method=lm) + 
-  theme(strip.background = element_blank(), 
-        panel.border = element_rect(colour = "black", fill=NA), legend.key.height=unit(2,"line"))
-#dee_indiv_CR
+  theme(strip.background = element_blank()) 
+dee_indiv_CR
 ```
 
 Plot of total daily energy expenditure per bird, colored by species (not mass-corrected)
