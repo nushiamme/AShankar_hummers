@@ -18,7 +18,7 @@ setwd("/Users/anshankar/Dropbox/Anusha Committee/BBLH_EnergyBudget/Tables")
 
 dlw <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper\\DLW_data2.csv")
 ##At GFU
-dlw <- read.csv("/Users/anshankar/Dropbox/DLW_paper/DLW_data2.csv")
+#dlw <- read.csv("/Users/anshankar/Dropbox/DLW_paper/DLW_data2.csv")
 dlw <- dlw[dlw$Reasonable_not=="Y",]
 
 
@@ -160,7 +160,11 @@ summary(lm(dlw$kJ_day[dlw$Pre_post_monsoon=="Post" & dlw$Site==c("HC", "SC")] ~
              dlw$Initial_mass[dlw$Pre_post_monsoon=="Post" & dlw$Site==c("HC", "SC")]))
 summary(lm(dlw$kJ_day[dlw$Pre_post_monsoon=="Pre" & dlw$Site==c("HC", "SC")] ~ 
              dlw$Initial_mass[dlw$Pre_post_monsoon=="Pre" & dlw$Site==c("HC", "SC")]))
-
+## Using this March 2, 2018
+anova(lm(dlw_bblh$kJ_day~dlw_bblh$Site+dlw_bblh$Pre_post_monsoon+dlw_bblh$Initial_mass_g))
+t.test(dlw_bblh$Initial_mass_g[dlw_bblh$Site=="HC" & dlw_bblh$Pre_post_monsoon=="Pre"], 
+       dlw_bblh$Initial_mass_g[dlw_bblh$Site=="HC" & dlw_bblh$Pre_post_monsoon=="Post"])
+       
 
 #### Thermoregulatory costs ####
 bblh_MR_temp <- ggplot(bblh_tnz, aes(Temp_C, VO2)) + my_theme +
