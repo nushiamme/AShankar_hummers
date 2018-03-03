@@ -284,11 +284,10 @@ m_energymodels_stack2$proportion <- (m_energymodels_stack2$value/m_energymodels_
 
 #Summarize the percentages
 percent_full_model <- as.data.frame(as.list(aggregate(m_energymodels_stack2$proportion,
-                                by=list(m_energymodels_stack2$Activity_budget_type,
-                                        m_energymodels_stack2$variable,
+                                by=list(m_energymodels_stack2$variable,
                                         m_energymodels_stack2$Thermoreg_scenario),
                                 FUN = function(x) c(mi = min(x), mn = mean(x), mx = max(x)))))
-names(percent_full_model) <- c("Activity_budget_type", "Model_component", "Thermoreg_scenario",  
+names(percent_full_model) <- c("Model_component", "Thermoreg_scenario",  
                            "Min_kJ_24h", "Mean_kJ_24h", "Max_kJ_24h")
 
 
