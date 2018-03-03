@@ -12,9 +12,9 @@ library(tidyverse) #for the stacked bar plot- labeled as such in case you want t
 
 #library(rgl)
 
-#setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")## laptop
+setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")## laptop
 ## wd at GFU
-setwd("/Users/anshankar/Dropbox/Anusha Committee/BBLH_EnergyBudget/Tables")
+#setwd("/Users/anshankar/Dropbox/Anusha Committee/BBLH_EnergyBudget/Tables")
 #energymodels <- read.csv("Trial_EnergyBudget_models_act_thermo.csv")
 #energymodels2 <- read.csv("Trial_EnergyBudget_models_act_thermo_redone.csv")
 energymodels3 <- read.csv("Trial_EnergyBudget_models_act_thermo_Jul2017.csv") #includes BMR variation but not
@@ -134,7 +134,7 @@ m_energymodels2
 m_energymodels2$Site_proxy2 <- m_energymodels2$Site_proxy
 levels(m_energymodels2$Site_proxy2) <- c("Aa", "Bb", "Cc", "Dd")
 
-#### Jul 2017 - Jan 2018 ####
+#### Jul 2017 - Dec 2017 ####
 ## Activity modeled - melt dataframe
 m_act <- melt(act_models, id.vars = c("Cost_scenario", "Activity_budget_type", 
                                       "HMR_scenario", "FLMR_scenario", "RMR_scenario"), measure.vars = "ACT_kJ_day")
@@ -278,6 +278,18 @@ m_activity_stack <- melt(activitymodels_24h,
                              measure.vars = c("kJ_min_day", "kJ_adjBMR_day", "kJ_max_day"))
 m_activity_stack$Activity_budget_type <- factor(m_activity_stack$Activity_budget_type,
                                                   levels= c("5_20_75", "15_15_70", "25_30_45", "40_40_20"))
+
+## Getting percentages for the contribution of each component to the activity budget
+m_energymodels_stack2$proportion <- (m_energymodels_stack2$value/m_energymodels_stack2$kJ_adjBMR_day)*100
+
+#Summarize the percentages
+percent_full_model <- as.data.frame(as.list(aggregate(m_energymodels_stack2$proportion,
+                                by=list(m_energymodels_stack2$Activity_budget_type,
+                                        m_energymodels_stack2$variable,
+                                        m_energymodels_stack2$Thermoreg_scenario),
+                                FUN = function(x) c(mi = min(x), mn = mean(x), mx = max(x)))))
+names(percent_full_model) <- c("Activity_budget_type", "Model_component", "Thermoreg_scenario",  
+                           "Min_kJ_24h", "Mean_kJ_24h", "Max_kJ_24h")
 
 
 #### plots ####
