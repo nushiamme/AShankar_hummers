@@ -24,6 +24,7 @@ energymodels4 <- read.csv("Trial_EnergyBudget_models_act_thermo_Jan2018.csv") #i
 energymodels_jan <- read.csv("Jan_all_new_models.csv") #Includes min and max 24h cost by varying activity; per activity, thermo, NEE and BMR scenario
 act_models <- read.csv("Activity_modeled.csv") #Varying HMR, FLMR, RMR
 dee_act <- read.csv("DEE_for_activity_models.csv")
+percentEB <- read.csv("percent_EB.csv")
 
 dlw_bblh <- read.csv("DLW_summary.csv")
 
@@ -309,6 +310,14 @@ ggplot(valida_C, aes(DLW_dose_g, CO2_production_mL_h)) + geom_point(size=3, alph
   geom_smooth(method='lm') + theme(legend.key.height=unit(3, 'lines')) + ylim(0,80)
 
 #### Activity plots ####
+names(percentEB) <- c("Measure", "Activity", "Nighttime energy", "Thermoregulation \n and BMR")
+m.EB_percent <- melt(percentEB, id.vars="Measure", 
+                     measure.vars=c("Activity", "Nighttime energy", "Thermoregulation \n and BMR"))
+ggplot(m.EB_percent, aes(variable, value)) + geom_point(aes(col=Measure), size=4) + my_theme +
+  scale_color_manual(values = c("brown1", "black", "cornflowerblue")) +
+  theme(axis.text.x = element_text(size=25, vjust=0.5), legend.key.height = unit(3, 'lines')) + 
+  xlab("\n Energy budget component") + ylab("Percent of budget \n")
+
 ## Trying stacked bar plots for breaking down energy budget, just one site+date at a time
 ggplot(m_energymodels_stack2[m_energymodels_stack2$Site_date=="SC207",], aes(Thermoreg_scenario, y=value, fill=variable)) + 
   facet_grid(~Activity_budget_type, scales='free_x') +

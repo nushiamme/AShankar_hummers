@@ -11,9 +11,9 @@ require(dplyr)
 require(ggthemes) ## Trying out Tufteboxplot
 
 ## Set working directory
-#setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
+setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
 ## wd at GFU
-setwd("/Users/anshankar/Dropbox/Anusha Committee/BBLH_EnergyBudget/Tables")
+#setwd("/Users/anshankar/Dropbox/Anusha Committee/BBLH_EnergyBudget/Tables")
 
 ## Read in file
 floralsumm <- read.csv("HC_SCSNA_ANUSHA_e_summaries.csv") #ver2
