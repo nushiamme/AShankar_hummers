@@ -1,11 +1,13 @@
 ---
 title: "The allometry of field metabolic rates in tropical vs. temperate hummingbirds"
-author: "Anusha Shankar, Joseph R. Canepa, Catherine H. Graham, Donald R. Powers"
-date: "Thursday, March 17, 2016"
+author: "Anusha Shankar, Donald R. Powers, Catherine H. Graham"
+date: "March, 2018"
 output:
-  word_document: default
+  html_document:
+    df_print: paged
   pdf_document:
     fig_caption: yes
+  word_document: default
 ---
 ## Abstract
 Allometric scaling relationships describe how the scaling of one trait (e.g. body size) affects the scaling of another trait (e.g. field metabolic rate, brain size). These scaling relationships have intrigued scientists for decades because there seem to be rules that govern how metabolic processes scale up with body size.  In birds, field metabolic rate (FMR) scales with body mass (M) in the form FMR = aM^0.67^. This relationship between metabolic rate and mass has been found to vary depending on the taxonomic level being studied. Thus, a scaling exponent on the scale of all birds could mask localized taxon-specific patterns. Hummingbirds have among the highest mass-specific rates of all vertebrates, as well as a much higher wing aspect ratio than predicted for their size. We collected FMR and mass data for hummingbirds, and examined the scaling of FMR with body mass among hummingbirds. We found that hummingbirds have an FMR to mass scaling exponent >0.9 -- much higher than any group previously studied. Further, since temperate hummingbirds tend to feed on densely clumped resources more than tropical hummingbirds tend to, we expect tropical birds to have a higher FMR to body size exponent than temperate birds to support increased foraging effort. We find that tropical hummingbirds have a higher FMR to mass ratio on average than temperate birds.
@@ -31,29 +33,32 @@ Tropical birds have been found to have significantly lower BMR than temperate bi
 ## Doug - scope for activity and bmr- is there a correlation?
 ```
 
-**Hypotheses**:
-1. Whole animal daily energy expenditure will increase as mass increases \\
-2. Daily energy expenditure will increase if daily temperatures vary more widely \\
- + Higher thermoregulatory costs (avg. daily temperatures are low) would contribute to increased DEE (both directly because of increased thermoregulatory costs, and indirectly because they would need to be more active to gain energy to deal with these increased costs) \\
-3. Tropical resident species have a higher DEE than temperate long distance migrants \\
+**Hypotheses**:  
+1. Whole animal daily energy expenditure will increase as mass increases  
+2. Daily energy expenditure will increase if daily temperatures vary more widely  
+ + Higher thermoregulatory costs (avg. daily temperatures are low) would contribute to increased DEE (both directly because of increased thermoregulatory costs, and indirectly because they would need to be more active to gain energy to deal with these increased costs)  
+3. Tropical resident species have a higher DEE than temperate long distance migrants  
 4. Territorial species 
 
-```{r, echo=F, fig.cap="blah"}
+```{r, echo=F, fig.align="center"}
 library(ggplot2)
+library(RColorBrewer)
 
-setwd("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper")
+#opts_knit$set(root.dir )
 #setwd("/Users/anshankar/Dropbox/DLW_paper")
 ## Includes data from XXXX papers.
-dlw <- read.csv("DLW_data2.csv")
+dlw <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper\\DLW_data2.csv")
 dlw <- dlw[dlw$Reasonable_not=="Y",]
 
 my_theme <- theme_classic(base_size = 15) + 
   theme(panel.border = element_rect(colour = "black", fill=NA)) 
+colourCount = length(unique(dlw$Species))
+getPalette = colorRampPalette(brewer.pal(9, "Set2"))
 
 ## Aggregate data frame by mean.
 dlw_mean <- data.frame()
 dlw_mean <- aggregate(dlw$kJ_day, by=list(dlw$Species, dlw$Big_site), FUN="mean", na.omit=T)
-dlw_something <- aggregate(dlw$Initial_mass, by=list(dlw$Species, dlw$Big_site), 
+dlw_something <- aggregate(dlw$Mass_g, by=list(dlw$Species, dlw$Big_site), 
                            FUN="mean", na.omit=T)
 dlw_mean <- merge(dlw_mean, dlw_something, by = c("Group.1", "Group.2"))
 names(dlw_mean) <- c("Species", "Region", "kJ_day", "Mass_g")
@@ -74,79 +79,109 @@ lm_eqn <- function(y, x){
 }
 ```
 
-A log-log plot of hummingbird daily energy expenditure (kJ) vs. mass (g), including values from this study as well as from the literature. Colors represent species.
-```{r, echo=F, fig.cap=""}
+A log-log plot of hummingbird daily energy expenditure (kJ) vs. mass (g), including values from this study as well as from the literature. Colors represent species:
+```{r, echo=F, fig.align='center'}
 #Species-wise log-log plot of DEE vs. mass
-dlw_sp_mean_log <- ggplot(dlw_mean, aes(log(Mass_g), log(kJ_day))) + 
-  geom_point(aes(col=Species), size=6) + geom_smooth(method=lm)+ my_theme + 
-  theme(legend.key.height = unit(1, "line")) + 
+dlw_sp_mean_log <- ggplot(dlw_mean, aes(log(Mass_g), log(kJ_day), label=Species)) + 
+  geom_point(aes(col=Species), size=4) + stat_smooth(method = 'lm', alpha=0.1) + #geom_smooth(method=lm) + 
+  my_theme + theme(legend.key.height = unit(1, "line")) + 
+  scale_colour_manual(values = getPalette(colourCount)) +
+  geom_text(hjust = 0, nudge_x = 0.03) +
   xlab("log(Mass)") + ylab("log(Energy expenditure (kJ/day))") +
   geom_text(x = 1.5, y = 4.5, label = lm_eqn(log(dlw_mean$kJ_day), log(dlw_mean$Mass_g)), parse=T)
-plot(dlw_sp_mean_log, fig.align='left')
+plot(dlw_sp_mean_log)
 ```
 
-A plot of daily energy expenditure (kJ) vs. Mass (g), including literature and study values, non-log
-```{r, echo=F, fig.cap=""}
-dlw_sp_mean <- ggplot(dlw_mean, aes(Mass_g, kJ_day)) + 
+A plot of daily energy expenditure (kJ) vs. Mass (g), including literature and study values, non-log:
+```{r, echo=F, fig.align="center"}
+dlw_sp_mean <- ggplot(dlw_mean, aes(Mass_g, kJ_day, label=Species)) + 
   geom_point(aes(col=Species), size=4) + theme_bw() + geom_smooth(method=lm) +
-  geom_text(x = 5, y = 4.5, label = lm_eqn(dlw_mean$kJ_day, dlw_mean$Mass_g), parse=T) +
-  theme(legend.key.height = unit(1, "line"))
-plot(dlw_sp_mean, fig.align='left')
+  geom_text(x = 5, y = 75, label = lm_eqn(dlw_mean$kJ_day, dlw_mean$Mass_g), parse=T) +
+  geom_text(hjust = 0, nudge_x = 0.03) +
+  scale_colour_manual(values = getPalette(colourCount)) +
+  theme(legend.key.height = unit(1, "line")) + xlab("Initial mass (g)") + ylab("Daily Energy Expenditure (kJ/day)")
+plot(dlw_sp_mean)
+```
+
+A plot of daily energy expenditure (kJ) vs. Mass (g), with species' mean in circles and individuals measurements in traingles:
+```{r, echo=F, fig.align="center"}
+dlw_indiv_and_sp_mean <- ggplot(NULL, aes(Mass_g, kJ_day)) +
+  geom_point(data=dlw, aes(Mass_g, kJ_day, fill=Species), size=2, shape=24, alpha=0.7) +
+  geom_point(data=dlw_mean, aes(Mass_g, kJ_day, fill=Species), size=4, shape=21) + my_theme + 
+  scale_colour_manual(values = getPalette(colourCount)) +
+  scale_fill_manual(values = getPalette(colourCount)) +
+  theme(legend.key.height = unit(1, "line")) + xlab("Initial mass (g)") + ylab("Daily Energy Expenditure (kJ/day)")
+plot(dlw_indiv_and_sp_mean)
 ```
 
 
-Mass-corrected daily energy expenditure vs. Mass, colored by species
-```{r, echo=F}
-dee_per_gram <- ggplot(subset(dlw,Reasonable_not %in% "Y"), aes(Initial_mass, kJ_dayg)) + 
+Daily energy expenditure vs. Mass, colored by species:
+```{r, echo=F, fig.align="center"}
+dee_total <- ggplot(dlw, aes(Mass_g, kJ_day)) + 
+  geom_point(aes(col=Species), size=2, shape=16, alpha=0.8) + theme_bw() + 
+  scale_colour_manual(values = getPalette(colourCount)) +
+  ylab("Daily Energy Expenditure (kJ/day)") + xlab("Initial mass (g)")
+plot(dee_total)
+```
+
+Mass-corrected daily energy expenditure vs. Mass, colored by species:
+```{r, echo=F, fig.align="center"}
+dee_per_gram <- ggplot(dlw, aes(Mass_g, kJ_dayg)) + 
   geom_point(aes(col=Species), size=2, shape=16) + theme_bw() + #scale_color_brewer(palette="Paired") +
+  scale_colour_manual(values = getPalette(colourCount)) +
   ylab("kJ per day*g") + xlab("Initial mass (g)")
-plot(dee_per_gram, fig.align='left')
+plot(dee_per_gram)
 ```
 
-Daily energy expenditure vs. Mass, colored by species
-```{r, echo=F}
-dee_total <- ggplot(subset(dlw,Reasonable_not %in% "Y"), aes(Initial_mass, kJ_day)) + 
-  geom_point(aes(col=Species), size=2, shape=16) + theme_bw() + 
-  #scale_color_brewer(palette="Paired") + 
-  ylab("kJ per day") + xlab("Initial mass (g)")
-plot(dee_total, fig.align='left')
-
-##To do: all birds combined, and then on Ecuador and on AZ birds separately
+Daily energy expenditure collapsed by species vs. average mass of the species, and shapes denote region:
+```{r, echo=F, fig.align="center"}
 dee_indiv_log <- ggplot(dlw_mean, aes(log(Mass_g), log(kJ_day))) + 
   geom_point(aes(shape=Region), size=5) + theme_bw() + xlab("Log(Mass (g))") +
   scale_shape_manual("Region\n", values=c(16, 3, 1), labels=c("Arizona", "Costa Rica", "Ecuador")) +
+  scale_colour_manual(values = getPalette(colourCount)) +
   ylab("Log(kJ per day)")  + geom_smooth(method=lm) + 
   theme(strip.background = element_blank(), 
         panel.border = element_rect(colour = "black", fill=NA), legend.key.height=unit(2,"line"))
 plot(dee_indiv_log)
+```
 
-dee_indiv_EC <- ggplot(subset(dlw,Big_site %in% "EC"), aes(log(Initial_mass), log(kJ_day))) +
-  geom_point(aes(shape=Species), size=5) + theme__bw() + xlab("Log(Mass (g))") + 
+Just Ecuadorian birds:
+```{r, echo=F, fig.align="center"}
+dee_indiv_EC <- ggplot(subset(dlw,Big_site %in% "EC"), aes(log(Mass_g), log(kJ_day))) +
+  geom_point(aes(col=Species), size=5, alpha=0.8) + theme_bw() + xlab("Log(Mass (g))") + 
+  scale_colour_manual(values = getPalette(colourCount)) +
   ylab("Log(kJ per day)")  + geom_smooth(method=lm) + 
-  theme(strip.background = element_blank(), 
-        panel.border = element_rect(colour = "black", fill=NA), legend.key.height=unit(2,"line"))
+  geom_text(x = 5, y = 75, label = lm_eqn(dlw$kJ_day, dlw$Mass_g),data = subset(dlw,Big_site %in% "EC"), parse=T) +
+  theme(legend.key.height=unit(1,"line"))
 dee_indiv_EC
+```
 
-dee_indiv_AZ <- ggplot(subset(dlw,Big_site %in% "AZ"), aes(log(Initial_mass), log(kJ_day))) +
-  geom_point(aes(shape=Species), size=5) + theme_bw() + xlab("Log(Mass (g))") + 
+Just Arizona birds
+```{r, echo=F, fig.align="center"}
+dee_indiv_AZ <- ggplot(subset(dlw,Big_site %in% "AZ"), aes(log(Mass_g), log(kJ_day))) +
+  geom_point(aes(col=Species), size=5, alpha=0.8) + theme_bw() + xlab("Log(Mass (g))") + 
+  scale_colour_manual(values = getPalette(colourCount)) +
   ylab("Log(kJ per day)")  + geom_smooth(method=lm) + 
-  theme(strip.background = element_blank(), 
-        panel.border = element_rect(colour = "black", fill=NA), legend.key.height=unit(2,"line"))
+  theme(legend.key.height=unit(1,"line"))
 dee_indiv_AZ
+```
 
-dee_indiv_CR <- ggplot(subset(dlw,Big_site %in% "CR"), aes(log(Initial_mass), log(kJ_day))) +
-  geom_point(aes(shape=Species), size=5) + theme_bw() + xlab("Log(Mass (g))") + 
-  ylab("Log(kJ per day)")  + geom_smooth(method=lm) + 
-  theme(strip.background = element_blank()) 
+Just Costa Rican birds:
+```{r, echo=F, fig.align="center"}
+dee_indiv_CR <- ggplot(subset(dlw,Big_site %in% "CR"), aes(log(Mass_g), log(kJ_day))) +
+  geom_point(aes(col=Species), size=5, alpha=0.8) + theme_bw() + xlab("Log(Mass (g))") + 
+  scale_colour_manual(values = getPalette(colourCount)) +
+  ylab("Log(kJ per day)") + geom_smooth(method=lm) + 
+  theme(legend.key.height=unit(1,"line")) 
 dee_indiv_CR
 ```
 
-Plot of total daily energy expenditure per bird, colored by species (not mass-corrected)
-```{r, echo=F, fig.cap="blah"}
-fitAll <- lm(log(kJ_day) ~ log(Initial_mass),data = dlw)
+
+```{r, echo=F, fig.align="center"}
+fitAll <- lm(log(kJ_day) ~ log(Mass_g),data = dlw)
 summary(fitAll)
 
-fitEC <- lm(log(kJ_day) ~ log(Initial_mass),data = dlw[dlw$Big_site=="EC",])
+fitEC <- lm(log(kJ_day) ~ log(Mass_g),data = dlw[dlw$Big_site=="EC",])
 summary(fitEC)
 
 fit_spMean <- lm(log(kJ_day) ~ log(Mass_g),data = dlw_mean)
