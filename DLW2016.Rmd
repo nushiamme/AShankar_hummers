@@ -3,11 +3,11 @@ title: "The allometry of field metabolic rates in tropical vs. temperate humming
 author: "Anusha Shankar, Donald R. Powers, Catherine H. Graham"
 date: "March, 2018"
 output:
-  word_document: default
-  pdf_document:
-    fig_caption: yes
   html_document:
     df_print: paged
+  pdf_document:
+    fig_caption: yes
+  word_document: default
 ---
 ## Abstract
 Allometric scaling relationships describe how the scaling of one trait (e.g. body size) affects the scaling of another trait (e.g. field metabolic rate, brain size). These scaling relationships have intrigued scientists for decades because there seem to be rules that govern how metabolic processes scale up with body size.  In birds, field metabolic rate (FMR) scales with body mass (M) in the form FMR = aM^0.67^. This relationship between metabolic rate and mass has been found to vary depending on the taxonomic level being studied. Thus, a scaling exponent on the scale of all birds could mask localized taxon-specific patterns. Hummingbirds have among the highest mass-specific rates of all vertebrates, as well as a much higher wing aspect ratio than predicted for their size. We collected FMR and mass data for hummingbirds, and examined the scaling of FMR with body mass among hummingbirds. We found that hummingbirds have an FMR to mass scaling exponent >0.9 -- much higher than any group previously studied. Further, since temperate hummingbirds tend to feed on densely clumped resources more than tropical hummingbirds tend to, we expect tropical birds to have a higher FMR to body size exponent than temperate birds to support increased foraging effort. We find that tropical hummingbirds have a higher FMR to mass ratio on average than temperate birds.
@@ -46,7 +46,7 @@ library(RColorBrewer)
 #opts_knit$set(root.dir )
 #setwd("/Users/anshankar/Dropbox/DLW_paper")
 ## Includes data from XXXX papers.
-dlw <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper\\DLW_data2.csv")
+dlw <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper\\Data\\DLW_data2.csv")
 dlw <- dlw[dlw$Reasonable_not=="Y",]
 
 my_theme <- theme_classic(base_size = 15) + 
@@ -86,8 +86,10 @@ dlw_sp_mean_log <- ggplot(dlw_mean, aes(log(Mass_g), log(kJ_day), label=Species)
   my_theme + theme(legend.key.height = unit(1, "line")) + 
   scale_colour_manual(values = getPalette(colourCount)) +
   geom_text(hjust = 0, nudge_x = 0.03) +
-  xlab("log(Mass)") + ylab("log(Energy expenditure (kJ/day))") +
-  geom_text(x = 1.5, y = 4.5, label = lm_eqn(log(dlw_mean$kJ_day), log(dlw_mean$Mass_g)), parse=T)
+  xlab("log(Mass)") + ylab("log(Energy expenditure (kJ/day))") + xlim(1,3.1) +
+  geom_text(x = 1.5, y = 4.6, label = lm_eqn(log(dlw_mean$kJ_day), log(dlw_mean$Mass_g)), parse=T) +
+  geom_text(x = 1.5, y = 5, col="red", label = lm_eqn(log(dlw_mean$kJ_day[dlw_mean$Species != "PAGI"]), 
+                                             log(dlw_mean$Mass_g[dlw_mean$Species != "PAGI"])), parse=T)
 plot(dlw_sp_mean_log, fig.align="center")
 ```
 
@@ -95,10 +97,12 @@ A plot of daily energy expenditure (kJ) vs. Mass (g), including literature and s
 ```{r, echo=F}
 dlw_sp_mean <- ggplot(dlw_mean, aes(Mass_g, kJ_day, label=Species)) + 
   geom_point(aes(col=Species), size=4) + theme_bw() + geom_smooth(method=lm) +
-  geom_text(x = 5, y = 75, label = lm_eqn(dlw_mean$kJ_day, dlw_mean$Mass_g), parse=T) +
-  geom_text(hjust = 0, nudge_x = 0.03) +
+  geom_text(x = 8, y = 120, label = lm_eqn(dlw_mean$kJ_day, dlw_mean$Mass_g), parse=T) +
+  geom_text(hjust = 0, position=position_jitter(width=0.5)) +
+  geom_text(x = 8, y = 140, col="red", label = lm_eqn(log(dlw_mean$kJ_day[dlw_mean$Species != "PAGI"]), 
+                                             log(dlw_mean$Mass_g[dlw_mean$Species != "PAGI"])), parse=T) +
   scale_colour_manual(values = getPalette(colourCount)) +
-  theme(legend.key.height = unit(1, "line")) + xlab("Initial mass (g)") + ylab("Daily Energy Expenditure (kJ/day)")
+  theme(legend.key.height = unit(1, "line")) + xlab("Initial mass (g)") + ylab("Daily Energy Expenditure (kJ/day)") + xlim(-1,19)
 plot(dlw_sp_mean, fig.align="center")
 ```
 
@@ -136,7 +140,7 @@ Daily energy expenditure collapsed by species vs. average mass of the species, a
 ```{r, echo=F}
 dee_indiv_log <- ggplot(dlw_mean, aes(log(Mass_g), log(kJ_day))) + 
   geom_point(aes(shape=Region), size=5) + theme_bw() + xlab("Log(Mass (g))") +
-  scale_shape_manual("Region\n", values=c(16, 3, 1), labels=c("Arizona", "Costa Rica", "Ecuador")) +
+  scale_shape_manual("Region\n", values=c(16, 3, 1, 2), labels=c("Arizona", "Chile", "Costa Rica", "Ecuador")) +
   scale_colour_manual(values = getPalette(colourCount)) +
   ylab("Log(kJ per day)")  + geom_smooth(method=lm) + 
   theme(strip.background = element_blank(), 
