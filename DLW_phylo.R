@@ -15,6 +15,7 @@ library(ape)
 library(geiger) # for treedata() function
 library(caper)
 library(coda) # only for autocorr function
+library(phytools)
 
 #### Setup ####
 setwd("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper\\Data\\")
@@ -23,29 +24,46 @@ setwd("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper\\Data\\")
 fmr_data <- read.csv("DLW_data2.csv") #Compiled daata from this paper and literature. Each row is an individual
 
 ## Read in McGuire et al. 2014 hummingbird phylogeny
-tree<-read.tree("hum294.tre")
+tree_dlw<-read.tree("hum294.tre")
 
 #### Phylogenetic components - prune tree ####
 #Replace tip names in the tree with those in torpor database
 ## If using an updated tree check tree names again. Using a hard replace here because there aren't
 #too many to be replaced.
-#(To show tip names, use: tree$tip.label)
-## DO - trim to DLW dataset
-tree$tip.label[1]<-"WNJ"
-tree$tip.label[92]<-"EMB"
-tree$tip.label[93]<-"FBB"
-tree$tip.label[95]<-"GCB"
-tree$tip.label[219]<-"BBLH"
-tree$tip.label[163]<-"BLUH"
-tree$tip.label[156]<-"RIHU"
+#(To show just tip names, use: tree_dlw$tip.label)
+## To get tip numbers for the species in the DLW dataset, to then prune the phylogeny to match the dataset
+head.species<-c("latirostris.3", "fulgens","clemenciae", "rubinoides", "imperatrix", "mellivora", "jacula", "coelestis","tzacatl", "urochrysia", "alexandri",
+                "Calypte.anna","colombica.fannyae", "colombica.colombica", "benjamini", "yaruqui", "gigas")
+ii<-sapply(head.species,grep,tree_dlw$tip.label)
+ii
 
-tips<-data.frame(levels(torpor$Species))
+## Manually replacing because it's a manageable number- trimming tree to DLW dataset
+tree_dlw$tip.label[1]<-"FLME"
+tree_dlw$tip.label[15]<-"PHYA"
+tree_dlw$tip.label[83]<-"URBE"
+tree_dlw$tip.label[92]<-"HEIM"
+tree_dlw$tip.label[93]<-"HERU"
+tree_dlw$tip.label[95]<-"HEJA"
+tree_dlw$tip.label[128]<-"AGCO"
+tree_dlw$tip.label[154]<-"PAGI"
+tree_dlw$tip.label[156]<-"EUFU"
+tree_dlw$tip.label[163]<-"LACL"
+tree_dlw$tip.label[185]<-"ARAL"
+tree_dlw$tip.label[188]<-"CAAN"
+tree_dlw$tip.label[219]<-"CYLA"
+tree_dlw$tip.label[230]<-"CHUR"
+tree_dlw$tip.label[234]<-"THCO"
+tree_dlw$tip.label[235]<-"THFA"
+tree_dlw$tip.label[269]<-"AMTZ"
+
+
+tips<-data.frame(levels(fmr_data$Species))
 colnames(tips) <- "tips"
 rownames(tips)<-tips$tips
 
 #match tree to data, prune tree, species names should be in rownnames of "data" 
-tre1<-treedata(tree, tips)$phy
-#To check that the reationships between species in the trimmed tree look right
+tre1<-treedata(tree_dlw, tips)$phy
+#To check that the relationships between species in the trimmed tree look right
 plot(tre1) 
 
 #### Models ####
@@ -58,23 +76,30 @@ plot(tre1)
 inv.phylo<-inverseA(tre1,nodes="TIPS",scale=TRUE)
 #set up a prior for a phylogenetic mixed model
 #Setting priors to be very uninformative
-prior<-list(G=list(G1=list(V=1,nu=1)),R=list(V=1,nu=1)) 
+prior<-list(G=list(G1=list(V=0.02,nu=0.02)),R=list(V=0.02,nu=0.02)) 
 #run the hierarchical phyogenetic model, the name of the species 
 #(repeated across rows of observations) 
 
 #### Models ####
 
-## NEE ~ 
-### Full model including rewarming, Oct 2017
-mNEE_full <-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C+savings_quantile+
-               kJ_rewarming2, 
-             random=~Species, ginverse = list(Species=inv.phylo$Ainv), 
-             prior=prior, data=torpor, verbose=FALSE, nitt = 5e6, thin = 1000)
-summary(mNEE_full)
-plot(mNEE_full) 
+## kJ_dayg ~ Mass_g + Big_site + Site ; random = Species 
+## Making site a dummy categorical variable
+fmr_data$Site.f <- as.factor(fmr_data$Site)
+fmr_data$Big_site.f <- as.factor(fmr_data$Big_site)
+levels(fmr_data$Big_site.f)[match("AZ",levels(fmr_data$Big_site.f))] <- 0
+levels(fmr_data$Big_site.f)[match("CH",levels(fmr_data$Big_site.f))] <- 1
+levels(fmr_data$Big_site.f)[match("CR",levels(fmr_data$Big_site.f))] <- 2
+levels(fmr_data$Big_site.f)[match("EC",levels(fmr_data$Big_site.f))] <- 3
 
-## Without any phylogenetic corrections- shows that results have an inflated significance when 
-#phylo corrections are not done
-mNEE_nophylo <-MCMCglmm(NEE_MassCorrected~Mass+Hours2+Tc_min_C+savings,
-                        data=torpor[torpor$Hours2!=0,])
-summary(mNEE_nophylo)
+fmr_data$Temptrop <- as.factor(fmr_data$Big_site)
+levels(fmr_data$Temptrop)[match("AZ",levels(fmr_data$Temptrop))] <- 0
+levels(fmr_data$Temptrop)[match("CH",levels(fmr_data$Temptrop))] <- 1
+levels(fmr_data$Temptrop)[match("CR",levels(fmr_data$Temptrop))] <- 1
+levels(fmr_data$Temptrop)[match("EC",levels(fmr_data$Temptrop))] <- 1
+
+DEE_full <-MCMCglmm(kJ_dayg~Mass_g+Temptrop, 
+             random=~Species, ginverse = list(Species=inv.phylo$Ainv), 
+             prior=prior, data=fmr_data, verbose=FALSE, nitt = 100000, thin = 1000)
+summary(DEE_full)
+plot(DEE_full) 
+
