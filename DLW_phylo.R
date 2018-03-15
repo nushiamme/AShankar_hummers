@@ -103,3 +103,56 @@ DEE_full <-MCMCglmm(kJ_dayg~Mass_g+Temptrop,
 summary(DEE_full)
 plot(DEE_full) 
 
+## Plot temp and tropical individuals
+my_theme <- theme_classic(base_size = 15) + 
+  theme(panel.border = element_rect(colour = "black", fill=NA)) 
+colourCount <- length(unique(dlw$Species))
+getPalette <- colorRampPalette(brewer.pal(9, "Set3"))
+
+lm_eqn <- function(y, x){
+  m <- lm(y ~ x);
+  eq <- substitute(italic(y) == 
+                     a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
+                   list(a = format(coef(m)[1], digits = 2), 
+                        b = format(coef(m)[2], digits = 2), 
+                        r2 = format(summary(m)$r.squared, digits = 3)))
+  as.character(as.expression(eq));                 
+}
+
+## Plotting temperate vs tropical hummingbird DEE
+ggplot(fmr_data, aes(Mass_g, kJ_day, col=Temptrop)) + my_theme +
+  geom_smooth(method='lm',se = F, size=2) + 
+  geom_point(size=2, alpha=0.7) +
+  geom_text(x = 5, y = 100, col="light blue",
+            label = lm_eqn(fmr_data$kJ_day[fmr_data$Temptrop==0],
+                           fmr_data$Mass_g[fmr_data$Temptrop==0]), parse=T) +
+  geom_text(x = 6, y = 150, col="black", 
+            label = lm_eqn(fmr_data$kJ_day[fmr_data$Temptrop==1],
+                           fmr_data$Mass_g[fmr_data$Temptrop==1]), parse=T) +
+  scale_color_manual(values= c("light blue", "black"), 
+                      name="Temperate / Tropical", labels=c("Temperate", "Tropical")) +
+  ylab("Daily Energy Expenditure (kJ/day)") + xlab("Initial mass (g)")
+
+## Plotting log-log temperate vs tropical hummingbird DEE
+ggplot(fmr_data, aes(log(Mass_g), log(kJ_day), col=Temptrop)) + my_theme +
+  geom_smooth(method='lm',se = F, size=2) + 
+  geom_point(size=2, alpha=0.7) +
+  geom_text(x = 1.5, y = 4, col="light blue",
+            label = lm_eqn(log(fmr_data$kJ_day[fmr_data$Temptrop==0]),
+                           log(fmr_data$Mass_g[fmr_data$Temptrop==0])), parse=T) +
+  geom_text(x = 1.75, y = 5, col="black", 
+            label = lm_eqn(log(fmr_data$kJ_day[fmr_data$Temptrop==1]),
+                           log(fmr_data$Mass_g[fmr_data$Temptrop==1])), parse=T) +
+  scale_color_manual(values= c("light blue", "black"), 
+                     name="Temperate / Tropical", labels=c("Temperate", "Tropical")) +
+  ylab("log(Daily Energy Expenditure (kJ/day))") + xlab("log(Initial mass (g))")
+
+
+#Relationship without PAGI:
+lm(log(fmr_data$kJ_day[fmr_data$Temptrop==1 & fmr_data$Species != "PAGI"]) ~ 
+     log(fmr_data$Mass_g[fmr_data$Temptrop==1 & fmr_data$Species != "PAGI"]))
+
+## t-test testing temperate vs. tropical sites:
+## mass-corrected DEE not significant (t(82) = 0.77, p-value = 0.44))
+## Raw DEE signdificant, but includes PAGI (t(60) = 5.03, p-value = 4.65e-06)
+t.test(fmr_data$kJ_day[fmr_data$Temptrop==1], fmr_data$kJ_day[fmr_data$Temptrop==0])

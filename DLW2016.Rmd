@@ -62,7 +62,7 @@ dlw_something <- aggregate(dlw$Mass_g, by=list(dlw$Species, dlw$Big_site),
 dlw_mean <- merge(dlw_mean, dlw_something, by = c("Group.1", "Group.2"))
 names(dlw_mean) <- c("Species", "Region", "kJ_day", "Mass_g")
 
-## Fuction tO plot sample size
+## Fuction to plot sample size
 give.n <- function(x){
   return(c(y = mean(x), label = length(x)))
 }
@@ -120,8 +120,9 @@ plot(dlw_indiv_and_sp_mean, fig.align="center", fig.width = 10)
 
 Daily energy expenditure vs. Mass, colored by species:
 ```{r, echo=F}
-dee_total <- ggplot(dlw, aes(Mass_g, kJ_day)) + 
-  geom_point(aes(col=Species), size=2, shape=16, alpha=0.8) + theme_bw() + 
+dee_total <- ggplot(dlw, aes(Mass_g, kJ_day, group=Species, col=Species)) + 
+  geom_smooth(method='lm',se = F, size=2) +
+  geom_point(size=2, shape=16, alpha=0.7) + theme_bw() + 
   scale_colour_manual(values = getPalette(colourCount)) +
   ylab("Daily Energy Expenditure (kJ/day)") + xlab("Initial mass (g)")
 plot(dee_total, fig.align="center")
