@@ -38,6 +38,17 @@ my_theme <- theme_classic(base_size = 30) +
 Te.lab <- expression(atop(paste("Operative Temperature ( ", degree,"C)")))
 Ta.lab <- expression(atop(paste("Ambient Temperature ( ", degree,"C)")))
 
+## Just plot temps per site to look at the distribution of Ta
+temp_details$Day_night <- 0
+temp_details$Day_night[600<temp_details$Hour& temp_details$Hour<1900] <- "Day"
+temp_details$Day_night[temp_details$Hour<700 | 1800<temp_details$Hour] <- "Night"
+temp_details$Day_night <- factor(temp_details$Day_night, levels=c('Night', "Day"))
+
+## Faceted by Day/Night
+ggplot(temp_details, aes(Ta_mean, alpha=Site)) + geom_density(fill="grey35") + xlab(Ta.lab) + 
+  coord_flip() + facet_grid(~Day_night) + my_theme + theme(legend.key.height = unit(3, 'lines')) + scale_alpha_manual(values = c(0.2, 0.6), breaks=c("SC", "HC"))
+
+
 #### Building a model for thermoregulatory costs ####
 
 #### First, subset each site and the dates needed (from DLW data), make it a separate dataframe, 
