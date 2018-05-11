@@ -15,6 +15,10 @@ library(gridExtra)
 setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
 ## wd at GFU
 setwd("/Users/anshankar/Dropbox/Anusha Committee/BBLH_EnergyBudget/Tables")
+costas <- read.csv("Costa1986_Don.csv")
+
+ggplot(costas, aes(Temperature, MR)) + geom_point() + geom_smooth(stat='smooth', method='loess', color='black') + my_theme
+
 
 ## Read in file with temperature from each sensor per hour per site (hence temp "details")
 temp_details <- read.csv("BBLH_temperatures_compiled.csv")
@@ -45,8 +49,8 @@ temp_details$Day_night[temp_details$Hour<700 | 1800<temp_details$Hour] <- "Night
 temp_details$Day_night <- factor(temp_details$Day_night, levels=c('Night', "Day"))
 
 ## Faceted by Day/Night
-ggplot(temp_details, aes(Ta_mean, alpha=Site)) + geom_density(fill="grey35") + xlab(Ta.lab) + 
-  coord_flip() + facet_grid(~Day_night) + my_theme + theme(legend.key.height = unit(3, 'lines')) + scale_alpha_manual(values = c(0.2, 0.6), breaks=c("SC", "HC"))
+ggplot(temp_details, aes(Ta_mean, alpha=Site)) + geom_freqpoly(fill="grey35") + xlab(Ta.lab) + 
+  coord_flip() + my_theme + facet_grid(~Day_night) + theme(legend.key.height = unit(3, 'lines')) + scale_alpha_manual(values = c(0.2, 0.6), breaks=c("SC", "HC"))
 
 
 #### Building a model for thermoregulatory costs ####
