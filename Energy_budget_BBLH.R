@@ -7,16 +7,17 @@
 
 library(ggplot2)
 library(reshape)
+library(car)
 
 ## NOTE: masses for SC pre- vs. post-monsoon might be significantly different - check
-## from "C:\Users\ANUSHA\Dropbox\DLW_paper\BBLH 2013 Poster Data.xlsx"
+## from "C:\Users\nushi\Dropbox\DLW_paper\BBLH 2013 Poster Data.xlsx"
 
-setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
+setwd("C:\\Users\\nushi\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
 ## wd at GFU
 setwd("/Users/anshankar/Dropbox/Anusha Committee/BBLH_EnergyBudget/Tables")
 ## Includes data from XXXX papers.
 
-dlw <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper\\DLW_data2.csv")
+dlw <- read.csv("C:\\Users\\nushi\\Dropbox\\DLW_paper\\Data\\DLW_data2.csv")
 ##At GFU
 #dlw <- read.csv("/Users/anshankar/Dropbox/DLW_paper/DLW_data2.csv")
 dlw <- dlw[dlw$Reasonable_not=="Y",]
@@ -34,10 +35,10 @@ bblh_tnz$N_T <- factor(bblh_tnz$N_T, levels=c('T', 'N'))
 
 #### Reading in Torpor files ####
 ## Pulling in BBLH torpor data - UPDATE
-torpor <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Submission_Oct2016\\Torpor_individual_summaries.csv")
+torpor <- read.csv("C:\\Users\\nushi\\Dropbox\\Hummingbird energetics\\Submission_Oct2016\\Torpor_individual_summaries.csv")
 
-torpor$AvgEE_normo_MassCorrected <- torpor$Avg_EE_hourly_normo/(torpor$Mass^(2/3))
-torpor$AvgEE_torpid_MassCorrected <- torpor$Avg_EE_hourly_torpid/(torpor$Mass^(2/3))
+torpor$AvgEE_normo_MassCorrected <- torpor$Avg_EE_hourly_normo/(torpor$Mass)
+torpor$AvgEE_torpid_MassCorrected <- torpor$Avg_EE_hourly_torpid/(torpor$Mass)
 BBLH_torpor <- subset(torpor, Species=="BBLH")
 
 ## Reading in merged NEE and DEE dataset including only pre-monsoon DEE data. For all DEE data, use BBLH_merged_summ.csv
@@ -161,7 +162,16 @@ summary(lm(dlw$kJ_day[dlw$Pre_post_monsoon=="Post" & dlw$Site==c("HC", "SC")] ~
 summary(lm(dlw$kJ_day[dlw$Pre_post_monsoon=="Pre" & dlw$Site==c("HC", "SC")] ~ 
              dlw$Initial_mass[dlw$Pre_post_monsoon=="Pre" & dlw$Site==c("HC", "SC")]))
 ## Using this March 2, 2018
-anova(lm(dlw_bblh$kJ_day~dlw_bblh$Site+dlw_bblh$Pre_post_monsoon+dlw_bblh$Initial_mass_g))
+atest.1 <- aov(kJ_day~Site*Pre_post_monsoon+Initial_mass_g, data=dlw_bblh)
+summary(atest.1)
+plot(atest.1,1)
+plot(atest.1,2)
+leveneTest(kJ_day~Site*Pre_post_monsoon+Initial_mass_g, data=dlw_bblh)
+aov_residuals <- residuals(object = atest.1)
+# Run Shapiro-Wilk test
+shapiro.test(x = aov_residuals)
+
+
 t.test(dlw_bblh$Initial_mass_g[dlw_bblh$Site=="HC" & dlw_bblh$Pre_post_monsoon=="Pre"], 
        dlw_bblh$Initial_mass_g[dlw_bblh$Site=="HC" & dlw_bblh$Pre_post_monsoon=="Post"])
        
