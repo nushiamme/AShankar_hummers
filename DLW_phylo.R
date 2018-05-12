@@ -18,7 +18,8 @@ library(coda) # only for autocorr function
 library(phytools)
 
 #### Setup ####
-setwd("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper\\Data\\")
+#setwd("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper\\Data\\")
+setwd("C:\\Users\\nushi\\Dropbox\\DLW_paper\\Data")
 
 ## Read in torpor data file
 fmr_data <- read.csv("DLW_data2.csv") #Compiled daata from this paper and literature. Each row is an individual
@@ -97,11 +98,24 @@ levels(fmr_data$Temptrop)[match("CH",levels(fmr_data$Temptrop))] <- 1
 levels(fmr_data$Temptrop)[match("CR",levels(fmr_data$Temptrop))] <- 1
 levels(fmr_data$Temptrop)[match("EC",levels(fmr_data$Temptrop))] <- 1
 
-DEE_full <-MCMCglmm(kJ_dayg~Mass_g+Temptrop, 
+DEE_full_raw <-MCMCglmm(kJ_day~Mass_g+Temptrop, 
              random=~Species, ginverse = list(Species=inv.phylo$Ainv), 
-             prior=prior, data=fmr_data, verbose=FALSE, nitt = 100000, thin = 1000)
-summary(DEE_full)
-plot(DEE_full) 
+             prior=prior, data=fmr_data, verbose=FALSE, nitt = 5000000, thin = 1000)
+summary(DEE_full_raw)
+plot(DEE_full_raw) 
+
+DEE_log <-MCMCglmm(log(kJ_day)~log(Mass_g)+Temptrop, 
+                    random=~Species, ginverse = list(Species=inv.phylo$Ainv), 
+                    prior=prior, data=fmr_data, verbose=FALSE, nitt = 5000000, thin = 1000)
+summary(DEE_log)
+plot(DEE_log) 
+
+DEE_log_mass <-MCMCglmm(log(kJ_day)~log(Mass_g), 
+                   random=~Species, ginverse = list(Species=inv.phylo$Ainv), 
+                   prior=prior, data=fmr_data, verbose=FALSE, nitt = 5000000, thin = 1000)
+summary(DEE_log_mass)
+plot(DEE_log_mass)
+
 
 ## Plot temp and tropical individuals
 my_theme <- theme_classic(base_size = 15) + 
