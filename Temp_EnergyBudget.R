@@ -49,8 +49,13 @@ temp_details$Day_night[temp_details$Hour<700 | 1800<temp_details$Hour] <- "Night
 temp_details$Day_night <- factor(temp_details$Day_night, levels=c('Night', "Day"))
 
 ## Faceted by Day/Night
-ggplot(temp_details, aes(Ta_mean, alpha=Site)) + geom_freqpoly(fill="grey35") + xlab(Ta.lab) + 
-  coord_flip() + my_theme + facet_grid(~Day_night) + theme(legend.key.height = unit(3, 'lines')) + scale_alpha_manual(values = c(0.2, 0.6), breaks=c("SC", "HC"))
+temp_details$Site <- factor(temp_details$Site, levels=c("SC", "HC"))
+ggplot(temp_details, aes(Ta_mean)) + geom_density(aes(fill=Site),alpha=0.7) + xlab(Ta.lab) + 
+  geom_rug(aes(x = Ta_mean, y = 0, col=Site), alpha=0.5, position = position_jitter(height = 0)) +
+  my_theme + facet_grid(~Day_night) + #coord_flip() + 
+  theme(legend.key.height = unit(3, 'lines'), axis.text.x=element_text(angle=30, vjust=0.5)) + 
+  scale_fill_manual(values = c('red', 'grey')) +
+  scale_color_manual(values = c('red', 'grey'))
 
 
 #### Building a model for thermoregulatory costs ####
