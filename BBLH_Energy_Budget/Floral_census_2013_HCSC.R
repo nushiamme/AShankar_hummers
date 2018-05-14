@@ -33,6 +33,8 @@ dflo <- summarize(flo, Flowers = sum(TotalFlowers, na.rm = T))
 dhumm <- summarize(flo, Hummcount = sum(HummSp, na.rm=T))
 dfru <- summarize(flo, Fruits = sum(Fruits, na.rm=T))
 dbud <- summarize(flo, Buds = sum(Buds, na.rm=T))
+dflo$Site_Pre_post <- paste(dflo$Site, dflo$Pre_post, sep="_")
+dflo$Site_Pre_post <- factor(dflo$Pre_post, levels = c("Harshaw_Pre", "Harshaw_Post", "Sonoita_Pre", "Sonoita_Post"))
 
 #### New columns/dataframes, Jan 12 ####
 dcrop <- group_by(scrop, Site, Year, Pre_post, Transect)
@@ -43,7 +45,8 @@ flo.agg <- aggregate(floralsumm3$TotalFlowers, by=list(floralsumm2$PlantSpecies,
 names(flo.agg) <- c("Species", "Month", "Avg_flowers")
 
 ## Quick plot of total flowers across months
-ggplot(flo.agg, aes(Species, log(Avg_flowers))) + facet_grid(~Month, scales='free') + geom_point() + my_theme + theme(axis.text.x = element_text(angle=30, size=10))
+ggplot(flo.agg, aes(Species, log(Avg_flowers))) + facet_grid(~Month, scales='free') + geom_point() + 
+  my_theme + theme(axis.text.x = element_text(angle=30, size=10))
 
 #### General functions ####
 ## Saving standard theme  
@@ -72,20 +75,18 @@ ggplot(dcrop_summ[dcrop_summ$Site %in% c("Harshaw", "Sonoita"),], aes(Transect, 
 
 ## Number of flowers
 dflo$Pre_post <- factor(dflo$Pre_post, levels = c("Pre", "Post"))
-ggplot(dflo[dflo$Site %in% c("Harshaw", "Sonoita") & dflo$Flowers>0,], aes(Site, log(Flowers))) + #facet_grid(~Site, scales="free_x") +
   geom_bar(stat="identity", aes(fill=Pre_post), position="dodge") + 
   geom_text(hjust=0, nudge_x = 0.1, nudge_y=0.3, size=7, aes(x=Site, color=Pre_post, label=Flowers)) +
   #scale_fill_manual(values = c('red', 'black')) +
   my_theme +  theme(axis.text.x = element_text(size=15, angle=90), legend.key.height = unit(3, 'lines'))
 
-## YES!! Good plot of resources at Hawshaw vs Sonoita, Pre- vs early-monsoon
-dflo$Site_Pre_post <- paste(dflo$Site, dflo$Pre_post, sep="_")
-dflo$Site_Pre_post <- factor(dflo$Pre_post, levels = c("Harshaw_Pre", "Harshaw_Post", "Sonoita_Pre", "Sonoita_Post"))
+## YES!! Good plot of resources at Hawshaw vs Sonoita, Pre- vs early-monsoon. May 14, 2018
 ggplot(dflo[dflo$Flowers>0,], aes(Pre_post, log(Flowers))) + #facet_grid(~Site, scales="free_x") +
-  geom_boxplot(aes(fill=Pre_post), position="dodge") + 
+  geom_boxplot(aes(fill=Site), position="dodge") + 
   geom_point(aes(x=Pre_post)) + facet_grid(~Site) +
-  scale_fill_manual(values = c('red', 'grey')) +
-  my_theme +  theme(axis.text.x = element_text(size=20, angle=30, vjust=0.5), legend.position = "none") +
+  geom_text(aes(label=Flowers), hjust=-0.5, vjust=-0.1, size=6) +
+  scale_fill_manual(values = c('grey', 'red')) +
+  my_theme + theme(axis.text.x = element_text(size=20, angle=30, vjust=0.5), legend.position = "none") +
   xlab("Monsoon status")
 
 ## Good plot of flowers at HC and SC
