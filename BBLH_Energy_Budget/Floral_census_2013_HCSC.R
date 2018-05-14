@@ -18,16 +18,17 @@ setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
 ## Read in file
 floralsumm <- read.csv("HC_SCSNA_ANUSHA_e_summaries.csv") #ver2
 floralsumm2 <- read.csv("FloralCensusData2013.csv") #ver3 
+floralsumm3<- floralsumm2[floralsumm2$Site %in% c("Harshaw", "Sonoita"),]
 scrop <- read.csv("StandingCropData_new.csv") #ver3
 floralsumm$Site <- revalue(floralsumm$Site, c("HC"="Harshaw", "PLSC"="Sonoita"))
 scrop$Site <- revalue(scrop$Site, c("HC"="Harshaw", "PL/SC"="Sonoita")) #ver3
 floral <- read.csv("FloralCensus_cropped_commas.csv") #ver2
 floral$Site_monsoon <- paste(floral$Site,floral$Pre_post_monsoon, sep = "_")
-floral$Pre_post_monsoon <- factor(floral$Pre_post_monsoon, levels = c("Pre", "Post"))
+floral$Pre_post_monsoon <- factor(floral$Pre_post_monsoon, levels = c("Pre", "Early"))
 head(floral)
 
 #### New columns/dataframes ####
-flo <- group_by(floralsumm2, Site, Transect, Pre_post)
+flo <- group_by(floralsumm3, Site, Transect, Pre_post)
 dflo <- summarize(flo, Flowers = sum(TotalFlowers, na.rm = T))
 dhumm <- summarize(flo, Hummcount = sum(HummSp, na.rm=T))
 dfru <- summarize(flo, Fruits = sum(Fruits, na.rm=T))
@@ -36,6 +37,13 @@ dbud <- summarize(flo, Buds = sum(Buds, na.rm=T))
 #### New columns/dataframes, Jan 12 ####
 dcrop <- group_by(scrop, Site, Year, Pre_post, Transect)
 dcrop_summ <- summarize(dcrop, Calories = sum(Calories, na.rm = T))
+
+## New dataframes May 14, 2018
+flo.agg <- aggregate(floralsumm3$TotalFlowers, by=list(floralsumm2$PlantSpecies, floralsumm2$Month), FUN="mean", na.rm=T)
+names(flo.agg) <- c("Species", "Month", "Avg_flowers")
+
+## Quick plot of total flowers across months
+ggplot(flo.agg, aes(Species, log(Avg_flowers))) + facet_grid(~Month, scales='free') + geom_point() + my_theme + theme(axis.text.x = element_text(angle=30, size=10))
 
 #### General functions ####
 ## Saving standard theme  
@@ -51,7 +59,6 @@ give.n <- function(x){
   return(c(y = mean(x), label = length(x)))
 }
 
-
 #### Plots ####
 ## From #ver3 (November 2017) Standing Crop data
 ggplot(dcrop_summ[dcrop_summ$Site %in% c("Harshaw", "Sonoita"),], aes(Transect, 4.184*Calories, label=round(4.184*Calories, digits = 0))) + 
@@ -64,11 +71,22 @@ ggplot(dcrop_summ[dcrop_summ$Site %in% c("Harshaw", "Sonoita"),], aes(Transect, 
   my_theme +  theme(axis.text.x = element_text(size=15, angle=30, vjust=0.95, hjust=1), legend.key.height = unit(3, 'lines'))
 
 ## Number of flowers
-dflo$Site_Pre_post <- paste(dflo$Site, dflo$Pre_post, sep="_")
-ggplot(dflo[dflo$Site %in% c("Harshaw", "Sonoita"),], aes(Transect, log(Flowers))) + facet_grid(~Site, scales="free_x") +
-  geom_bar(stat="identity", aes(fill=Pre_post), size=4) + 
+dflo$Pre_post <- factor(dflo$Pre_post, levels = c("Pre", "Post"))
+ggplot(dflo[dflo$Site %in% c("Harshaw", "Sonoita") & dflo$Flowers>0,], aes(Site, log(Flowers))) + #facet_grid(~Site, scales="free_x") +
+  geom_bar(stat="identity", aes(fill=Pre_post), position="dodge") + 
+  geom_text(hjust=0, nudge_x = 0.1, nudge_y=0.3, size=7, aes(x=Site, color=Pre_post, label=Flowers)) +
   #scale_fill_manual(values = c('red', 'black')) +
   my_theme +  theme(axis.text.x = element_text(size=15, angle=90), legend.key.height = unit(3, 'lines'))
+
+## YES!! Good plot of resources at Hawshaw vs Sonoita, Pre- vs early-monsoon
+dflo$Site_Pre_post <- paste(dflo$Site, dflo$Pre_post, sep="_")
+dflo$Site_Pre_post <- factor(dflo$Pre_post, levels = c("Harshaw_Pre", "Harshaw_Post", "Sonoita_Pre", "Sonoita_Post"))
+ggplot(dflo[dflo$Flowers>0,], aes(Pre_post, log(Flowers))) + #facet_grid(~Site, scales="free_x") +
+  geom_boxplot(aes(fill=Pre_post), position="dodge") + 
+  geom_point(aes(x=Pre_post)) + facet_grid(~Site) +
+  scale_fill_manual(values = c('red', 'grey')) +
+  my_theme +  theme(axis.text.x = element_text(size=20, angle=30, vjust=0.5), legend.position = "none") +
+  xlab("Monsoon status")
 
 ## Good plot of flowers at HC and SC
 ggplot(dflo[dflo$Site %in% c("Harshaw", "Sonoita"),], aes(Site_Pre_post, log(Flowers), label=Flowers)) + 
