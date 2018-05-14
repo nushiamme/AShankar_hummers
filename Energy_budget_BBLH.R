@@ -19,7 +19,7 @@ setwd("/Users/anshankar/Dropbox/Anusha Committee/BBLH_EnergyBudget/Tables")
 
 dlw <- read.csv("C:\\Users\\nushi\\Dropbox\\DLW_paper\\Data\\DLW_data2.csv")
 ##At GFU
-#dlw <- read.csv("/Users/anshankar/Dropbox/DLW_paper/DLW_data2.csv")
+dlw <- read.csv("/Users/anshankar/Dropbox/DLW_paper/Data/DLW_data2.csv")
 dlw <- dlw[dlw$Reasonable_not=="Y",]
 
 
@@ -161,11 +161,13 @@ summary(lm(dlw$kJ_day[dlw$Pre_post_monsoon=="Post" & dlw$Site==c("HC", "SC")] ~
              dlw$Initial_mass[dlw$Pre_post_monsoon=="Post" & dlw$Site==c("HC", "SC")]))
 summary(lm(dlw$kJ_day[dlw$Pre_post_monsoon=="Pre" & dlw$Site==c("HC", "SC")] ~ 
              dlw$Initial_mass[dlw$Pre_post_monsoon=="Pre" & dlw$Site==c("HC", "SC")]))
-## Using this March 2, 2018
-atest.1 <- aov(kJ_day~Site*Pre_post_monsoon+Initial_mass_g, data=dlw_bblh)
+## Using this May 12, 2018 #http://data.library.virginia.edu/diagnostic-plots/
+atest.1 <- aov(kJ_day~Site+Pre_post_monsoon+Initial_mass_g, data=dlw_bblh)
 summary(atest.1)
-plot(atest.1,1)
-plot(atest.1,2)
+plot(atest.1,1) # residuals vs. fitted. Shows that residuals don't have clear non-linear pattern
+plot(atest.1,2) # Q-Q plot. Shows that residuals are normally fitted for the most part. Few outliers to watch for in next few plots
+plot(atest.1,3) # Scale-location plots. Line is horizontal, no big slope. Means that residuals are spread evenly among predictors. Shows homoscedasticity
+plot(atest.1,5) # Reisduals vs. leverage. All points are well enough away from the dashed red line; shows that no single point is overly influential.
 leveneTest(kJ_day~Site*Pre_post_monsoon+Initial_mass_g, data=dlw_bblh)
 aov_residuals <- residuals(object = atest.1)
 # Run Shapiro-Wilk test
