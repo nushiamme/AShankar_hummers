@@ -467,23 +467,23 @@ p.act <- ggplot(data=m_activity_stack, aes(x=Activity_budget_type, y=value)) +
   #facet_grid(~Activity_budget_type, scales='free_x') +
   xlab("Activity time scenario") +
   ylab("kiloJoules per day") +
-  ggtitle("Variability in activity costs") + ylim(0,45) +
-  my_theme + theme(axis.text.x = element_text(size=15),
+  ggtitle("Individual variability in \nactivity costs") + ylim(0,45) +
+  my_theme + theme(axis.text.x = element_text(size=20, angle=30, vjust=0.5),
                    legend.key.height=unit(3, 'lines'), plot.title = element_text(hjust=0.5),
-                   panel.grid.major.y = element_line( size=.1, color="grey" ))
+                   panel.grid.major.y = element_line(size=.1, color="grey" ))
 
 ## DEE plot
 p.dlw <- ggplot() +
   geom_boxplot(data=dlw_bblh, aes(Site_proxy, kJ_day)) +
   scale_x_discrete(breaks=c('A','B','C','D'),
-                   labels=c("Harshaw \nPre", "Harshaw \nduring", "Sonoita \nPre", "Sonoita \nduring")) +
+                   labels=c("Harshaw Pre", "Harshaw Post", "Sonoita Pre", "Sonoita Post")) +
   xlab("Site and monsoon status") +
   ylab("kiloJoules per day") +
   ylim(0,45) +
-  ggtitle("Doubly Labeled Water values") +
-  my_theme + theme(axis.text.x = element_text(size=15),
+  ggtitle("Doubly Labeled Water \n Daily energy expenditure") +
+  my_theme + theme(axis.text.x = element_text(size=20, angle=30, vjust=0.5),
                    legend.key.height=unit(3, 'lines'), plot.title = element_text(hjust=0.5),
-                   panel.grid.major.y = element_line( size=.1, color="grey"))
+                   panel.grid.major.y = element_line(size=.1, color="grey"))
 
 plot_grid(p.dlw, p.act)
 

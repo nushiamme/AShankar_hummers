@@ -54,8 +54,8 @@ ggplot(temp_details, aes(Ta_mean)) + geom_density(aes(fill=Site),alpha=0.7) + xl
   geom_rug(aes(x = Ta_mean, y = 0, col=Site), alpha=0.5, position = position_jitter(height = 0)) +
   my_theme + facet_grid(~Day_night) + #coord_flip() + 
   theme(legend.key.height = unit(3, 'lines'), axis.text.x=element_text(angle=30, vjust=0.5)) + 
-  scale_fill_manual(values = c('red', 'grey')) +
-  scale_color_manual(values = c('red', 'grey'))
+  scale_fill_manual(values = c('red', 'grey'), labels=c("Sonoita", "Harshaw")) +
+  scale_color_manual(values = c('red', 'grey'), guide=F)
 
 
 #### Building a model for thermoregulatory costs ####

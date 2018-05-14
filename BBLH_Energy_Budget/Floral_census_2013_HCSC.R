@@ -83,10 +83,10 @@ dflo$Pre_post <- factor(dflo$Pre_post, levels = c("Pre", "Post"))
 ## YES!! Good plot of resources at Hawshaw vs Sonoita, Pre- vs early-monsoon. May 14, 2018
 ggplot(dflo[dflo$Flowers>0,], aes(Pre_post, log(Flowers))) + #facet_grid(~Site, scales="free_x") +
   geom_boxplot(aes(fill=Site), position="dodge") + 
-  geom_point(aes(x=Pre_post)) + facet_grid(~Site) +
+  geom_point(aes(x=Pre_post), size=3, alpha=0.8) + facet_grid(~Site) +
   geom_text(aes(label=Flowers), hjust=-0.5, vjust=-0.1, size=6) +
   scale_fill_manual(values = c('grey', 'red')) +
-  my_theme + theme(axis.text.x = element_text(size=20, angle=30, vjust=0.5), legend.position = "none") +
+  my_theme + theme(legend.position = "none") +
   xlab("Monsoon status")
 
 ## Good plot of flowers at HC and SC
