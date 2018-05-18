@@ -24,9 +24,9 @@ energymodels4 <- read.csv("Trial_EnergyBudget_models_act_thermo_Jan2018.csv") #i
 energymodels_jan <- read.csv("Jan_all_new_models.csv") #Includes min and max 24h cost by varying activity; per activity, thermo, NEE and BMR scenario
 #Includes min and max 24h cost by varying activity; per activity, thermo, NEE and BMR scenario; and adjusting hovering for thermoregulatory substitution
 energymodels_may <- read.csv("May_hover_Thermo_adj.csv") 
-act_models <- read.csv("Activity_modeled.csv") #Varying HMR, FLMR, RMR
+#act_models <- read.csv("Activity_modeled.csv") #Varying HMR, FLMR, RMR
 dee_act <- read.csv("DEE_for_activity_models.csv")
-percentEB <- read.csv("percent_EB.csv")
+percentEB <- read.csv("percentEB_May.csv")
 
 dlw_bblh <- read.csv("DLW_summary.csv")
 
@@ -84,7 +84,7 @@ grid_arrange_shared_legend_hori <- function(..., nrow = 1, ncol = length(list(..
   
 }
 
-#### Old, ignore? #####
+#### Old, ignore #####
 ### New data frames or vectors ###
 ## Range of results of the thermoregulatory models
 # Pull out all the minimum costs
@@ -299,16 +299,24 @@ m_activity_stack$Activity_budget_type <- factor(m_activity_stack$Activity_budget
                                                   levels= c("5_20_75", "15_15_70", "25_30_45", "40_40_20"))
 
 ## Getting percentages for the contribution of each component to the activity budget
-m_energymodels_stack2$proportion <- (m_energymodels_stack2$value/m_energymodels_stack2$kJ_adjBMR_day)*100
+m_energymodels_stack2v$proportion <- (m_energymodels_stack2v$value/m_energymodels_stack2v$kJ_adjBMR_day)*100
 
-#Summarize the percentages
-percent_full_model <- as.data.frame(as.list(aggregate(m_energymodels_stack2$proportion,
-                                by=list(m_energymodels_stack2$variable,
-                                        m_energymodels_stack2$Thermoreg_scenario),
+#Summarize the percentages ## MAY 2018
+percent_full_model <- as.data.frame(as.list(aggregate(m_energymodels_stack2v$proportion,
+                                by=list(m_energymodels_stack2v$variable,
+                                        m_energymodels_stack2v$Thermoreg_scenario),
                                 FUN = function(x) c(mi = min(x), mn = mean(x), mx = max(x)))))
 names(percent_full_model) <- c("Model_component", "Thermoreg_scenario",  
-                           "Min_kJ_24h", "Mean_kJ_24h", "Max_kJ_24h")
+                           "Min_percentkJ_24h", "Mean_percentkJ_24h", "Max_percentkJ_24h")
 
+#Summarize the percentages for SC 0207 ## MAY 2018
+kJ_split_full_model <- as.data.frame(as.list(aggregate(m_energymodels_stack2v$value,
+                                                      by=list(m_energymodels_stack2v$variable,
+                                                              m_energymodels_stack2v$Thermoreg_scenario),
+                                                      FUN = function(x) c(mi = min(x), mn = mean(x), mx = max(x)))))
+names(kJ_split_full_model) <- c("Model_component", "Thermoreg_scenario",  
+                               "Min_kJ_24h", "Mean_kJ_24h", "Max_kJ_24h")
+write.csv(kJ_split_full_model,file="kJ_splitEB_May.csv")
 
 #### plots ####
 #### DLW Validation plots ####
@@ -328,9 +336,9 @@ ggplot(valida_C, aes(DLW_dose_g, CO2_production_mL_h)) + geom_point(size=3, alph
   geom_smooth(method='lm') + theme(legend.key.height=unit(3, 'lines')) + ylim(0,80)
 
 #### Activity plots ####
-names(percentEB) <- c("Measure", "Activity", "Nighttime energy", "Thermoregulation \n and BMR")
+names(percentEB) <- c("Measure", "Activity", "Nighttime energy", "Thermoregulation\n and BMR", "BMR_alone", "Thermoreg_alone", "total_ignore")
 m.EB_percent <- melt(percentEB, id.vars="Measure", 
-                     measure.vars=c("Activity", "Nighttime energy", "Thermoregulation \n and BMR"))
+                     measure.vars=c("Activity", "Nighttime energy", "Thermoregulation\n and BMR"))
 ggplot(m.EB_percent, aes(variable, value)) + geom_point(aes(col=Measure), size=4) + my_theme +
   scale_color_manual(values = c("brown1", "black", "cornflowerblue")) +
   theme(axis.text.x = element_text(size=25, vjust=0.5), legend.key.height = unit(3, 'lines')) + 

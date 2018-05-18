@@ -85,6 +85,12 @@ prior<-list(G=list(G1=list(V=0.02,nu=0.02)),R=list(V=0.02,nu=0.02))
 #### Models ####
 
 ## May 2018 - Trying out GLS models with OU vs. Brownian motion
+## https://www.r-phylo.org/wiki/HowTo/PGLS
+fmr<-fmr_data$kJ_day
+mass_g<-fmr_data$Mass_g
+DF.fmr<-data.frame(fmr,mass_g,row.names=row.names(fmr_data))
+DF.fmr <-  DF.fmr[tre1$tip.label, ]
+DF.fmr
 bm.fmr<-corBrownian(phy=tre1)
 bm.gls<-gls(log(kJ_day)~log(Mass_g),correlation=bm.fmr,data=DF.geospiza)
 summary(bm.gls)

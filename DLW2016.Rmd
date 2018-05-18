@@ -46,7 +46,7 @@ library(RColorBrewer)
 #opts_knit$set(root.dir )
 #setwd("/Users/anshankar/Dropbox/DLW_paper")
 ## Includes data from XXXX papers.
-dlw <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper\\Data\\DLW_data2.csv")
+dlw <- read.csv("/Users/anshankar/Dropbox/DLW_paper/Data/DLW_data2.csv")
 dlw <- dlw[dlw$Reasonable_not=="Y",]
 
 my_theme <- theme_classic(base_size = 15) + 
@@ -108,12 +108,12 @@ plot(dlw_sp_mean, fig.align="center")
 
 A plot of daily energy expenditure (kJ) vs. Mass (g), with species' mean in circles and individuals measurements in triangles:
 ```{r, echo=F}
-dlw_indiv_and_sp_mean <- ggplot(NULL, aes(Mass_g, kJ_day)) +
+dlw_indiv_and_sp_mean <- ggplot(NULL, aes(log(Mass_g), log(kJ_day))) +
   geom_point(data=dlw, aes(Mass_g, kJ_day, fill=Species), size=2, shape=24, alpha=0.7) +
   geom_point(data=dlw_mean, aes(Mass_g, kJ_day, fill=Species), size=4, shape=21) + theme_bw() + 
   scale_colour_manual(values = getPalette(colourCount)) +
   scale_fill_manual(values = getPalette(colourCount)) +
-  theme(legend.key.height = unit(1, "line")) + xlab("Initial mass (g)") + ylab("Daily Energy Expenditure (kJ/day)")
+  theme(legend.key.height = unit(1, "line")) #+ xlab("Initial mass (g)") + ylab("Daily Energy Expenditure (kJ/day)")
 plot(dlw_indiv_and_sp_mean, fig.align="center", fig.width = 10)
 ```
 
@@ -140,7 +140,7 @@ plot(dee_per_gram, fig.align="center")
 Daily energy expenditure collapsed by species vs. average mass of the species, and shapes denote region:
 ```{r, echo=F}
 dee_indiv_log <- ggplot(dlw_mean, aes(log(Mass_g), log(kJ_day))) + 
-  geom_point(aes(shape=Region), size=5) + theme_bw() + xlab("Log(Mass (g))") +
+  geom_point(aes(col=Region), size=5) + theme_bw() + xlab("Log(Mass (g))") +
   scale_shape_manual("Region\n", values=c(16, 3, 1, 2), labels=c("Arizona", "Chile", "Costa Rica", "Ecuador")) +
   scale_colour_manual(values = getPalette(colourCount)) +
   ylab("Log(kJ per day)")  + geom_smooth(method=lm) + 
