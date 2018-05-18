@@ -20,7 +20,8 @@ library(phytools)
 #### Setup ####
 #setwd("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper\\Data\\")
 setwd("C:\\Users\\nushi\\Dropbox\\DLW_paper\\Data")
-
+#GFU
+setwd("/Users/anshankar/Dropbox/DLW_paper/Data")
 ## Read in torpor data file
 fmr_data <- read.csv("DLW_data2.csv") #Compiled daata from this paper and literature. Each row is an individual
 
@@ -33,10 +34,10 @@ tree_dlw<-read.tree("hum294.tre")
 #too many to be replaced.
 #(To show just tip names, use: tree_dlw$tip.label)
 ## To get tip numbers for the species in the DLW dataset, to then prune the phylogeny to match the dataset
-head.species<-c("latirostris.3", "fulgens","clemenciae", "rubinoides", "imperatrix", "mellivora", "jacula", "coelestis","tzacatl", "urochrysia", "alexandri",
-                "Calypte.anna","colombica.fannyae", "colombica.colombica", "benjamini", "yaruqui", "gigas")
-ii<-sapply(head.species,grep,tree_dlw$tip.label)
-ii
+#head.species<-c("latirostris.3", "fulgens","clemenciae", "rubinoides", "imperatrix", "mellivora", "jacula", "coelestis","tzacatl", "urochrysia", "alexandri",
+#                "Calypte.anna","colombica.fannyae", "colombica.colombica", "benjamini", "yaruqui", "gigas")
+#ii<-sapply(head.species,grep,tree_dlw$tip.label)
+#ii
 
 ## Manually replacing because it's a manageable number- trimming tree to DLW dataset
 tree_dlw$tip.label[1]<-"FLME"
@@ -82,6 +83,12 @@ prior<-list(G=list(G1=list(V=0.02,nu=0.02)),R=list(V=0.02,nu=0.02))
 #(repeated across rows of observations) 
 
 #### Models ####
+
+## May 2018 - Trying out GLS models with OU vs. Brownian motion
+bm.fmr<-corBrownian(phy=tre1)
+bm.gls<-gls(log(kJ_day)~log(Mass_g),correlation=bm.fmr,data=DF.geospiza)
+summary(bm.gls)
+
 
 ## kJ_dayg ~ Mass_g + Big_site + Site ; random = Species 
 ## Making site a dummy categorical variable
@@ -151,6 +158,7 @@ ggplot(fmr_data, aes(Mass_g, kJ_day, col=Temptrop)) + my_theme +
 ggplot(fmr_data, aes(log(Mass_g), log(kJ_day), col=Temptrop)) + my_theme +
   geom_smooth(method='lm',se = F, size=2) + 
   geom_point(size=2, alpha=0.7) +
+  geom_text(aes(label=Species)) +
   geom_text(x = 1.5, y = 4, col="light blue",
             label = lm_eqn(log(fmr_data$kJ_day[fmr_data$Temptrop==0]),
                            log(fmr_data$Mass_g[fmr_data$Temptrop==0])), parse=T) +
@@ -161,12 +169,53 @@ ggplot(fmr_data, aes(log(Mass_g), log(kJ_day), col=Temptrop)) + my_theme +
                      name="Temperate / Tropical", labels=c("Temperate", "Tropical")) +
   ylab("log(Daily Energy Expenditure (kJ/day))") + xlab("log(Initial mass (g))")
 
+dlw_mean$Temptrop <- as.factor(dlw_mean$Region)
+levels(dlw_mean$Temptrop)[match("AZ",levels(dlw_mean$Temptrop))] <- 0
+levels(dlw_mean$Temptrop)[match("CH",levels(dlw_mean$Temptrop))] <- 1
+levels(dlw_mean$Temptrop)[match("CR",levels(dlw_mean$Temptrop))] <- 1
+levels(dlw_mean$Temptrop)[match("EC",levels(dlw_mean$Temptrop))] <- 1
+
+## Species means. Regressions based on spp means vs individual values. What do they tell you? Benefits of having individual-level data. 
+ggplot(dlw_mean, aes(log(Mass_g), log(kJ_day))) + 
+  geom_point(aes(col=Species), size=5) + theme_bw() + xlab("Log(Mass (g))") +
+  #scale_shape_manual("Region\n", values=c(16, 3, 1, 2), labels=c("Arizona", "Chile", "Costa Rica", "Ecuador")) +
+  #scale_colour_manual(values = getPalette(colourCount)) +
+  geom_text(x = 1.5, y = 4, col="light blue",
+            label = lm_eqn(log(dlw_mean$kJ_day[dlw_mean$Temptrop==0]),
+                           log(dlw_mean$Mass_g[dlw_mean$Temptrop==0])), parse=T, size=8) +
+  geom_text(x = 1.75, y = 5, col="black", 
+            label = lm_eqn(log(dlw_mean$kJ_day[dlw_mean$Temptrop==1]),
+                           log(dlw_mean$Mass_g[dlw_mean$Temptrop==1])), parse=T, size=8) +
+  ylab("Log(kJ per day)")  + geom_smooth(aes(group=Temptrop), method=lm) + 
+  theme(strip.background = element_blank(), 
+        panel.border = element_rect(colour = "black", fill=NA), legend.key.height=unit(2,"line"))
+
+## Individual values, logged. Regressions based on spp means vs individual values. What do they tell you? Benefits of having individual-level data. 
+ggplot(fmr_data, aes(log(Mass_g), log(kJ_day))) + 
+  geom_point(aes(col=Species), size=5) + my_theme + xlab("Log(Mass (g))") +
+  #scale_shape_manual("Region\n", values=c(16, 3, 1, 2), labels=c("Arizona", "Chile", "Costa Rica", "Ecuador")) +
+  #scale_colour_manual(values = getPalette(colourCount)) +
+  #geom_text(x = 1.5, y = 4, col="light blue",
+   #         label = lm_eqn(log(dlw_mean$kJ_day[dlw_mean$Temptrop==0]),
+    #                       log(dlw_mean$Mass_g[dlw_mean$Temptrop==0])), parse=T, size=8) +
+  geom_text(x = 1.75, y = 5, col="black", 
+            label = lm_eqn(log(fmr_data$kJ_day),
+                           log(fmr_data$Mass_g)), parse=T, size=8) +
+  ylab("Log(kJ per day)")  + geom_smooth(method=lm) + 
+  theme(legend.key.height=unit(2,"line"))
 
 #Relationship without PAGI:
 lm(log(fmr_data$kJ_day[fmr_data$Temptrop==1 & fmr_data$Species != "PAGI"]) ~ 
      log(fmr_data$Mass_g[fmr_data$Temptrop==1 & fmr_data$Species != "PAGI"]))
 
 ## t-test testing temperate vs. tropical sites:
-## mass-corrected DEE not significant (t(82) = 0.77, p-value = 0.44))
 ## Raw DEE signdificant, but includes PAGI (t(60) = 5.03, p-value = 4.65e-06)
-t.test(fmr_data$kJ_day[fmr_data$Temptrop==1], fmr_data$kJ_day[fmr_data$Temptrop==0])
+an.fmr <- aov(log(kJ_day)~Temptrop+log(Mass_g), data=fmr_data)
+summary(an.fmr)  
+plot(an.fmr,1) # residuals vs. fitted. Shows that residuals don't have clear non-linear pattern
+plot(an.fmr,2) # Q-Q plot. Shows that residuals are normally fitted for the most part. Few outliers to watch for in next few plots
+plot(an.fmr,3) # Scale-location plots. Line is horizontal, no big slope. Means that residuals are spread evenly among predictors. Shows homoscedasticity
+plot(an.fmr,5) # Reisduals vs. leverage. All points are well enough away from the dashed red line; shows that no single point is overly influential.
+aov_residuals <- residuals(object = an.fmr)
+# Run Shapiro-Wilk test
+shapiro.test(x = aov_residuals)

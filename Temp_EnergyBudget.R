@@ -9,6 +9,7 @@ library(dplyr)
 library(data.table)
 library(grid)
 library(gridExtra)
+library(scales) # ! important
 
 #### Reading in files and reshaping ####
 ## Set wd
@@ -16,9 +17,6 @@ setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
 ## wd at GFU
 setwd("/Users/anshankar/Dropbox/Anusha Committee/BBLH_EnergyBudget/Tables")
 costas <- read.csv("Costa1986_Don.csv")
-
-ggplot(costas, aes(Temperature, MR)) + geom_point() + geom_smooth(stat='smooth', method='loess', color='black') + my_theme
-
 
 ## Read in file with temperature from each sensor per hour per site (hence temp "details")
 temp_details <- read.csv("BBLH_temperatures_compiled.csv")
@@ -48,14 +46,29 @@ temp_details$Day_night[600<temp_details$Hour& temp_details$Hour<1900] <- "Day"
 temp_details$Day_night[temp_details$Hour<700 | 1800<temp_details$Hour] <- "Night"
 temp_details$Day_night <- factor(temp_details$Day_night, levels=c('Night', "Day"))
 
+
+library(ggplot2)
+ggplot(temp_details, aes(Ta_mean)) +
+  geom_line(stat="density", size = 1) +
+  #scale_y_continuous(labels = percent, name = "percent") +
+  theme_classic()
+
 ## Faceted by Day/Night
 temp_details$Site <- factor(temp_details$Site, levels=c("SC", "HC"))
-ggplot(temp_details, aes(Ta_mean)) + geom_density(aes(fill=Site),alpha=0.7) + xlab(Ta.lab) + 
-  geom_rug(aes(x = Ta_mean, y = 0, col=Site), alpha=0.5, position = position_jitter(height = 0)) +
+ggplot(temp_details, aes(Ta_mean)) + 
+  geom_density(aes(fill=Site),alpha=0.7) + 
+  scale_y_continuous(labels = percent, name = "Percentage of values") +
+  xlab(Ta.lab) + 
+  geom_line(aes(col=Site), stat="density", size = 1) +
+  geom_rug(aes(x = Ta_mean, y = 0, col=Site), alpha=0.3, position = position_jitter(height = 0)) +
   my_theme + facet_grid(~Day_night) + #coord_flip() + 
   theme(legend.key.height = unit(3, 'lines'), axis.text.x=element_text(angle=30, vjust=0.5)) + 
   scale_fill_manual(values = c('red', 'grey'), labels=c("Sonoita", "Harshaw")) +
   scale_color_manual(values = c('red', 'grey'), guide=F)
+
+## Costas TNZ including upper
+ggplot(costas, aes(Temperature, MR)) + geom_point() + geom_smooth(stat='smooth', method='loess', color='black') + my_theme
+
 
 
 #### Building a model for thermoregulatory costs ####
