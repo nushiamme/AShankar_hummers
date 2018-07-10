@@ -86,15 +86,26 @@ prior<-list(G=list(G1=list(V=0.02,nu=0.02)),R=list(V=0.02,nu=0.02))
 
 ## May 2018 - Trying out GLS models with OU vs. Brownian motion
 ## https://www.r-phylo.org/wiki/HowTo/PGLS
-fmr<-fmr_data$kJ_day
-mass_g<-fmr_data$Mass_g
-DF.fmr<-data.frame(fmr,mass_g,row.names=row.names(fmr_data))
+
+## I think this can only take one value per species, so I'm aggregating by mean DEE first, and then running the pgls model.
+fmr.agg <- aggregate(fmr_data$kJ_day,by = list(fmr_data$Species), FUN='mean', na.rm=T)
+names(dee.agg) <- c('Species', 'kJ_day')
+mass.agg <- aggregate(fmr_data$Mass_g,by = list(fmr_data$Species), FUN='mean', na.rm=T)
+names(mass.agg) <- c('Species', 'Mass_g')
+dee.agg <- merge(dee.agg, mass.agg,by="Species")
+
+fmr<-dee.agg$kJ_day
+mass_g<-dee.agg$Mass_g
+DF.fmr<-data.frame(fmr,mass_g,row.names=dee.agg$Species)
 DF.fmr <-  DF.fmr[tre1$tip.label, ]
 DF.fmr
 bm.fmr<-corBrownian(phy=tre1)
-bm.gls<-gls(log(kJ_day)~log(Mass_g),correlation=bm.fmr,data=DF.geospiza)
+bm.gls<-gls(log(fmr)~log(mass_g),correlation=bm.fmr,data=DF.fmr)
 summary(bm.gls)
 
+ou.fmr<-corMartins(1,phy=tre1)
+ou.gls<-gls(log(fmr)~log(mass_g),correlation=ou.fmr,data=DF.fmr)
+summary(ou.gls)
 
 ## kJ_dayg ~ Mass_g + Big_site + Site ; random = Species 
 ## Making site a dummy categorical variable
