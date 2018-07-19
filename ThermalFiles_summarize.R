@@ -6,7 +6,7 @@ library(dplyr)
 library(reshape2)
 library(ggplot2)
 
-here() ## Sets wd
+wd <- D:\\Google Drive\\IR_torpor_2018\\
 
 ## Generic plot theme
 my_theme <- theme_classic(base_size = 30) + 
@@ -15,14 +15,18 @@ my_theme <- theme_classic(base_size = 30) +
 ## Axis labels
 Temp.lab <- expression(atop(paste("Temperature (", degree,"C)")))
 
-bird_id <- "BCHU03_0530"
-setwd(here(bird_id))
+bird_id <- "BCHU02_0526"
+setwd(paste(wd, bird_id, sep=""))
 
 ## Using plyr
 paths <- dir(pattern = "\\.csv$")
 names(paths) <- basename(paths)
 
 ThermFiles <- lapply(paths, read.csv, header=F)
+
+## Creating a time sequence
+TimeOrder <- seq(from = 1900, to = 2459, by = 1,
+    length.out = NULL, along.with = NULL, ...)
 
 ## Creating a summary data frame of 
 # Can also create automatic lists of summaries: lapply(ThermFiles_na_omit[[i]], summary)
@@ -57,9 +61,10 @@ for(i in 1:length(ThermFiles)) {
 
 out<- readRDS(file=paste(bird_id, "_summ.rds", sep=""))
 
-out$Hour <- factor(out$Hour, 
-                           levels= c("19", "20", "21", "22", "23", "24", "01", "02",
-                                     "03", "04", "05", "06"), ordered=T)
+#out <- readRDS(file = "BCHU01_0521_summ.rds")
+
+#out$Time2 <- reorder(out$Time, out$Hour)
+
 #test_time <- as.POSIXct(out$Time,format='%H%M')
 
 ggplot(out, aes(Time, value)) +
@@ -67,5 +72,6 @@ ggplot(out, aes(Time, value)) +
   theme(axis.text.x = element_text(angle=60, size=15, vjust=0.5)) +
   theme(panel.grid.major.y = element_line(colour="grey", size=0.5),
         axis.text.y=element_text(size=15)) +
+  scale_color_manual(values = c("black", "violet", "red")) +
   scale_y_continuous(breaks = c(5,10,15,20,21,22,23,24,25,26,27,28,29,30,35)) +
   ylab(Temp.lab) + xlab("Hour") + ggtitle(out$Indiv_ID[1])
