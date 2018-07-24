@@ -13,7 +13,7 @@ library(scales) # ! important
 
 #### Reading in files and reshaping ####
 ## Set wd
-setwd("C:\\Users\\ANUSHA\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
+setwd("C:\\Users\\shankar\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
 ## wd at GFU
 setwd("/Users/anshankar/Dropbox/Anusha Committee/BBLH_EnergyBudget/Tables")
 costas <- read.csv("Costa1986_Don.csv")
