@@ -6,7 +6,9 @@ library(dplyr)
 library(reshape2)
 library(ggplot2)
 
-wd <- file.path("D:", "Google Drive", "IR_torpor_2018", "/")
+wd <- file.path("D:", "Google Drive", "IR_torpor_2018", "Analyze")
+
+bird.folders <- list.dirs(wd, recursive=T)[-1]
 
 ## Generic plot theme
 my_theme <- theme_classic(base_size = 30) + 
@@ -15,6 +17,7 @@ my_theme <- theme_classic(base_size = 30) +
 ## Axis labels
 Temp.lab <- expression(atop(paste("Temperature (", degree,"C)")))
 
+#for(i in bird.folders) {}
 bird_id <- "BLHU03_0522"
 setwd(paste0(wd, bird_id))
 
