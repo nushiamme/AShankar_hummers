@@ -19,11 +19,11 @@ library(phytools)
 
 #### Setup ####
 #setwd("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper\\Data\\")
-setwd("C:\\Users\\nushi\\Dropbox\\DLW_paper\\Data")
+setwd("C:\\Users\\shankar\\Dropbox\\DLW_paper\\Data")
 #GFU
 setwd("/Users/anshankar/Dropbox/DLW_paper/Data")
 ## Read in torpor data file
-fmr_data <- read.csv("DLW_data2.csv") #Compiled daata from this paper and literature. Each row is an individual
+fmr_data <- read.csv("DLW_data2.csv", sep=",") #Compiled daata from this paper and literature. Each row is an individual
 
 ## Read in McGuire et al. 2014 hummingbird phylogeny
 tree_dlw<-read.tree("hum294.tre")
