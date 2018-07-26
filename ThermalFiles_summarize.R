@@ -1,12 +1,12 @@
 ## Processing thermal images and video from May-Jun 2018, Southwestern Research Station
 
-library(here)
+#library(here)
 library(plyr)
 library(dplyr)
 library(reshape2)
 library(ggplot2)
 
-wd <- D:\\Google Drive\\IR_torpor_2018\\
+wd <- file.path("D:", "Google Drive", "IR_torpor_2018", "/")
 
 ## Generic plot theme
 my_theme <- theme_classic(base_size = 30) + 
@@ -15,8 +15,8 @@ my_theme <- theme_classic(base_size = 30) +
 ## Axis labels
 Temp.lab <- expression(atop(paste("Temperature (", degree,"C)")))
 
-bird_id <- "BCHU02_0526"
-setwd(paste(wd, bird_id, sep=""))
+bird_id <- "BLHU03_0522"
+setwd(paste0(wd, bird_id))
 
 ## Using plyr
 paths <- dir(pattern = "\\.csv$")
@@ -24,9 +24,6 @@ names(paths) <- basename(paths)
 
 ThermFiles <- lapply(paths, read.csv, header=F)
 
-## Creating a time sequence
-TimeOrder <- seq(from = 1900, to = 2459, by = 1,
-    length.out = NULL, along.with = NULL, ...)
 
 ## Creating a summary data frame of 
 # Can also create automatic lists of summaries: lapply(ThermFiles_na_omit[[i]], summary)
@@ -61,13 +58,17 @@ for(i in 1:length(ThermFiles)) {
 
 out<- readRDS(file=paste(bird_id, "_summ.rds", sep=""))
 
-#out <- readRDS(file = "BCHU01_0521_summ.rds")
+## Creating a time sequence
+birdTime <- out$Time
+TimeOrder1 <- seq(from = 1900, to = 2459, by = 1)
+TimeOrder2 <- seq(from = 0100, to = 0559, by = 1)
+TimeOrder <- c(TimeOrder1, paste0("0", TimeOrder2))
+TimeOrder <- factor(TimeOrder, as.character(TimeOrder))
 
-#out$Time2 <- reorder(out$Time, out$Hour)
+out$Time2 <- TimeOrder[match(birdTime,TimeOrder,nomatch=0)]
 
-#test_time <- as.POSIXct(out$Time,format='%H%M')
 
-ggplot(out, aes(Time, value)) +
+ggplot(out, aes(Time2, value)) +
   geom_point(aes(col=variable), size=3) + my_theme +
   theme(axis.text.x = element_text(angle=60, size=15, vjust=0.5)) +
   theme(panel.grid.major.y = element_line(colour="grey", size=0.5),
