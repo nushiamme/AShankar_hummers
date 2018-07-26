@@ -16,9 +16,9 @@ require(dplyr)
 #library(plotflow) #Useful function reorder_by() might be useful for ordering variables by others
 
 ## Set working directory and read in .csv file
-wdMS <- setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
-wdMS
-torpor2015 <- read.csv("Torpor2015.csv")
+setwd("C:\\Users\\nushi\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
+
+torpor2015 <- read.csv("Torpor_METY_AGCU_2015_detailed_hourly.csv")
 litstudy <- read.csv("LitStudy_combined.csv")
 litnew <- read.csv("LitStudy_andKruger2.csv")
 krugertab <- read.csv("Lit_Kruger1982.csv")

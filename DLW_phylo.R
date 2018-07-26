@@ -97,7 +97,7 @@ dee.agg <- merge(dee.agg, mass.agg,by="Species")
 fmr<-dee.agg$kJ_day
 mass_g<-dee.agg$Mass_g
 DF.fmr<-data.frame(fmr,mass_g,row.names=dee.agg$Species)
-DF.fmr <-  DF.fmr[tre1$tip.label, ]
+DF.fmr <-  DF.fmr[tre1$tip.label,]
 DF.fmr
 bm.fmr<-corBrownian(phy=tre1)
 bm.gls<-gls(log(fmr)~log(mass_g),correlation=bm.fmr,data=DF.fmr)
