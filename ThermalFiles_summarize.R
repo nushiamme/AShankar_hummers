@@ -18,7 +18,9 @@ my_theme <- theme_classic(base_size = 30) +
 Temp.lab <- expression(atop(paste("Temperature (", degree,"C)")))
 
 #for(i in bird.folders) {}
-bird_id <- "BLHU05_0523"
+
+bird_id <- "BLHU03_0522"
+#bird_id <- "BLHU05_0523"
 #bird_id <- "MAHU03_0527" ## Didn't work, time parallel thing
 #bird_id <- "MAHU05_0529"
 #bird_id <- "BLHU07_0529"
@@ -96,6 +98,12 @@ TimeOrder <- factor(TimeOrder, as.character(TimeOrder))
 
 out$Time2 <- TimeOrder[match(birdTime,TimeOrder,nomatch=0)]
 
+ggplot(data=out[out$variable=="Max",]) + my_theme +
+  geom_violin(aes(x=Indiv_ID, y=value)) +
+  #geom_linerange(aes(x=Indiv_ID, ymin= min(value), ymax=max(value)), size=1) +
+  geom_point(aes(x=Indiv_ID, y=mean(value)), size=4) + ylab(Temp.lab) + ggtitle(out$Indiv_ID[1]) +
+  ylim(0,36)
+
 
 ggplot(out, aes(Time2, value)) +
   geom_point(aes(col=variable), size=3) + my_theme +
@@ -105,4 +113,5 @@ ggplot(out, aes(Time2, value)) +
   scale_color_manual(values = c("black", "violet", "red"), 
                      labels=c("Ambient", "Mean surface", "Max surface"), name="Temperature") + 
   scale_y_continuous(breaks = c(5,10,15,20,21,22,23,24,25,26,27,28,29,30,35)) +
-  ylab(Temp.lab) + xlab("Hour") + ggtitle(out$Indiv_ID[1])
+  ylab(Temp.lab) + xlab("Hour") 
+
