@@ -7,7 +7,7 @@ library(reshape)
 library(ggplot2)
 library(pastecs)
 
-orgr <- read.csv("C:\\Users\\ANUSHA\\Dropbox\\Anusha_personal\\Thesis_proposal\\R_csv\\Nectar_ORGR_Oct19_2015_without55plus.csv")
+orgr <- read.csv("C:\\Users\\nushi\\Dropbox\\Anusha_personal\\Thesis_proposal\\R_csv\\Nectar_ORGR_Oct19_2015_without55plus.csv")
 
 nectar.orgr <- melt(orgr, id.vars = c("TimeSlot", "Day", "Month"), measure.vars = "Nectar_L_mm")
 
