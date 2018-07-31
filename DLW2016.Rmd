@@ -46,7 +46,7 @@ library(RColorBrewer)
 #opts_knit$set(root.dir )
 #setwd("/Users/anshankar/Dropbox/DLW_paper")
 ## Includes data from XXXX papers.
-dlw <- read.csv("/Users/anshankar/Dropbox/DLW_paper/Data/DLW_data2.csv")
+dlw <- read.csv("DLW_data2.csv")
 dlw <- dlw[dlw$Reasonable_not=="Y",]
 
 my_theme <- theme_classic(base_size = 15) + 

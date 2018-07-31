@@ -20,7 +20,7 @@ Temp.lab <- expression(atop(paste("Temperature (", degree,"C)")))
 #for(i in bird.folders) {}
 
 bird_id <- "BLHU03_0522"
-#bird_id <- "BLHU05_0523"
+bird_id <- "BLHU05_0523"
 bird_id <- "MAHU03_0527" ## Didn't work, time parallel thing
 #bird_id <- "MAHU05_0529"
 #bird_id <- "BLHU07_0529"
@@ -99,7 +99,7 @@ TimeOrder <- factor(TimeOrder, as.character(TimeOrder))
 out$Time2 <- TimeOrder[match(birdTime,TimeOrder,nomatch=NA)]
 
 ggplot(data=out[out$variable=="Max",]) + my_theme +
-  geom_violin(aes(x=Indiv_ID, y=value)) +
+  geom_violin(aes(x=Indiv_ID, y=value)) + geom_point(aes(x=Indiv_ID, y=value)) +
   #geom_linerange(aes(x=Indiv_ID, ymin= min(value), ymax=max(value)), size=1) +
   geom_point(aes(x=Indiv_ID, y=mean(value)), size=4) + ylab(Temp.lab)  +
   ylim(0,36)
