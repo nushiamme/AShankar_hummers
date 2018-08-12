@@ -19,13 +19,13 @@ Temp.lab <- expression(atop(paste("Temperature (", degree,"C)")))
 
 #for(i in bird.folders) {}
 
-bird_id <- "BLHU03_0522"
-bird_id <- "BLHU05_0523"
+#bird_id <- "BLHU03_0522"
+#bird_id <- "BLHU05_0523"
 bird_id <- "MAHU03_0527" ## Didn't work, time parallel thing
 #bird_id <- "MAHU05_0529"
 #bird_id <- "BLHU07_0529"
 #bird_id <- "MAHU06_0530"
-bird_id <- "BCHU03_0530"
+#bird_id <- "BCHU03_0530"
 #bird_id <- "MAHU07_0531"
 
 setwd(paste0(wd, "/", bird_id))
