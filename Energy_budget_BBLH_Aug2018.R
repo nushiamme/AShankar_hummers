@@ -11,7 +11,7 @@ library(gridExtra)
 #library(tidyverse) #for the stacked bar plot- labeled as such in case you want to delete this later
 
 
-setwd("C:\\Users\\nushi\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
+setwd("C:\\Users\\nushi\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Submission_FuncEcol\\Data")
 
 ## Read in files 
 #Includes min and max 24h cost by varying activity; per activity, thermo, NEE and BMR scenario; and adjusting hovering for thermoregulatory substitution
