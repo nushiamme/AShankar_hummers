@@ -1,9 +1,17 @@
-## 3D surface plot of daily energy expenditure vs. activity and temperature
+## Code for paper titled:
+#"Assessing energy budget flexibility in a small endotherm"
+## Paper authors: Anusha Shankar, 
+# Catherine H Graham, Joseph R Canepa, Susan M Wethington, Donald R Powers
+## Code by: Anusha Shankar, github/nushiamme; 
+# contact: anusha<dot>shankar<at>stonybrook<dot>edu or nushiamme<at>gmail<dot>com for questions about code
 
-# Sign in to plotly - like Git
-#library(plotly)
+### Contents
+## Setup, read files in, format data
+##
+
+
+#### Setup ####
 library(ggplot2)
-#library(rgl)
 library(dplyr) # Trying this out for stacking NEE with and without torpor
 library(reshape2) # Trying this out for stacking NEE with and without torpor
 library(gridExtra)
@@ -15,80 +23,81 @@ setwd("C:\\Users\\nushi\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Submissio
 
 ## Read in files 
 #Includes min and max 24h cost by varying activity; per activity, thermo, NEE and BMR scenario; and adjusting hovering for thermoregulatory substitution
-energymodels_may <- read.csv("May_hover_Thermo_adj.csv") 
+energymodels <- read.csv("EnergyBudget_model_values.csv") 
 #act_models <- read.csv("Activity_modeled.csv") #Varying HMR, FLMR, RMR
-percentEB <- read.csv("percentEB_May.csv")
+#percentEB <- read.csv("percentEB.csv")
 dlw_bblh <- read.csv("DLW_summary.csv")
-read.csv() ## READ IN COSTA's for Supp fig S3
+costas <- read.csv("Costas1986_VO2_DRPowers.csv") ## READ IN COSTA's for Supp fig S3
 
 # Files for DLW validation plots for supplement
 valida_A <- read.csv("Validation_Enrichment_dose_A.csv")
 valida_B <- read.csv("Validation_enrichment_eqb_B.csv")
 valida_C <- read.csv("Validation_CO2produc_dose_C.csv")
 
-#### General functions ####
+## General functions
 my_theme <- theme_classic(base_size = 32) + 
   theme(panel.border = element_rect(colour = "black", fill=NA))
 
 my_theme2 <- theme_classic(base_size = 25) + 
   theme(panel.border = element_rect(colour = "black", fill=NA))
 
+Temp.lab <- expression(atop(paste("Temperature (", degree,"C)")))
 
 give.n <- function(x){
   return(c(y = mean(x), label = length(x)))
 }
 
 #### AUGUST 2018 ####
-m_energymodels_aug_min <- as.data.frame(as.list(aggregate(energymodels_may$kJ_min_day_HovThermo_adj,
-                                                      by=list(energymodels_may$Activity_budget_type,
-                                                              energymodels_may$BMR_assump,
-                                                              energymodels_may$Thermoreg_scenario,
-                                                              energymodels_may$Site_proxy),
+m_energymodels_min <- as.data.frame(as.list(aggregate(energymodels$kJ_min_day_HovThermo_adj,
+                                                      by=list(energymodels$Activity_budget_type,
+                                                              energymodels$BMR_assump,
+                                                              energymodels$Thermoreg_scenario,
+                                                              energymodels$Site_proxy),
                                                       FUN = function(x) mn = min(x))))
-names(m_energymodels_aug_min) <- c("Activity_budget_type", "BMR_category", "Thermoreg_scenario", "Site_proxy",
+names(m_energymodels_min) <- c("Activity_budget_type", "BMR_category", "Thermoreg_scenario", "Site_proxy",
                                "Min_kJ_day")
-head(m_energymodels_aug_min)
+head(m_energymodels_min)
 
-m_energymodels_aug_mean <- as.data.frame(as.list(aggregate(energymodels_may$kJ_adjBMR_day_HovThermo_adj,
-                                                      by=list(energymodels_may$Activity_budget_type,
-                                                              energymodels_may$BMR_assump,
-                                                              energymodels_may$Thermoreg_scenario,
-                                                              energymodels_may$Site_proxy),
+m_energymodels_mean <- as.data.frame(as.list(aggregate(energymodels$kJ_adjBMR_day_HovThermo_adj,
+                                                      by=list(energymodels$Activity_budget_type,
+                                                              energymodels$BMR_assump,
+                                                              energymodels$Thermoreg_scenario,
+                                                              energymodels$Site_proxy),
                                                       FUN = function(x) mi = mean(x))))
-names(m_energymodels_aug_mean) <- c("Activity_budget_type", "BMR_category", "Thermoreg_scenario", "Site_proxy",
+names(m_energymodels_mean) <- c("Activity_budget_type", "BMR_category", "Thermoreg_scenario", "Site_proxy",
                                "kJ_day")
 
-m_energymodels_aug_max <- as.data.frame(as.list(aggregate(energymodels_may$kJ_max_day_HovThermo_adj,
-                                                      by=list(energymodels_may$Activity_budget_type,
-                                                              energymodels_may$BMR_assump,
-                                                              energymodels_may$Thermoreg_scenario,
-                                                              energymodels_may$Site_proxy),
+m_energymodels_max <- as.data.frame(as.list(aggregate(energymodels$kJ_max_day_HovThermo_adj,
+                                                      by=list(energymodels$Activity_budget_type,
+                                                              energymodels$BMR_assump,
+                                                              energymodels$Thermoreg_scenario,
+                                                              energymodels$Site_proxy),
                                                       FUN = function(x) mx = max(x))))
-names(m_energymodels_aug_max) <- c("Activity_budget_type", "BMR_category", "Thermoreg_scenario", "Site_proxy",
+names(m_energymodels_max) <- c("Activity_budget_type", "BMR_category", "Thermoreg_scenario", "Site_proxy",
                                "Max_kJ_day")
 
-m_energymodels_aug <- merge(m_energymodels_aug_min,m_energymodels_aug_mean,
+m_energymodels <- merge(m_energymodels_min,m_energymodels_mean,
       by=c("Activity_budget_type", "BMR_category", "Thermoreg_scenario", "Site_proxy"))
 
-m_energymodels_aug <- merge(m_energymodels_aug,m_energymodels_aug_max,
+m_energymodels <- merge(m_energymodels,m_energymodels_max,
                             by=c("Activity_budget_type", "BMR_category", "Thermoreg_scenario", "Site_proxy"))
 
 
-m_energymodels_aug$Activity_budget_type <- factor(m_energymodels_aug$Activity_budget_type,
+m_energymodels$Activity_budget_type <- factor(m_energymodels$Activity_budget_type,
                                                   levels= c("5_20_75", "15_15_70", "25_30_45", "40_40_20"))
-m_energymodels_aug$Activity_bmr_thermo <- paste(m_energymodels_aug$Activity_budget_type, 
-                                                m_energymodels_aug$BMR_category, m_energymodels_aug$Thermoreg_scenario, sep= "_")
+m_energymodels$Activity_bmr_thermo <- paste(m_energymodels$Activity_budget_type, 
+                                                m_energymodels$BMR_category, m_energymodels$Thermoreg_scenario, sep= "_")
 
 
-mm_energymodels_aug <- melt(m_energymodels_aug, 
+mm_energymodels <- melt(m_energymodels, 
                             id.vars = c("Activity_budget_type", "BMR_category", "Thermoreg_scenario", "Site_proxy"),
                             measure.vars = c("Min_kJ_day", "kJ_day", "Max_kJ_day"))
-names(mm_energymodels_aug)[names(mm_energymodels_aug) == 'variable'] <- 'min_mean_max_kJ'
-names(mm_energymodels_aug)[names(mm_energymodels_aug) == 'value'] <- 'kJ_day'
+names(mm_energymodels)[names(mm_energymodels) == 'variable'] <- 'min_mean_max_kJ'
+names(mm_energymodels)[names(mm_energymodels) == 'value'] <- 'kJ_day'
 
 ## Keeping BMR and thermo at average and only allowing unit activity costs to vary, per activity budget scenario
-mm_energymodels_var_act<- mm_energymodels_aug[mm_energymodels_aug$BMR_category=="BMR_mean" & 
-                                                mm_energymodels_aug$Thermoreg_scenario=="Random",]
+mm_energymodels_var_act<- mm_energymodels[mm_energymodels$BMR_category=="BMR_mean" & 
+                                                mm_energymodels$Thermoreg_scenario=="Random",]
 m_energymodels_act <- as.data.frame(as.list(aggregate(mm_energymodels_var_act$kJ_day,
                                                       by=list(mm_energymodels_var_act$Activity_budget_type,
                                                               mm_energymodels_var_act$Site_proxy),
@@ -100,30 +109,30 @@ head(m_energymodels_act)
 
 
 ## Allowing everything to vary, aggregate by thermoregulatory scenario and activity scenario
-m_energymodels_therm <- as.data.frame(as.list(aggregate(mm_energymodels_aug$kJ_day,
-                                                        by=list(mm_energymodels_aug$Activity_budget_type,
-                                                                mm_energymodels_aug$Site_proxy,
-                                                                mm_energymodels_aug$Thermoreg_scenario),
+m_energymodels_therm <- as.data.frame(as.list(aggregate(mm_energymodels$kJ_day,
+                                                        by=list(mm_energymodels$Activity_budget_type,
+                                                                mm_energymodels$Site_proxy,
+                                                                mm_energymodels$Thermoreg_scenario),
                                                         FUN = function(x) c(mi = min(x), mn = mean(x), mx = max(x)))))
 names(m_energymodels_therm) <- c("Activity_budget_type", "Site_proxy", "Thermoreg_scenario",
                                  "Min_kJ_day", "kJ_day", "Max_kJ_day")
 head(m_energymodels_therm)
 
 ## Allowing everything to vary, aggregate by thermoregulatory scenario and activity scenario
-m_energymodels_aug_mean$Activity_budget_type <- factor(m_energymodels_aug_mean$Activity_budget_type,
+m_energymodels_mean$Activity_budget_type <- factor(m_energymodels_mean$Activity_budget_type,
                                                   levels= c("5_20_75", "15_15_70", "25_30_45", "40_40_20"))
-m_energymodels_avg_act <- as.data.frame(as.list(aggregate(m_energymodels_aug_mean$kJ_day,
-                                                        by=list(m_energymodels_aug_mean$Activity_budget_type,
-                                                                m_energymodels_aug_mean$Site_proxy,
-                                                                m_energymodels_aug_mean$Thermoreg_scenario),
+m_energymodels_avg_act <- as.data.frame(as.list(aggregate(m_energymodels_mean$kJ_day,
+                                                        by=list(m_energymodels_mean$Activity_budget_type,
+                                                                m_energymodels_mean$Site_proxy,
+                                                                m_energymodels_mean$Thermoreg_scenario),
                                                         FUN = function(x) c(mi = min(x), mn = mean(x), mx = max(x)))))
 names(m_energymodels_avg_act) <- c("Activity_budget_type", "Site_proxy", "Thermoreg_scenario",
                                  "Min_kJ_day", "kJ_day", "Max_kJ_day")
 head(m_energymodels_avg_act)
 
 ### Stacked bar for energy budget, with activity variability
-energymodels_stack <- energymodels_may[energymodels_may$BMR_assump != "BMR_min" & energymodels_may$BMR_assump != "BMR_max" &
-                                 energymodels_may$Thermoreg_scenario != "Rand_cost_min" & energymodels_may$Thermoreg_scenario != "Rand_cost_max",]
+energymodels_stack <- energymodels[energymodels$BMR_assump != "BMR_min" & energymodels$BMR_assump != "BMR_max" &
+                                 energymodels$Thermoreg_scenario != "Rand_cost_min" & energymodels$Thermoreg_scenario != "Rand_cost_max",]
 energymodels_stack$Site_date <- paste(energymodels_stack$Site, energymodels_stack$Day, "0", energymodels_stack$Month, sep="")
 energymodels_stack$Thermoreg_scenario <- paste("T", energymodels_stack$Thermoreg_scenario, sep="")
 energymodels_stack$Thermo_NEE <- paste(energymodels_stack$Thermoreg_scenario, energymodels_stack$NEE_low_high, sep="_")
@@ -159,8 +168,8 @@ m_energymodels_stack_max$Activity_budget_type <- factor(m_energymodels_stack$Act
 m_energymodels_stack_max$Thermoreg_scenario <- factor(m_energymodels_stack$Thermoreg_scenario,
                                                    levels= c("TMinimum", "TRandom", "TMaximum"))
 
-activitymodels_24h <- energymodels_aug[energymodels_may$BMR_assump != "BMR_min" & energymodels_may$BMR_assump != "BMR_max" &
-                                       energymodels_may$Thermoreg_scenario == "Random",]
+activitymodels_24h <- energymodels[energymodels$BMR_assump != "BMR_min" & energymodels$BMR_assump != "BMR_max" &
+                                       energymodels$Thermoreg_scenario == "Random",]
 activitymodels_24h$Site_date <- paste(activitymodels_24h$Site, activitymodels_24h$Day, "0", activitymodels_24h$Month, sep="")
 activitymodels_24h$Activity_budget_type <- factor(activitymodels_24h$Activity_budget_type,
                                                 levels= c("5_20_75", "15_15_70", "25_30_45", "40_40_20"))
@@ -193,15 +202,7 @@ write.csv(kJ_split_full_model,file="kJ_splitEB_May.csv")
 
 #### plots ####
 #### Activity plots ####
-names(percentEB) <- c("Measure", "Activity", "Nighttime energy", "Thermoregulation\n and BMR", "BMR_alone", "Thermoreg_alone", "total_ignore")
-m.EB_percent <- melt(percentEB, id.vars="Measure", 
-                     measure.vars=c("Activity", "Nighttime energy", "Thermoregulation\n and BMR"))
-ggplot(m.EB_percent, aes(variable, value)) + geom_point(aes(col=Measure), size=4) + my_theme +
-  scale_color_manual(values = c("brown1", "black", "cornflowerblue")) +
-  theme(axis.text.x = element_text(size=25, vjust=0.5), legend.key.height = unit(3, 'lines')) + 
-  xlab("\n Energy budget component") + ylab("Percent of budget \n")
-
-## Trying stacked bar plots for breaking down energy budget, just one site+date at a time
+## Stacked bar plots for breaking down energy budget, just one site+date at a time
 pl_vSC0207 <- ggplot(m_energymodels_stack[m_energymodels_stack$Site_date=="SC207",], aes(Thermoreg_scenario, y=value, fill=variable)) + 
   facet_grid(~Activity_budget_type, scales='free_x') +
   geom_bar(stat="identity") +
@@ -279,18 +280,7 @@ all_model_plot <- ggplot(NULL, aes(Site_proxy, kJ_day)) +
 grid.arrange(dlw_indiv, all_model_plot, nrow=1, widths = c(1,2))
 
 
-## Just boxplots from DLW
-dlw_plot <- ggplot(data=dlw_bblh,aes(Site_proxy, kJ_day)) + my_theme2 +
-  geom_boxplot(alpha=0.5, fill="light grey") + 
-  scale_x_discrete(breaks=c('A', 'B', 'C', 'D'), 
-                   labels=c("Harshaw Pre", "Harshaw Post", "Sonoita Pre", "Sonoita Post")) +
-  ylim(9, 41) + theme(legend.key.size = unit(2, 'lines')) + 
-  xlab("Site and monsoon status") + 
-  ylab("24-hour Energy Expenditure (kJ)")
-dlw_plot
-
 #### Supplementary plots ####
-
 ####Figure S1: DLW Validation plots ####
 # Enrichment vs. DLW dose (g)
 ggplot(valida_A, aes(DLW_dose_g, O_18_Enrichment_ppm, col=Treatment)) + geom_point(size=3, alpha=0.9) + my_theme +
@@ -307,91 +297,8 @@ ggplot(valida_C, aes(DLW_dose_g, CO2_production_mL_h)) + geom_point(size=3, alph
   xlab("DLW dose (g)") + ylab(bquote(~CO[2]~ 'production (mL/hr)')) +
   geom_smooth(method='lm') + theme(legend.key.height=unit(3, 'lines')) + ylim(0,80)
 
-#### Figure S2: Hovering metabolic rate (HMR) vs. Operative Temperature (Te) ####
-
 
 #### Figure S3: Costa's (Calyptae costae) Scholander-Irving curve for metabolic rate vs. temperature ####
-
-
-
-df.list <- as.data.frame(x1 = energymodels$Thermoreg_mlO2_daytime,
-                y1 = energymodels$Activity_cost_mlO2_daytime,
-                z1 = energymodels$Daytime_EE)
-
-plot3d(x = energymodels$Thermoreg_mlO2_daytime,
-       y = energymodels$Activity_cost_mlO2_daytime,
-       z = energymodels$Daytime_EE, type="s", col="red", xlab="Thermoreg", ylab="Activity", zlab="Daytime EE",
-       size=2, radius=10, box=F)
-quads3d(x=209.6:315.9, y=358.53:814.64,
-        z=568.13:1130.54, col="purple")
-
-
-x_vec = c(seq(-5, 4.9, 0.1))
-x_matrix = matrix(c(x_vec), nrow = 100, ncol = 1)
-y_matrix = matrix(c(x_vec), nrow = 1, ncol = 100)
-
-data1 <- list(
-  x = x_vec,
-  y = x_vec,
-  z = matrix(c(cos(x_matrix %*% y_matrix) + sin(x_matrix %*% y_matrix)), nrow = 100, ncol = 100),
-  type = "surface")
-
-layout <- list(
-  title = "Waaaves in r",
-  scene = list(bgcolor = "rgb(244, 244, 248)"))
-
-response <- plot_ly(data1$x, data1$y, data1$z, type='surface')
-
-
-df.list <- list(x = 1:100,
-                y = 500:599,
-                z = matrix(rnorm(10000), nrow = 100))
-
-df.dataframe <- data.frame(x1 = 1:100,
-                           y1 = 500:599,
-                           z1 = sample(1:200, size = 100))
-
-
-# Works fine
-plot_ly(x = df.list$x1, y = df.list$y1, z = df.list$z1, type = "surface")
-
-
-## Half-torus script
-par(mar = c(2, 2, 2, 2))
-par(mfrow = c(1, 1))
-R <- 3
-r <- 2
-x <- seq(0, 2*pi,length.out=50)
-y <- seq(0, pi,length.out=50)
-M <- mesh(x, y)
-
-alpha <- M$x
-beta <- M$y
-
-
-surf3D(x = energymodels$Thermoreg_mlO2_daytime,
-       y = energymodels$Activity_cost_mlO2_daytime,
-       z = energymodels$Daytime_EE,
-       colkey=FALSE
-       )
-
-surf3D(x = 1,
-       y = data.frame(c(energymodels$Thermoreg_mlO2_daytime, energymodels$Daytime_EE)),
-       z = energymodels$Activity_cost_mlO2_daytime,
-       colvar=x
-       )
-
-x2 <- energymodels$Thermoreg_mlO2_daytime
-y2 <- energymodels$Daytime_EE
-z2 <- energymodels$Activity_cost_mlO2_daytime
-
-M2 <- mesh(x2,y2)
-alpha2 <- M2$x2
-beta2 <- M2$y2
-
-surf3D(x = alpha2,
-       y = beta2,
-       z = r * sin(alpha),
-       colkey=FALSE,
-       bty="b2",
-       main="Half of a Torus")
+ggplot(costas, aes(Temperature, VO2_ml.g.h)) + geom_point(size=2) + my_theme +
+  geom_smooth(method = "loess", col='grey') +
+  ylab("Oxygen consumption (ml/min)") + xlab(Temp.lab) + ylim(0.1,0.45)
