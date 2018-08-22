@@ -1,16 +1,15 @@
-**Paper authors: Anusha Shankar\*, Rebecca J Schroeder\*, Susan M Wethington, Catherine H Graham, Donald R Powers**
+**Paper authors: Anusha Shankar\, , Susan M Wethington, Catherine H Graham, Donald R Powers**
 
-\*Equal authors
-
-Code by: Anusha Shankar, github/nushiamme; contact: anusha<dot>shankar<at>stonybrook<dot>edu for questions about code/datasets
+Code by: Anusha Shankar, github/nushiamme; contact: or nushiamme<at>gmail<dot>com for questions about code/datasets
 
 #### Code organisation
 
 The code is organized by data type into 3 scripts, for
-1. Plots using respirometry data directly,
-2. Temperature plots,
-3. Phylogenetic corrections and MCMCglmm models and plots.
-Figures not listed here were conceptual figures made in powerpoint.
+1. Temperature and thermoregulatory cost calculations,
+2. The energy budget model, and
+3. Floral resources (abundance and calorie calculations)
+
+Figures not listed here were conceptual figures made in powerpoint or in prism.
 
 -   **Torpor\_respirometry\_plots.R** - Needs input files *"Torpor\_individual\_summaries.csv"*, *"Broadbill.csv"*, *"BBLH\_hourly\_VO2\_field.csv"*; contains code for
     -   *Figure 3*: VO2 for broad-billed hummingbirds showing inflection point at 14-15 degC; a. laboratory data; b. field data
