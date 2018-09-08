@@ -1,4 +1,5 @@
 ## Processing thermal images and video from May-Jun 2018, Southwestern Research Station
+## Code Author: Anusha Shankar; started July 2018
 
 #library(here)
 library(plyr)
@@ -6,7 +7,7 @@ library(dplyr)
 library(reshape2)
 library(ggplot2)
 
-wd <- file.path("D:", "Google Drive", "IR_torpor_2018", "Analyze")
+wd <- file.path("E:", "Google Drive", "IR_2018_csv")
 
 #bird.folders <- list.dirs(wd, recursive=T)[-1]
 
@@ -17,17 +18,12 @@ my_theme <- theme_classic(base_size = 30) +
 ## Axis labels
 Temp.lab <- expression(atop(paste("Temperature (", degree,"C)")))
 
-#for(i in bird.folders) {}
+bird.folders <- c("BCHU01_0521", "BCHU02_0526", "BCHU03_0530", "BCHU04_0607", "BCHU05_0607",
+                  "BLHU01_0521", "BLHU03_0522", "BLHU04_0523", "BLHU05_0523", "BLHU06_0526", "BLHU07_0529", "BLHU08_0601", 
+                  "BLHU09_0603", "BLHU11_0604", "BLHU12_0605", "BLHU13_0605", 
+                  "MAHU02_0520", "MAHU03_0527", "MAHU05_0529", "MAHU06_0530", "MAHU10_0603", "MAHU12_0606", "MAHU13_0606")
 
-#bird_id <- "BLHU03_0522"
-#bird_id <- "BLHU05_0523"
-bird_id <- "MAHU03_0527" ## Didn't work, time parallel thing
-#bird_id <- "MAHU05_0529"
-#bird_id <- "BLHU07_0529"
-#bird_id <- "MAHU06_0530"
-#bird_id <- "BCHU03_0530"
-#bird_id <- "MAHU07_0531"
-
+#for(i in bird.folders) {
 setwd(paste0(wd, "/", bird_id))
 
 ## nothing
@@ -37,23 +33,9 @@ setwd(paste0(wd, "/", bird_id))
 paths <- dir(pattern = "\\.csv$")
 names(paths) <- basename(paths)
 
-ThermFiles <- lapply(paths, read.csv, header=F)
+# RUN ThermFiles <- lapply(paths, read.csv, header=F)
 
-#mag_2202 <- read.csv(file = "MAHU02_0520_2202.csv")
-#mag_2202 <- na.omit(data.frame(stack(mag_2202)))
-
-
-#mag_0450 <- read.csv(file = "MAHU02_0520_0450.csv")
-#mag_0450 <- na.omit(data.frame(stack(mag_0450)))
-
-
-#mag_2111 <- read.csv(file = "MAHU02_0520_2111.csv")
-#mag_2111 <- na.omit(data.frame(stack(mag_2111)))
-
-#mag_2331 <- read.csv(file = "MAHU02_0520_2331.csv")
-#mag_2331 <- na.omit(data.frame(stack(mag_2331)))
-
-## Creating a summary data frame of 
+### Creating a summary data frame of 
 # Can also create automatic lists of summaries: lapply(ThermFiles_na_omit[[i]], summary)
 Thermsumm <- data.frame(matrix(NA, nrow=length(ThermFiles), ncol=5))
 names(Thermsumm) <- c("Min", "Mean", "Max", "File") #,"sd"
@@ -98,11 +80,12 @@ TimeOrder <- factor(TimeOrder, as.character(TimeOrder))
 
 out$Time2 <- TimeOrder[match(birdTime,TimeOrder,nomatch=NA)]
 
-ggplot(data=out[out$variable=="Max",]) + my_theme +
-  geom_violin(aes(x=Indiv_ID, y=value)) + geom_point(aes(x=Indiv_ID, y=value)) +
-  #geom_linerange(aes(x=Indiv_ID, ymin= min(value), ymax=max(value)), size=1) +
-  geom_point(aes(x=Indiv_ID, y=mean(value)), size=4) + ylab(Temp.lab)  +
-  ylim(0,36)
+## Violin plots - don't use
+#ggplot(data=out[out$variable=="Max",]) + my_theme +
+ # geom_violin(aes(x=Indiv_ID, y=value)) + geom_point(aes(x=Indiv_ID, y=value)) +
+ #  #geom_linerange(aes(x=Indiv_ID, ymin= min(value), ymax=max(value)), size=1) +
+ # geom_point(aes(x=Indiv_ID, y=mean(value)), size=4) + ylab(Temp.lab)  +
+ # ylim(0,36)
 
 
 ggplot(out, aes(Time2, value)) +

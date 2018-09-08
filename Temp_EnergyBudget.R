@@ -1,7 +1,6 @@
 ## Analyzing and plotting ambient and chamber temperature data for BBLH energy budget paper
 ## To make a thermoregulatory model for HC and SC
 ## Script by Anusha Shankar
-## Script started on: November 2, 2016
 
 library(reshape)
 library(ggplot2)
@@ -9,14 +8,12 @@ library(dplyr)
 library(data.table)
 library(grid)
 library(gridExtra)
-library(scales) # ! important
+library(scales) # ! important for temperature density
 
 #### Reading in files and reshaping ####
 ## Set wd
-setwd("C:\\Users\\shankar\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
-## wd at GFU
-setwd("/Users/anshankar/Dropbox/Anusha Committee/BBLH_EnergyBudget/Tables")
-costas <- read.csv("Costa1986_Don.csv")
+setwd("C:\\Users\\nushi\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Submission_FuncEcol\\Data")
+costas <- read.csv("Costas1986_VO2_DRPowers.csv")
 
 ## Read in file with temperature from each sensor per hour per site (hence temp "details")
 temp_details <- read.csv("BBLH_temperatures_compiled.csv")
@@ -57,7 +54,7 @@ ggplot(temp_details, aes(Ta_mean)) +
 temp_details$Site <- factor(temp_details$Site, levels=c("SC", "HC"))
 ggplot(temp_details, aes(Ta_mean)) + 
   geom_density(aes(fill=Site),alpha=0.7) + 
-  scale_y_continuous(labels = percent, name = "Percentage of values") +
+  scale_y_continuous(labels = scales::percent, name = "Percentage of values") +
   xlab(Ta.lab) + 
   geom_line(aes(col=Site), stat="density", size = 1) +
   geom_rug(aes(x = Ta_mean, y = 0, col=Site), alpha=0.3, position = position_jitter(height = 0)) +
