@@ -97,7 +97,7 @@ for(i in bird.folders) {
 setwd(paste0(wd, "/", i))
   
 #### Plotting ####
-out<- readRDS(file=paste(i, "_summ.rds", sep=""))
+out<- readRDS(file=paste("BCHU01_0521", "_summ.rds", sep=""))
 
 #### Compile csv's and process ####
 ### Using plyr

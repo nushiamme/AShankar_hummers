@@ -16,12 +16,11 @@ library(geiger) # for treedata() function
 library(caper)
 library(coda) # only for autocorr function
 library(phytools)
+library(OUwie) # To transform the tree into an OU tree
+library(tibble) # To add columns to datasets with control
 
 #### Setup ####
-#setwd("C:\\Users\\ANUSHA\\Dropbox\\DLW_paper\\Data\\")
-setwd("C:\\Users\\shankar\\Dropbox\\DLW_paper\\Data")
-#GFU
-setwd("/Users/anshankar/Dropbox/DLW_paper/Data")
+setwd("C:\\Users\\nushi\\Dropbox\\DLW_paper\\Data")
 ## Read in torpor data file
 fmr_data <- read.csv("DLW_data2.csv", sep=",") #Compiled daata from this paper and literature. Each row is an individual
 
@@ -68,6 +67,22 @@ tre1<-treedata(tree_dlw, tips)$phy
 #To check that the relationships between species in the trimmed tree look right
 plot(tre1) 
 
+## Making species-aggregated FMR data frame
+fmr.agg <- aggregate(fmr_data$kJ_day,by = list(fmr_data$Species), FUN='mean', na.rm=T)
+names(fmr.agg) <- c('Genus_species', 'kJ_day')
+fmr.agg <- add_column(fmr.agg, Regime=1, .after="Genus_species")
+#fmr.agg$Regime[fmr.agg$Genus_species=="PHYA"] <- 2
+#fmr.agg$Regime[fmr.agg$Genus_species=="FLME"] <- 2
+
+library(corHMM)
+pp<-rayDISC(tre1, fmr.agg[,c(1,2)], model="ER", node.states="marginal")
+OUwie(pp$phy, fmr.agg, model="OUM")
+                  
+
+## Transforming the tree into an OU tree
+ouma_tre1 <- OUwie(phy=tre1, data=fmr.agg, model="OUMA")
+
+
 #### Models ####
 ## Now, to run Bayesian models with repeated measures per species (i.e. multiple individuals per species), 
 #we setup an inverse matrix and set up a prior
@@ -87,12 +102,12 @@ prior<-list(G=list(G1=list(V=0.02,nu=0.02)),R=list(V=0.02,nu=0.02))
 ## May 2018 - Trying out GLS models with OU vs. Brownian motion
 ## https://www.r-phylo.org/wiki/HowTo/PGLS
 
-## I think this can only take one value per species, so I'm aggregating by mean DEE first, and then running the pgls model.
+## PGLS can only take one value per species, so I'm aggregating by mean DEE first, and then running the pgls model.
 fmr.agg <- aggregate(fmr_data$kJ_day,by = list(fmr_data$Species), FUN='mean', na.rm=T)
-names(dee.agg) <- c('Species', 'kJ_day')
+names(fmr.agg) <- c('Genus_species', 'kJ_day')
 mass.agg <- aggregate(fmr_data$Mass_g,by = list(fmr_data$Species), FUN='mean', na.rm=T)
 names(mass.agg) <- c('Species', 'Mass_g')
-dee.agg <- merge(dee.agg, mass.agg,by="Species")
+dee.agg <- merge(fmr.agg, mass.agg,by="Species")
 
 fmr<-dee.agg$kJ_day
 mass_g<-dee.agg$Mass_g
