@@ -82,10 +82,10 @@ out$Time2 <- TimeOrder[match(birdTime,TimeOrder,nomatch=NA)]
 
 ## Violin plots - don't use
 #ggplot(data=out[out$variable=="Max",]) + my_theme +
- # geom_violin(aes(x=Indiv_ID, y=value)) + geom_point(aes(x=Indiv_ID, y=value)) +
- #  #geom_linerange(aes(x=Indiv_ID, ymin= min(value), ymax=max(value)), size=1) +
- # geom_point(aes(x=Indiv_ID, y=mean(value)), size=4) + ylab(Temp.lab)  +
- # ylim(0,36)
+  #geom_violin(aes(x=Indiv_ID, y=value)) + geom_point(aes(x=Indiv_ID, y=value)) +
+  # #geom_linerange(aes(x=Indiv_ID, ymin= min(value), ymax=max(value)), size=1) +
+  #geom_point(aes(x=Indiv_ID, y=mean(value)), size=4) + ylab(Temp.lab)  +
+  #ylim(0,36)
 
 
 ggplot(out, aes(Time2, value)) +

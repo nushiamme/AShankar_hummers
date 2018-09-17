@@ -16,7 +16,7 @@ library(geiger) # for treedata() function
 library(caper)
 library(coda) # only for autocorr function
 library(phytools)
-library(OUwie) # To transform the tree into an OU tree
+#library(OUwie) # To transform the tree into an OU tree
 library(tibble) # To add columns to datasets with control
 
 #### Setup ####
@@ -26,6 +26,7 @@ fmr_data <- read.csv("DLW_data2.csv", sep=",") #Compiled daata from this paper a
 
 ## Read in McGuire et al. 2014 hummingbird phylogeny
 tree_dlw<-read.tree("hum294.tre")
+tre_ou_edited <- read.tree("OU_hummer_tree_FMR_edit.txt")
 
 #### Phylogenetic components - prune tree ####
 #Replace tip names in the tree with those in torpor database
@@ -67,20 +68,34 @@ tre1<-treedata(tree_dlw, tips)$phy
 #To check that the relationships between species in the trimmed tree look right
 plot(tre1) 
 
-## Making species-aggregated FMR data frame
+## May 2018 - Trying out GLS models with OU vs. Brownian motion
+## https://www.r-phylo.org/wiki/HowTo/PGLS
+## PGLS can only take one value per species, so I'm aggregating by mean DEE first, and then running the pgls model.
 fmr.agg <- aggregate(fmr_data$kJ_day,by = list(fmr_data$Species), FUN='mean', na.rm=T)
-names(fmr.agg) <- c('Genus_species', 'kJ_day')
-fmr.agg <- add_column(fmr.agg, Regime=1, .after="Genus_species")
-#fmr.agg$Regime[fmr.agg$Genus_species=="PHYA"] <- 2
-#fmr.agg$Regime[fmr.agg$Genus_species=="FLME"] <- 2
+names(fmr.agg) <- c('Species', 'kJ_day')
+mass.agg <- aggregate(fmr_data$Mass_g,by = list(fmr_data$Species), FUN='mean', na.rm=T)
+names(mass.agg) <- c('Species', 'Mass_g')
+dee.agg <- merge(fmr.agg, mass.agg,by="Species")
 
-library(corHMM)
-pp<-rayDISC(tre1, fmr.agg[,c(1,2)], model="ER", node.states="marginal")
-OUwie(pp$phy, fmr.agg, model="OUM")
-                  
+## Making FMR and Mass separate objects
+fmr<-dee.agg$kJ_day
+mass_g<-dee.agg$Mass_g
+DF.fmr<-data.frame(fmr,mass_g,row.names=dee.agg$Species)a 
+DF.fmr <-  DF.fmr[tre1$tip.label,]
+DF.fmr
 
-## Transforming the tree into an OU tree
-ouma_tre1 <- OUwie(phy=tre1, data=fmr.agg, model="OUMA")
+## Running brownian motion tree GLS model
+bm.fmr<-corBrownian(phy=tre1)
+bm.gls<-gls(log(fmr)~log(mass_g),correlation=bm.fmr,data=DF.fmr)
+summary(bm.gls)
+plot(bm.gls)
+
+## Running GLS model with Ornstein-Uhlenbeck tree
+ou.fmr<-corMartins(1,phy=tre1)
+ou.gls<-gls(log(fmr)~log(mass_g),correlation=ou.fmr,data=DF.fmr)
+summary(ou.gls)
+plot(ou.gls$residuals)
+plot(ou.gls)
 
 
 #### Models ####
@@ -90,7 +105,14 @@ ouma_tre1 <- OUwie(phy=tre1, data=fmr.agg, model="OUMA")
 #repeated measures, OR we could include a phylogenetic structure. 
 #But to get a hierarchy, with both a phylogeny and then repeated measures 
 #within the phylogeny, we need turn the phylogeny into an inverse matrix
-inv.phylo<-inverseA(tre1,nodes="TIPS",scale=TRUE)
+inv.phylo<-inverseA(tre1, nodes="TIPS", scale=TRUE)
+
+## Make OU tree
+tre_ou <- rescale(tre1, model = "OU", alpha=48.13674) ## Alpha from running OU gls model above
+plot(tre_ou)
+## Inverse matrix of the OU tree - doesn't work, edge lengths are supposedly still zero.
+inv.phylo_ou <-inverseA(tre_ou_edited,nodes="TIPS",scale=T)
+
 #set up a prior for a phylogenetic mixed model
 #Setting priors to be very uninformative
 prior<-list(G=list(G1=list(V=0.02,nu=0.02)),R=list(V=0.02,nu=0.02)) 
@@ -98,29 +120,6 @@ prior<-list(G=list(G1=list(V=0.02,nu=0.02)),R=list(V=0.02,nu=0.02))
 #(repeated across rows of observations) 
 
 #### Models ####
-
-## May 2018 - Trying out GLS models with OU vs. Brownian motion
-## https://www.r-phylo.org/wiki/HowTo/PGLS
-
-## PGLS can only take one value per species, so I'm aggregating by mean DEE first, and then running the pgls model.
-fmr.agg <- aggregate(fmr_data$kJ_day,by = list(fmr_data$Species), FUN='mean', na.rm=T)
-names(fmr.agg) <- c('Genus_species', 'kJ_day')
-mass.agg <- aggregate(fmr_data$Mass_g,by = list(fmr_data$Species), FUN='mean', na.rm=T)
-names(mass.agg) <- c('Species', 'Mass_g')
-dee.agg <- merge(fmr.agg, mass.agg,by="Species")
-
-fmr<-dee.agg$kJ_day
-mass_g<-dee.agg$Mass_g
-DF.fmr<-data.frame(fmr,mass_g,row.names=dee.agg$Species)
-DF.fmr <-  DF.fmr[tre1$tip.label,]
-DF.fmr
-bm.fmr<-corBrownian(phy=tre1)
-bm.gls<-gls(log(fmr)~log(mass_g),correlation=bm.fmr,data=DF.fmr)
-summary(bm.gls)
-
-ou.fmr<-corMartins(1,phy=tre1)
-ou.gls<-gls(log(fmr)~log(mass_g),correlation=ou.fmr,data=DF.fmr)
-summary(ou.gls)
 
 ## kJ_dayg ~ Mass_g + Big_site + Site ; random = Species 
 ## Making site a dummy categorical variable
@@ -154,6 +153,15 @@ DEE_log_mass <-MCMCglmm(log(kJ_day)~log(Mass_g),
                    prior=prior, data=fmr_data, verbose=FALSE, nitt = 5000000, thin = 1000)
 summary(DEE_log_mass)
 plot(DEE_log_mass)
+
+
+## Running the OU tree doesn't work, it says edge lengths are zero.
+## So running the MCMCglmm model without the tree, because the OU tree is a star phylogeny anyway
+DEE_log_mass_noTree <-MCMCglmm(log(kJ_day)~log(Mass_g), 
+                        random=~Species, 
+                        prior=prior, data=fmr_data, verbose=FALSE, nitt = 5000000, thin = 1000)
+summary(DEE_log_mass_noTree)
+plot(DEE_log_mass_noTree)
 
 
 ## Plot temp and tropical individuals
