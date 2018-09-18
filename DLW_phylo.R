@@ -16,8 +16,8 @@ library(geiger) # for treedata() function
 library(caper)
 library(coda) # only for autocorr function
 library(phytools)
-#library(OUwie) # To transform the tree into an OU tree
 library(tibble) # To add columns to datasets with control
+library(RColorBrewer)
 
 #### Setup ####
 setwd("C:\\Users\\nushi\\Dropbox\\DLW_paper\\Data")
@@ -27,6 +27,12 @@ fmr_data <- read.csv("DLW_data2.csv", sep=",") #Compiled daata from this paper a
 ## Read in McGuire et al. 2014 hummingbird phylogeny
 tree_dlw<-read.tree("hum294.tre")
 tre_ou_edited <- read.tree("OU_hummer_tree_FMR_edit.txt")
+
+dlw_mean <- data.frame()
+dlw_mean <- aggregate(fmr_data$kJ_day, by=list(fmr_data$Species, fmr_data$Big_site), FUN="mean", na.omit=T)
+dlw_mass <- aggregate(fmr_data$Mass_g, by=list(fmr_data$Species, fmr_data$Big_site), FUN="mean", na.omit=T)
+dlw_mean <- merge(dlw_mean, dlw_mass, by = c("Group.1", "Group.2"))
+names(dlw_mean) <- c("Species", "Region", "kJ_day", "Mass_g")
 
 #### Phylogenetic components - prune tree ####
 #Replace tip names in the tree with those in torpor database
@@ -148,6 +154,12 @@ DEE_log <-MCMCglmm(log(kJ_day)~log(Mass_g)+Temptrop,
 summary(DEE_log)
 plot(DEE_log) 
 
+DEE_full_noTree <-MCMCglmm(log(kJ_day)~log(Mass_g)+Temptrop, 
+                   random=~Species, 
+                   prior=prior, data=fmr_data, verbose=FALSE, nitt = 5000000, thin = 1000)
+summary(DEE_full_noTree)
+plot(DEE_full_noTree) 
+
 DEE_log_mass <-MCMCglmm(log(kJ_day)~log(Mass_g), 
                    random=~Species, ginverse = list(Species=inv.phylo$Ainv), 
                    prior=prior, data=fmr_data, verbose=FALSE, nitt = 5000000, thin = 1000)
@@ -165,10 +177,10 @@ plot(DEE_log_mass_noTree)
 
 
 ## Plot temp and tropical individuals
-my_theme <- theme_classic(base_size = 15) + 
+my_theme <- theme_classic(base_size = 30) + 
   theme(panel.border = element_rect(colour = "black", fill=NA)) 
-colourCount <- length(unique(dlw$Species))
-getPalette <- colorRampPalette(brewer.pal(9, "Set3"))
+colourCount <- length(unique(dlw_mean$Species))
+getPalette <- colorRampPalette(brewer.pal(9, "Set1"))
 
 lm_eqn <- function(y, x){
   m <- lm(y ~ x);
@@ -230,18 +242,12 @@ ggplot(dlw_mean, aes(log(Mass_g), log(kJ_day))) +
   theme(strip.background = element_blank(), 
         panel.border = element_rect(colour = "black", fill=NA), legend.key.height=unit(2,"line"))
 
-## Individual values, logged. Regressions based on spp means vs individual values. What do they tell you? Benefits of having individual-level data. 
-ggplot(fmr_data, aes(log(Mass_g), log(kJ_day))) + 
-  geom_point(aes(col=Species), size=5) + my_theme + xlab("Log(Mass (g))") +
-  #scale_shape_manual("Region\n", values=c(16, 3, 1, 2), labels=c("Arizona", "Chile", "Costa Rica", "Ecuador")) +
-  #scale_colour_manual(values = getPalette(colourCount)) +
-  #geom_text(x = 1.5, y = 4, col="light blue",
-   #         label = lm_eqn(log(dlw_mean$kJ_day[dlw_mean$Temptrop==0]),
-    #                       log(dlw_mean$Mass_g[dlw_mean$Temptrop==0])), parse=T, size=8) +
-  geom_text(x = 1.75, y = 5, col="black", 
-            label = lm_eqn(log(fmr_data$kJ_day),
-                           log(fmr_data$Mass_g)), parse=T, size=8) +
-  ylab("Log(kJ per day)")  + geom_smooth(method=lm) + 
+## Good graph of species means and individual points, with regression line through them. 
+ggplot(NULL, aes(log(Mass_g), log(kJ_day))) + 
+  geom_point(data=dlw_mean, aes(col=Species), size=5, shape=19) + geom_smooth(data=dlw_mean, method=lm, alpha=0.2) + 
+  geom_point(data=fmr_data, aes(col=Species), shape = 18, size=4, alpha=0.5) + my_theme + xlab("Log(Mass (g))") +
+  scale_colour_manual(values = getPalette(colourCount)) +
+  ylab("Log(kJ per day)")  + 
   theme(legend.key.height=unit(2,"line"))
 
 #Relationship without PAGI:
@@ -259,3 +265,7 @@ plot(an.fmr,5) # Reisduals vs. leverage. All points are well enough away from th
 aov_residuals <- residuals(object = an.fmr)
 # Run Shapiro-Wilk test
 shapiro.test(x = aov_residuals)
+
+## Trying out LM with species means
+lm.dlw_mean <- lm(log(kJ_day)~log(Mass_g), data=dlw_mean)
+summary(lm.dlw_mean)
