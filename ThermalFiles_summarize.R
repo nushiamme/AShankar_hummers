@@ -6,6 +6,7 @@ library(plyr)
 library(dplyr)
 library(reshape2)
 library(ggplot2)
+library(tidyverse)
 
 wd <- file.path("E:", "Google Drive", "IR_2018_csv")
 
@@ -20,7 +21,7 @@ Temp.lab <- expression(atop(paste("Temperature (", degree,"C)")))
 
 bird.folders <- c("BCHU01_0521", "BCHU02_0526", "BCHU03_0530", "BCHU04_0607", "BCHU05_0607",
                   "BLHU01_0521", "BLHU03_0522", "BLHU04_0523", "BLHU05_0523", "BLHU06_0526", "BLHU07_0529", "BLHU08_0601", 
-                  "BLHU09_0603", "BLHU11_0604", "BLHU12_0605", "BLHU13_0605", 
+                  "BLHU09_0603", "BLHU12_0605", "BLHU13_0605", 
                   "MAHU02_0520", "MAHU03_0527", "MAHU05_0529", "MAHU06_0530", "MAHU10_0603", "MAHU12_0606", "MAHU13_0606")
 
 #for(i in bird.folders) {
@@ -67,34 +68,46 @@ for(i in 1:length(ThermFiles)) {
   saveRDS(m.thermsumm,file.name)
 }
 
-
-#### Plotting ####
-out<- readRDS(file=paste(bird_id, "_summ.rds", sep=""))
-
-## Creating a time sequence
-birdTime <- out$Time
-TimeOrder1 <- seq(from = 1900, to = 2459, by = 1)
-TimeOrder2 <- seq(from = 0100, to = 0559, by = 1)
-TimeOrder <- c(TimeOrder1, paste0("0", TimeOrder2))
-TimeOrder <- factor(TimeOrder, as.character(TimeOrder))
-
-out$Time2 <- TimeOrder[match(birdTime,TimeOrder,nomatch=NA)]
-
-## Violin plots - don't use
-#ggplot(data=out[out$variable=="Max",]) + my_theme +
-  #geom_violin(aes(x=Indiv_ID, y=value)) + geom_point(aes(x=Indiv_ID, y=value)) +
-  # #geom_linerange(aes(x=Indiv_ID, ymin= min(value), ymax=max(value)), size=1) +
-  #geom_point(aes(x=Indiv_ID, y=mean(value)), size=4) + ylab(Temp.lab)  +
-  #ylim(0,36)
-
-
-ggplot(out, aes(Time2, value)) +
-  geom_point(aes(col=variable), size=3) + my_theme +
-  theme(axis.text.x = element_text(angle=60, size=15, vjust=0.5)) +
-  theme(panel.grid.major.y = element_line(colour="grey", size=0.5),
-        axis.text.y=element_text(size=15), legend.key.height = unit(3, 'lines')) +
-  scale_color_manual(values = c("black", "violet", "red"), 
-                     labels=c("Ambient", "Mean surface", "Max surface"), name="Temperature") + 
-  scale_y_continuous(breaks = c(5,10,15,20,21,22,23,24,25,26,27,28,29,30,35)) +
-  ylab(Temp.lab) + xlab("Hour") + ggtitle(out$Indiv_ID[1])
-
+all_thermal <- list()
+for(i in bird.folders) {
+  setwd(paste0(wd, "/", i))
+  
+  #### Plotting ####
+  out<- readRDS(file=paste(i, "_summ.rds", sep=""))
+  library(tidyverse)
+  all_thermal[i] <- list(out)
+}
+  
+for(i in bird.folders) {
+  setwd(paste0(wd, "/", i))
+  
+  #### Plotting ####
+  out<- readRDS(file=paste(i, "_summ.rds", sep=""))
+  
+  ## Creating a time sequence
+  birdTime <- out$Time
+  TimeOrder1 <- seq(from = 1900, to = 2459, by = 1)
+  TimeOrder2 <- seq(from = 0100, to = 0559, by = 1)
+  TimeOrder <- c(TimeOrder1, paste0("0", TimeOrder2))
+  TimeOrder <- factor(TimeOrder, as.character(TimeOrder))
+  
+  Time_unordered<- as.factor(format(seq.POSIXt(as.POSIXct(Sys.Date()), as.POSIXct(Sys.Date()+1), by = "1 min"),"%H%M", tz="GMT"))
+  
+  TimeFinal <- droplevels(na.omit(TimeOrder[match(Time_unordered, TimeOrder,nomatch=NA)]))
+  
+  
+  out$Time2 <- TimeOrder[match(birdTime,TimeOrder,nomatch=NA)]
+  
+  thermplot <- ggplot(out, aes(Time2, value)) +
+    geom_point(aes(col=variable), size=3) + my_theme +
+    theme(axis.text.x = element_text(angle=60, size=15, vjust=0.5), panel.grid.major.y = element_line(colour="grey", size=0.5),
+          axis.text.y=element_text(size=15), legend.key.height = unit(3, 'lines'),  plot.title = element_text(hjust = 0.5)) +
+    scale_color_manual(values = c("black", "violet", "red"), 
+                       labels=c("Ambient", "Mean surface", "Max surface"), name="Temperature") + 
+    scale_y_continuous(breaks = c(5,10,15,20,21,22,23,24,25,26,27,28,29,30,35)) +
+      #scale_x_discrete(drop=F, levels(out$Time2)[c(T, rep(F, 14))]) +
+    ylab(Temp.lab) + xlab("Hour") + ggtitle(out$Indiv_ID[1])
+  
+  print(thermplot)
+}
+```
