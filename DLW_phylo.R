@@ -195,6 +195,8 @@ DEE_log_mass_noTree <-MCMCglmm(log(kJ_day)~log(Mass_g),
 summary(DEE_log_mass_noTree)
 plot(DEE_log_mass_noTree)
 
+## Derive R2 from MCMCglmm results
+## Source: https://www.int-res.com/articles/suppl/m561p001_supp2.pdf
 R2 <- function(mod){
   fixed_eff <- colMeans(mod$Sol)
   fixed_var_comp <- var(as.vector(fixed_eff %*% t(mod$X)))
@@ -282,8 +284,18 @@ ggplot(dlw_mean, aes(log(Mass_g), log(kJ_day))) +
 
 ## Good graph of species means and individual points, with regression line through them. 
 ggplot(NULL, aes(log(Mass_g), log(kJ_day))) + 
-  geom_point(data=dlw_mean, aes(col=Species), size=5, shape=19) + geom_smooth(data=dlw_mean, method=lm, alpha=0.2) + 
-  geom_point(data=fmr_data, aes(col=Species), shape = 18, size=4, alpha=0.5) + my_theme + xlab("Log(Mass (g))") +
+  geom_point(data=dlw_mean, aes(col=Species), size=6, shape=19) + 
+  geom_smooth(data=fmr_data, method=lm, alpha=0.3) + 
+  geom_point(data=fmr_data, aes(col=Species), shape = 19, size=4, alpha=0.5) + 
+  my_theme + xlab("Log(Mass (g))") +
+  scale_colour_manual(values = getPalette(colourCount)) +
+  ylab("Log(kJ per day)")  + 
+  theme(legend.key.height=unit(2,"line"))
+
+## Good graph of just individual points, with regression line through them. 
+ggplot(NULL, aes(log(Mass_g), log(kJ_day))) + 
+  geom_smooth(data=fmr_data, method=lm, alpha=0.7) + 
+  geom_point(data=fmr_data, aes(col=Species), size=4, alpha=0.7) + my_theme + xlab("Log(Mass (g))") +
   scale_colour_manual(values = getPalette(colourCount)) +
   ylab("Log(kJ per day)")  + 
   theme(legend.key.height=unit(2,"line"))
