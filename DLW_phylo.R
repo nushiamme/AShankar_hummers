@@ -26,7 +26,7 @@ fmr_data <- read.csv("DLW_data2.csv", sep=",") #Compiled daata from this paper a
 
 ## Read in McGuire et al. 2014 hummingbird phylogeny
 tree_dlw<-read.tree("hum294.tre")
-tre_ou_edited <- read.tree("OU_hummer_tree_FMR_edit.txt")
+#tre_ou_edited <- read.tree("OU_hummer_tree_FMR_edit.txt")
 
 dlw_mean <- data.frame()
 dlw_mean <- aggregate(fmr_data$kJ_day, by=list(fmr_data$Species, fmr_data$Big_site), FUN="mean", na.omit=T)
@@ -53,7 +53,7 @@ tree_dlw$tip.label[92]<-"HEIM"
 tree_dlw$tip.label[93]<-"HERU"
 tree_dlw$tip.label[95]<-"HEJA"
 tree_dlw$tip.label[128]<-"AGCO"
-tree_dlw$tip.label[154]<-"PAGI"
+#tree_dlw$tip.label[154]<-"PAGI"
 tree_dlw$tip.label[156]<-"EUFU"
 tree_dlw$tip.label[163]<-"LACL"
 tree_dlw$tip.label[185]<-"ARAL"
@@ -65,6 +65,11 @@ tree_dlw$tip.label[235]<-"THFA"
 tree_dlw$tip.label[269]<-"AMTZ"
 
 
+## Tree without the Giant hummingbird
+tree_no_Pgigas <- tree_dlw
+
+tree_dlw$tip.label[154]<-"PAGI"
+
 tips<-data.frame(levels(fmr_data$Species))
 colnames(tips) <- "tips"
 rownames(tips)<-tips$tips
@@ -73,6 +78,18 @@ rownames(tips)<-tips$tips
 tre1<-treedata(tree_dlw, tips)$phy
 #To check that the relationships between species in the trimmed tree look right
 plot(tre1) 
+
+## Matching tree without P. gigas and trimming
+tips2<-data.frame(levels(droplevels(fmr_data$Species[fmr_data$Species != "PAGI"])))
+colnames(tips2) <- "tips"
+rownames(tips2)<-tips2$tips
+
+#match tree to data, prune tree, species names should be in rownnames of "data" 
+tre1_noPgigas<-treedata(tree_no_Pgigas, tips2)$phy
+#To check that the relationships between species in the trimmed tree look right
+plot(tre1_noPgigas) 
+
+
 
 ## May 2018 - Trying out GLS models with OU vs. Brownian motion
 ## https://www.r-phylo.org/wiki/HowTo/PGLS
@@ -103,6 +120,8 @@ summary(ou.gls)
 plot(ou.gls$residuals)
 plot(ou.gls)
 
+### Test separate effects of phylogeny on Mass and phylogeny on FMR
+## Maybe with the alpha thing on the OU tree again
 
 #### Models ####
 ## Now, to run Bayesian models with repeated measures per species (i.e. multiple individuals per species), 
@@ -112,6 +131,7 @@ plot(ou.gls)
 #But to get a hierarchy, with both a phylogeny and then repeated measures 
 #within the phylogeny, we need turn the phylogeny into an inverse matrix
 inv.phylo<-inverseA(tre1, nodes="TIPS", scale=TRUE)
+inv.phylo_noPgigas <- inverseA(tre1_noPgigas, nodes="TIPS", scale=TRUE)
 
 ## Make OU tree
 tre_ou <- rescale(tre1, model = "OU", alpha=48.13674) ## Alpha from running OU gls model above
@@ -174,6 +194,24 @@ DEE_log_mass_noTree <-MCMCglmm(log(kJ_day)~log(Mass_g),
                         prior=prior, data=fmr_data, verbose=FALSE, nitt = 5000000, thin = 1000)
 summary(DEE_log_mass_noTree)
 plot(DEE_log_mass_noTree)
+
+R2 <- function(mod){
+  fixed_eff <- colMeans(mod$Sol)
+  fixed_var_comp <- var(as.vector(fixed_eff %*% t(mod$X)))
+  all_randoms <- colMeans(mod$VCV)
+  residual <- all_randoms[["units"]]
+  random_var_comp <- sum(all_randoms) - residual
+  R2 <- (fixed_var_comp + random_var_comp)/(sum(all_randoms) + fixed_var_comp)
+  round(R2,3)
+}
+
+R2(DEE_log_mass_noTree)
+
+DEE_log_mass_noTree_noPgigas <-MCMCglmm(log(kJ_day)~log(Mass_g), 
+                               random=~Species, 
+                               prior=prior, data=fmr_data[fmr_data$Species != "PAGI",], verbose=FALSE, nitt = 5000000, thin = 1000)
+summary(DEE_log_mass_noTree_noPgigas)
+plot(DEE_log_mass_noTree_noPgigas)
 
 
 ## Plot temp and tropical individuals

@@ -68,16 +68,56 @@ for(i in 1:length(ThermFiles)) {
   saveRDS(m.thermsumm,file.name)
 }
 
-all_thermal <- list()
+## Compiling all the RDS files into a single list, so I can summarize the temperatures
+all_thermal <- data.frame(matrix(ncol = length(bird.folders), nrow=200))
+colnames(all_thermal) <- bird.folders
+all_amb <- data.frame(matrix(ncol = length(bird.folders), nrow=200))
+colnames(all_amb) <- bird.folders
+#all_thermal <- ls()
 for(i in bird.folders) {
   setwd(paste0(wd, "/", i))
-  
-  #### Plotting ####
   out<- readRDS(file=paste(i, "_summ.rds", sep=""))
-  library(tidyverse)
-  all_thermal[i] <- list(out)
-}
+  var1 <- out$value[out$variable=="Max"]
+  n <- length(var1)
+  all_thermal[[paste(i)]] <- c(var1, rep(NA,200-n))
   
+  var2 <- out$value[out$variable=="Min"]
+  n <- length(var2)
+  all_amb[[paste(i)]] <- c(var2, rep(NA,200-n))
+}
+
+m.all_thermal <- melt(all_thermal, na.rm=T)
+m.all_amb <- melt(all_amb,na.rm=T)
+
+## Plotting all max temps of all birds as a histogram
+ggplot(m.all_thermal, aes(value)) + geom_histogram(binwidth=1) + my_theme +
+  xlab(Temp.lab) #+ ylab("Frequency") #+ geom_point(aes(value, col=variable), alpha=0.8)
+
+ggplot(m.all_amb, aes(variable, value)) + my_theme + 
+  geom_density2d(data=m.all_thermal, aes(col=variable)) +
+  geom_violin(data=m.all_amb, alpha=0.2, position = position_nudge(x = -0.2)) +
+  geom_point(data=m.all_thermal, aes(col=variable), alpha=0.8) +
+  geom_point(data=m.all_amb, size=2, alpha=0.2, position = position_nudge(x = -0.2)) +
+  ylab(Temp.lab) + xlab("Individual") +
+    theme(axis.text.x = element_text(angle=60, size=15, vjust=0.5), axis.text.y=element_text(size=15), 
+          legend.position = "none")
+    
+
+for(i in bird.folders) {
+  try <- 
+  print(try)
+}
+
+library(dplyr)
+library(tidyr)
+library(broom)
+library(purrr)
+
+mtcars %>%
+  nest(-cyl) %>%
+  mutate(Quantiles = map(data, ~ quantile(.$mpg))) %>% 
+  unnest(map(Quantiles, tidy))
+
 for(i in bird.folders) {
   setwd(paste0(wd, "/", i))
   
