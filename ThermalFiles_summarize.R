@@ -9,6 +9,7 @@ library(ggplot2)
 library(tidyverse)
 
 wd <- file.path("E:", "Google Drive", "IR_2018_csv")
+thermal_maxes_melted <- read.csv("Melted_thermal_maxes.csv")
 
 #bird.folders <- list.dirs(wd, recursive=T)[-1]
 
@@ -87,15 +88,25 @@ for(i in bird.folders) {
 }
 
 m.all_thermal <- melt(all_thermal, na.rm=T)
+setwd("E:/Google Drive/IR_2018_csv")
+write.csv(m.all_thermal,file = "Melted_thermal_maxes2.csv")
 m.all_amb <- melt(all_amb,na.rm=T)
 
 ## Plotting all max temps of all birds as a histogram
 ggplot(m.all_thermal, aes(value)) + geom_histogram(binwidth=1) + my_theme +
   xlab(Temp.lab) #+ ylab("Frequency") #+ geom_point(aes(value, col=variable), alpha=0.8)
 
-ggplot(m.all_amb, aes(variable, value)) + my_theme + 
-  geom_density2d(data=m.all_thermal, aes(col=variable)) +
-  geom_violin(data=m.all_amb, alpha=0.2, position = position_nudge(x = -0.2)) +
+## Plotting from annotated thermal max file
+ggplot(thermal_maxes_melted, aes(variable, value)) + my_theme + geom_point(aes(col=Category), alpha=0.8) +  
+  facet_grid(.~Species, scales = "free_x",space = "free_x") +
+  ylab(Temp.lab) + xlab("Individual") + scale_color_manual(values = c('black','deepskyblue2','red', 'palegreen4')) +
+  theme(axis.text.x = element_text(angle=90, size=15, vjust=0.5), axis.text.y=element_text(size=15),
+        legend.key.height = unit(3, 'lines'))
+
+## Plotting all bird maxes and amb temps side by side
+ggplot(m.all_amb, aes(variable, value)) + my_theme +
+  #geom_density2d(data=m.all_thermal, aes(col=variable)) +
+  #geom_violin(data=m.all_amb, alpha=0.2, position = position_nudge(x = -0.2)) +
   geom_point(data=m.all_thermal, aes(col=variable), alpha=0.8) +
   geom_point(data=m.all_amb, size=2, alpha=0.2, position = position_nudge(x = -0.2)) +
   ylab(Temp.lab) + xlab("Individual") +
@@ -150,4 +161,3 @@ for(i in bird.folders) {
   
   print(thermplot)
 }
-```
