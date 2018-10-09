@@ -25,8 +25,13 @@ bird.folders <- c("BCHU01_0521", "BCHU02_0526", "BCHU03_0530", "BCHU04_0607", "B
                   "BLHU09_0603", "BLHU12_0605", "BLHU13_0605", 
                   "MAHU02_0520", "MAHU03_0527", "MAHU05_0529", "MAHU06_0530", "MAHU10_0603", "MAHU12_0606", "MAHU13_0606")
 
-#for(i in bird.folders) {
-setwd(paste0(wd, "/", bird_id))
+bird.folders.2017 <- c("BC01_0610", "BC02_0612", "BC03_0617",
+                  "BL01_0610", "BL02_0612", "BL03_0614", "BL04_0615",
+                  "MA02_0611", "MA05_0615", "MA06_0616", "MA07_0617", "MA08_0619")
+
+
+for(i in bird.folders.2017) {
+setwd(paste0(wd, "/", i))
 
 ## nothing
 
@@ -35,7 +40,7 @@ setwd(paste0(wd, "/", bird_id))
 paths <- dir(pattern = "\\.csv$")
 names(paths) <- basename(paths)
 
-# RUN ThermFiles <- lapply(paths, read.csv, header=F)
+ThermFiles <- lapply(paths, read.csv, header=F)
 
 ### Creating a summary data frame of 
 # Can also create automatic lists of summaries: lapply(ThermFiles_na_omit[[i]], summary)
@@ -67,6 +72,7 @@ for(i in 1:length(ThermFiles)) {
                                       "03", "04", "05", "06"), ordered=T)
   file.name <- paste(m.thermsumm$Indiv_ID[1], "_", m.thermsumm$Date[1], "_summ.rds", sep="")
   saveRDS(m.thermsumm,file.name)
+  }
 }
 
 ## Compiling all the RDS files into a single list, so I can summarize the temperatures
