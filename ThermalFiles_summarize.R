@@ -7,11 +7,15 @@ library(dplyr)
 library(reshape2)
 library(ggplot2)
 library(tidyverse)
+library(viridis)
 
 wd <- file.path("E:", "Google Drive", "IR_2018_csv")
+setwd(wd)
 thermal_maxes_melted <- read.csv("E:\\Google Drive\\IR_2018_csv\\Melted_thermal_maxes_all.csv")
+categories <- read.csv("Category_thresholds.csv")
 
 thermal_maxes_melted$Category <- factor(thermal_maxes_melted$Category, levels = c("Normothermic", "Shallow", "Transition", "Torpor"))
+
 
 #bird.folders <- list.dirs(wd, recursive=T)[-1]
 
@@ -22,7 +26,7 @@ my_theme <- theme_classic(base_size = 30) +
 ## Axis labels
 Temp.lab <- expression(atop(paste("Temperature (", degree,"C)")))
 
-bird.folders <- c("BCHU01_0521", "BCHU02_0526", "BCHU03_0530", "BCHU04_0607", "BCHU05_0607",
+bird.folders.2018 <- c("BCHU01_0521", "BCHU02_0526", "BCHU03_0530", "BCHU04_0607", "BCHU05_0607",
                   "BLHU01_0521", "BLHU03_0522", "BLHU04_0523", "BLHU05_0523", "BLHU06_0526", "BLHU07_0529", "BLHU08_0601", 
                   "BLHU09_0603", "BLHU12_0605", "BLHU13_0605", 
                   "MAHU02_0520", "MAHU03_0527", "MAHU05_0529", "MAHU06_0530", "MAHU10_0603", "MAHU12_0606", "MAHU13_0606")
@@ -106,6 +110,12 @@ for(i in bird.folders.all) {
   all_amb[[paste(i)]] <- c(var2, rep(NA,120-n))
 }
 
+m.all_thermal <- melt(all_thermal, na.rm=T)
+setwd("E:/Google Drive/IR_2018_csv")
+write.csv(m.all_thermal,file = "Melted_thermal_maxes2.csv")
+m.all_amb <- melt(all_amb,na.rm=T)
+
+#### DON'T USE - old ####
 ## To plot amb vs. Ts for all birds
 surface_amb <- data.frame(matrix(ncol = 2*length(bird.folders.all), nrow=120))
 colnames(surface_amb) <- bird.folders.all
@@ -136,6 +146,7 @@ surface_amb <- surface_amb[order(as.numeric(as.character(surface_amb$Row.names))
 row.names(surface_amb) <- surface_amb$Row.names
 surface_amb <- subset(surface_amb, select = -Row.names)
 head(surface_amb)
+#### Don't use before this ####
 
 ## Length of longest column (non-NA)
 max(apply(amb, 2, function(x) length(which(!is.na(x)))))
@@ -156,13 +167,41 @@ out_max <- out_all[out_all$variable=="Max",] ## Make a separate data frame with 
 out_full <- merge(out_amb,out_max, by = c("Indiv_ID", "Date", "Time", "Hour")) ## Merge the two
 out_full <- subset(out_full, select = -c(variable.x, variable.y)) ## Remove unnecessary columns
 names(out_full) <- c("Indiv_ID", "Date", "Time", "Hour", "Amb_Temp", "Surf_Temp")
+out_full$Year <- 0
+out_full$Indiv_ID <- lapply(out_full$Indiv_ID, function(x) {
+  gsub("BC0", "BCHU0", x)
+  })
+out_full$Indiv_ID <- lapply(out_full$Indiv_ID, function(x) {
+  gsub("BL0", "BLHU0", x)
+})
+out_full$Indiv_ID <- lapply(out_full$Indiv_ID, function(x) {
+  gsub("MA0", "MAHU0", x)
+})
+out_full$pasted <- paste(out_full$Indiv_ID, "_", out_full$Date, sep="")
+out_full$Year[which(!is.na(match(out_full$pasted,bird.folders.2017)))] <- 17
+out_full$Year[which(!is.na(match(out_full$pasted,bird.folders.2018)))] <- 18
+out_full$pasted <- paste(out_full$pasted, out_full$Year, sep="")
 head(out_full)
-ggplot(out_full, aes(Amb_Temp, Surf_Temp)) + geom_point(aes(col=Indiv_ID))
 
-m.all_thermal <- melt(all_thermal, na.rm=T)
-setwd("E:/Google Drive/IR_2018_csv")
-write.csv(m.all_thermal,file = "Melted_thermal_maxes2.csv")
-m.all_amb <- melt(all_amb,na.rm=T)
+
+## NEW - copied code chunk, 
+## TO DO: use the code chunk below to make category column in out_full using conditions in 'categories' DF
+out_full$Category <- 0
+mutate(out_full,
+       Category = if_else(days_B == 0, Date_1, Date_3), 
+       Date_4 = if_else(days_B == 0, Date_2, Date_4),
+       days_B = if_else(days_B == 0, days_A, as.integer(days_B)))
+
+## Plot surface vs ambient temperature
+ggplot(out_full, aes(Amb_Temp, Surf_Temp)) + geom_point(aes(col=Indiv_ID)) + my_theme +
+  xlab("Ambient Temperature") + ylab("Surface Temperature") +
+  scale_y_continuous(breaks = c(5,10,15,20,21,22,23,24,25,26,27,28,29,30,35,40)) +
+  scale_color_viridis(begin = 0, end = 1, direction = 1,
+                       discrete = FALSE, option = "D") +
+  theme(panel.grid.major.y = element_line(colour="grey", size=0.5), axis.text.x=element_text(size=15),
+        axis.text.y=element_text(size=15), legend.key.height = unit(1.5, 'lines'))
+
+
 
 ## Plotting all max temps of all birds as a histogram
 ggplot(m.all_thermal, aes(value)) + geom_histogram(binwidth=1) + my_theme +
