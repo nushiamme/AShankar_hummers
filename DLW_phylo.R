@@ -180,11 +180,19 @@ DEE_full_noTree <-MCMCglmm(log(kJ_day)~log(Mass_g)+Temptrop,
 summary(DEE_full_noTree)
 plot(DEE_full_noTree) 
 
+## DEE vs Mass, log-log, with tree
 DEE_log_mass <-MCMCglmm(log(kJ_day)~log(Mass_g), 
                    random=~Species, ginverse = list(Species=inv.phylo$Ainv), 
                    prior=prior, data=fmr_data, verbose=FALSE, nitt = 5000000, thin = 1000)
 summary(DEE_log_mass)
 plot(DEE_log_mass)
+
+## Dee-mass, log-log, no tree, and using only species means
+DEE_log_mass_means <-MCMCglmm(log(kJ_day)~log(Mass_g), 
+                        random=~Species, ginverse = list(Species=inv.phylo$Ainv), 
+                        prior=prior, data=dlw_mean, verbose=FALSE, nitt = 5000000, thin = 1000)
+summary(DEE_log_mass_means)
+plot(DEE_log_mass_means)
 
 
 ## Running the OU tree doesn't work, it says edge lengths are zero.
@@ -208,6 +216,7 @@ R2 <- function(mod){
 }
 
 R2(DEE_log_mass_noTree)
+R2(DEE_log_mass_means)
 
 DEE_log_mass_noTree_noPgigas <-MCMCglmm(log(kJ_day)~log(Mass_g), 
                                random=~Species, 

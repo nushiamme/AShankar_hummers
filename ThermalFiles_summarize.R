@@ -187,6 +187,62 @@ head(out_full)
 ## NEW - copied code chunk, 
 ## TO DO: use the code chunk below to make category column in out_full using conditions in 'categories' DF
 out_full$Category <- 0
+for(i in out_full$pasted) {
+  for(j in 1:nrow(out_full)) {
+    categ <- categories[categories$Indiv_ID==i,]
+    if(out_full$Surf_Temp[j]>=categ$Normo_min) {
+      out_full$Category[j] <- "Normothermic"
+    } else if(categ$Shallow_max[j] > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Shallow_min) {
+      out_full$Category[j] <- "Shallow"
+    } else if(categ$Transition_max[j] > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Transition_min) {
+      out_full$Category[j] <- "Transition"
+    } else if(categ$Transition_min > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Torpor_max) {
+      out_full$Category[j] <- "Torpor"
+    }
+  }
+}
+
+test <- out_full[out_full$pasted=="BCHU01_061017",]
+
+for(j in 1:nrow(test)) {
+  categ <- categories[categories$Indiv_ID=="BCHU01_061017",]
+  if(which(!is.na(categ$Shallow_max)) & which(!is.na(categ$Transition_max))) {
+    if(out_full$Surf_Temp[j]>=categ$Normo_min) {
+      out_full$Category[j] <- "Normothermic"
+    } else if(categ$Shallow_max[j] > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Shallow_min) {
+      out_full$Category[j] <- "Shallow"
+    } else if(categ$Transition_max[j] > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Transition_min) {
+      out_full$Category[j] <- "Transition"
+    } else if(categ$Transition_min > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Torpor_max) {
+      out_full$Category[j] <- "Torpor"
+    }
+  } else if(which(is.na(categ$Shallow_max)) & which(!is.na(categ$Transition_max))) {
+    if(out_full$Surf_Temp[j]>=categ$Normo_min) {
+      out_full$Category[j] <- "Normothermic"
+    } else if(categ$Transition_max[j] > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Transition_min) {
+      out_full$Category[j] <- "Transition"
+    } else if(categ$Transition_min > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Torpor_max) {
+      out_full$Category[j] <- "Torpor"
+    }
+  } else if(which(is.na(categ$Shallow_max)) & which(is.na(categ$Transition_max))) {
+    if(out_full$Surf_Temp[j]>=categ$Normo_min) {
+      out_full$Category[j] <- "Normothermic"
+    } else if(categ$Transition_max[j] > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Transition_min) {
+      out_full$Category[j] <- "Transition"
+    } else if(categ$Transition_min > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Torpor_max) {
+      out_full$Category[j] <- "Torpor"
+    }
+  } else if(which(!is.na(categ$Shallow_max)) & which(is.na(categ$Transition_max))) {
+    if(out_full$Surf_Temp[j]>=categ$Normo_min) {
+      out_full$Category[j] <- "Normothermic"
+    } else if(categ$Shallow_max[j] > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Shallow_min) {
+      out_full$Category[j] <- "Shallow"
+    } else if(categ$Transition_min > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Torpor_max) {
+      out_full$Category[j] <- "Torpor"
+    }
+  }
+}
+
 mutate(out_full,
        Category = if_else(days_B == 0, Date_1, Date_3), 
        Date_4 = if_else(days_B == 0, Date_2, Date_4),
