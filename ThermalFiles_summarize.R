@@ -163,127 +163,60 @@ dim(out_all) ## Check dimensions
 out_all <- out_all[complete.cases(out_all),] ## Remove rows with NAs
 dim(out_all) ## Check dimensions
 out_amb <- out_all[out_all$variable=="Min",] ## Make a separate data frame with just minimum (~= ambient) values
+#out_mean <- out_all[out_all$variable=="Mean",] ## Make a separate data frame with just mean Ts values
 out_max <- out_all[out_all$variable=="Max",] ## Make a separate data frame with just maximum (~= surface) values
 out_full <- merge(out_amb,out_max, by = c("Indiv_ID", "Date", "Time", "Hour")) ## Merge the two
 out_full <- subset(out_full, select = -c(variable.x, variable.y)) ## Remove unnecessary columns
 names(out_full) <- c("Indiv_ID", "Date", "Time", "Hour", "Amb_Temp", "Surf_Temp")
 out_full$Year <- 0
+head(out_full)
+out_full$pasted <- paste(out_full$Indiv_ID, "_", out_full$Date, sep="")
+out_full$Year[which(!is.na(match(out_full$pasted,bird.folders.2017)))] <- 17
+out_full$Year[which(!is.na(match(out_full$pasted,bird.folders.2018)))] <- 18
 out_full$Indiv_ID <- lapply(out_full$Indiv_ID, function(x) {
   gsub("BC0", "BCHU0", x)
-  })
+})
 out_full$Indiv_ID <- lapply(out_full$Indiv_ID, function(x) {
   gsub("BL0", "BLHU0", x)
 })
 out_full$Indiv_ID <- lapply(out_full$Indiv_ID, function(x) {
   gsub("MA0", "MAHU0", x)
 })
-out_full$pasted <- paste(out_full$Indiv_ID, "_", out_full$Date, sep="")
-out_full$Year[which(!is.na(match(out_full$pasted,bird.folders.2017)))] <- 17
-out_full$Year[which(!is.na(match(out_full$pasted,bird.folders.2018)))] <- 18
-out_full$pasted <- paste(out_full$pasted, out_full$Year, sep="")
+out_full$pasted <- paste(out_full$Indiv_ID, "_", out_full$Date, out_full$Year, sep="")
 head(out_full)
+out_full <- out_full[out_full$pasted != "BCHU05_060718",]
 
 
 ## NEW - copied code chunk, 
 ## TO DO: use the code chunk below to make category column in out_full using conditions in 'categories' DF
-out_full$Category <- "0"
-for(i in out_full$pasted) {
-  for(j in 1:nrow(out_full)) {
-    categ <- categories[categories$Indiv_ID==i,]
-    if(out_full$Surf_Temp[j]>=categ$Normo_min) {
-      out_full$Category[j] <- "Normothermic"
-    } else if(categ$Shallow_max[j] > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Shallow_min) {
-      out_full$Category[j] <- "Shallow"
-    } else if(categ$Transition_max[j] > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Transition_min) {
-      out_full$Category[j] <- "Transition"
-    } else if(categ$Transition_min > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Torpor_max) {
-      out_full$Category[j] <- "Torpor"
-    }
-  }
-}
-
-test <- out_full[out_full$pasted=="BCHU01_061017",]
-
-for(j in 1:nrow(test)) {
-  categ <- categories[categories$Indiv_ID=="BCHU01_061017",]
-  if(which(!is.na(categ$Normo_min)) & which(!is.na(categ$Shallow_max)) & which(!is.na(categ$Transition_max))) {
-    print("Categ 1")
-    if(out_full$Surf_Temp[j]>=categ$Normo_min) {
-      out_full$Category[j] <- "Normothermic"
-    } else if(categ$Shallow_max[j] > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Shallow_min) {
-      out_full$Category[j] <- "Shallow"
-    } else if(categ$Transition_max[j] > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Transition_min) {
-      out_full$Category[j] <- "Transition"
-    } else if(categ$Transition_min > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Torpor_max) {
-      out_full$Category[j] <- "Torpor"
-    } 
-  } else if(which(!is.na(categ$Normo_min)) & which(is.na(categ$Shallow_max)) & which(!is.na(categ$Transition_max))) {
-    print("Categ 2")
-    if(out_full$Surf_Temp[j]>=categ$Normo_min) {
-      out_full$Category[j] <- "Normothermic"
-    } else if(categ$Transition_max[j] > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Transition_min) {
-      out_full$Category[j] <- "Transition"
-    } else if(categ$Transition_min > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Torpor_max) {
-      out_full$Category[j] <- "Torpor"
-    } 
-  } else if(which(!is.na(categ$Normo_min)) & which(is.na(categ$Shallow_max)) & which(is.na(categ$Transition_max))) {
-    print("Categ 3")
-    if(out_full$Surf_Temp[j]>=categ$Normo_min) {
-      out_full$Category[j] <- "Normothermic"
-    } else if(categ$Transition_max[j] > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Transition_min) {
-      out_full$Category[j] <- "Transition"
-    } else if(categ$Transition_min > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Torpor_max) {
-      out_full$Category[j] <- "Torpor"
-    } 
-  } else if(which(!is.na(categ$Normo_min)) & which(!is.na(categ$Shallow_max)) & which(is.na(categ$Transition_max))) {
-    print("Categ 4")
-    if(out_full$Surf_Temp[j]>=categ$Normo_min) {
-      out_full$Category[j] <- "Normothermic"
-    } else if(categ$Shallow_max[j] > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Shallow_min) {
-      out_full$Category[j] <- "Shallow"
-    } else if(categ$Transition_min > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Torpor_max) {
-      out_full$Category[j] <- "Torpor"
-    } 
-  }
-}
+out_full$Category <- 0
 
 for(i in 1:nrow(out_full)) {
-    categ <- categories[categories$Indiv_ID==out_full$pasted[i],]
+    categ <- categories[categories$Individual==out_full$pasted[i],]
     if(out_full$Surf_Temp[i] > categ$Normo_min) {
       out_full$Category[i] <- "Normo"
     } else if(!is.na(categ$Shallow_min) & out_full$Surf_Temp[i] > categ$Shallow_min) {
       out_full$Category[i] <- "Shallow"
+    } else if(is.na(categ$Shallow_min) & !is.na(categ$Shallow_max) & out_full$Surf_Temp[i] < categ$Shallow_max) {
+      out_full$Category[i] <- "Shallow"
     } else if(!is.na(categ$Transition_min) & out_full$Surf_Temp[i] > categ$Transition_min) {
+      out_full$Category[i] <- "Transition"
+    } else if(is.na(categ$Transition_min) & !is.na(categ$Transition_max) & out_full$Surf_Temp[i] < categ$Transition_max) {
       out_full$Category[i] <- "Transition"
     } else if(!is.na(categ$Torpor_max) & out_full$Surf_Temp[i] < categ$Torpor_max) {
       out_full$Category[i] <- "Torpor"
     }
 }
 
-
-
-
-
-  
-  
-  
-  for (j in 3:ncol(categ)) {
-    foo <- as.character(colnames(categ[j]))
-    vec <- substr(foo,nchar(foo)-2,nchar(foo))
-    if(vec== "max" & test$Surf_Temp[i] > categ[1,j]) {
-      test$Category <- substr(foo,1,5)
-    }
-  } 
-
-
-
+out_full$pasted <- as.factor(as.character(out_full$pasted))
 
 ## Plot surface vs ambient temperature
-ggplot(out_full, aes(Amb_Temp, Surf_Temp)) + geom_point(aes(col=Indiv_ID)) + my_theme +
+ggplot(out_full, aes(Amb_Temp, Surf_Temp)) + geom_point(aes(col=Category, shape=Category), size=2.5) + my_theme +
   xlab("Ambient Temperature") + ylab("Surface Temperature") +
   scale_y_continuous(breaks = c(5,10,15,20,21,22,23,24,25,26,27,28,29,30,35,40)) +
-  scale_color_viridis(begin = 0, end = 1, direction = 1,
-                       discrete = FALSE, option = "D") +
+  scale_colour_viridis(begin = 0, end = 1, direction = -1,
+                       discrete = T, option = "plasma") +
+  scale_shape_manual(values = c(15:18)) +
   theme(panel.grid.major.y = element_line(colour="grey", size=0.5), axis.text.x=element_text(size=15),
         axis.text.y=element_text(size=15), legend.key.height = unit(1.5, 'lines'))
 
