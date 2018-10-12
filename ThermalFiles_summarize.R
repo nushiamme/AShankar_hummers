@@ -186,7 +186,7 @@ head(out_full)
 
 ## NEW - copied code chunk, 
 ## TO DO: use the code chunk below to make category column in out_full using conditions in 'categories' DF
-out_full$Category <- 0
+out_full$Category <- "0"
 for(i in out_full$pasted) {
   for(j in 1:nrow(out_full)) {
     categ <- categories[categories$Indiv_ID==i,]
@@ -206,7 +206,8 @@ test <- out_full[out_full$pasted=="BCHU01_061017",]
 
 for(j in 1:nrow(test)) {
   categ <- categories[categories$Indiv_ID=="BCHU01_061017",]
-  if(which(!is.na(categ$Shallow_max)) & which(!is.na(categ$Transition_max))) {
+  if(which(!is.na(categ$Normo_min)) & which(!is.na(categ$Shallow_max)) & which(!is.na(categ$Transition_max))) {
+    print("Categ 1")
     if(out_full$Surf_Temp[j]>=categ$Normo_min) {
       out_full$Category[j] <- "Normothermic"
     } else if(categ$Shallow_max[j] > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Shallow_min) {
@@ -215,38 +216,67 @@ for(j in 1:nrow(test)) {
       out_full$Category[j] <- "Transition"
     } else if(categ$Transition_min > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Torpor_max) {
       out_full$Category[j] <- "Torpor"
-    }
-  } else if(which(is.na(categ$Shallow_max)) & which(!is.na(categ$Transition_max))) {
+    } 
+  } else if(which(!is.na(categ$Normo_min)) & which(is.na(categ$Shallow_max)) & which(!is.na(categ$Transition_max))) {
+    print("Categ 2")
     if(out_full$Surf_Temp[j]>=categ$Normo_min) {
       out_full$Category[j] <- "Normothermic"
     } else if(categ$Transition_max[j] > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Transition_min) {
       out_full$Category[j] <- "Transition"
     } else if(categ$Transition_min > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Torpor_max) {
       out_full$Category[j] <- "Torpor"
-    }
-  } else if(which(is.na(categ$Shallow_max)) & which(is.na(categ$Transition_max))) {
+    } 
+  } else if(which(!is.na(categ$Normo_min)) & which(is.na(categ$Shallow_max)) & which(is.na(categ$Transition_max))) {
+    print("Categ 3")
     if(out_full$Surf_Temp[j]>=categ$Normo_min) {
       out_full$Category[j] <- "Normothermic"
     } else if(categ$Transition_max[j] > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Transition_min) {
       out_full$Category[j] <- "Transition"
     } else if(categ$Transition_min > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Torpor_max) {
       out_full$Category[j] <- "Torpor"
-    }
-  } else if(which(!is.na(categ$Shallow_max)) & which(is.na(categ$Transition_max))) {
+    } 
+  } else if(which(!is.na(categ$Normo_min)) & which(!is.na(categ$Shallow_max)) & which(is.na(categ$Transition_max))) {
+    print("Categ 4")
     if(out_full$Surf_Temp[j]>=categ$Normo_min) {
       out_full$Category[j] <- "Normothermic"
     } else if(categ$Shallow_max[j] > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Shallow_min) {
       out_full$Category[j] <- "Shallow"
     } else if(categ$Transition_min > out_full$Surf_Temp[j] & out_full$Surf_Temp[j] >= categ$Torpor_max) {
       out_full$Category[j] <- "Torpor"
-    }
+    } 
   }
 }
 
-mutate(out_full,
-       Category = if_else(days_B == 0, Date_1, Date_3), 
-       Date_4 = if_else(days_B == 0, Date_2, Date_4),
-       days_B = if_else(days_B == 0, days_A, as.integer(days_B)))
+for(i in 1:nrow(out_full)) {
+    categ <- categories[categories$Indiv_ID==out_full$pasted[i],]
+    if(out_full$Surf_Temp[i] > categ$Normo_min) {
+      out_full$Category[i] <- "Normo"
+    } else if(!is.na(categ$Shallow_min) & out_full$Surf_Temp[i] > categ$Shallow_min) {
+      out_full$Category[i] <- "Shallow"
+    } else if(!is.na(categ$Transition_min) & out_full$Surf_Temp[i] > categ$Transition_min) {
+      out_full$Category[i] <- "Transition"
+    } else if(!is.na(categ$Torpor_max) & out_full$Surf_Temp[i] < categ$Torpor_max) {
+      out_full$Category[i] <- "Torpor"
+    }
+}
+
+
+
+
+
+  
+  
+  
+  for (j in 3:ncol(categ)) {
+    foo <- as.character(colnames(categ[j]))
+    vec <- substr(foo,nchar(foo)-2,nchar(foo))
+    if(vec== "max" & test$Surf_Temp[i] > categ[1,j]) {
+      test$Category <- substr(foo,1,5)
+    }
+  } 
+
+
+
 
 ## Plot surface vs ambient temperature
 ggplot(out_full, aes(Amb_Temp, Surf_Temp)) + geom_point(aes(col=Indiv_ID)) + my_theme +
