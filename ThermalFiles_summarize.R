@@ -16,7 +16,6 @@ categories <- read.csv("Category_thresholds.csv")
 
 thermal_maxes_melted$Category <- factor(thermal_maxes_melted$Category, levels = c("Normothermic", "Shallow", "Transition", "Torpor"))
 
-
 #bird.folders <- list.dirs(wd, recursive=T)[-1]
 
 ## Generic plot theme
@@ -43,11 +42,11 @@ bird.folders.all <- c("BCHU01_0521", "BCHU02_0526", "BCHU03_0530", "BCHU04_0607"
                       "BL01_0610", "BL02_0612", "BL03_0614", "BL04_0615",
                       "MA02_0611", "MA05_0615", "MA06_0616", "MA07_0617", "MA08_0619")
 
+#### Do not run again unless base thermal files change ####
 
 for(i in bird.folders.all) {
 setwd(paste0(wd, "/", i))
 
-## nothing
 
 #### Compile csv's and process ####
 ## Using plyr
@@ -148,9 +147,6 @@ surface_amb <- subset(surface_amb, select = -Row.names)
 head(surface_amb)
 #### Don't use before this ####
 
-## Length of longest column (non-NA)
-max(apply(amb, 2, function(x) length(which(!is.na(x)))))
-
 ## Stacking all the individual birds' data, keeping all melted columns from earlier (hour, min, max, etc.)
 out_all <- data.frame(matrix(ncol = 6, nrow=109*length(bird.folders.all)))
 names(out_all) <- names(out)
@@ -168,7 +164,7 @@ out_max <- out_all[out_all$variable=="Max",] ## Make a separate data frame with 
 out_full <- merge(out_amb,out_max, by = c("Indiv_ID", "Date", "Time", "Hour")) ## Merge the two
 out_full <- subset(out_full, select = -c(variable.x, variable.y)) ## Remove unnecessary columns
 names(out_full) <- c("Indiv_ID", "Date", "Time", "Hour", "Amb_Temp", "Surf_Temp")
-out_full$Year <- 0
+out_full$Year <- 0 ## Making a year column to make Indiv_ID in out_full match individual column in categories DF
 head(out_full)
 out_full$pasted <- paste(out_full$Indiv_ID, "_", out_full$Date, sep="")
 out_full$Year[which(!is.na(match(out_full$pasted,bird.folders.2017)))] <- 17
@@ -185,16 +181,18 @@ out_full$Indiv_ID <- lapply(out_full$Indiv_ID, function(x) {
 out_full$pasted <- paste(out_full$Indiv_ID, "_", out_full$Date, out_full$Year, sep="")
 head(out_full)
 out_full <- out_full[out_full$pasted != "BCHU05_060718",]
+out_full$Indiv_numeric <- cumsum(!duplicated(out_full$pasted)) ## Making individual column numeric for the anova
 
 
-## NEW - copied code chunk, 
-## TO DO: use the code chunk below to make category column in out_full using conditions in 'categories' DF
+## Loops to fill in a "Category" column in the out_full dataset so that each surface temperature is 
+## assigned a category according to individual thresholds laid out in the categories DF
+
 out_full$Category <- 0
 
 for(i in 1:nrow(out_full)) {
     categ <- categories[categories$Individual==out_full$pasted[i],]
     if(out_full$Surf_Temp[i] > categ$Normo_min) {
-      out_full$Category[i] <- "Normo"
+      out_full$Category[i] <- "Normothermic"
     } else if(!is.na(categ$Shallow_min) & out_full$Surf_Temp[i] > categ$Shallow_min) {
       out_full$Category[i] <- "Shallow"
     } else if(is.na(categ$Shallow_min) & !is.na(categ$Shallow_max) & out_full$Surf_Temp[i] < categ$Shallow_max) {
@@ -208,19 +206,24 @@ for(i in 1:nrow(out_full)) {
     }
 }
 
-out_full$pasted <- as.factor(as.character(out_full$pasted))
+summary(lm(Surf_Temp~Amb_Temp + Category + (1|Indiv_numeric), data=out_full))
+
+out_full$Category <- factor(out_full$Category, levels = c("Normothermic", "Shallow", "Transition", "Torpor"))
+my_colors <- c("#85d349ff", "#440154ff", "#fde725ff", "#23988aff")
+my_colors2 <- c("#23988aff", "#F38BA8", "#440558ff", "#9ed93aff")
+
 
 ## Plot surface vs ambient temperature
 ggplot(out_full, aes(Amb_Temp, Surf_Temp)) + geom_point(aes(col=Category, shape=Category), size=2.5) + my_theme +
-  xlab("Ambient Temperature") + ylab("Surface Temperature") +
   scale_y_continuous(breaks = c(5,10,15,20,21,22,23,24,25,26,27,28,29,30,35,40)) +
-  scale_colour_viridis(begin = 0, end = 1, direction = -1,
-                       discrete = T, option = "plasma") +
+  scale_colour_manual(values=my_colors2) +
+  geom_smooth(aes(group=Category),method='lm') +
   scale_shape_manual(values = c(15:18)) +
   theme(panel.grid.major.y = element_line(colour="grey", size=0.5), axis.text.x=element_text(size=15),
-        axis.text.y=element_text(size=15), legend.key.height = unit(1.5, 'lines'))
-
-
+        axis.text.y=element_text(size=15), legend.key.height = unit(1.5, 'lines')) +
+  xlab( expression(atop(paste("Ambient Temperature (", degree,"C)")))) + 
+  ylab( expression(atop(paste("Surface Temperature (", degree,"C)")))) +
+  guides(colour = guide_legend(override.aes = list(size=4)))
 
 ## Plotting all max temps of all birds as a histogram
 ggplot(m.all_thermal, aes(value)) + geom_histogram(binwidth=1) + my_theme +
@@ -229,7 +232,9 @@ ggplot(m.all_thermal, aes(value)) + geom_histogram(binwidth=1) + my_theme +
 ## Plotting distribution of max values for all birds, from annotated thermal max file
 ggplot(thermal_maxes_melted, aes(variable, value)) + my_theme + geom_point(aes(col=Category), alpha=0.8) +  
   facet_grid(.~Species, scales = "free_x",space = "free_x") +
-  ylab(Temp.lab) + xlab("Individual") + scale_color_manual(values = c('black','deepskyblue2', 'palegreen4', 'red')) +
+  ylab(Temp.lab) + xlab("Individual") + 
+  #scale_color_manual(values = c('black','deepskyblue2', 'palegreen4', 'red')) +
+  scale_color_manual(values=my_colors2) +
   guides(colour = guide_legend(override.aes = list(size=3))) +
   theme(axis.text.x = element_text(angle=90, size=15, vjust=0.5), axis.text.y=element_text(size=15),
         legend.key.height = unit(3, 'lines'))
@@ -303,8 +308,8 @@ for(i in bird.folders) {
   print(thermplot)
 }
 
-setwd(".//BC01_0610")
-test <- readRDS("BC01_0610_summ.rds")
+setwd(".//BLHU05_0523")
+test <- readRDS("BLHU05_0523_summ.rds")
 
 ## Creating a time sequence
 birdTime <- test$Time
