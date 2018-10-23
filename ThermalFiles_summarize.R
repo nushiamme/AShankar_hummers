@@ -257,9 +257,18 @@ data_species_summ <- datatry %>%
 
 ## By individual
 data_indiv_summ <- datatry %>%
-  group_by(Species, Category) %>%
+  group_by(Indiv_pasted, Category) %>%
   summarise (n = length(Category))
 data_indiv_summ
+
+## Summarize (binary) whether individuals used a particular category or not
+indiv_categ_count <- ddply(data_indiv_summ, c("Indiv_pasted"), summarise, 
+                   Normo=sum(Category=="Normothermic"), Shallow=sum(Category=="Shallow"),
+                   Transition=sum(Category=="Transition"), Torpor=sum(Category=="Torpor"))
+sum(indiv_categ_count$Normo)
+sum(indiv_categ_count$Shallow)
+sum(indiv_categ_count$Transition)
+sum(indiv_categ_count$Torpor)
 
 datatry$Category <- factor(datatry$Category, levels = c("Normothermic", "Shallow", "Transition", "Torpor"))
 my_colors2 <- c("#23988aff", "#F38BA8", "#440558ff", "#9ed93aff")
@@ -330,6 +339,10 @@ mod.surf_amb_trad2 <- lm(Surf_Temp~Amb_Temp + Category_Traditional2, data=out_fu
 summary(mod.surf_amb_trad2)
 plot(mod.surf_amb_trad2)
 
+## Not including Category as a covariate
+mod.surf_amb_noCateg <- lm(Surf_Temp~Amb_Temp, data=out_full)
+summary(mod.surf_amb_noCateg)
+plot(mod.surf_amb_trad2)
 
 # Other useful functions 
 coefficients(mod.surf_amb) # model coefficients
@@ -360,6 +373,15 @@ ggplot(m.all_thermal, aes(value)) + geom_histogram(binwidth=1) + my_theme +
 
 ## Plotting distribution of max values for all birds, from annotated thermal max file
 ggplot(thermal_maxes_melted, aes(variable, value)) + my_theme + geom_point(aes(col=Category), alpha=0.8) +  
+  facet_grid(.~Species, scales = "free_x",space = "free_x") +
+  ylab(Temp.lab) + xlab("Individual") + 
+  #scale_color_manual(values = c('black','deepskyblue2', 'palegreen4', 'red')) +
+  scale_color_manual(values=my_colors2) +
+  guides(colour = guide_legend(override.aes = list(size=3))) +
+  theme(axis.text.x = element_text(angle=90, size=15, vjust=0.5), axis.text.y=element_text(size=15),
+        legend.key.height = unit(3, 'lines'))
+
+ggplot(datatry, aes(Indiv_pasted, Surf_Temp)) + my_theme + geom_point(aes(col=Category), alpha=0.8) +  
   facet_grid(.~Species, scales = "free_x",space = "free_x") +
   ylab(Temp.lab) + xlab("Individual") + 
   #scale_color_manual(values = c('black','deepskyblue2', 'palegreen4', 'red')) +
