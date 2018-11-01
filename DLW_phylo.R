@@ -18,11 +18,12 @@ library(coda) # only for autocorr function
 library(phytools)
 library(tibble) # To add columns to datasets with control
 library(RColorBrewer)
+library(ggplot2)
 
 #### Setup ####
 setwd("C:\\Users\\nushi\\Dropbox\\DLW_paper\\Data")
 ## Read in torpor data file
-fmr_data <- read.csv("DLW_data2.csv", sep=",") #Compiled daata from this paper and literature. Each row is an individual
+fmr_data <- read.csv("DLW_data2.csv") #Compiled daata from this paper and literature. Each row is an individual
 
 ## Read in McGuire et al. 2014 hummingbird phylogeny
 tree_dlw<-read.tree("hum294.tre")
@@ -77,7 +78,7 @@ rownames(tips)<-tips$tips
 #match tree to data, prune tree, species names should be in rownnames of "data" 
 tre1<-treedata(tree_dlw, tips)$phy
 #To check that the relationships between species in the trimmed tree look right
-plot(tre1) 
+plot(tre1, cex=1.5, edge.width = 3) 
 
 ## Matching tree without P. gigas and trimming
 tips2<-data.frame(levels(droplevels(fmr_data$Species[fmr_data$Species != "PAGI"])))
@@ -87,7 +88,7 @@ rownames(tips2)<-tips2$tips
 #match tree to data, prune tree, species names should be in rownnames of "data" 
 tre1_noPgigas<-treedata(tree_no_Pgigas, tips2)$phy
 #To check that the relationships between species in the trimmed tree look right
-plot(tre1_noPgigas) 
+plot(tre1_noPgigas, cex=1.5, edge.width = 3) 
 
 
 
@@ -135,7 +136,7 @@ inv.phylo_noPgigas <- inverseA(tre1_noPgigas, nodes="TIPS", scale=TRUE)
 
 ## Make OU tree
 tre_ou <- rescale(tre1, model = "OU", alpha=48.13674) ## Alpha from running OU gls model above
-plot(tre_ou)
+plot(tre_ou, cex=1.5, edge.width = 3)
 ## Inverse matrix of the OU tree - doesn't work, edge lengths are supposedly still zero.
 inv.phylo_ou <-inverseA(tre_ou_edited,nodes="TIPS",scale=T)
 
@@ -174,7 +175,8 @@ DEE_log <-MCMCglmm(log(kJ_day)~log(Mass_g)+Temptrop,
 summary(DEE_log)
 plot(DEE_log) 
 
-DEE_full_noTree <-MCMCglmm(log(kJ_day)~log(Mass_g)+Temptrop, 
+## Allowing two slopes and two intercepts; earlier it was + Temptrop
+DEE_full_noTree <-MCMCglmm(log(kJ_day)~log(Mass_g)*Temptrop, 
                    random=~Species, 
                    prior=prior, data=fmr_data, verbose=FALSE, nitt = 5000000, thin = 1000)
 summary(DEE_full_noTree)

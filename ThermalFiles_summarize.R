@@ -331,6 +331,7 @@ plot(mod.surf_amb)
 
 ## Including traditional categories (i.e. considering Shallow is Normo)
 mod.surf_amb_trad <- lm(Surf_Temp~Amb_Temp + Category_Traditional, data=out_full)
+
 summary(mod.surf_amb_trad)
 plot(mod.surf_amb_trad)
 
