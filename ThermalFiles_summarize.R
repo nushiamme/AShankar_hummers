@@ -8,13 +8,22 @@ library(reshape2)
 library(ggplot2)
 library(tidyverse)
 library(viridis) # Colors
+library(scales) # for stacked bar as percentages
+library(lme4) # Running multilevel mixed models
+library(lattice) ## qqplot to look at lmer model residuals
 
 wd <- file.path("E:", "Google Drive", "IR_2018_csv")
 setwd(wd)
 thermal_maxes_melted <- read.csv("E:\\Google Drive\\IR_2018_csv\\Melted_thermal_maxes_all.csv")
 categories <- read.csv("Category_thresholds.csv")
-
+datatry <- read.csv("Interpolated_Thermal.csv")
+categ_percentage <- read.csv("Category_percentages.csv")
+masses <- read.csv("Bird_masses.csv")
 thermal_maxes_melted$Category <- factor(thermal_maxes_melted$Category, levels = c("Normothermic", "Shallow", "Transition", "Torpor"))
+thermal_maxes_melted$variable <- gsub('MA', 'RI', thermal_maxes_melted$variable) ## Changing species code for RIHU from MAHU to RIHU
+thermal_maxes_melted$Species <- gsub('MA', 'RI', thermal_maxes_melted$Species)
+masses$Indiv_ID <- gsub('MA', 'RI', masses$Indiv_ID) ## Changing species code for RIHU from MAHU to RIHU
+masses$Species <- gsub('MA', 'RI', masses$Species)
 
 #bird.folders <- list.dirs(wd, recursive=T)[-1]
 
@@ -34,7 +43,7 @@ bird.folders.2017 <- c("BC01_0610", "BC02_0612", "BC03_0617",
                   "BL01_0610", "BL02_0612", "BL03_0614", "BL04_0615",
                   "MA02_0611", "MA05_0615", "MA06_0616", "MA07_0617", "MA08_0619")
 
-bird.folders.all <- c("BCHU01_0521", "BCHU02_0526", "BCHU03_0530", "BCHU04_0607", "BCHU05_0607",
+bird.folders.all <- c("BCHU01_0521", "BCHU02_0526", "BCHU03_0530", "BCHU04_0607", #"BCHU05_0607",
                       "BLHU01_0521", "BLHU03_0522", "BLHU04_0523", "BLHU05_0523", "BLHU06_0526", "BLHU07_0529", "BLHU08_0601", 
                       "BLHU09_0603", "BLHU12_0605", "BLHU13_0605", 
                       "MAHU02_0520", "MAHU03_0527", "MAHU05_0529", "MAHU06_0530", "MAHU10_0603", "MAHU12_0606", "MAHU13_0606",
@@ -180,7 +189,50 @@ out_full$Indiv_ID <- lapply(out_full$Indiv_ID, function(x) {
   gsub("MA0", "MAHU0", x)
 })
 out_full$pasted <- paste(out_full$Indiv_ID, "_", out_full$Date, out_full$Year, sep="")
+out_full$pasted <- gsub('MA', 'RI', out_full$pasted) ## Changing species code for RIHU from MAHU to RIHU
 head(out_full)
+#out_full <- out_full[out_full$pasted != "BCHU05_060718",]
+
+## Loops to fill in a "Category" column in the out_full dataset so that each surface temperature is 
+## assigned a category according to individual thresholds laid out in the categories DF
+
+out_full$Category <- 0
+
+for(i in 1:nrow(out_full)) {
+    categ <- categories[categories$Individual==out_full$pasted[i],]
+    if(out_full$Surf_Temp[i] > categ$Normo_min) {
+      out_full$Category[i] <- "Normothermic"
+    } else if(!is.na(categ$Shallow_min) & out_full$Surf_Temp[i] > categ$Shallow_min) {
+      out_full$Category[i] <- "Shallow"
+    } else if(is.na(categ$Shallow_min) & !is.na(categ$Shallow_max) & out_full$Surf_Temp[i] < categ$Shallow_max) {
+      out_full$Category[i] <- "Shallow"
+    } else if(!is.na(categ$Transition_min) & out_full$Surf_Temp[i] > categ$Transition_min) {
+      out_full$Category[i] <- "Transition"
+    } else if(is.na(categ$Transition_min) & !is.na(categ$Transition_max) & out_full$Surf_Temp[i] < categ$Transition_max) {
+      out_full$Category[i] <- "Transition"
+    } else if(!is.na(categ$Torpor_max) & out_full$Surf_Temp[i] < categ$Torpor_max) {
+      out_full$Category[i] <- "Torpor"
+    }
+}
+
+## Add a column for capture masses
+out_full$Cap_mass <- 0
+
+for(i in 1:nrow(out_full)) {
+    out_full$Cap_mass[i] <- masses$Capture_mass_g[masses$Indiv_ID==out_full$pasted[i]]
+}
+
+## Running an ancova on Surface ~ Ambient temperature
+out_full$Indiv_numeric <- cumsum(!duplicated(out_full$pasted)) ## Making individual column numeric for the ancova, but this turns out to be unnecessary
+out_full$Species <- substr(out_full$Indiv_ID, 1, 4) ## Making a species column
+out_full$Species_numeric <- cumsum(!duplicated(out_full$Species))
+out_full$Category_Traditional <- out_full$Category
+out_full$Category_Traditional[out_full$Category=="Shallow"] <- "Normothermic"
+out_full$Category_Traditional2 <- out_full$Category
+out_full$Category_Traditional2[out_full$Category=="Shallow"] <- "Torpor"
+
+
+
 
 #### GOOD interpolate function ####
 
@@ -221,7 +273,6 @@ for(j in 1:length(unique(out_full$pasted))) {
                             Surf_Temp = sfun(times),
                             Amb_Temp = afun(times))
     interTemp$Category <- 0
-    
     for(k in 1:nrow(interTemp)) {
         categ <- categories[categories$Individual==i,]
         if(interTemp$Surf_Temp[k] > categ$Normo_min) {
@@ -247,6 +298,15 @@ for(j in 1:length(unique(out_full$pasted))) {
 ## Check if there's any NAs. If sfun and afun have rule=1, yields NAs
 sum(is.na(datatry$Amb_Temp))
 sum(is.na(datatry$Surf_Temp))
+## Add a column for capture masses
+datatry$Cap_mass <- 0
+for(i in 1:nrow(datatry)) {
+    datatry$Cap_mass[i] <- masses$Capture_mass_g[masses$Indiv_ID==datatry$Indiv_pasted[i]]
+}
+
+write.csv(datatry, file = "E:\\Google Drive\\IR_2018_csv\\Interpolated_Thermal.csv")
+
+####Don't rerun before this unless you need to interpolate again ####
 
 #datatry <- dplyr::bind_rows(datalist) ## Would be faster if I figure out how to do make a list in the loop and compile here.
 
@@ -281,6 +341,16 @@ ggplot(datatry, aes(Indiv_pasted, Surf_Temp)) + my_theme + geom_point(aes(col=Ca
   theme(axis.text.x = element_text(angle=90, size=15, vjust=0.5), axis.text.y=element_text(size=15),
         legend.key.height = unit(3, 'lines'))
 
+m.categ <- melt(categ_percentage, id.vars="Species", measure.vars = c("Normothermic", "Shallow_torpor", "Transition", "Torpor"))
+m.categ$variable <- revalue(m.categ$variable, c("Shallow_torpor"="Shallow Torpor", "Torpor"="Deep Torpor"))
+## Stacked bars for proportion of time spent in each category per species
+ggplot(m.categ, aes(Species,value)) + my_theme + geom_bar(aes(fill=variable), position = "fill", stat="identity") +
+  #facet_grid(.~Species, scales = "free_x",space = "free_x") +
+  xlab("Species") + ylab("Percentages") +
+  scale_fill_manual(values=my_colors2, name="Category") +
+  scale_y_continuous(labels = percent_format()) +
+  guides(colour = guide_legend(override.aes = list(size=3))) +
+  theme(legend.key.height = unit(3, 'lines'))
 
 ## IGNORE
 ## To compare interpolated data with test data:
@@ -293,39 +363,37 @@ ggplot(interTemp, aes(Time2, Temp)) +
   theme(axis.text.x = element_text(angle=90, size=15, vjust=0.5))
 
 
-## Loops to fill in a "Category" column in the out_full dataset so that each surface temperature is 
-## assigned a category according to individual thresholds laid out in the categories DF
+out_full$Category <- as.factor(as.character(out_full$Category))
+## Nov 4, 2018. Trying out a multilevel model with random intercepts and fixed slope
+mod_mixed <- lmer(Surf_Temp ~ Amb_Temp + (1|Category), data=out_full)
+summary(mod_mixed)
+coef(mod_mixed) ## Very nice, to see slopes and intercepts
+plot(mod_mixed)
+plot(ranef(mod_mixed)) ## plotting random effects of model
+plot(residuals(mod_mixed)) ## plot residuals of model
 
-out_full$Category <- 0
+mod_categ <- lmer(Surf_Temp~ 1+ (1|Category), data=out_full)
+summary(mod_categ)
 
-for(i in 1:nrow(out_full)) {
-    categ <- categories[categories$Individual==out_full$pasted[i],]
-    if(out_full$Surf_Temp[i] > categ$Normo_min) {
-      out_full$Category[i] <- "Normothermic"
-    } else if(!is.na(categ$Shallow_min) & out_full$Surf_Temp[i] > categ$Shallow_min) {
-      out_full$Category[i] <- "Shallow"
-    } else if(is.na(categ$Shallow_min) & !is.na(categ$Shallow_max) & out_full$Surf_Temp[i] < categ$Shallow_max) {
-      out_full$Category[i] <- "Shallow"
-    } else if(!is.na(categ$Transition_min) & out_full$Surf_Temp[i] > categ$Transition_min) {
-      out_full$Category[i] <- "Transition"
-    } else if(is.na(categ$Transition_min) & !is.na(categ$Transition_max) & out_full$Surf_Temp[i] < categ$Transition_max) {
-      out_full$Category[i] <- "Transition"
-    } else if(!is.na(categ$Torpor_max) & out_full$Surf_Temp[i] < categ$Torpor_max) {
-      out_full$Category[i] <- "Torpor"
-    }
-}
+## Random intercepts and random slopes
+mod_mixed_2 <- lmer(Surf_Temp ~ Amb_Temp + (Amb_Temp|Category), data=out_full)
+summary(mod_mixed_2)
+coef(mod_mixed_2) ## Very nice, to see slopes and intercepts
+plot(mod_mixed_2)
 
-## Running an ancova on Surface ~ Ambient temperature
-out_full$Indiv_numeric <- cumsum(!duplicated(out_full$pasted)) ## Making individual column numeric for the ancova, but this turns out to be unnecessary
-out_full$Species <- substr(out_full$Indiv_ID, 1, 4) ## Making a species column
-out_full$Species_numeric <- cumsum(!duplicated(out_full$Species))
-out_full$Category_Traditional <- out_full$Category
-out_full$Category_Traditional[out_full$Category=="Shallow"] <- "Normothermic"
-out_full$Category_Traditional2 <- out_full$Category
-out_full$Category_Traditional2[out_full$Category=="Shallow"] <- "Torpor"
+## Accounting for individual and species, Random intercepts and random slopes
+mod_mixed_3 <- lmer(Surf_Temp ~ Amb_Temp + (Amb_Temp|Category) + Cap_mass +(Amb_Temp|Species_numeric/Indiv_numeric), data=out_full)
+summary(mod_mixed_3)
+coef(mod_mixed_3) ## Very nice, to see slopes and intercepts
+plot(mod_mixed_3)
+
+anova(mod_mixed, mod_mixed_2,mod_mixed_3)
+qqmath(~resid(mod_mixed_interpol))
+
 
 ## including + (1|Indiv_numeric) or + (1|Species_numeric) yields singularities, meaning they are unnecessary variables
-mod.surf_amb <- lm(Surf_Temp~Amb_Temp + Category, data=out_full)
+mod.surf_amb <- lm(Surf_Temp~ Amb_Temp + Category, data=out_full) ## Take out pooled intercept
+aov(mod.surf_amb)
 summary(mod.surf_amb)
 plot(mod.surf_amb)
 
@@ -373,6 +441,7 @@ ggplot(m.all_thermal, aes(value)) + geom_histogram(binwidth=1) + my_theme +
   xlab(Temp.lab) #+ ylab("Frequency") #+ geom_point(aes(value, col=variable), alpha=0.8)
 
 ## Plotting distribution of max values for all birds, from annotated thermal max file
+thermal_maxes_melted$Category <- revalue(thermal_maxes_melted$Category, c("Shallow"="Shallow Torpor", "Torpor"="Deep Torpor"))
 ggplot(thermal_maxes_melted, aes(variable, value)) + my_theme + geom_point(aes(col=Category), alpha=0.8) +  
   facet_grid(.~Species, scales = "free_x",space = "free_x") +
   ylab(Temp.lab) + xlab("Individual") + 
