@@ -24,6 +24,8 @@ thermal_maxes_melted$variable <- gsub('MA', 'RI', thermal_maxes_melted$variable)
 thermal_maxes_melted$Species <- gsub('MA', 'RI', thermal_maxes_melted$Species)
 masses$Indiv_ID <- gsub('MA', 'RI', masses$Indiv_ID) ## Changing species code for RIHU from MAHU to RIHU
 masses$Species <- gsub('MA', 'RI', masses$Species)
+categories$Individual <- gsub('MA', 'RI', categories$Individual) ## Changing species code for RIHU from MAHU to RIHU
+categories$Species <- gsub('MA', 'RI', categories$Species)
 
 #bird.folders <- list.dirs(wd, recursive=T)[-1]
 
@@ -382,14 +384,23 @@ coef(mod_mixed_2) ## Very nice, to see slopes and intercepts
 plot(mod_mixed_2)
 
 ## Accounting for individual and species, Random intercepts and random slopes
-mod_mixed_3 <- lmer(Surf_Temp ~ Amb_Temp + (Amb_Temp|Category) + Cap_mass +(Amb_Temp|Species_numeric/Indiv_numeric), data=out_full)
+mod_mixed_3 <- lmer(Surf_Temp ~ Amb_Temp + (Amb_Temp|Category) + (Amb_Temp|Species_numeric/Indiv_numeric), data=out_full)
 summary(mod_mixed_3)
 coef(mod_mixed_3) ## Very nice, to see slopes and intercepts
 plot(mod_mixed_3)
 
-anova(mod_mixed, mod_mixed_2,mod_mixed_3)
-qqmath(~resid(mod_mixed_interpol))
+## Accounting for individual and species, Random intercepts and random slopes
+mod_mixed_4 <- lmer(Surf_Temp ~ Amb_Temp + (Amb_Temp|Category) + Cap_mass +(Amb_Temp|Species_numeric/Indiv_numeric), data=out_full)
+summary(mod_mixed_4)
+coef(mod_mixed_4) ## Very nice, to see slopes and intercepts
+plot(mod_mixed_4)
 
+anova(mod_mixed, mod_mixed_2,mod_mixed_3, mod_mixed_4)
+qqmath(~resid(mod_mixed_3))
+
+tt <- getME(mod_mixed_3,"theta")
+ll <- getME(mod_mixed_3,"lower")
+min(tt[ll==0])
 
 ## including + (1|Indiv_numeric) or + (1|Species_numeric) yields singularities, meaning they are unnecessary variables
 mod.surf_amb <- lm(Surf_Temp~ Amb_Temp + Category, data=out_full) ## Take out pooled intercept
@@ -422,6 +433,18 @@ vcov(mod.surf_amb) # covariance matrix for model parameters
 out_full$Category <- factor(out_full$Category, levels = c("Normothermic", "Shallow", "Transition", "Torpor"))
 #my_colors <- c("#85d349ff", "#440154ff", "#fde725ff", "#23988aff")
 my_colors2 <- c("#23988aff", "#F38BA8", "#440558ff", "#9ed93aff")
+## Plot surface vs ambient temperature
+ggplot(out_full, aes(Amb_Temp, Surf_Temp)) + geom_point(aes(col=Category, shape=Category), size=2.5) + my_theme +
+  scale_y_continuous(breaks = c(5,10,15,20,21,22,23,24,25,26,27,28,29,30,35,40)) +
+  scale_colour_manual(values=my_colors2) +
+  geom_smooth(aes(group=Category),method='lm') +
+  scale_shape_manual(values = c(15:18)) +
+  theme(panel.grid.major.y = element_line(colour="grey", size=0.5), axis.text.x=element_text(size=15),
+        axis.text.y=element_text(size=15), legend.key.height = unit(1.5, 'lines')) +
+  xlab( expression(atop(paste("Ambient Temperature (", degree,"C)")))) + 
+  ylab( expression(atop(paste("Surface Temperature (", degree,"C)")))) +
+  guides(colour = guide_legend(override.aes = list(size=4)))
+
 
 
 ## Plot surface vs ambient temperature
