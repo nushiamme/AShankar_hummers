@@ -11,6 +11,9 @@ library(viridis) # Colors
 library(scales) # for stacked bar as percentages
 library(lme4) # Running multilevel mixed models
 library(lattice) ## qqplot to look at lmer model residuals
+library(lmerTest)
+library(MASS) ## T check the distribution of the data
+library(car) ## To check the distribution of the data
 
 wd <- file.path("E:", "Google Drive", "IR_2018_csv")
 setwd(wd)
@@ -52,6 +55,7 @@ bird.folders.all <- c("BCHU01_0521", "BCHU02_0526", "BCHU03_0530", "BCHU04_0607"
                       "BC01_0610", "BC02_0612", "BC03_0617",
                       "BL01_0610", "BL02_0612", "BL03_0614", "BL04_0615",
                       "MA02_0611", "MA05_0615", "MA06_0616", "MA07_0617", "MA08_0619")
+
 
 #### Do not run again unless base thermal files change ####
 
@@ -205,15 +209,15 @@ for(i in 1:nrow(out_full)) {
     if(out_full$Surf_Temp[i] > categ$Normo_min) {
       out_full$Category[i] <- "Normothermic"
     } else if(!is.na(categ$Shallow_min) & out_full$Surf_Temp[i] > categ$Shallow_min) {
-      out_full$Category[i] <- "Shallow"
+      out_full$Category[i] <- "Shallow Torpor"
     } else if(is.na(categ$Shallow_min) & !is.na(categ$Shallow_max) & out_full$Surf_Temp[i] < categ$Shallow_max) {
-      out_full$Category[i] <- "Shallow"
+      out_full$Category[i] <- "Shallow Torpor"
     } else if(!is.na(categ$Transition_min) & out_full$Surf_Temp[i] > categ$Transition_min) {
       out_full$Category[i] <- "Transition"
     } else if(is.na(categ$Transition_min) & !is.na(categ$Transition_max) & out_full$Surf_Temp[i] < categ$Transition_max) {
       out_full$Category[i] <- "Transition"
     } else if(!is.na(categ$Torpor_max) & out_full$Surf_Temp[i] < categ$Torpor_max) {
-      out_full$Category[i] <- "Torpor"
+      out_full$Category[i] <- "Deep Torpor"
     }
 }
 
@@ -228,6 +232,8 @@ for(i in 1:nrow(out_full)) {
 out_full$Indiv_numeric <- cumsum(!duplicated(out_full$pasted)) ## Making individual column numeric for the ancova, but this turns out to be unnecessary
 out_full$Species <- substr(out_full$Indiv_ID, 1, 4) ## Making a species column
 out_full$Species_numeric <- cumsum(!duplicated(out_full$Species))
+
+## Ignore for now
 out_full$Category_Traditional <- out_full$Category
 out_full$Category_Traditional[out_full$Category=="Shallow"] <- "Normothermic"
 out_full$Category_Traditional2 <- out_full$Category
@@ -236,7 +242,7 @@ out_full$Category_Traditional2[out_full$Category=="Shallow"] <- "Torpor"
 
 
 
-#### GOOD interpolate function ####
+#### GOOD interpolate function RERUN with new CATEGORIES for BLHU04..17 ####
 
 datatry <- data.frame()
 
@@ -366,6 +372,19 @@ ggplot(interTemp, aes(Time2, Temp)) +
 
 
 out_full$Category <- as.factor(as.character(out_full$Category))
+
+#### Models ####
+# Checking the distribution of the data
+out_full$Surf_Temp_test <- out_full$Surf_Temp + 1
+qqp(out_full$Surf_Temp_test, "norm") ## SO not normal
+qqp(out_full$Surf_Temp_test, "lnorm") ## VERY not log normal either
+nbinom <- fitdistr(out_full$Surf_Temp, "Negative Binomial")
+qqp(out_full$Surf_Temp, "nbinom", size = nbinom$estimate[[1]], mu = nbinom$estimate[[2]])
+poisson <- fitdistr(out_full$Surf_Temp_test, "Poisson")
+qqp(out_full$Surf_Temp_test, "pois", poisson$estimate)
+
+ggplot(out_full, aes(pasted, Surf_Temp)) + geom_boxplot() + facet_grid(.~Category, scales = "free_x") + my_theme + theme(axis.text.x = element_text(angle=90))
+
 ## Nov 4, 2018. Trying out a multilevel model with random intercepts and fixed slope
 mod_mixed <- lmer(Surf_Temp ~ Amb_Temp + (1|Category), data=out_full)
 summary(mod_mixed)
@@ -374,8 +393,12 @@ plot(mod_mixed)
 plot(ranef(mod_mixed)) ## plotting random effects of model
 plot(residuals(mod_mixed)) ## plot residuals of model
 
-mod_categ <- lmer(Surf_Temp~ 1+ (1|Category), data=out_full)
+## Ignore
+mod_categ <- lmer(Surf_Temp~ (Amb_Temp|Category), data=out_full)
 summary(mod_categ)
+plot(mod_categ)
+coef(mod_categ)
+
 
 ## Random intercepts and random slopes
 mod_mixed_2 <- lmer(Surf_Temp ~ Amb_Temp + (Amb_Temp|Category), data=out_full)
@@ -383,23 +406,35 @@ summary(mod_mixed_2)
 coef(mod_mixed_2) ## Very nice, to see slopes and intercepts
 plot(mod_mixed_2)
 
-## Accounting for individual and species, Random intercepts and random slopes
-mod_mixed_3 <- lmer(Surf_Temp ~ Amb_Temp + (Amb_Temp|Category) + (Amb_Temp|Species_numeric/Indiv_numeric), data=out_full)
+## Accounting for individual and species, Random intercepts and random slopes. Was doing Species_numeric/Indiv_numeric
+## (1|Categ) would allow intercepts to vary by category, but not slopes
+## (Amb_Temp|Categ) allows slopes and intercepts to vary by category
+mod_mixed_3 <- lmer(Surf_Temp ~ Amb_Temp + (Amb_Temp|Category) + (Amb_Temp|Species_numeric), data=out_full)
 summary(mod_mixed_3)
 coef(mod_mixed_3) ## Very nice, to see slopes and intercepts
 plot(mod_mixed_3)
 
-## Accounting for individual and species, Random intercepts and random slopes
-mod_mixed_4 <- lmer(Surf_Temp ~ Amb_Temp + (Amb_Temp|Category) + Cap_mass +(Amb_Temp|Species_numeric/Indiv_numeric), data=out_full)
+## Same as above but without individual, and now including mass.
+mod_mixed_4 <- lmer(Surf_Temp ~ Amb_Temp + (Amb_Temp|Category) + Cap_mass + (Amb_Temp|Species_numeric), data=out_full)
 summary(mod_mixed_4)
 coef(mod_mixed_4) ## Very nice, to see slopes and intercepts
 plot(mod_mixed_4)
+anova(mod_mixed_3, mod_mixed_4)
 
-anova(mod_mixed, mod_mixed_2,mod_mixed_3, mod_mixed_4)
-qqmath(~resid(mod_mixed_3))
+## Accounting for individual and species, Random intercepts and random slopes.
+## Gives identical results to above. So Indiv ID doesn't make a difference
+## Ignore.
+mod_mixed_5 <- lmer(Surf_Temp ~ Amb_Temp + (Amb_Temp|Category) + Cap_mass +(Amb_Temp|Species_numeric/Indiv_numeric), data=out_full)
+summary(mod_mixed_5)
+coef(mod_mixed_5) ## Very nice, to see slopes and intercepts
+plot(mod_mixed_5)
 
-tt <- getME(mod_mixed_3,"theta")
-ll <- getME(mod_mixed_3,"lower")
+an.mod <- anova(mod_mixed_2,mod_mixed_3, mod_mixed_4)
+an.mod
+qqmath(~resid(mod_mixed_4), col=)
+
+tt <- getME(mod_mixed,"theta")
+ll <- getME(mod_mixed,"lower")
 min(tt[ll==0])
 
 ## including + (1|Indiv_numeric) or + (1|Species_numeric) yields singularities, meaning they are unnecessary variables
@@ -430,7 +465,7 @@ confint(mod.surf_amb, level=0.95) # CIs for model parameters
 anova(mod.surf_amb) # anova table 
 vcov(mod.surf_amb) # covariance matrix for model parameters 
 
-out_full$Category <- factor(out_full$Category, levels = c("Normothermic", "Shallow", "Transition", "Torpor"))
+out_full$Category <- factor(out_full$Category, levels = c("Normothermic", "Shallow Torpor", "Transition", "Deep Torpor"))
 #my_colors <- c("#85d349ff", "#440154ff", "#fde725ff", "#23988aff")
 my_colors2 <- c("#23988aff", "#F38BA8", "#440558ff", "#9ed93aff")
 ## Plot surface vs ambient temperature
@@ -464,7 +499,7 @@ ggplot(m.all_thermal, aes(value)) + geom_histogram(binwidth=1) + my_theme +
   xlab(Temp.lab) #+ ylab("Frequency") #+ geom_point(aes(value, col=variable), alpha=0.8)
 
 ## Plotting distribution of max values for all birds, from annotated thermal max file
-thermal_maxes_melted$Category <- revalue(thermal_maxes_melted$Category, c("Shallow"="Shallow Torpor", "Torpor"="Deep Torpor"))
+#thermal_maxes_melted$Category <- revalue(thermal_maxes_melted$Category, c("Shallow"="Shallow Torpor", "Torpor"="Deep Torpor"))
 ggplot(thermal_maxes_melted, aes(variable, value)) + my_theme + geom_point(aes(col=Category), alpha=0.8) +  
   facet_grid(.~Species, scales = "free_x",space = "free_x") +
   ylab(Temp.lab) + xlab("Individual") + 
