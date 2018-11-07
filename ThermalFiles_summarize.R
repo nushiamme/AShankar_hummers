@@ -14,27 +14,37 @@ library(lattice) ## qqplot to look at lmer model residuals
 library(lmerTest)
 library(MASS) ## T check the distribution of the data
 library(car) ## To check the distribution of the data
+#library(arm) ## Std errors from random effects in lmer models
 
 wd <- file.path("E:", "Google Drive", "IR_2018_csv")
 setwd(wd)
-thermal_maxes_melted <- read.csv("E:\\Google Drive\\IR_2018_csv\\Melted_thermal_maxes_all.csv")
+thermal_maxes_melted <- read.csv("E:\\Google Drive\\IR_2018_csv\\Thermal_maxes_all_Oct.csv")
+#thermal_maxes_melted <- read.csv("E:\\Google Drive\\IR_2018_csv\\Melted_thermal_maxes_all.csv")
 categories <- read.csv("Category_thresholds.csv")
 datatry <- read.csv("Interpolated_Thermal.csv")
 categ_percentage <- read.csv("Category_percentages.csv")
 masses <- read.csv("Bird_masses.csv")
-thermal_maxes_melted$Category <- factor(thermal_maxes_melted$Category, levels = c("Normothermic", "Shallow", "Transition", "Torpor"))
-thermal_maxes_melted$variable <- gsub('MA', 'RI', thermal_maxes_melted$variable) ## Changing species code for RIHU from MAHU to RIHU
-thermal_maxes_melted$Species <- gsub('MA', 'RI', thermal_maxes_melted$Species)
+thermal_maxes_melted$Category <- factor(thermal_maxes_melted$Category, levels = c("Normothermic", "Shallow Torpor", "Transition", "Deep Torpor"))
+#thermal_maxes_melted$variable <- gsub('MA', 'RI', thermal_maxes_melted$variable) ## Changing species code for RIHU from MAHU to RIHU
+#thermal_maxes_melted$Species <- gsub('MA', 'RI', thermal_maxes_melted$Species)
 masses$Indiv_ID <- gsub('MA', 'RI', masses$Indiv_ID) ## Changing species code for RIHU from MAHU to RIHU
 masses$Species <- gsub('MA', 'RI', masses$Species)
 categories$Individual <- gsub('MA', 'RI', categories$Individual) ## Changing species code for RIHU from MAHU to RIHU
 categories$Species <- gsub('MA', 'RI', categories$Species)
+
+## Only read this in if categories or out_all files change
+#thermal_maxes_NoCateg <- read.csv("E:\\Google Drive\\IR_2018_csv\\Melted_thermal_maxes_all_Oct.csv")
 
 #bird.folders <- list.dirs(wd, recursive=T)[-1]
 
 ## Generic plot theme
 my_theme <- theme_classic(base_size = 30) + 
   theme(panel.border = element_rect(colour = "black", fill=NA))
+
+my_theme2 <- theme_classic(base_size = 30) + 
+  theme(axis.line = element_line(colour = "black"),
+        text=element_text(family="Cambria"))
+
 
 ## Axis labels
 Temp.lab <- expression(atop(paste("Temperature (", degree,"C)")))
@@ -56,6 +66,7 @@ bird.folders.all <- c("BCHU01_0521", "BCHU02_0526", "BCHU03_0530", "BCHU04_0607"
                       "BL01_0610", "BL02_0612", "BL03_0614", "BL04_0615",
                       "MA02_0611", "MA05_0615", "MA06_0616", "MA07_0617", "MA08_0619")
 
+single <- "MAHU10_0603"
 
 #### Do not run again unless base thermal files change ####
 
@@ -165,7 +176,7 @@ head(surface_amb)
 
 ## Stacking all the individual birds' data, keeping all melted columns from earlier (hour, min, max, etc.)
 out_all <- data.frame(matrix(ncol = 6, nrow=109*length(bird.folders.all)))
-names(out_all) <- names(out)
+names(out_all) <- c("Indiv_ID", "Date", "Time", "variable", "value", "Hour")
 for(i in bird.folders.all) {
   setwd(paste0(wd, "/", i))
   out<- readRDS(file=paste(i, "_summ.rds", sep=""))
@@ -220,6 +231,28 @@ for(i in 1:nrow(out_full)) {
       out_full$Category[i] <- "Deep Torpor"
     }
 }
+
+#### Ignore ####
+thermal_maxes_NoCateg$Category <- 0
+
+for(i in 1:nrow(thermal_maxes_NoCateg)) {
+  categ <- categories[categories$Individual==thermal_maxes_NoCateg$Indiv_ID[i],]
+  if(thermal_maxes_NoCateg$value[i] > categ$Normo_min) {
+    thermal_maxes_NoCateg$Category[i] <- "Normothermic"
+  } else if(!is.na(categ$Shallow_min) & thermal_maxes_NoCateg$value[i] > categ$Shallow_min) {
+    thermal_maxes_NoCateg$Category[i] <- "Shallow Torpor"
+  } else if(is.na(categ$Shallow_min) & !is.na(categ$Shallow_max) & thermal_maxes_NoCateg$value[i] < categ$Shallow_max) {
+    thermal_maxes_NoCateg$Category[i] <- "Shallow Torpor"
+  } else if(!is.na(categ$Transition_min) & thermal_maxes_NoCateg$value[i] > categ$Transition_min) {
+    thermal_maxes_NoCateg$Category[i] <- "Transition"
+  } else if(is.na(categ$Transition_min) & !is.na(categ$Transition_max) & thermal_maxes_NoCateg$value[i] < categ$Transition_max) {
+    thermal_maxes_NoCateg$Category[i] <- "Transition"
+  } else if(!is.na(categ$Torpor_max) & thermal_maxes_NoCateg$value[i] < categ$Torpor_max) {
+    thermal_maxes_NoCateg$Category[i] <- "Deep Torpor"
+  }
+}
+write.csv(thermal_maxes_NoCateg, "Thermal_maxes_all_Oct.csv")
+#### Ignore before this ####
 
 ## Add a column for capture masses
 out_full$Cap_mass <- 0
@@ -421,6 +454,12 @@ coef(mod_mixed_4) ## Very nice, to see slopes and intercepts
 plot(mod_mixed_4)
 anova(mod_mixed_3, mod_mixed_4)
 
+## Leave this out, cos amb temp has to change by categ
+mod_mixed_intercept <- lmer(Surf_Temp ~ Amb_Temp + (1|Category) + (1|Species_numeric), data=out_full)
+summary(mod_mixed_intercept)
+coef(mod_mixed_intercept) ## Very nice, to see slopes and intercepts
+plot(mod_mixed_intercept)
+
 ## Accounting for individual and species, Random intercepts and random slopes.
 ## Gives identical results to above. So Indiv ID doesn't make a difference
 ## Ignore.
@@ -500,13 +539,13 @@ ggplot(m.all_thermal, aes(value)) + geom_histogram(binwidth=1) + my_theme +
 
 ## Plotting distribution of max values for all birds, from annotated thermal max file
 #thermal_maxes_melted$Category <- revalue(thermal_maxes_melted$Category, c("Shallow"="Shallow Torpor", "Torpor"="Deep Torpor"))
-ggplot(thermal_maxes_melted, aes(variable, value)) + my_theme + geom_point(aes(col=Category), alpha=0.8) +  
+ggplot(thermal_maxes_melted, aes(variable, value)) + my_theme + geom_point(aes(col=Category), size=2, alpha=0.8) +  
   facet_grid(.~Species, scales = "free_x",space = "free_x") +
   ylab(Temp.lab) + xlab("Individual") + 
   #scale_color_manual(values = c('black','deepskyblue2', 'palegreen4', 'red')) +
   scale_color_manual(values=my_colors2) +
-  guides(colour = guide_legend(override.aes = list(size=3))) +
-  theme(axis.text.x = element_text(angle=90, size=15, vjust=0.5), axis.text.y=element_text(size=15),
+  guides(colour = guide_legend(override.aes = list(size=3.5))) +
+  theme(axis.text.x = element_text(angle=90, size=20, vjust=0.5), axis.text.y=element_text(size=20),
         legend.key.height = unit(3, 'lines'))
 
 ggplot(datatry, aes(Indiv_pasted, Surf_Temp)) + my_theme + geom_point(aes(col=Category), alpha=0.8) +  
@@ -538,6 +577,7 @@ ggplot(m.all_amb, aes(variable, value)) + my_theme +
     theme(axis.text.x = element_text(angle=60, size=15, vjust=0.5), axis.text.y=element_text(size=15), 
           legend.position = "none")
     
+#### Single-night plots ####
 
 for(i in bird.folders) {
   try <- 
@@ -548,6 +588,7 @@ library(dplyr)
 library(tidyr)
 library(broom)
 library(purrr)
+library(extrafont)
 
 mtcars %>%
   nest(-cyl) %>%
@@ -573,17 +614,18 @@ for(i in bird.folders) {
   
   
   out$Time2 <- TimeOrder[match(birdTime,TimeOrder,nomatch=NA)]
-  
+  pdf("Rplot_trial.pdf", useDingbats = F, width = 13.333, height=7.5)
   thermplot <- ggplot(out, aes(Time2, value)) +
-    geom_point(aes(col=variable), size=3) + my_theme +
-    theme(axis.text.x = element_text(angle=60, size=15, vjust=0.5), panel.grid.major.y = element_line(colour="grey", size=0.5),
-          axis.text.y=element_text(size=15), legend.key.height = unit(3, 'lines'),  plot.title = element_text(hjust = 0.5)) +
-    scale_color_manual(values = c("black", "violet", "red"), 
-                       labels=c("Ambient", "Mean surface", "Max surface"), name="Temperature") + 
-    scale_y_continuous(breaks = c(5,10,15,20,21,22,23,24,25,26,27,28,29,30,35)) +
+    geom_point(aes(shape=variable), size=3) + my_theme +
+    theme(axis.text.x = element_text(angle=60, size=20, vjust=0.5), panel.grid.major.y = element_line(colour="grey", size=0.5),
+          axis.text.y=element_text(size=20), legend.key.height = unit(3, 'lines'),  plot.title = element_text(hjust = 0.5)) +
+    scale_shape_manual(values=c(0,1,2), labels=c("Ambient", "Mean surface", "Max surface"), name="Temperature") + 
+    scale_y_continuous(breaks = c(5,10,15,20,21,22,23,24,25,26,27,28,29,30,35)) + 
       #scale_x_discrete(drop=F, levels(out$Time2)[c(T, rep(F, 14))]) +
-    ylab(Temp.lab) + xlab("Hour") + ggtitle(out$Indiv_ID[1])
-  
+    ylab(Temp.lab) + xlab("Hour") #+ ggtitle(out$Indiv_ID[1])
+  print(thermplot)
+  dev.off()
+  ggsave("Rplot_trial.pdf")
   print(thermplot)
 }
 
@@ -603,6 +645,7 @@ TimeFinal <- droplevels(na.omit(TimeOrder[match(Time_unordered, TimeOrder,nomatc
 
 
 test$Time2 <- TimeOrder[match(birdTime,TimeOrder,nomatch=NA)]
+
 thermplot <- ggplot(test, aes(Time2, value)) +
   geom_point(aes(col=variable), size=3) + my_theme +
   theme(axis.text.x = element_text(angle=60, size=15, vjust=0.5), panel.grid.major.y = element_line(colour="grey", size=0.5),
@@ -613,3 +656,4 @@ thermplot <- ggplot(test, aes(Time2, value)) +
   #scale_x_discrete(drop=F, levels(out$Time2)[c(T, rep(F, 14))]) +
   ylab(Temp.lab) + xlab("Hour") + ggtitle(test$Indiv_ID[1])
 thermplot
+
