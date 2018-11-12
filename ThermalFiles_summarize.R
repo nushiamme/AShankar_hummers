@@ -520,7 +520,6 @@ ggplot(out_full, aes(Amb_Temp, Surf_Temp)) + geom_point(aes(col=Category, shape=
   guides(colour = guide_legend(override.aes = list(size=4)))
 
 
-
 ## Plot surface vs ambient temperature
 ggplot(out_full, aes(Amb_Temp, Surf_Temp)) + geom_point(aes(col=Category_Traditional, shape=Category_Traditional), size=2.5) + my_theme +
   scale_y_continuous(breaks = c(5,10,15,20,21,22,23,24,25,26,27,28,29,30,35,40)) +
