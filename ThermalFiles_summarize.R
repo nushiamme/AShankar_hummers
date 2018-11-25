@@ -12,6 +12,7 @@ library(scales) # for stacked bar as percentages
 library(lme4) # Running multilevel mixed models
 library(lattice) ## qqplot to look at lmer model residuals
 library(lmerTest)
+library(emmeans)
 library(MASS) ## T check the distribution of the data
 library(car) ## To check the distribution of the data
 #library(arm) ## Std errors from random effects in lmer models
@@ -272,9 +273,6 @@ out_full$Category_Traditional[out_full$Category=="Shallow"] <- "Normothermic"
 out_full$Category_Traditional2 <- out_full$Category
 out_full$Category_Traditional2[out_full$Category=="Shallow"] <- "Torpor"
 
-
-
-
 #### GOOD interpolate function RERUN with new CATEGORIES for BLHU04..17 ####
 
 datatry <- data.frame()
@@ -312,7 +310,9 @@ for(j in 1:length(unique(out_full$pasted))) {
     ## Compile interpolated df
     interTemp <- data.frame(Indiv_pasted = i,
                             Surf_Temp = sfun(times),
-                            Amb_Temp = afun(times))
+                            Amb_Temp = afun(times),
+                            Cap_mass = 0)
+    
     interTemp$Category <- 0
     for(k in 1:nrow(interTemp)) {
         categ <- categories[categories$Individual==i,]
@@ -329,21 +329,21 @@ for(j in 1:length(unique(out_full$pasted))) {
         } else if(!is.na(categ$Torpor_max) & interTemp$Surf_Temp[k] < categ$Torpor_max) {
           interTemp$Category[k] <- "Torpor"
         }
+        interTemp$Cap_mass[k] <- masses$Capture_mass_g[masses$Indiv_ID==interTemp$Indiv_pasted[k]]
       }
     interTemp$Time <- TimeOrder[match(birdTime,TimeOrder,nomatch=NA)] ## Match times to correct ordered time and save into new column in interpolated dataset
     interTemp$Species <- substr(interTemp$Indiv_pasted, 1, 4)
     datatry <- rbind(datatry, interTemp) # add it to your df
-  }
+    }
 }
 
 ## Check if there's any NAs. If sfun and afun have rule=1, yields NAs
-sum(is.na(datatry$Amb_Temp))
-sum(is.na(datatry$Surf_Temp))
+sum(is.na(datatry$Amb_Temp)) #Good if output is 0
+sum(is.na(datatry$Surf_Temp)) #Good if output is 0
 ## Add a column for capture masses
-datatry$Cap_mass <- 0
-for(i in 1:nrow(datatry)) {
-    datatry$Cap_mass[i] <- masses$Capture_mass_g[masses$Indiv_ID==datatry$Indiv_pasted[i]]
-}
+#for(i in 1:nrow(datatry)) {
+#    datatry$Cap_mass[i] <- masses$Capture_mass_g[masses$Indiv_ID==datatry$Indiv_pasted[i]]
+#}
 
 write.csv(datatry, file = "E:\\Google Drive\\IR_2018_csv\\Interpolated_Thermal.csv")
 
@@ -352,9 +352,15 @@ write.csv(datatry, file = "E:\\Google Drive\\IR_2018_csv\\Interpolated_Thermal.c
 #datatry <- dplyr::bind_rows(datalist) ## Would be faster if I figure out how to do make a list in the loop and compile here.
 
 ## Summarize proportion of time spent in each state, by species
-data_species_summ <- datatry %>% 
-  group_by(Category,Species) %>%
-  summarise(prop_values = (length(Category)/length(datatry$Surf_Temp))*100)
+#data_species_summ <- datatry %>% 
+ # group_by(Category, Species) %>%
+  #summarise(prop_values = (length(Category)/length(datatry$Surf_Temp))*100)
+#data_species_summ
+
+data_species_summ <- datatry %>%
+  count(Species, Category) %>%
+  group_by(Species) %>%
+  mutate(perc = (n / sum(n))*100)
 
 ## By individual
 data_indiv_summ <- datatry %>%
@@ -366,11 +372,73 @@ data_indiv_summ
 indiv_categ_count <- ddply(data_indiv_summ, c("Indiv_pasted"), summarise, 
                    Normo=sum(Category=="Normothermic"), Shallow=sum(Category=="Shallow"),
                    Transition=sum(Category=="Transition"), Torpor=sum(Category=="Torpor"))
-sum(indiv_categ_count$Normo)
-sum(indiv_categ_count$Shallow)
-sum(indiv_categ_count$Transition)
-sum(indiv_categ_count$Torpor)
+sum(indiv_categ_count$Normo) #no. indivs that used normo; should be all (33)
+sum(indiv_categ_count$Shallow) #no. indivs that used shallow
+sum(indiv_categ_count$Transition) #no. indivs that used transition
+sum(indiv_categ_count$Torpor) #no. indivs that used deep torpor
 
+# Summarise number of records per individual in each category. Using interpolated data
+casted_indiv <-dcast(Indiv_pasted~Category,data=datatry, fun.aggregate= length,value.var = 'Category')
+prop_indiv_time <- data.frame(matrix(ncol = 5, nrow=nrow(casted_indiv)))
+names(prop_indiv_time) <- c("Indiv_pasted", "Normothermic", "Shallow", "Transition", "Torpor")
+prop_indiv_time$Indiv_pasted <- casted_indiv$Indiv_pasted
+for(i in 1:nrow(casted_indiv)) {
+  prop_indiv_time$Normothermic[i] <- round((casted_indiv$Normothermic[i]/(sum(casted_indiv$Normothermic[i], 
+                                                                  casted_indiv$Shallow[i], casted_indiv$Transition[i],
+                                                                  casted_indiv$Torpor[i])))*100,0) 
+  prop_indiv_time$Shallow[i] <- round((casted_indiv$Shallow[i]/(sum(casted_indiv$Normothermic[i], 
+                                                                   casted_indiv$Shallow[i], casted_indiv$Transition[i],
+                                                                   casted_indiv$Torpor[i])))*100,0) 
+  prop_indiv_time$Transition[i] <- round((casted_indiv$Transition[i]/(sum(casted_indiv$Normothermic[i], 
+                                                                   casted_indiv$Shallow[i], casted_indiv$Transition[i],
+                                                                   casted_indiv$Torpor[i])))*100,0) 
+  prop_indiv_time$Torpor[i] <- round((casted_indiv$Torpor[i]/(sum(casted_indiv$Normothermic[i], 
+                                                                   casted_indiv$Shallow[i], casted_indiv$Transition[i],
+                                                                  casted_indiv$Torpor[i])))*100,0)
+}
+prop_indiv_time
+
+## Melted dataframe for proportion of time spent in diff categories by species. Uses interpolated data
+m.prop <- melt(prop_indiv_time, id.vars = "Indiv_pasted", measure.vars = c("Normothermic", "Shallow", "Transition", "Torpor"))
+head(m.prop)
+names(m.prop)[names(m.prop) == 'value'] <- 'freq'
+m.prop$Species <- substr(m.prop$Indiv_pasted, 1, 4)
+m.prop$Species <- as.factor(as.character(m.prop$Species))
+
+## Not using individual-level models, doesn't make any sense to.
+#Trying to test how species are different, not individuals
+#mod_glm_freq <- glmer(freq~variable*Species + (1|Indiv_pasted), data=m.prop, family=poisson())
+#mod_glm_freq1 <- glmer(freq~variable*Species + (variable|Indiv_pasted), data=m.prop, family=poisson())
+
+## USE THIS
+mod_glm_freq_sp <- glm(freq~variable*Species-1, data=m.prop, family=poisson())
+summary(mod_glm_freq_sp)
+coef(mod_glm_freq_sp)
+
+
+mod_glm_freq_Categ <- glm(freq~variable-1, data=m.prop, family=poisson())
+summary(mod_glm_freq_Categ)
+coef(mod_glm_freq_Categ)
+
+m.prop$predicted <- predict(mod_glm_freq_sp)
+plot(mod_glm_freq_sp)
+#aov(mod_glm_freq_sp, mod_glm_freq_Categ)
+
+ggplot(m.prop, aes(Species,predicted)) + my_theme + geom_bar(aes(fill=variable), position = "fill", stat="identity") +
+  #facet_grid(.~Species, scales = "free_x",space = "free_x") +
+  xlab("Species") + ylab("Percentages") +
+  scale_fill_manual(values=my_colors2, name="Category") +
+  scale_y_continuous(labels = percent_format()) +
+  guides(colour = guide_legend(override.aes = list(size=3))) +
+  theme(legend.key.height = unit(3, 'lines'))
+
+mod_glm_freq1<- glm(freq~variable+Species, data=m.prop, family=poisson())
+
+summary(mod_glm_freq)
+coef(mod_glm_freq)
+anova(mod_glm_freq)
+
+#### Models for proportion of time spent in different categories
 datatry$Category <- factor(datatry$Category, levels = c("Normothermic", "Shallow", "Transition", "Torpor"))
 my_colors2 <- c("#23988aff", "#F38BA8", "#440558ff", "#9ed93aff")
 ggplot(datatry, aes(Indiv_pasted, Surf_Temp)) + my_theme + geom_point(aes(col=Category), alpha=0.8) +  
@@ -384,6 +452,7 @@ ggplot(datatry, aes(Indiv_pasted, Surf_Temp)) + my_theme + geom_point(aes(col=Ca
 
 m.categ <- melt(categ_percentage, id.vars="Species", measure.vars = c("Normothermic", "Shallow_torpor", "Transition", "Torpor"))
 m.categ$variable <- revalue(m.categ$variable, c("Shallow_torpor"="Shallow Torpor", "Torpor"="Deep Torpor"))
+
 ## Stacked bars for proportion of time spent in each category per species
 ggplot(m.categ, aes(Species,value)) + my_theme + geom_bar(aes(fill=variable), position = "fill", stat="identity") +
   #facet_grid(.~Species, scales = "free_x",space = "free_x") +
@@ -433,7 +502,7 @@ plot(mod_categ)
 coef(mod_categ)
 
 
-## Random intercepts and random slopes
+## Random intercepts and random slopes, no species in this equation
 mod_mixed_2 <- lmer(Surf_Temp ~ Amb_Temp + (Amb_Temp|Category), data=out_full)
 summary(mod_mixed_2)
 coef(mod_mixed_2) ## Very nice, to see slopes and intercepts
@@ -448,11 +517,15 @@ coef(mod_mixed_3) ## Very nice, to see slopes and intercepts
 plot(mod_mixed_3)
 
 ## Same as above but without individual, and now including mass.
+## This is the final full model
 mod_mixed_4 <- lmer(Surf_Temp ~ Amb_Temp + (Amb_Temp|Category) + Cap_mass + (Amb_Temp|Species_numeric), data=out_full)
 summary(mod_mixed_4)
 coef(mod_mixed_4) ## Very nice, to see slopes and intercepts
 plot(mod_mixed_4)
 anova(mod_mixed_3, mod_mixed_4)
+## For confidence intervals
+confint(mod_mixed_4,level = 0.95, method="Wald")
+lsmeans(mod_mixed_4, "Amb_Temp")
 
 ## Leave this out, cos amb temp has to change by categ
 mod_mixed_intercept <- lmer(Surf_Temp ~ Amb_Temp + (1|Category) + (1|Species_numeric), data=out_full)
@@ -470,7 +543,7 @@ plot(mod_mixed_5)
 
 an.mod <- anova(mod_mixed_2,mod_mixed_3, mod_mixed_4)
 an.mod
-qqmath(~resid(mod_mixed_4), col=)
+qqmath(~resid(mod_mixed_2))
 
 tt <- getME(mod_mixed,"theta")
 ll <- getME(mod_mixed,"lower")
@@ -503,6 +576,7 @@ coefficients(mod.surf_amb) # model coefficients
 confint(mod.surf_amb, level=0.95) # CIs for model parameters 
 anova(mod.surf_amb) # anova table 
 vcov(mod.surf_amb) # covariance matrix for model parameters 
+
 
 out_full$Category <- factor(out_full$Category, levels = c("Normothermic", "Shallow Torpor", "Transition", "Deep Torpor"))
 #my_colors <- c("#85d349ff", "#440154ff", "#fde725ff", "#23988aff")
