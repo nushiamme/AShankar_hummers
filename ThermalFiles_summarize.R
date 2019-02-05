@@ -415,7 +415,34 @@ mod_glm_freq_sp <- glm(freq~variable*Species-1, data=m.prop, family=poisson())
 summary(mod_glm_freq_sp)
 coef(mod_glm_freq_sp)
 
+## Because residual variance >> degrees of freedom, trying a quasipoisson
+## But the dispersion parameter is still 12.5, which is much greater than 1, meaning it's overdispersed
+mod_glm_freq_sp_quasi <- glm(freq~variable*Species-1, data=m.prop, family=quasipoisson())
+summary(mod_glm_freq_sp_quasi)
 
+## Running  a negative binomial model, definitely the best. No overdispserion now.
+mod_glm_freq_sp_nb <- glm.nb(freq~variable*Species-1, data=m.prop)
+summary(mod_glm_freq_sp_nb)
+
+## Plotting the Poisson vs negative binomial to see how well they do
+xb <- predict(mod_glm_freq_sp_nb) 
+g <- cut(xb, breaks=quantile(xb,seq(0,100,10)/100))
+m <- tapply(m.prop$freq, g, mean)
+v <- tapply(m.prop$freq, g, var)
+x <- seq(0.63,3.37,0.02)
+pr <- residuals(mod_glm_freq_sp,"pearson")
+phi <- sum(pr^2)/df.residual(mod_glm_freq_sp)
+plot(m, v, xlab="Mean", ylab="Variance", 
+       +   main="Mean-Variance Relationship") + 
+  #mtext("Articles Published by Ph.D. Biochemists",padj=-0.5) + 
+  lines(x, x*phi, lty="dashed") +
+  lines(x, x*(1+x/mod_glm_freq_sp_nb$theta)) + legend("topleft", lty=c("dashed","solid"), 
+                                       legend=c("Q. Poisson","Neg. Binom."), inset=0.05)
+
+
+
+
+## Don't use this, it doesn't make any sense to
 mod_glm_freq_Categ <- glm(freq~variable-1, data=m.prop, family=poisson())
 summary(mod_glm_freq_Categ)
 coef(mod_glm_freq_Categ)
@@ -525,7 +552,8 @@ plot(mod_mixed_4)
 anova(mod_mixed_3, mod_mixed_4)
 ## For confidence intervals
 confint(mod_mixed_4,level = 0.95, method="Wald")
-lsmeans(mod_mixed_4, "Amb_Temp")
+#lsmeans(mod_mixed_4, "Category")
+qqmath(~resid(mod_mixed_4))
 
 ## Leave this out, cos amb temp has to change by categ
 mod_mixed_intercept <- lmer(Surf_Temp ~ Amb_Temp + (1|Category) + (1|Species_numeric), data=out_full)
@@ -543,7 +571,7 @@ plot(mod_mixed_5)
 
 an.mod <- anova(mod_mixed_2,mod_mixed_3, mod_mixed_4)
 an.mod
-qqmath(~resid(mod_mixed_2))
+
 
 tt <- getME(mod_mixed,"theta")
 ll <- getME(mod_mixed,"lower")
@@ -668,9 +696,9 @@ mtcars %>%
   mutate(Quantiles = map(data, ~ quantile(.$mpg))) %>% 
   unnest(map(Quantiles, tidy))
 
-for(i in bird.folders) {
+for(i in single) {
   setwd(paste0(wd, "/", i))
-  
+ 
   #### Plotting ####
   out<- readRDS(file=paste(i, "_summ.rds", sep=""))
   

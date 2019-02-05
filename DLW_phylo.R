@@ -104,7 +104,7 @@ dee.agg <- merge(fmr.agg, mass.agg,by="Species")
 ## Making FMR and Mass separate objects
 fmr<-dee.agg$kJ_day
 mass_g<-dee.agg$Mass_g
-DF.fmr<-data.frame(fmr,mass_g,row.names=dee.agg$Species)a 
+DF.fmr<-data.frame(fmr,mass_g,row.names=dee.agg$Species)
 DF.fmr <-  DF.fmr[tre1$tip.label,]
 DF.fmr
 
@@ -204,6 +204,7 @@ DEE_log_mass_noTree <-MCMCglmm(log(kJ_day)~log(Mass_g),
                         prior=prior, data=fmr_data, verbose=FALSE, nitt = 5000000, thin = 1000)
 summary(DEE_log_mass_noTree)
 plot(DEE_log_mass_noTree)
+confint(DEE_log_mass_noTree)
 
 ## Derive R2 from MCMCglmm results
 ## Source: https://www.int-res.com/articles/suppl/m561p001_supp2.pdf
@@ -316,7 +317,7 @@ lm(log(fmr_data$kJ_day[fmr_data$Temptrop==1 & fmr_data$Species != "PAGI"]) ~
      log(fmr_data$Mass_g[fmr_data$Temptrop==1 & fmr_data$Species != "PAGI"]))
 
 ## t-test testing temperate vs. tropical sites:
-## Raw DEE signdificant, but includes PAGI (t(60) = 5.03, p-value = 4.65e-06)
+## Raw DEE significant, but includes PAGI (t(60) = 5.03, p-value = 4.65e-06)
 an.fmr <- aov(log(kJ_day)~Temptrop+log(Mass_g), data=fmr_data)
 summary(an.fmr)  
 plot(an.fmr,1) # residuals vs. fitted. Shows that residuals don't have clear non-linear pattern

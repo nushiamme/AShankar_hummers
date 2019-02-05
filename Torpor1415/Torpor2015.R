@@ -106,7 +106,7 @@ litplotstudy <- ggplot(litstudy, aes(Tc_min, EE_J)) +
   scale_color_manual(values=c('black', '#ff3333', '#9999ff')) +
   theme(legend.key.height = unit(3,"line"), plot.title = element_text(hjust = 0.5, size=20),
         axis.text.x = element_text(size=15)) + 
-  xlab(Tc_min.xlab) + ylab("Energy expenditure (J)") + ggtitle("Mass category")
+  xlab(Tc_min.xlab) + ylab("Energy expenditure (J/h)") + ggtitle("Mass category")
 litplotstudy
 
 levels(litjan$Torpid_not) <- c("Normothermic", "N_day", "Normothermic", "Torpid", "Unknown")
@@ -119,10 +119,10 @@ litplotstudy_jan <- ggplot(litjan[litjan$Torpid_not !="N_day" &
   geom_point(aes(col=Torpid_not, shape=Study_lit, alpha=Study_lit), size=4) +
   scale_alpha_manual(values=c(0.3,1)) +
   scale_shape_manual(values=c(20,3)) + facet_grid(~Mass_categ) + my_theme +
-  scale_color_manual(values=c('black', '#ff3333', '#0066CC')) +
+  scale_color_manual(values=c('black', '#ff3333', '#0066CC','green')) +
   theme(legend.key.height = unit(3,"line"), plot.title = element_text(hjust = 0.5, size=20),
         axis.text.x = element_text(size=15)) + ylim(0,3300) +
-  xlab(Tc_min.xlab) + ylab("Energy expenditure (J)") + ggtitle("Mass category (g)")
+  xlab(Tc_min.xlab) + ylab("Energy expenditure (J/h)") + ggtitle("Mass category (g)")
 litplotstudy_jan
 
 ## Subsetting just lit vals, including Kruger

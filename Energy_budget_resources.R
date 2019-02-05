@@ -105,10 +105,11 @@ ggplot(dflo[dflo$Site %in% c("Harshaw", "Sonoita"),], aes(Transect, log(Flowers)
   facet_grid(~Site, scales="free_x", space='free') + #coord_flip() +
   #geom_tufteboxplot() +
   geom_point(aes(col=Pre_post, size=Flowers), stat="identity") +
-  geom_text(hjust=0, nudge_x = 0.1, nudge_y=0.3, size=5) +
+  scale_size_continuous(range=c(3,15)) +
+  geom_text(hjust=0, nudge_x = 0, nudge_y=0.7, size=5) +
   scale_color_manual(values = c('red', 'black'), 
                      labels=c("Post-monsoon", "Pre-monsoon"), name="Monsoon status") + 
   guides(colour = guide_legend(override.aes = list(size=4)), size=F) +
   my_theme +  theme(axis.text.x = element_text(size=15, angle=30, vjust=0.9, hjust=1), 
                     legend.key.height = unit(3, 'lines'))
-
+ 
