@@ -15,6 +15,7 @@ library(lmerTest)
 library(emmeans)
 library(MASS) ## T check the distribution of the data
 library(car) ## To check the distribution of the data
+library(changepoints.np) ## Not YET installed; for automating change points
 #library(arm) ## Std errors from random effects in lmer models
 
 wd <- file.path("E:", "Google Drive", "IR_2018_csv")
@@ -32,6 +33,10 @@ masses$Indiv_ID <- gsub('MA', 'RI', masses$Indiv_ID) ## Changing species code fo
 masses$Species <- gsub('MA', 'RI', masses$Species)
 categories$Individual <- gsub('MA', 'RI', categories$Individual) ## Changing species code for RIHU from MAHU to RIHU
 categories$Species <- gsub('MA', 'RI', categories$Species)
+
+
+#### TRY THIS for automated change points #####
+cpt.np(test.int, method='PELT', minseglen=1,nquantiles =8*log(length(test.int)))
 
 ## Only read this in if categories or out_all files change
 #thermal_maxes_NoCateg <- read.csv("E:\\Google Drive\\IR_2018_csv\\Melted_thermal_maxes_all_Oct.csv")
