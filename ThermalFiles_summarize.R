@@ -405,7 +405,7 @@ prop_indiv_time
 
 ## Melted dataframe for proportion of time spent in diff categories by species. Uses interpolated data
 m.prop <- melt(prop_indiv_time, id.vars = "Indiv_pasted", measure.vars = c("Normothermic", "Shallow", "Transition", "Torpor"))
-head(m.prop)
+tail(m.prop)
 names(m.prop)[names(m.prop) == 'value'] <- 'freq'
 m.prop$Species <- substr(m.prop$Indiv_pasted, 1, 4)
 m.prop$Species <- as.factor(as.character(m.prop$Species))
@@ -532,7 +532,6 @@ mod_categ <- lmer(Surf_Temp~ (Amb_Temp|Category), data=out_full)
 summary(mod_categ)
 plot(mod_categ)
 coef(mod_categ)
-
 
 ## Random intercepts and random slopes, no species in this equation
 mod_mixed_2 <- lmer(Surf_Temp ~ Amb_Temp + (Amb_Temp|Category), data=out_full)

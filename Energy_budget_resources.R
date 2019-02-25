@@ -11,7 +11,7 @@ require(dplyr)
 require(ggthemes) ## Trying out Tufteboxplot
 
 ## Set working directory
-setwd("C:\\Users\\nushi\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Tables")
+setwd("C:\\Users\\nushi\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Submission_FuncEcol\\Data/")
 ## wd at GFU
 #setwd("/Users/anshankar/Dropbox/Anusha Committee/BBLH_EnergyBudget/Tables")
 
@@ -20,6 +20,10 @@ floral <- read.csv("FloralCensusData2013.csv") #ver3
 floralsumm <- floral[floral$Site %in% c("Harshaw", "Sonoita"),]
 scrop <- read.csv("StandingCropData_new.csv") #ver3
 scrop$Site <- revalue(scrop$Site, c("HC"="Harshaw", "PL/SC"="Sonoita")) #ver3
+
+## For glmm models
+energymodels <- read.csv("EnergyBudget_model_values.csv") # Fir figures 2b and 3
+dlw_bblh <- read.csv("DLW_summary.csv") ## For Figure 2 
 
 #### New columns/dataframes ####
 colnames(floralsumm)[colnames(floralsumm)=="Pre_post"] <- "Season"
@@ -44,10 +48,6 @@ flo.agg <- aggregate(floralsumm$TotalFlowers,
                      by=list(floralsumm$PlantSpecies, floralsumm$Month), FUN="mean", na.rm=T)
 names(flo.agg) <- c("Species", "Month", "Avg_flowers")
 
-## Quick plot of total flowers across months
-ggplot(flo.agg, aes(Species, log(Avg_flowers))) + facet_grid(~Month, scales='free') + geom_point() + 
-  my_theme + theme(axis.text.x = element_text(angle=30, size=10))
-
 #### General functions ####
 ## Saving standard theme  
 my_theme <- theme_classic(base_size = 30) + 
@@ -63,6 +63,11 @@ give.n <- function(x){
 }
 
 #### Plots ####
+
+## Quick plot of total flowers across months
+ggplot(flo.season_site_sum, aes(Site, log(Sum_flowers))) + facet_grid(~Season, scales='free') + geom_point() + 
+  my_theme + theme(axis.text.x = element_text(angle=30, size=10))
+
 ## From #ver3 (November 2017) Standing Crop data
 dflo$Pre_post <- factor(dflo$Season, levels = c("Dry", "Early-wet"))
 dcrop$Pre_post <- factor(dcrop$Season, levels = c("Dry", "Early-wet"))
@@ -108,8 +113,7 @@ ggplot(dflo[dflo$Site %in% c("Harshaw", "Sonoita"),], aes(Transect, log(Flowers)
   scale_size_continuous(range=c(3,15)) +
   geom_text(hjust=0, nudge_x = 0, nudge_y=0.7, size=5) +
   scale_color_manual(values = c('red', 'black'), 
-                     labels=c("Post-monsoon", "Pre-monsoon"), name="Monsoon status") + 
+                     labels=c("Pre-monsoon", "Post-monsoon"), name="Monsoon status") + 
   guides(colour = guide_legend(override.aes = list(size=4)), size=F) +
   my_theme +  theme(axis.text.x = element_text(size=15, angle=30, vjust=0.9, hjust=1), 
                     legend.key.height = unit(3, 'lines'))
- 
