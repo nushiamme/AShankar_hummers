@@ -429,23 +429,6 @@ summary(mod_glm_freq_sp_quasi)
 mod_glm_freq_sp_nb <- glm.nb(freq~variable*Species-1, data=m.prop)
 summary(mod_glm_freq_sp_nb)
 
-## Plotting the Poisson vs negative binomial to see how well they do
-xb <- predict(mod_glm_freq_sp_nb) 
-g <- cut(xb, breaks=quantile(xb,seq(0,100,10)/100))
-m <- tapply(m.prop$freq, g, mean)
-v <- tapply(m.prop$freq, g, var)
-x <- seq(0.63,3.37,0.02)
-pr <- residuals(mod_glm_freq_sp,"pearson")
-phi <- sum(pr^2)/df.residual(mod_glm_freq_sp)
-plot(m, v, xlab="Mean", ylab="Variance", 
-       +   main="Mean-Variance Relationship") + 
-  #mtext("Articles Published by Ph.D. Biochemists",padj=-0.5) + 
-  lines(x, x*phi, lty="dashed") +
-  lines(x, x*(1+x/mod_glm_freq_sp_nb$theta)) + legend("topleft", lty=c("dashed","solid"), 
-                                       legend=c("Q. Poisson","Neg. Binom."), inset=0.05)
-
-
-
 
 ## Don't use this, it doesn't make any sense to
 mod_glm_freq_Categ <- glm(freq~variable-1, data=m.prop, family=poisson())
