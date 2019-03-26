@@ -65,8 +65,8 @@ give.n <- function(x){
 #### Plots ####
 
 ## Quick plot of total flowers across months
-ggplot(flo.season_site_sum, aes(Site, log(Sum_flowers))) + facet_grid(~Season, scales='free') + geom_point() + 
-  my_theme + theme(axis.text.x = element_text(angle=30, size=10))
+#ggplot(flo.season_site_sum, aes(Site, log(Sum_flowers))) + facet_grid(~Season, scales='free') + geom_point() + 
+#  my_theme + theme(axis.text.x = element_text(angle=30, size=10))
 
 ## From #ver3 (November 2017) Standing Crop data
 dflo$Pre_post <- factor(dflo$Season, levels = c("Dry", "Early-wet"))
