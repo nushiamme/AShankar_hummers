@@ -6,7 +6,7 @@
 ## Reading in packages
 require(ggplot2)
 require(reshape)
-require(plyr)
+#require(plyr)
 require(dplyr)
 require(ggthemes) ## Trying out Tufteboxplot
 
@@ -18,8 +18,10 @@ setwd("C:\\Users\\nushi\\Dropbox\\Anusha Committee\\BBLH_EnergyBudget\\Submissio
 ## Read in file
 floral <- read.csv("FloralCensusData2013.csv") #ver3 
 floralsumm <- floral[floral$Site %in% c("Harshaw", "Sonoita"),]
+floralsumm <- droplevels(floralsumm)
+
 scrop <- read.csv("StandingCropData_new.csv") #ver3
-scrop$Site <- revalue(scrop$Site, c("HC"="Harshaw", "PL/SC"="Sonoita")) #ver3
+scrop$Site <- plyr::revalue(scrop$Site, c("HC"="Harshaw", "PL/SC"="Sonoita")) #ver3
 
 ## For glmm models
 energymodels <- read.csv("EnergyBudget_model_values.csv") # Fir figures 2b and 3
@@ -27,19 +29,18 @@ dlw_bblh <- read.csv("DLW_summary.csv") ## For Figure 2
 
 #### New columns/dataframes ####
 colnames(floralsumm)[colnames(floralsumm)=="Pre_post"] <- "Season"
-floralsumm$Season<- revalue(floralsumm$Season, c("Pre"="Dry", "Post"="Early-wet"))
+floralsumm$Season<- plyr::revalue(floralsumm$Season, c("Pre"="Dry", "Post"="Early-wet"))
 flo <- group_by(floralsumm, Site, Transect, Season)
-dflo <- summarize(flo, Flowers = sum(TotalFlowers, na.rm = T))
-#dhumm <- summarize(flo, Hummcount = sum(HummSp, na.rm=T))
-#dfru <- summarize(flo, Fruits = sum(Fruits, na.rm=T))
-#dbud <- summarize(flo, Buds = sum(Buds, na.rm=T))
+## If this only creates a single-value dataframe, it's because because R is using plyr::summarise instead of dplyr's summarise
+## Don't require/library plyr
+dflo <- summarise(flo, Flowers = sum(TotalFlowers, na.rm = T))
 dflo$Site_Season <- paste(dflo$Site, dflo$Season, sep="_")
 dflo$Site_Season <- factor(dflo$Season, levels = c("Harshaw_Dry", "Harshaw_Early-wet", 
                                                        "Sonoita_Dry", "Sonoita_Early-wet"))
 
 #### New columns/dataframes, Jan 12 ####
 colnames(scrop)[colnames(scrop)=="Pre_post"] <- "Season"
-scrop$Season<- revalue(scrop$Season, c("Pre"="Dry", "Post"="Early-wet"))
+scrop$Season<- plyr::revalue(scrop$Season, c("Pre"="Dry", "Post"="Early-wet"))
 dcrop <- group_by(scrop, Site, Year, Season, Transect)
 dcrop_summ <- summarize(dcrop, Calories = sum(Calories, na.rm = T))
 
@@ -72,7 +73,7 @@ give.n <- function(x){
 dflo$Pre_post <- factor(dflo$Season, levels = c("Dry", "Early-wet"))
 dcrop$Pre_post <- factor(dcrop$Season, levels = c("Dry", "Early-wet"))
 
-ggplot(dcrop_summ[dcrop_summ$Site %in% c("Harshaw", "Sonoita"),], 
+ggplot(dcrop_summ[dcrop_summ$Site %in% c("HC", "PL/SC"),], 
        aes(Transect, 4.184*Calories, label=round(4.184*Calories, digits = 0))) + 
   geom_point(aes(color=Season, size=Calories)) + facet_grid(~Site, space='free') +
   geom_text(hjust=0, nudge_x = 0.2, nudge_y=0.3, size=5) +
@@ -86,7 +87,7 @@ ggplot(dcrop_summ[dcrop_summ$Site %in% c("Harshaw", "Sonoita"),],
 ## YES!! Good plot of resources at Hawshaw vs Sonoita, Pre- vs early-monsoon. May 14, 2018
 ggplot(dflo[dflo$Flowers>0,], aes(Pre_post, log(Flowers))) + #facet_grid(~Site, scales="free_x") +
   geom_boxplot(aes(fill=Site), position="dodge") + 
-  geom_point(aes(x=Pre_post), size=3, alpha=0.8) + facet_grid(~Site) +
+  geom_point(aes(x=Season), size=3, alpha=0.8) + facet_grid(~Site) +
   geom_text(aes(label=Flowers), hjust=-0.3, size=6, position=position_jitter(width=0.3)) +
   scale_fill_manual(values = c('grey', 'red')) +
   my_theme + theme(legend.position = "none") +
@@ -99,7 +100,7 @@ ggplot(dflo[dflo$Site %in% c("Harshaw", "Sonoita"),], aes(Site_Season, log(Flowe
   geom_boxplot(aes(fill=Season, size=Flowers)) +
   geom_point() +
   geom_text(hjust=0, nudge_x = 0.1, nudge_y=0.3, size=7) +
-  #scale_color_manual(values = c('red', 'black'), 
+  scale_fill_manual(values = c('red', 'black')) +
   #labels=c("Post-monsoon", "Pre-monsoon"), name="Monsoon status") + 
   guides(colour = guide_legend(override.aes = list(size=4)), size=F) +
   my_theme +  theme(axis.text.x = element_text(size=15, angle=30, vjust=0.9, hjust=1), 
@@ -109,7 +110,7 @@ ggplot(dflo[dflo$Site %in% c("Harshaw", "Sonoita"),], aes(Site_Season, log(Flowe
 ggplot(dflo[dflo$Site %in% c("Harshaw", "Sonoita"),], aes(Transect, log(Flowers), label=Flowers)) + 
   facet_grid(~Site, scales="free_x", space='free') + #coord_flip() +
   #geom_tufteboxplot() +
-  geom_point(aes(col=Pre_post, size=Flowers), stat="identity") +
+  geom_point(aes(col=Season, size=Flowers), stat="identity") +
   scale_size_continuous(range=c(3,15)) +
   geom_text(hjust=0, nudge_x = 0, nudge_y=0.7, size=5) +
   scale_color_manual(values = c('red', 'black'), 
