@@ -18,30 +18,36 @@ library(car) ## To check the distribution of the data
 library(changepoints.np) ## Not YET installed; for automating change points
 #library(arm) ## Std errors from random effects in lmer models
 
-wd <- file.path("E:", "Google Drive", "IR_2018_csv")
+wd <- file.path("E:", "Google Drive", "IR_2018_csv", "Data")
 setwd(wd)
-thermal_maxes_melted <- read.csv("E:\\Google Drive\\IR_2018_csv\\Thermal_maxes_all_Oct.csv")
+thermal_maxes_melted <- read.csv("Thermal_maxes.csv")
 #thermal_maxes_melted <- read.csv("E:\\Google Drive\\IR_2018_csv\\Melted_thermal_maxes_all.csv")
 categories <- read.csv("Category_thresholds.csv")
-datatry <- read.csv("Interpolated_Thermal.csv")
+datatry <- read.csv("Interpolated_Thermal.csv") ## NEED THIS for final; Jul 2019
 categ_percentage <- read.csv("Category_percentages.csv")
 masses <- read.csv("Bird_masses.csv")
-thermal_maxes_melted$Category <- factor(thermal_maxes_melted$Category, levels = c("Normothermic", "Shallow Torpor", "Transition", "Deep Torpor"))
-#thermal_maxes_melted$variable <- gsub('MA', 'RI', thermal_maxes_melted$variable) ## Changing species code for RIHU from MAHU to RIHU
-#thermal_maxes_melted$Species <- gsub('MA', 'RI', thermal_maxes_melted$Species)
-masses$Indiv_ID <- gsub('MA', 'RI', masses$Indiv_ID) ## Changing species code for RIHU from MAHU to RIHU
-masses$Species <- gsub('MA', 'RI', masses$Species)
-categories$Individual <- gsub('MA', 'RI', categories$Individual) ## Changing species code for RIHU from MAHU to RIHU
-categories$Species <- gsub('MA', 'RI', categories$Species)
+write.csv(masses, file = "Bird_masses.csv")
+
+
+#categories$Individual <- gsub('MA', 'RI', categories$Individual) ## Changing species code for RIHU from MAHU to RIHU
+#categories$Species <- gsub('MA', 'RI', categories$Species)
+#masses$Indiv_ID <- gsub('BLHU', 'BLUH', masses$Indiv_ID) ## Changing species code from BLHU to BLUH
+#masses$Species <- gsub('BLHU', 'BLUH', masses$Species)
+#masses$Bird_ID <- gsub('BLHU', 'BLUH', masses$Bird_ID)
+
+
 
 
 #### TRY THIS for automated change points #####
 cpt.np(test.int, method='PELT', minseglen=1,nquantiles =8*log(length(test.int)))
 
+
+#### General functions ####
 ## Only read this in if categories or out_all files change
 #thermal_maxes_NoCateg <- read.csv("E:\\Google Drive\\IR_2018_csv\\Melted_thermal_maxes_all_Oct.csv")
 
 #bird.folders <- list.dirs(wd, recursive=T)[-1]
+
 
 ## Generic plot theme
 my_theme <- theme_classic(base_size = 30) + 
@@ -55,6 +61,7 @@ my_theme2 <- theme_classic(base_size = 30) +
 ## Axis labels
 Temp.lab <- expression(atop(paste("Temperature (", degree,"C)")))
 
+#### Bird folders ####
 bird.folders.2018 <- c("BCHU01_0521", "BCHU02_0526", "BCHU03_0530", "BCHU04_0607", "BCHU05_0607",
                   "BLHU01_0521", "BLHU03_0522", "BLHU04_0523", "BLHU05_0523", "BLHU06_0526", "BLHU07_0529", "BLHU08_0601", 
                   "BLHU09_0603", "BLHU12_0605", "BLHU13_0605", 
@@ -401,7 +408,7 @@ for(i in 1:nrow(casted_indiv)) {
                                                                    casted_indiv$Shallow[i], casted_indiv$Transition[i],
                                                                   casted_indiv$Torpor[i])))*100,0)
 }
-prop_indiv_time
+head(prop_indiv_time)
 
 ## Melted dataframe for proportion of time spent in diff categories by species. Uses interpolated data
 m.prop <- melt(prop_indiv_time, id.vars = "Indiv_pasted", measure.vars = c("Normothermic", "Shallow", "Transition", "Torpor"))
@@ -415,7 +422,7 @@ m.prop$Species <- as.factor(as.character(m.prop$Species))
 #mod_glm_freq <- glmer(freq~variable*Species + (1|Indiv_pasted), data=m.prop, family=poisson())
 #mod_glm_freq1 <- glmer(freq~variable*Species + (variable|Indiv_pasted), data=m.prop, family=poisson())
 
-## USE THIS
+## USE THIS but then go use negative binom model
 mod_glm_freq_sp <- glm(freq~variable*Species-1, data=m.prop, family=poisson())
 summary(mod_glm_freq_sp)
 coef(mod_glm_freq_sp)
@@ -435,10 +442,13 @@ mod_glm_freq_Categ <- glm(freq~variable-1, data=m.prop, family=poisson())
 summary(mod_glm_freq_Categ)
 coef(mod_glm_freq_Categ)
 
-m.prop$predicted <- predict(mod_glm_freq_sp)
-plot(mod_glm_freq_sp)
+m.prop$predicted <- predict(mod_glm_freq_sp_nb)
+plot(mod_glm_freq_sp_nb)
 #aov(mod_glm_freq_sp, mod_glm_freq_Categ)
 
+## USE THIS PLOT
+datatry$Category <- factor(datatry$Category, levels = c("Normothermic", "Shallow", "Transition", "Torpor"))
+my_colors2 <- c("#23988aff", "#F38BA8", "#440558ff", "#9ed93aff")
 ggplot(m.prop, aes(Species,predicted)) + my_theme + geom_bar(aes(fill=variable), position = "fill", stat="identity") +
   #facet_grid(.~Species, scales = "free_x",space = "free_x") +
   xlab("Species") + ylab("Percentages") +
@@ -500,7 +510,8 @@ qqp(out_full$Surf_Temp, "nbinom", size = nbinom$estimate[[1]], mu = nbinom$estim
 poisson <- fitdistr(out_full$Surf_Temp_test, "Poisson")
 qqp(out_full$Surf_Temp_test, "pois", poisson$estimate)
 
-ggplot(out_full, aes(pasted, Surf_Temp)) + geom_boxplot() + facet_grid(.~Category, scales = "free_x") + my_theme + theme(axis.text.x = element_text(angle=90))
+ggplot(out_full, aes(pasted, Surf_Temp)) + geom_boxplot() + facet_grid(.~Category, scales = "free_x") + 
+  my_theme + theme(axis.text.x = element_text(angle=90))
 
 ## Nov 4, 2018. Trying out a multilevel model with random intercepts and fixed slope
 mod_mixed <- lmer(Surf_Temp ~ Amb_Temp + (1|Category), data=out_full)
@@ -584,7 +595,7 @@ plot(mod.surf_amb_trad2)
 ## Not including Category as a covariate
 mod.surf_amb_noCateg <- lm(Surf_Temp~Amb_Temp, data=out_full)
 summary(mod.surf_amb_noCateg)
-plot(mod.surf_amb_trad2)
+plot(mod.surf_amb_noCateg)
 
 # Other useful functions 
 coefficients(mod.surf_amb) # model coefficients
@@ -627,6 +638,8 @@ ggplot(m.all_thermal, aes(value)) + geom_histogram(binwidth=1) + my_theme +
 
 ## Plotting distribution of max values for all birds, from annotated thermal max file
 #thermal_maxes_melted$Category <- revalue(thermal_maxes_melted$Category, c("Shallow"="Shallow Torpor", "Torpor"="Deep Torpor"))
+
+## USE THIS July 2019
 ggplot(thermal_maxes_melted, aes(variable, value)) + my_theme + geom_point(aes(col=Category), size=2, alpha=0.8) +  
   facet_grid(.~Species, scales = "free_x",space = "free_x") +
   ylab(Temp.lab) + xlab("Individual") + 
@@ -734,7 +747,7 @@ TimeFinal <- droplevels(na.omit(TimeOrder[match(Time_unordered, TimeOrder,nomatc
 
 test$Time2 <- TimeOrder[match(birdTime,TimeOrder,nomatch=NA)]
 
-thermplot <- ggplot(test, aes(Time2, value)) +
+thermplot <- ggplot(out, aes(Time2, value)) +
   geom_point(aes(col=variable), size=3) + my_theme +
   theme(axis.text.x = element_text(angle=60, size=15, vjust=0.5), panel.grid.major.y = element_line(colour="grey", size=0.5),
         axis.text.y=element_text(size=15), legend.key.height = unit(3, 'lines'),  plot.title = element_text(hjust = 0.5)) +
@@ -742,6 +755,6 @@ thermplot <- ggplot(test, aes(Time2, value)) +
                      labels=c("Ambient", "Mean surface", "Max surface"), name="Temperature") + 
   scale_y_continuous(breaks = c(5,10,15,20,21,22,23,24,25,26,27,28,29,30,35)) +
   #scale_x_discrete(drop=F, levels(out$Time2)[c(T, rep(F, 14))]) +
-  ylab(Temp.lab) + xlab("Hour") + ggtitle(test$Indiv_ID[1])
+  ylab(Temp.lab) + xlab("Hour") + ggtitle(out$Indiv_ID[1])
 thermplot
 
