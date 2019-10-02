@@ -76,10 +76,10 @@ names(hmr_mean) <- c("Species", "kJ_min", "Mass_g")
 hmr$temp_bin_C <- cut(hmr$Te_C, c(10,20,25,30, 35, 40, 45))
 
 hmr$temp_bin_C <- as.factor(hmr$temp_bin_C)
-ggplot(hmr[!is.na(hmr$temp_bin_C) & hmr$Species!="PAGI",], aes(Mass, hmr_kJ_min)) + 
-  geom_point(size=2) + facet_grid(.~temp_bin_C, scales="free_x") +
-  geom_smooth(method='lm') +
-  my_theme
+ggplot(hmr[!is.na(hmr$temp_bin_C) & hmr$Species!="PAGI",], aes(log(Mass), log(hmr_kJ_min*60))) + 
+  geom_point(size=2) + facet_grid(.~temp_bin_C) + my_theme +
+  geom_smooth(method='lm') + theme(axis.text.x=element_text(angle=90, vjust=0.7)) +
+  ylab("log(HMR kJ/h)")
 
 
 ## Trimming tree to DLW dataset
