@@ -43,10 +43,9 @@ lm_eqn <- function(y, x){
                      a + b %.% italic(x)*","~~italic(r)^2~"="~r2, 
                    list(a = format(unname(coef(m))[1], digits = 2), 
                         b = format(unname(coef(m))[2], digits = 2), 
-                        r2 = format(summary(m)$r.squared, digits = 3)))
+                        r2 = format(summary(m)$r.squared, digits = 2)))
   as.character(as.expression(eq));                 
 }
-
 
 
 ## Aggregating dataset by Species and site, to get species means of mass and daily energy expenditure (DEE)
@@ -76,10 +75,34 @@ names(hmr_mean) <- c("Species", "kJ_min", "Mass_g")
 hmr$temp_bin_C <- cut(hmr$Te_C, c(10,20,25,30, 35, 40, 45))
 
 hmr$temp_bin_C <- as.factor(hmr$temp_bin_C)
-ggplot(hmr[!is.na(hmr$temp_bin_C) & hmr$Species!="PAGI",], aes(log(Mass), log(hmr_kJ_min*60))) + 
+p<- ggplot(hmr[!is.na(hmr$temp_bin_C),], aes(log(Mass), log(hmr_kJ_min*60))) + 
   geom_point(size=2) + facet_grid(.~temp_bin_C) + my_theme +
   geom_smooth(method='lm') + theme(axis.text.x=element_text(angle=90, vjust=0.7)) +
   ylab("log(HMR kJ/h)")
+
+dat_text <- data.frame(
+  label = c(
+    lm_eqn(log(hmr$hmr_kJ_min[hmr$temp_bin_C==levels(hmr$temp_bin_C)[1]]),
+           log(hmr$Mass[hmr$temp_bin_C==levels(hmr$temp_bin_C)[1]])),
+    lm_eqn(log(hmr$hmr_kJ_min[hmr$temp_bin_C==levels(hmr$temp_bin_C)[2]]),
+           log(hmr$Mass[hmr$temp_bin_C==levels(hmr$temp_bin_C)[2]])),
+    lm_eqn(log(hmr$hmr_kJ_min[hmr$temp_bin_C==levels(hmr$temp_bin_C)[3]]),
+           log(hmr$Mass[hmr$temp_bin_C==levels(hmr$temp_bin_C)[3]])),
+    lm_eqn(log(hmr$hmr_kJ_min[hmr$temp_bin_C==levels(hmr$temp_bin_C)[4]]),
+           log(hmr$Mass[hmr$temp_bin_C==levels(hmr$temp_bin_C)[4]])),
+    lm_eqn(log(hmr$hmr_kJ_min[hmr$temp_bin_C==levels(hmr$temp_bin_C)[5]]),
+           log(hmr$Mass[hmr$temp_bin_C==levels(hmr$temp_bin_C)[5]])),
+    lm_eqn(log(hmr$hmr_kJ_min[hmr$temp_bin_C==levels(hmr$temp_bin_C)[6]]),
+           log(hmr$Mass[hmr$temp_bin_C==levels(hmr$temp_bin_C)[6]]))),
+  temp_bin_C= levels(hmr$temp_bin_C))
+
+p + geom_text(
+  data    = dat_text,
+  mapping = aes(x = -Inf, y = 2, label = label),
+  hjust   = -0.08,
+  vjust=-1,
+  size=5, parse=T
+)
 
 
 ## Trimming tree to DLW dataset
@@ -283,18 +306,32 @@ ggplot(NULL, aes(log(Mass_g), log(kJ_day))) +
 
 ## Good graph of species means, with regression line through them.
 ## For both DEE and also NEE, separately
+## Make a color scale of the right number of colors
+colourCount <- length(unique(c(unique(levels(nee$Species2)), levels(dlw_mean$Species), levels(hmr$Species))))
+getPalette <- colorRampPalette(brewer.pal(9, "Set1"))
+
+## Assuming hovering for 2 hours a day
+hmr$kJ_day <- hmr$hmr_kJ_min*60*2
+hmr$Mass_g <- hmr$Mass
+hmr_mean$kJ_day <- hmr_mean$kJ_min*60*2
+
 ggplot(NULL, aes(log(Mass_g), log(kJ_day))) + 
   geom_point(data=dlw_mean, aes(col=Species), size=6, shape=19) + 
   geom_smooth(data=fmr_data, method=lm, alpha=0.3) + 
   geom_point(data=nee_mean, aes(col=Species),size=6, shape=19) +
   geom_smooth(data=nee, method=lm, alpha=0.3, col='black') + 
+  geom_point(data=hmr_mean, aes(col=Species),size=6, shape=19) +
+  geom_smooth(data=hmr, method=lm, alpha=0.3, col='red') + 
   #geom_point(data=fmr_data, aes(col=Species), shape = 19, size=4, alpha=0.5) + 
-  geom_text(aes(x = 1.75, y = 4.75), col="blue", 
-            label = lm_eqn(log(fmr_data$kJ_day),
-                           log(fmr_data$Mass_g)), parse=T, size=10) +
+  geom_text(aes(x = 3, y = 1.5), col="blue", 
+            label = lm_eqn(log(dlw_mean$kJ_day),
+                           log(dlw_mean$Mass_g)), parse=T, size=10) +
   geom_text(aes(x = 2.25, y = 1.5), col="black", 
-            label = lm_eqn(log(nee$kJ_day),
-                           log(nee$Mass_g)), parse=T, size=10) +
+            label = lm_eqn(log(nee_mean$kJ_day),
+                           log(nee_mean$Mass_g)), parse=T, size=10) +
+  geom_text(aes(x = 1.75, y = 4.75), col="red", 
+            label = lm_eqn(log(hmr_mean$kJ_day),
+                           log(hmr_mean$Mass_g)), parse=T, size=10) +
   my_theme + xlab("Log(Mass (g))") +
   scale_colour_manual(values = getPalette(colourCount)) +
   ylab("Log(kJ per day)")  + 
