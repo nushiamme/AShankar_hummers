@@ -20,6 +20,7 @@ library(ggplot2)
 library(ggpubr)
 ##For cutting HMR temps into bins and making a new binned temperature column
 library(Hmisc)
+library(plyr) ## For renaming factor levels
 
 #### Setup ####
 setwd("C:\\Users\\nushi\\Dropbox\\DLW_paper\\Data")
@@ -29,6 +30,7 @@ hmr <- read.csv("Groom_et_al_HMR_compiled.csv")
 
 ## Read in McGuire et al. 2014 hummingbird phylogeny
 tree_dlw<-read.tree("hum294.tre")
+tree_hmr<-read.tree("hum294.tre")
 #tre_ou_edited <- read.tree("OU_hummer_tree_FMR_edit.txt")
 
 ## General plotting functions
@@ -66,11 +68,6 @@ names(nee_mean) <- c("Species", "kJ_day", "Mass_g")
 
 ## HMR data from Groom et al. 2018 for slope of HMR
 hmr$hmr_kJ_min <- (hmr$mL_O2_min*20.1)/1000
-hmr_mean <- data.frame()
-hmr_mean <- aggregate(hmr$hmr_kJ_min, by=list(hmr$Species), FUN="mean", na.omit=T)
-hmr_mass <- aggregate(hmr$Mass, by=list(hmr$Species), FUN="mean", na.omit=T)
-hmr_mean <- merge(hmr_mean, hmr_mass, by = "Group.1")
-names(hmr_mean) <- c("Species", "kJ_min", "Mass_g")
 
 hmr$temp_bin_C <- cut(hmr$Te_C, c(10,20,25,30, 35, 40, 45))
 
@@ -125,7 +122,6 @@ tree_dlw$tip.label[234]<-"THCO"
 tree_dlw$tip.label[235]<-"THFA"
 tree_dlw$tip.label[269]<-"AMTZ"
 
-
 ## Tree without the Giant hummingbird
 tree_no_Pgigas <- tree_dlw
 
@@ -149,6 +145,46 @@ rownames(tips2)<-tips2$tips
 tre1_noPgigas<-treedata(tree_no_Pgigas, tips2)$phy
 #To check that the relationships between species in the trimmed tree look right
 plot(tre1_noPgigas, cex=1.5, edge.width = 3) 
+
+
+## Trimming tree to HMR dataset
+## Manually replacing because it's a manageable number
+tree_hmr$tip.label[2]<-"FLFU"
+tree_hmr$tip.label[7]<-"RANA"
+tree_hmr$tip.label[40]<-"COCO"
+tree_hmr$tip.label[82]<-"OCUN"
+tree_hmr$tip.label[90]<-"CLRU"
+tree_hmr$tip.label[109]<-"LOCH"
+tree_hmr$tip.label[116]<-"SESE"
+tree_hmr$tip.label[134]<-"ORES"
+tree_hmr$tip.label[154]<-"PAGI"
+tree_hmr$tip.label[156]<-"EUFU"
+tree_hmr$tip.label[163]<-"LACL"
+tree_hmr$tip.label[184]<-"ARCO"
+tree_hmr$tip.label[175]<-"RHVE"
+tree_hmr$tip.label[185]<-"ARAL"
+tree_hmr$tip.label[188]<-"CAAN"
+tree_hmr$tip.label[190]<-"SEPL"
+tree_hmr$tip.label[191]<-"SERU"
+tree_hmr$tip.label[192]<-"STCA"
+tree_hmr$tip.label[193]<-"SESA"
+tree_hmr$tip.label[219]<-"CYLA"
+tree_hmr$tip.label[231]<-"THGL"
+tree_hmr$tip.label[257]<-"AMVI"
+tree_hmr$tip.label[269]<-"STLA"
+tree_hmr$tip.label[280]<-"LEAL"
+tree_hmr$tip.label[282]<-"AMFI"
+
+tips_hmr<-data.frame(levels(hmr$Species))
+colnames(tips_hmr) <- "tips"
+rownames(tips_hmr)<-tips_hmr$tips
+
+#match tree to data, prune tree, species names should be in rownnames of "data" 
+tre_hmr<-treedata(tree_hmr, tips_hmr)$phy
+
+#To check that the relationships between species in the trimmed tree look right
+plot(tre_hmr, cex=1.5, edge.width = 3) 
+
 
 
 
@@ -180,6 +216,35 @@ ou.gls<-gls(log(fmr)~log(mass_g),correlation=ou.fmr,data=DF.fmr)
 summary(ou.gls)
 plot(ou.gls$residuals)
 plot(ou.gls)
+
+## FOR HMR
+## PGLS can only take one value per species, so aggregate by mean HMR first, and then run the pgls model.
+hmr_mean <- data.frame()
+hmr_mean <- aggregate(hmr$hmr_kJ_min, by=list(hmr$Species), FUN="mean", na.omit=T)
+hmr_mass <- aggregate(hmr$Mass, by=list(hmr$Species), FUN="mean", na.omit=T)
+hmr_mean <- merge(hmr_mean, hmr_mass, by = "Group.1")
+names(hmr_mean) <- c("Species", "kJ_min", "Mass_g")
+
+## Making FMR and Mass separate objects
+hmr_sep<-hmr_mean$kJ_min
+mass_hmr_g<-hmr_mean$Mass_g
+DF.hmr<-data.frame(hmr_sep,mass_hmr_g,row.names=hmr_mean$Species)
+DF.hmr <-  DF.hmr[tre_hmr$tip.label,]
+DF.hmr
+
+## Running brownian motion tree GLS model
+bm.hmr<-corBrownian(phy=tre_hmr)
+bm.gls_hmr<-gls(log(hmr_sep)~log(mass_hmr_g),correlation=bm.hmr,data=DF.hmr)
+summary(bm.gls_hmr)
+plot(bm.gls_hmr$residuals)
+plot(bm.gls_hmr)
+
+## Running GLS model with Ornstein-Uhlenbeck tree
+ou.hmr<-corMartins(1,phy=tre_hmr)
+ou.gls_hmr<-gls(log(hmr_sep)~log(mass_hmr_g),correlation=ou.hmr,data=DF.hmr)
+summary(ou.gls_hmr)
+plot(ou.gls_hmr$residuals)
+plot(ou.gls_hmr)
 
 
 #### Models ####
@@ -266,6 +331,27 @@ plot(DEE_log_mass_noTree)
 confint(DEE_log_mass_noTree)
 
 
+## HMR
+inv.phylo_hmr<-inverseA(tre_hmr, nodes="TIPS", scale=TRUE)
+
+## Make OU tree
+tre_ou_hmr <- rescale(tre_hmr, model = "OU", alpha=0.2630) ## Alpha from running OU gls model above
+plot(tre_ou_hmr, cex=1.5, edge.width = 3)
+## Inverse matrix of the OU tree - doesn't work, edge lengths are zero => star phylogeny.
+#inv.phylo_ou <-inverseA(tre_ou_edited,nodes="TIPS",scale=T)
+
+#set up a prior for a phylogenetic mixed model
+#Setting priors to be very uninformative
+prior<-list(G=list(G1=list(V=0.02,nu=0.02)),R=list(V=0.02,nu=0.02)) 
+#run the hierarchical phyogenetic model, the name of the species 
+#(repeated across rows of observations) 
+## DEE vs Mass, log-log, with tree
+HMR_log_mass <-MCMCglmm(log(hmr_kJ_min)~log(Mass), 
+                        random=~Species, ginverse = list(Species=inv.phylo_hmr$Ainv), 
+                        prior=prior, data=hmr, verbose=FALSE, nitt = 5000000, thin = 1000)
+summary(HMR_log_mass)
+plot(HMR_log_mass)
+
 ## Derive R2 from MCMCglmm results
 ## Source: https://www.int-res.com/articles/suppl/m561p001_supp2.pdf
 R2 <- function(mod){
@@ -293,6 +379,78 @@ colourCount <- length(unique(c(unique(levels(nee$Species2)), levels(dlw_mean$Spe
 getPalette <- colorRampPalette(brewer.pal(9, "Set1"))
 
 
+## Melt NEE to be able to plot torpor, normo, and total NEE points
+nee$Tot_normo_kJ <- nee$Avg_EE_hourly_normo*nee$Hours_normo
+nee$Tot_torpid_kJ <- nee$Avg_EE_hourly_torpid*nee$Hours_torpid
+m.nee <- melt(nee, id.vars=c("Species2", "Mass_g"), 
+              measure.vars=c("NEE_kJ", "kJ_rewarming_BeforeOvershoot", "Tot_normo_kJ", "Tot_torpid_kJ"))
+m.nee$variable <- revalue(m.nee$variable, c("NEE_kJ"="NEE", "kJ_rewarming_BeforeOvershoot"="Rewarming",
+                          "Tot_normo_kJ"="Normothermic", "Tot_torpid_kJ"="Torpid"))
+m.nee$variable <- ordered(m.nee$variable, levels =c("NEE", "Normothermic", "Rewarming", "Torpid"))
+
+m.nee2 <- melt(nee, id.vars=c("Species2", "Mass_g"), 
+              measure.vars=c("NEE_kJ", "kJ_rewarming_BeforeOvershoot", "Avg_EE_hourly_normo", "Avg_EE_hourly_torpid"))
+m.nee2$variable <- revalue(m.nee2$variable, c("NEE_kJ"="NEE", "kJ_rewarming_BeforeOvershoot"="Rewarming",
+                                            "Avg_EE_hourly_normo"="Normothermic", "Avg_EE_hourly_torpid"="Torpid"))
+m.nee2$variable <- ordered(m.nee2$variable, levels =c("NEE", "Normothermic", "Rewarming", "Torpid"))
+
+
+## Torpor allometry, just torpid means per indiv
+ggplot(nee, aes(log(Mass), log(Avg_EE_hourly_torpid))) + geom_point() + geom_smooth(method="lm")
+
+## Torpor allometry, just normo means per indiv
+ggplot(nee, aes(log(Mass), log(Avg_EE_hourly_normo))) + geom_point() + geom_smooth(method="lm")
+
+colourCount_nee <- length(unique(levels(nee$Species2)))
+## Torpor allometry, total NEE
+ggplot(m.nee2[!is.na(m.nee2$value),], aes(log(Mass_g), log(value))) +  my_theme +
+  geom_smooth(aes(fill=variable), method="lm", col="black", alpha=0.3) +
+  scale_fill_manual(values=c("black", "blue", "green", "red")) +
+  geom_point(aes(col=Species2),size=3, shape=19) +
+  scale_colour_manual(values = getPalette(colourCount_nee)) +
+  geom_text(aes(x = 1.5, y = 3), col="black", 
+          label = lm_eqn(log(100*m.nee2$value[m.nee2$variable=="NEE"]),
+                         log(100*m.nee2$Mass_g[m.nee2$variable=="NEE"])), parse=T, size=7) +
+  geom_text(aes(x = 1.5, y = 1), col="blue", 
+            label = lm_eqn(log(100*m.nee2$value[m.nee2$variable=="Normothermic"]),
+                           log(100*m.nee2$Mass_g[m.nee2$variable=="Normothermic"])), parse=T, size=7) +
+  geom_text(aes(x = 1.5, y = -1), col="darkgreen", 
+            label = lm_eqn(log(100*m.nee2$value[m.nee2$variable=="Rewarming" &
+                                             !is.na(m.nee2$value)]),
+                           log(100*m.nee2$Mass_g[m.nee2$variable=="Rewarming" &
+                                              !is.na(m.nee2$value)])), parse=T, size=7) +
+  geom_text(aes(x = 1.5, y = -3), col="red", 
+            label = lm_eqn(log(100*m.nee2$value[m.nee2$variable=="Torpid" &
+                                             !is.na(m.nee2$value)]),
+                           log(100*m.nee2$Mass_g[m.nee2$variable=="Torpid" &
+                                              !is.na(m.nee2$value)])), parse=T, size=7) +
+  ylab("log(Energy expenditure kJ)") + xlab("log(Mass g)")
+
+## Torpor allometry, total NEE, and total normo, total torpid, total rewarming
+ggplot(m.nee[!is.na(m.nee$value),], aes(log(Mass_g), log(value))) +  my_theme +
+  geom_smooth(aes(fill=variable), method="lm", col="black", alpha=0.3) +
+  scale_fill_manual(values=c("black", "blue", "green", "red")) +
+  #geom_point(aes(col=variable),size=3, shape=19) +
+  scale_colour_manual(values = getPalette(colourCount_nee)) +
+  geom_text(aes(x = 1.5, y = 3), col="black", 
+            label = lm_eqn(log(m.nee$value[m.nee$variable=="NEE"]),
+                           log(m.nee$Mass_g[m.nee$variable=="NEE"])), parse=T, size=7) +
+  geom_text(aes(x = 1.5, y = 1), col="blue", 
+            label = lm_eqn(log(m.nee$value[m.nee$variable=="Normothermic"]),
+                           log(m.nee$Mass_g[m.nee$variable=="Normothermic"])), parse=T, size=7) +
+  geom_text(aes(x = 1.5, y = -2), col="darkgreen", 
+            label = lm_eqn(log(m.nee$value[m.nee$variable=="Rewarming" &
+                                                 !is.na(m.nee$value)]),
+                           log(m.nee$Mass_g[m.nee$variable=="Rewarming" &
+                                                  !is.na(m.nee$value)])), parse=T, size=7) +
+  geom_text(aes(x = 1.5, y = 0.5), col="red", 
+            label = lm_eqn(log(m.nee$value[m.nee$variable=="Torpid" &
+                                                 !is.na(m.nee$value)]),
+                           log(m.nee$Mass_g[m.nee$variable=="Torpid" &
+                                                  !is.na(m.nee$value)])), parse=T, size=7) +
+  ylab("log(Energy expenditure kJ)") + xlab("log(Mass g)")
+    
+  
 ## Good graph of species means and individual points, with regression line through them. 
 ggplot(NULL, aes(log(Mass_g), log(kJ_day))) + 
   geom_point(data=dlw_mean, aes(col=Species), size=6, shape=19) + 
@@ -323,15 +481,15 @@ ggplot(NULL, aes(log(Mass_g), log(kJ_day))) +
   geom_point(data=hmr_mean, aes(col=Species),size=6, shape=19) +
   geom_smooth(data=hmr, method=lm, alpha=0.3, col='red') + 
   #geom_point(data=fmr_data, aes(col=Species), shape = 19, size=4, alpha=0.5) + 
-  geom_text(aes(x = 3, y = 1.5), col="blue", 
+  geom_text(aes(x = 1.75, y = 4.75), col="blue", 
             label = lm_eqn(log(dlw_mean$kJ_day),
-                           log(dlw_mean$Mass_g)), parse=T, size=10) +
-  geom_text(aes(x = 2.25, y = 1.5), col="black", 
+                           log(dlw_mean$Mass_g)), parse=T, size=8) +
+  geom_text(aes(x = 2.5, y = 3.25), col="black", 
             label = lm_eqn(log(nee_mean$kJ_day),
-                           log(nee_mean$Mass_g)), parse=T, size=10) +
-  geom_text(aes(x = 1.75, y = 4.75), col="red", 
+                           log(nee_mean$Mass_g)), parse=T, size=8) +
+  geom_text(aes(x = 2.25, y = 1.5), col="red", 
             label = lm_eqn(log(hmr_mean$kJ_day),
-                           log(hmr_mean$Mass_g)), parse=T, size=10) +
+                           log(hmr_mean$Mass_g)), parse=T, size=8) +
   my_theme + xlab("Log(Mass (g))") +
   scale_colour_manual(values = getPalette(colourCount)) +
   ylab("Log(kJ per day)")  + 
