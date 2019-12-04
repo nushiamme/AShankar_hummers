@@ -109,6 +109,16 @@ litplotstudy <- ggplot(litstudy, aes(Tc_min, EE_J)) +
   xlab(Tc_min.xlab) + ylab("Energy expenditure (J/h)") + ggtitle("Mass category")
 litplotstudy
 
+### Plot literature review plot study values, just 7.5g mass category ######
+litplotstudy <- ggplot(litstudy[litstudy], aes(Tc_min, EE_J)) +  
+  geom_point(aes(col=Torpid_not, shape=Study_lit), size=4) +
+  scale_shape_manual(values=c(3,20)) + facet_grid(~Mass_categ) + my_theme +
+  scale_color_manual(values=c('black', '#ff3333', '#9999ff')) +
+  theme(legend.key.height = unit(3,"line"), plot.title = element_text(hjust = 0.5, size=20),
+        axis.text.x = element_text(size=15)) + 
+  xlab(Tc_min.xlab) + ylab("Energy expenditure (J/h)") + ggtitle("Mass category")
+litplotstudy
+
 levels(litjan$Torpid_not) <- c("Normothermic", "N_day", "Normothermic", "Torpid", "Unknown")
 old.lvl<-levels(litjan$Mass_categ)
 litjan$Mass_categ<-factor(litjan$Mass_categ, 
@@ -124,6 +134,41 @@ litplotstudy_jan <- ggplot(litjan[litjan$Torpid_not !="N_day" &
         axis.text.x = element_text(size=15)) + ylim(0,3300) +
   xlab(Tc_min.xlab) + ylab("Energy expenditure (J/h)") + ggtitle("Mass category (g)")
 litplotstudy_jan
+
+
+### Plot just literature review values with kruger, just 6-8g category ######
+litplot_jan_6to8 <- ggplot(litjan[litjan$Torpid_not !="N_day" & litjan$Mass_categ=="6_8" &
+                                    litjan$Study_lit=="Lit",], aes(Temp, EE_J)) +  
+  geom_point(aes(col=Torpid_not), shape=20, alpha=0.5, size=4) +
+  geom_smooth(data=litjan[litjan$Torpid_not=="Normothermic" & litjan$Mass_categ=="6_8" & 
+                       litjan$Study_lit=="Lit",], method="lm", col="black", alpha=0.3) +
+  geom_smooth(data=litjan[litjan$Torpid_not=="Torpid" & litjan$Mass_categ=="6_8" & 
+                            litjan$Study_lit=="Lit" & litjan$Temp<28,], method="loess", col="black", alpha=0.3) +
+  #scale_alpha_manual(values=c(0.3,1)) +
+  #scale_shape_manual(values=c(20,3)) + 
+  my_theme + #facet_grid(~Mass_categ) + 
+  scale_color_manual(values=c('black', '#ff3333', '#9999ff')) +
+  theme(legend.key.height = unit(3,"line"), plot.title = element_text(hjust = 0.5, size=20),
+        axis.text.x = element_text(size=20)) + ylim(0,3300) +
+  xlab(Tc_min.xlab) + ylab("Energy expenditure (J/h)") #+ ggtitle("Mass category (g)")
+litplot_jan_6to8
+
+### Plot literature review plot study values with kruger, just 6-8g category ######
+litplotstudy_jan_6to8 <- ggplot(litjan[litjan$Torpid_not !="N_day" &
+                                         litjan$Mass_categ%in% c("6_8"),], aes(Temp, EE_J)) +  
+  geom_point(aes(col=Torpid_not, shape=Study_lit, alpha=Study_lit), size=4) +
+  geom_smooth(data=litjan[litjan$Torpid_not=="Normothermic" & litjan$Mass_categ=="6_8" & 
+                            litjan$Study_lit=="Lit",], method="lm", col="black", alpha=0.3) +
+  geom_smooth(data=litjan[litjan$Torpid_not=="Torpid" & litjan$Mass_categ=="6_8" & 
+                            litjan$Study_lit=="Lit" & litjan$Temp<28,], method="loess", col="black", alpha=0.3) +
+  scale_alpha_manual(values=c(0.5,1)) +
+  scale_shape_manual(values=c(20,3)) + my_theme + #facet_grid(~Mass_categ) + 
+  scale_color_manual(values=c('black', '#ff3333', '#9999ff')) +
+  theme(legend.key.height = unit(3,"line"), plot.title = element_text(hjust = 0.5, size=20),
+        axis.text.x = element_text(size=15)) + ylim(0,3300) +
+  xlab(Tc_min.xlab) + ylab("Energy expenditure (J/h)") #+ ggtitle("Mass category (g)")
+litplotstudy_jan_6to8
+
 
 ## Subsetting just lit vals, including Kruger
 litplot_jan <- ggplot(litjan[litjan$Torpid_not %in% c("Normothermic","Torpid") &

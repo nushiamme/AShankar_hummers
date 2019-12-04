@@ -26,7 +26,9 @@ library(plyr) ## For renaming factor levels
 setwd("C:\\Users\\nushi\\Dropbox\\DLW_paper\\Data")
 fmr_data <- read.csv("DLW_TableS1.csv") #Compiled data from this paper and literature. Each row is an individual
 nee <- read.csv("C:\\Users\\nushi\\Dropbox\\Hummingbird energetics\\July2018\\Data\\Torpor_individual_summaries_2.csv")
-hmr <- read.csv("Groom_et_al_HMR_compiled.csv")
+hmr <- read.csv("Groom_et_al_HMR_realtemps_compiled.csv")
+bmr <- read.csv("Londono_BMR.csv")
+
 
 ## Read in McGuire et al. 2014 hummingbird phylogeny
 tree_dlw<-read.tree("hum294.tre")
@@ -48,6 +50,19 @@ lm_eqn <- function(y, x){
                         r2 = format(summary(m)$r.squared, digits = 2)))
   as.character(as.expression(eq));                 
 }
+
+
+## Overall energy budget component averages to match with DEE
+low_aggregate <- c(0.45, 0.67, 0.76, 0.72, 0.45, 1.5)
+high_aggregate <- c(0.85, 0.67, 0.96, 0.90, 0.85, 1.5)
+med_aggregate <- c(0.85, 0.67, 0.76, 0.90, 0.85, 1.5)
+
+mean(low_aggregate)
+sd(low_aggregate)/sqrt(sum(low_aggregate))
+mean(high_aggregate)
+sd(high_aggregate)/sqrt(sum(high_aggregate))
+mean(med_aggregate)
+sd(med_aggregate)/sqrt(sum(med_aggregate))
 
 
 ## Aggregating dataset by Species and site, to get species means of mass and daily energy expenditure (DEE)
@@ -72,10 +87,13 @@ hmr$hmr_kJ_min <- (hmr$mL_O2_min*20.1)/1000
 hmr$temp_bin_C <- cut(hmr$Te_C, c(10,20,25,30, 35, 40, 45))
 
 hmr$temp_bin_C <- as.factor(hmr$temp_bin_C)
-p<- ggplot(hmr[!is.na(hmr$temp_bin_C),], aes(log(Mass), log(hmr_kJ_min*60))) + 
-  geom_point(size=2) + facet_grid(.~temp_bin_C) + my_theme +
+p<- ggplot(hmr[!is.na(hmr$Te_C),], aes(log(Mass), log(hmr_kJ_min*60))) + 
+  geom_point(aes(col=Species), size=2) + my_theme + #facet_grid(.~temp_bin_C) +
   geom_smooth(method='lm') + theme(axis.text.x=element_text(angle=90, vjust=0.7)) +
+  geom_text(aes(x = 2.25, y = 0.75), label = lm_eqn(log(hmr$hmr_kJ_min*60),
+                           log(hmr$Mass)), parse=T, size=8) +
   ylab("log(HMR kJ/h)")
+p
 
 dat_text <- data.frame(
   label = c(
@@ -101,6 +119,12 @@ p + geom_text(
   size=5, parse=T
 )
 
+### TRYING OUT BMR from Londono et al. 2015 dataset
+ggplot(bmr[bmr$Apodiformes=="Y",], aes(log(Mass_g), log(100*BMR_W))) + geom_point() + my_theme +
+  geom_smooth(method='lm') +
+  geom_text(aes(x = 3, y = 2), label = lm_eqn(log(bmr$BMR_W),
+                                                    log(bmr$Mass_g)), parse=T, size=8)
+  
 
 ## Trimming tree to DLW dataset
 ## Manually replacing because it's a manageable number
@@ -225,7 +249,7 @@ hmr_mass <- aggregate(hmr$Mass, by=list(hmr$Species), FUN="mean", na.omit=T)
 hmr_mean <- merge(hmr_mean, hmr_mass, by = "Group.1")
 names(hmr_mean) <- c("Species", "kJ_min", "Mass_g")
 
-## Making FMR and Mass separate objects
+## Making HMR and Mass separate objects
 hmr_sep<-hmr_mean$kJ_min
 mass_hmr_g<-hmr_mean$Mass_g
 DF.hmr<-data.frame(hmr_sep,mass_hmr_g,row.names=hmr_mean$Species)
@@ -247,6 +271,7 @@ plot(ou.gls_hmr$residuals)
 plot(ou.gls_hmr)
 
 
+
 #### Models ####
 ## Now, to run Bayesian models with repeated measures per species (i.e. multiple individuals per species), 
 #we setup an inverse matrix and set up a prior
@@ -265,7 +290,7 @@ plot(tre_ou, cex=1.5, edge.width = 3)
 
 #set up a prior for a phylogenetic mixed model
 #Setting priors to be very uninformative
-prior<-list(G=list(G1=list(V=0.02,nu=0.02)),R=list(V=0.02,nu=0.02)) 
+prior<-list(G=list(G1=list(V=1,nu=0.02)),R=list(V=1,nu=0.02))  ## On Nov 21, changing V from 0.02 to 1
 #run the hierarchical phyogenetic model, the name of the species 
 #(repeated across rows of observations) 
 
@@ -294,33 +319,20 @@ DEE_full_raw <-MCMCglmm(kJ_day~Mass_g+Temptrop,
 summary(DEE_full_raw)
 plot(DEE_full_raw) 
 
-## Log-log full model
+## Log-log full model. IGNORE and use interaction model instead
 DEE_log <-MCMCglmm(log(kJ_day)~log(Mass_g)+Temptrop, 
                     random=~Species, ginverse = list(Species=inv.phylo$Ainv), 
                     prior=prior, data=fmr_data, verbose=FALSE, nitt = 5000000, thin = 1000)
 summary(DEE_log)
 plot(DEE_log) 
 
-## Allowing two slopes and two intercepts; earlier it was + Temptrop
-DEE_full_noTree <-MCMCglmm(log(kJ_day)~log(Mass_g)*Temptrop, 
-                   random=~Species, 
-                   prior=prior, data=fmr_data, verbose=FALSE, nitt = 5000000, thin = 1000)
-summary(DEE_full_noTree)
-plot(DEE_full_noTree) 
 
-## DEE vs Mass, log-log, with tree
+##  "Brownian motion tree" model DEE vs Mass, log-log, with tree
 DEE_log_mass <-MCMCglmm(log(kJ_day)~log(Mass_g), 
-                   random=~Species, ginverse = list(Species=inv.phylo$Ainv), 
-                   prior=prior, data=fmr_data, verbose=FALSE, nitt = 5000000, thin = 1000)
+                        random=~Species, ginverse = list(Species=inv.phylo$Ainv), 
+                        prior=prior, data=fmr_data, verbose=FALSE, nitt = 5000000, thin = 1000)
 summary(DEE_log_mass)
 plot(DEE_log_mass)
-
-## DEE-mass, log-log, no tree, and using only species means
-DEE_log_mass_means <-MCMCglmm(log(kJ_day)~log(Mass_g), 
-                        random=~Species, ginverse = list(Species=inv.phylo$Ainv), 
-                        prior=prior, data=dlw_mean, verbose=FALSE, nitt = 5000000, thin = 1000)
-summary(DEE_log_mass_means)
-plot(DEE_log_mass_means)
 
 ## Now run the MCMCglmm model without the tree, because the OU tree yields a star phylogeny
 DEE_log_mass_noTree <-MCMCglmm(log(kJ_day)~log(Mass_g), 
@@ -331,26 +343,29 @@ plot(DEE_log_mass_noTree)
 confint(DEE_log_mass_noTree)
 
 
-## HMR
-inv.phylo_hmr<-inverseA(tre_hmr, nodes="TIPS", scale=TRUE)
+## Full no tree, with interaction term Allowing two slopes and two intercepts; earlier it was + Temptrop
+DEE_full_noTree <-MCMCglmm(log(kJ_day)~log(Mass_g)*Temptrop, 
+                   random=~Species, 
+                   prior=prior, data=fmr_data, verbose=FALSE, nitt = 5000000, thin = 1000)
+summary(DEE_full_noTree)
+plot(DEE_full_noTree) 
 
-## Make OU tree
-tre_ou_hmr <- rescale(tre_hmr, model = "OU", alpha=0.2630) ## Alpha from running OU gls model above
-plot(tre_ou_hmr, cex=1.5, edge.width = 3)
-## Inverse matrix of the OU tree - doesn't work, edge lengths are zero => star phylogeny.
-#inv.phylo_ou <-inverseA(tre_ou_edited,nodes="TIPS",scale=T)
 
-#set up a prior for a phylogenetic mixed model
-#Setting priors to be very uninformative
-prior<-list(G=list(G1=list(V=0.02,nu=0.02)),R=list(V=0.02,nu=0.02)) 
-#run the hierarchical phyogenetic model, the name of the species 
-#(repeated across rows of observations) 
-## DEE vs Mass, log-log, with tree
-HMR_log_mass <-MCMCglmm(log(hmr_kJ_min)~log(Mass), 
-                        random=~Species, ginverse = list(Species=inv.phylo_hmr$Ainv), 
-                        prior=prior, data=hmr, verbose=FALSE, nitt = 5000000, thin = 1000)
-summary(HMR_log_mass)
-plot(HMR_log_mass)
+## No tree, and no P. gigas
+DEE_log_mass_noTree_noPgigas <-MCMCglmm(log(kJ_day)~log(Mass_g), 
+                                        random=~Species, 
+                                        prior=prior, data=fmr_data[fmr_data$Species != "PAGI",], verbose=FALSE, nitt = 5000000, thin = 1000)
+summary(DEE_log_mass_noTree_noPgigas)
+plot(DEE_log_mass_noTree_noPgigas)
+
+
+## DEE-mass, log-log, no tree, and using only species means
+DEE_log_mass_means <-MCMCglmm(log(kJ_day)~log(Mass_g), 
+                        random=~Species, ginverse = list(Species=inv.phylo$Ainv), 
+                        prior=prior, data=dlw_mean, verbose=FALSE, nitt = 5000000, thin = 1000)
+summary(DEE_log_mass_means)
+plot(DEE_log_mass_means)
+
 
 ## Derive R2 from MCMCglmm results
 ## Source: https://www.int-res.com/articles/suppl/m561p001_supp2.pdf
@@ -364,15 +379,71 @@ R2 <- function(mod){
   round(R2,3)
 }
 
+R2(DEE_log_mass)
 R2(DEE_log_mass_noTree)
+R2(DEE_full_noTree)
+R2(DEE_log_mass_noTree_noPgigas)
 R2(DEE_log_mass_means)
 
-DEE_log_mass_noTree_noPgigas <-MCMCglmm(log(kJ_day)~log(Mass_g), 
-                               random=~Species, 
-                               prior=prior, data=fmr_data[fmr_data$Species != "PAGI",], verbose=FALSE, nitt = 5000000, thin = 1000)
-summary(DEE_log_mass_noTree_noPgigas)
-plot(DEE_log_mass_noTree_noPgigas)
 
+#### HMR Models ####
+inv.phylo_hmr<-inverseA(tre_hmr, nodes="TIPS", scale=TRUE)
+
+## Make OU tree
+tre_ou_hmr <- rescale(tre_hmr, model = "OU", alpha=0.2473) ## Alpha from running OU gls model above
+plot(tre_ou_hmr, cex=1.5, edge.width = 3)
+inv.phylo_ou_hmr<-inverseA(tre_ou_hmr, nodes="TIPS", scale=TRUE)
+## Inverse matrix of the OU tree - doesn't work, edge lengths are zero => star phylogeny.
+#inv.phylo_ou <-inverseA(tre_ou_edited,nodes="TIPS",scale=T)
+
+#set up a prior for a phylogenetic mixed model
+#Setting priors to be very uninformative
+prior<-list(G=list(G1=list(V=0.02,nu=0.02)),R=list(V=0.02,nu=0.02)) 
+#run the hierarchical phyogenetic model, the name of the species 
+#(repeated across rows of observations) 
+## DEE vs Mass, log-log, with tree
+
+#DECREASED from 5mil to 1mil for testing, change back for final
+HMR_log_ou_mass <-MCMCglmm(log(hmr_kJ_min)~log(Mass), 
+                        random=~Species, ginverse = list(Species=inv.phylo_ou_hmr$Ainv), 
+                        prior=prior, data=hmr, verbose=FALSE, nitt = 1000000, thin = 1000)
+summary(HMR_log_ou_mass)
+plot(HMR_log_ou_mass)
+
+#DECREASED from 5mil to 1mil for testing, change back for final
+HMR_log_mass <-MCMCglmm(log(hmr_kJ_min)~log(Mass), 
+                           random=~Species, ginverse = list(Species=inv.phylo_hmr$Ainv), 
+                           prior=prior, data=hmr, verbose=FALSE, nitt = 1000000, thin = 1000)
+summary(HMR_log_mass)
+plot(HMR_log_mass)
+
+## Trying with HMR mean dataset, to hopefully match to Groom's better
+#DECREASED from 5mil to 1mil for testing, change back for final
+HMR_log10_mass <-MCMCglmm(log10(kJ_min)~log10(Mass), 
+                        random=~Species, ginverse = list(Species=inv.phylo_hmr$Ainv), 
+                        prior=prior, data=hmr, verbose=FALSE, nitt = 1000000, thin = 1000)
+summary(HMR_log10_mass)
+plot(HMR_log10_mass)
+
+
+## Trying PGLS model, presumably similar to what Groom et al. used
+row.names(hmr_mean) <- levels(hmr_mean$Species)
+pglsModel_hmr <- gls(log10(kJ_min)~log10(Mass_g), correlation = corBrownian(phy = tre_hmr),
+                 data = hmr_mean, method = "ML")
+summary(pglsModel_hmr)
+
+## Derrick says he used corPagel instead of Brownian, so trying that instead:
+pglsPagel_hmr <- gls(log10(mLO2_min)~log10(Mass_g), correlation = corPagel(0.6,tre_hmr),
+    data = hmr_mean, method = "ML")
+summary(pglsPagel_hmr)
+
+
+anova(pglsModel_hmr, pglsPagel_hmr)
+## Trying PGLS for DLW
+row.names(dlw_mean) <- levels(dlw_mean$Species)
+pglsModel_fmr <- gls(log10(kJ_day)~log10(Mass_g), correlation = corBrownian(phy = tre1),
+                     data = dlw_mean, method = "ML")
+summary(pglsModel_fmr)
 
 ## Plot temp and tropical individuals
 colourCount <- length(unique(c(unique(levels(nee$Species2)), levels(dlw_mean$Species))))
@@ -382,13 +453,14 @@ getPalette <- colorRampPalette(brewer.pal(9, "Set1"))
 ## Melt NEE to be able to plot torpor, normo, and total NEE points
 nee$Tot_normo_kJ <- nee$Avg_EE_hourly_normo*nee$Hours_normo
 nee$Tot_torpid_kJ <- nee$Avg_EE_hourly_torpid*nee$Hours_torpid
-m.nee <- melt(nee, id.vars=c("Species2", "Mass_g"), 
+m.nee <- melt(nee, id.vars=c("Species2", "Mass"), 
               measure.vars=c("NEE_kJ", "kJ_rewarming_BeforeOvershoot", "Tot_normo_kJ", "Tot_torpid_kJ"))
 m.nee$variable <- revalue(m.nee$variable, c("NEE_kJ"="NEE", "kJ_rewarming_BeforeOvershoot"="Rewarming",
                           "Tot_normo_kJ"="Normothermic", "Tot_torpid_kJ"="Torpid"))
 m.nee$variable <- ordered(m.nee$variable, levels =c("NEE", "Normothermic", "Rewarming", "Torpid"))
 
-m.nee2 <- melt(nee, id.vars=c("Species2", "Mass_g"), 
+## Hourly EE rather than whole-night
+m.nee2 <- melt(nee, id.vars=c("Species2", "Mass"), 
               measure.vars=c("NEE_kJ", "kJ_rewarming_BeforeOvershoot", "Avg_EE_hourly_normo", "Avg_EE_hourly_torpid"))
 m.nee2$variable <- revalue(m.nee2$variable, c("NEE_kJ"="NEE", "kJ_rewarming_BeforeOvershoot"="Rewarming",
                                             "Avg_EE_hourly_normo"="Normothermic", "Avg_EE_hourly_torpid"="Torpid"))
