@@ -10,9 +10,9 @@ library(ggplot2)
 #devtools::install_github("dgrtwo/gganimate")
 library(gganimate)
 
-setwd("C:\\Users\\ANUSHA\\Dropbox\\Hummingbird energetics\\Tables_for_paper")
+setwd("C:/Users/nushi/Dropbox/Hummingbird energetics/Tables_for_paper")
 
-gcb_0720 <- read.csv("E14_0720_GCB_no_bsln.csv")
+gcb_0720 <- read.csv("E14_0720_GCB_no_bsln_Rewarm.csv")
 
 my_theme <- theme_classic(base_size = 30) + 
   theme(axis.title.y = element_text(vjust = 2),
@@ -22,8 +22,8 @@ my_theme_blank <- theme_classic(base_size = 30) +
   theme(axis.title.y = element_text(vjust = 2),
         panel.border = element_blank())
 
-gcb_0720$Category <- factor(gcb_0720$Category, levels=c("N","T"))
-torCol <- c("black", "red")
+gcb_0720$Category <- factor(gcb_0720$Category, levels=c("N","T", "R"))
+torCol <- c("white", "black", "red", "purple")
 names(torCol) <- levels(gcb_0720$Category)
 colScale <- scale_colour_manual(name = "Category", values = torCol)
 
@@ -88,6 +88,24 @@ gcb_gif_total <- ggplot(gcb_0720, aes(SampleNo, EE_J, frame = BirdID, col=Catego
   ylim(0,50) + xlab("Time (seconds)") + ylab("Energy expenditure (J)")
 gganimate(gcb_gif_total, "gcb_0720_total.gif", interval=0.05, ani.width=1200, ani.height=600)
 
+
+## Whole night for Torpor paper 
+gcb_0720$Category <- factor(gcb_0720$Category, levels=c("B", "N", "R", "T"), 
+                            labels=c("B", "Normothermy", "Rewarming", "Torpor"))
+ggplot(NULL, aes(x=SampleNo, y=EE_J, col=Category)) +
+  geom_path(data=gcb_0720[gcb_0720$SampleNo<20000 & gcb_0720$Category=="Normothermy",], size=1.25) +
+  geom_path(data=gcb_0720[gcb_0720$SampleNo>30000 & gcb_0720$Category=="Normothermy",], size=1.25) +
+  geom_path(data=gcb_0720[gcb_0720$Category=="Torpor",], size=1.25) +
+  geom_path(data=gcb_0720[gcb_0720$Category=="Rewarming",], size=1.25) +
+  my_theme_blank + colScale + 
+  theme(axis.text.x = element_text(angle=30, hjust=1, size=20),
+        legend.key.height=unit(3,"line"),
+        axis.line.x = element_line(colour = "grey50"),
+        axis.line.y = element_line(colour = "grey50")) +
+  scale_x_continuous(breaks= seq(0,36000,3000)) +
+  #geom_hline(yintercept=seq(0,50,2)) +
+  #ylim(0,50) + 
+  xlab("Time (seconds)") + ylab("Energy expenditure (J)")
 
 
 #im.convert("*.png", output = "bm-animation1.gif")
