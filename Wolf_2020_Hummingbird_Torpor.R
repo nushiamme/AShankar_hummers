@@ -1,0 +1,38 @@
+## Plotting all data from Wolf et al. 2020 paper on hummingbird torpor
+## https://royalsocietypublishing.org/doi/abs/10.1098/rsbl.2020.0428
+
+## Questions - dataset dates are not all accurate
+## Some dates are entered as 2011 but the paper says data are from 2015 March
+## Some birds have dates for the second hald of the night entered wrong
+
+## Packages
+library(lubridate)
+library(tidyr)
+library(dplyr)
+library(chron)
+
+
+## Read in file
+torpor <- read.csv("C://Users/nushi/Desktop/Wolf_etal_BiolLett_HummerTorpor.csv")
+library(ggplot2)
+
+## Format
+torpor$Date2 <- paste(torpor$Day, torpor$Month, torpor$Year, sep="/")
+torpor$DateTime2 <- paste(torpor$Date2, torpor$Time, sep=" ")
+torpor$DateTime<- as.POSIXct(torpor$DateTime2, format = "%d/%m/%Y %H:%M")
+
+#torpor$Time2 <- format(strptime(torpor$DateTime, "%d/%m/%Y %H:%M"), "%H:%M")
+torpor$HMS <- format(torpor$DateTime, format="%H:%M")
+
+## Generic plot theme
+my_theme <- theme_classic(base_size = 20) + 
+  theme(panel.border = element_rect(colour = "black", fill=NA))
+
+
+## plot
+ggplot(torpor, aes(DateTime, Tb)) + facet_wrap(.~Indiv, scales = "free_x") + my_theme +
+  geom_line(aes(col=Species)) #+ theme(axis.text.x = element_text(angle=40))
+
+ggplot(torpor, aes(HMS, Tb)) + facet_wrap(.~Indiv, scales = "free_x") + my_theme +
+  geom_line(aes(col=Species)) #+ theme(axis.text.x = element_text(angle=40))
+
