@@ -17,9 +17,14 @@ torpor <- read.csv("C://Users/nushi/Desktop/Wolf_etal_BiolLett_HummerTorpor.csv"
 library(ggplot2)
 
 ## Format
+torpor$Date_False <- paste(torpor$Day_False, torpor$Month, torpor$Year, sep="/")
+torpor$DateTime_F <- paste(torpor$Date_False, torpor$Time, sep=" ")
+torpor$DateTime<- as.POSIXct(torpor$DateTime_F, format = "%d/%m/%Y %H:%M")
+
 torpor$Date2 <- paste(torpor$Day, torpor$Month, torpor$Year, sep="/")
-torpor$DateTime2 <- paste(torpor$Date2, torpor$Time, sep=" ")
-torpor$DateTime<- as.POSIXct(torpor$DateTime2, format = "%d/%m/%Y %H:%M")
+torpor$DateTime_T <- paste(torpor$Date2, torpor$Time, sep=" ")
+torpor$DateTime2<- as.POSIXct(torpor$DateTime_T, format = "%d/%m/%Y %H:%M")
+
 
 #torpor$Time2 <- format(strptime(torpor$DateTime, "%d/%m/%Y %H:%M"), "%H:%M")
 torpor$HMS <- format(torpor$DateTime, format="%H:%M")
@@ -28,11 +33,16 @@ torpor$HMS <- format(torpor$DateTime, format="%H:%M")
 my_theme <- theme_classic(base_size = 20) + 
   theme(panel.border = element_rect(colour = "black", fill=NA))
 
+torpor$Indiv <- factor(torpor$Indiv, levels= c("1", "2", "3", "4", "5", "6", "7", "8", "9a", "9b", "9c", "10", "11",
+                                               "12", "13", "14a", "14b", "15a", "15b", "15c", "16a", "16b", "17", "18a", "18b",
+                                               "18c", "19", "20", "21", "22", "23a", "23b", "24", "25", "26"))
 
 ## plot
-ggplot(torpor, aes(DateTime, Tb)) + facet_wrap(.~Indiv, scales = "free_x") + my_theme +
-  geom_line(aes(col=Species)) #+ theme(axis.text.x = element_text(angle=40))
+## False date
+ggplot(torpor[torpor$Indiv != "19",], aes(DateTime, Tb)) + facet_wrap(.~Species, scales = "free_x",) + my_theme +
+  geom_line(aes(col=Indiv)) #+ theme(axis.text.x = element_text(angle=40))
 
-ggplot(torpor, aes(HMS, Tb)) + facet_wrap(.~Indiv, scales = "free_x") + my_theme +
-  geom_line(aes(col=Species)) #+ theme(axis.text.x = element_text(angle=40))
+## Real date
+ggplot(torpor, aes(DateTime2, Tb)) + facet_wrap(.~Indiv, scales = "free_x") + my_theme +
+  geom_line(aes(col=Species), size=1.5) +  geom_line(aes(y=Tair))  #+ theme(axis.text.x = element_text(angle=40))
 
