@@ -10,11 +10,13 @@ library(lubridate)
 library(tidyr)
 library(dplyr)
 library(chron)
+library(ggplot2)
+library(viridis)
+library(randomcoloR)
 
 
 ## Read in file
 torpor <- read.csv("C://Users/nushi/Desktop/Wolf_etal_BiolLett_HummerTorpor.csv")
-library(ggplot2)
 
 ## Format
 torpor$Date_False <- paste(torpor$Day_False, torpor$Month, torpor$Year, sep="/")
@@ -27,7 +29,7 @@ torpor$DateTime2<- as.POSIXct(torpor$DateTime_T, format = "%d/%m/%Y %H:%M")
 
 
 #torpor$Time2 <- format(strptime(torpor$DateTime, "%d/%m/%Y %H:%M"), "%H:%M")
-torpor$HMS <- format(torpor$DateTime, format="%H:%M")
+#torpor$HMS <- format(torpor$DateTime, format="%H:%M")
 
 ## Generic plot theme
 my_theme <- theme_classic(base_size = 20) + 
@@ -39,10 +41,13 @@ torpor$Indiv <- factor(torpor$Indiv, levels= c("1", "2", "3", "4", "5", "6", "7"
 
 ## plot
 ## False date
+col_vector <- unname(distinctColorPalette(length(unique(torpor$Indiv)))) 
 ggplot(torpor[torpor$Indiv != "19",], aes(DateTime, Tb)) + facet_wrap(.~Species, scales = "free_x",) + my_theme +
-  geom_line(aes(col=Indiv)) #+ theme(axis.text.x = element_text(angle=40))
+  geom_line(aes(col=Indiv)) + #scale_color_manual(values=col_vector)
+  scale_colour_viridis_d(alpha = 1, begin = 1, end = 0, direction = 1,
+                                                     option = "plasma") #+ theme(axis.text.x = element_text(angle=40))
 
 ## Real date
 ggplot(torpor, aes(DateTime2, Tb)) + facet_wrap(.~Indiv, scales = "free_x") + my_theme +
-  geom_line(aes(col=Species), size=1.5) +  geom_line(aes(y=Tair))  #+ theme(axis.text.x = element_text(angle=40))
+  geom_line(aes(col=Species), size=1.2) +  geom_line(aes(y=Tair))  #+ theme(axis.text.x = element_text(angle=40))
 
