@@ -7,15 +7,20 @@ library(reshape2)
 library(dplyr)
 library(tidyr)
 library(viridis)
-
+library(mgcv) ## To fit gam to costas tnz data
+library(segmented) # To fit piecewise, segmented, regression lines to TNZ data
+library(tibble) # to use add_column
 
 ## read in files
 nest <- read.csv("DPowers_Nest_data.csv") #Nest insulation and convection measurements
 tint <- read.csv("final_data_Apr2020.csv") #LA nest measurements
 model <- read.csv("TINT_Model_template.csv") #model columns
 nest_long <- read.csv("nest_longform.csv")
-tnz <- read.csv("JAvBiol_BroadBill.csv")
+tnz <- read.csv("JAvBiol_BroadBill.csv") ## For TNZ modelling
+costas <- read.csv("FuncEcol_Costa1986_DonVO2.csv")  ## For above UCT TNZ modelling
 
+## Subset BBLH nest data from all of Don's nest temperature measurements
+nest_bblh <- nest_long[nest_long$Species=="BBLH",]
 
 ## General functions
 my_theme <- theme_classic(base_size = 15) + 
@@ -24,22 +29,55 @@ my_theme <- theme_classic(base_size = 15) +
 my_theme2 <- theme_classic(base_size = 30) + 
   theme(panel.border = element_rect(colour = "black", fill=NA))
 
+## Axis labels
+Temp.lab <- expression(atop(paste("Temperature (", degree,"C)")))
+Percival.lab <- expression(atop(paste("Percival Temperature (", degree,"C)")))
+Thermocouple.lab <- expression(atop(paste("Thermocouple Temperature (", degree,"C)")))
 
 ## Organize data frames
 morpho <- melt(nest, id.vars="Nest_ID", 
                measure.vars=c("Wall_AC_outer_diameter_mm","Wall_BD_outer_diameter_mm",
                               "Wall_AC_cup_diameter_mm", "A_cup_height_mm"))
 
-m.long <- melt(nest_long, id.vars=c("Nest_ID", "Species", "Variable", "Side"),
+m.long <- melt(nest_bblh, id.vars=c("Nest_ID", "Measure", "Side"),
                measure.vars=c("Temp_05C", "Temp_10C", "Temp_15C", "Temp_20C",
                               "Temp_25C", "Temp_30C", "Temp_35C", "Temp_40C"))
 
 m.long <- m.long %>% 
-  rename(TempVar = variable)
+  dplyr::rename(TempVar = variable)
 
 m.long <- m.long %>% separate(TempVar, c(NA, "Temp", NA), sep = "([_ C])")
 
 m.long$Temp <- as.numeric(as.character(m.long$Temp))
+
+## Making new data frames for convection, split by sides differently
+
+convec_ABCD <- m.long %>% filter(
+  Measure %in% "Convec_EqbTemp", 
+  Side %in% c("A", "B", "C", "D")
+)
+
+avgs <- as.data.frame(convec_ABCD %>% 
+                        dplyr::group_by(Nest_ID, Measure, Temp) %>%
+    dplyr::summarize(value = mean(value, na.rm = T)))
+Side <- "SideAvg"
+avgs <- add_column(avgs, Side, .after = "Measure")
+
+deltas <- m.long %>% filter(
+  Measure %in% "Convec_EqbTemp", 
+  Side %in% c("A", "D", "NestTs_Amb", "Tcup_Amb", "Amb")
+)
+deltas <- rbind(deltas, avgs)
+
+NestSurfTemp <- m.long %>% filter(
+  Measure %in% "Convec_EqbTemp", 
+  Side %in% c("Nest_Ts")
+)
+
+convec <- m.long %>% filter(
+  Measure %in% "Convec_EqbTemp", 
+  !Side %in% c("NestTs-Amb", "Tcup-Amb")
+)
 
 #Adding "Day" column to TINT data frame
 tint$Date <- tint$Date_Time
@@ -47,21 +85,41 @@ tint <- tint %>% separate(Date, c(NA, "Day", NA), sep = "/")
 tint$Day <- as.numeric(as.character(tint$Day))
 tint$DayMonth <- paste0(tint$Day, "/", tint$Month)
 
-## Get average hourly Amb and eye temp per night
-tint_hourly <- as.data.frame(tint %>%
-  group_by(Night_ID, Nest_ID, Hour_Elapsed) %>%
-  summarize(AmbTemp = mean(Amb_Temp_FINAL, na.rm = T),
-            EyeTemp = mean(Peye_Temp_FINAL, na.rm=T)))
-
-## Extract just Hours and RER columns
-#m.model <- model %>%
- # select(Hours_elapsed_sunset, RER)
-
-tint_hourly$RER <- ifelse(tint_hourly$Hour_Elapsed<3,1,0.71)
-
 ## Adding in MR columns
 ## Calculate Lower TNZ slope equation for broad-bills
 tnz_eqn <- lm(VO2_Normothermic~Temp_C, tnz)
+
+## Costas and broadbills TNZ merged
+m.tnz_costas <- melt(costas, id.vars = "Temperature", measure.vars="VO2_ml.g.h")
+m.tnz_costas$Species <- "costas"
+m.tnz_costas$N_T <- "N"
+
+m.tnz_bblh <- melt(tnz, id.vars = c("Temp_C", "N_T"), measure.vars = "VO2_all")
+m.tnz_bblh$Species <- "bblh"
+
+
+m.tnz_costas <- m.tnz_costas %>% 
+  rename(
+    Temp_C = Temperature
+    )
+
+gam(VO2_all~s(Temp_C) + s())
+
+m.tnz <- rbind(m.tnz_bblh, m.tnz_costas)
+m.tnz$Species_NT <- paste0(m.tnz$Species, "_", m.tnz$N_T) 
+
+## Get average hourly Amb and eye temp per night
+tint_hourly <- as.data.frame(tint %>%
+                               dplyr::group_by(Night_ID, Nest_ID, Hour_Elapsed) %>%
+                               dplyr::summarize(AmbTemp = mean(Amb_Temp_FINAL, na.rm = T),
+                                         EyeTemp = mean(Peye_Temp_FINAL, na.rm=T)))
+
+
+## Extract just Hours and RER columns
+#m.model <- model %>%
+# select(Hours_elapsed_sunset, RER)
+tint_hourly$RER <- 0
+tint_hourly$RER <- ifelse(tint_hourly$Hour_Elapsed<3,1,0.71)
 
 ## intercept: tnz_eqn$coefficients[1]
 ## slope: tnz_eqn$coefficients[2]
@@ -72,27 +130,95 @@ tint_hourly$VO2_amb <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_h
 ## Convert O2 ml/min to kJ/hour
 tint_hourly$kJ_amb <- tint_hourly$VO2_amb*((16 + (5.164*tint_hourly$RER))/1000)*60
 
-NestTs_eqn <- lm(deltas$value[deltas$Side=="NestTs_Amb" & deltas$Species=="BBLH"]~deltas$value[deltas$Side=="Amb" & deltas$Species=="BBLH"])
+
+## Equations for Side A, D, NestTs, and Cup
+
+### For Side A
+SideA_eqn <- lm(deltas$value[deltas$Side=="A"]~deltas$value[deltas$Side=="Amb"])
+tint_hourly$SideA <- SideA_eqn$coefficients[1] + (SideA_eqn$coefficients[2]*tint_hourly$AmbTemp)
+## Calculate VO2 given ambient temp is nest surface temp
+tint_hourly$VO2_SideA <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$SideA)
+## Convert O2 ml/min to kJ/hour
+tint_hourly$kJ_SideA <- tint_hourly$VO2_SideA*((16 + (5.164*tint_hourly$RER))/1000)*60
+
+
+### For Side D
+SideD_eqn <- lm(deltas$value[deltas$Side=="NestTs_Amb"]~deltas$value[deltas$Side=="Amb"])
+tint_hourly$SideD <- SideD_eqn$coefficients[1] + (SideD_eqn$coefficients[2]*tint_hourly$AmbTemp)
+## Calculate VO2 given ambient temp is nest surface temp
+tint_hourly$VO2_SideD <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$SideD)
+## Convert O2 ml/min to kJ/hour
+tint_hourly$kJ_SideD <- tint_hourly$VO2_SideD*((16 + (5.164*tint_hourly$RER))/1000)*60
+
+
+## For average of A, B, C D
+SideAvg_eqn <- lm(deltas$value[deltas$Side=="SideAvg"]~deltas$value[deltas$Side=="Amb"])
+tint_hourly$SideAvg_eqn <- SideAvg_eqn$coefficients[1] + (SideAvg_eqn$coefficients[2]*tint_hourly$AmbTemp)
+## Calculate VO2 given ambient temp is nest surface temp
+tint_hourly$VO2_SideAvg <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$SideAvg)
+## Convert O2 ml/min to kJ/hour
+tint_hourly$kJ_SideAvg <- tint_hourly$VO2_SideAvg*((16 + (5.164*tint_hourly$RER))/1000)*60
+
+
+### For Nest Ts
+NestTs_eqn <- lm(deltas$value[deltas$Side=="NestTs_Amb"]~deltas$value[deltas$Side=="Amb"])
 ## Nest Ts = 8.4325 - 0.2334(Ta) for BBLH
-
 tint_hourly$NestTs <- NestTs_eqn$coefficients[1] + (NestTs_eqn$coefficients[2]*tint_hourly$AmbTemp)
-
 ## Calculate VO2 given ambient temp is nest surface temp
 tint_hourly$VO2_NestTs <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$NestTs)
-
 ## Convert O2 ml/min to kJ/hour
 tint_hourly$kJ_NestTs <- tint_hourly$VO2_NestTs*((16 + (5.164*tint_hourly$RER))/1000)*60
 
-Tcup_eqn <- lm(deltas$value[deltas$Side=="Tcup_Amb" & deltas$Species=="BBLH"]~deltas$value[deltas$Side=="Amb"& deltas$Species=="BBLH"])
-## Tcup = 50.425 - 1.166(Ta) for BBLH
 
+### For Cup
+Tcup_eqn <- lm(deltas$value[deltas$Side=="Tcup_Amb"]~deltas$value[deltas$Side=="Amb"])
+## Tcup = 50.425 - 1.166(Ta) for BBLH
 tint_hourly$TempCup <- Tcup_eqn$coefficients[1] + (Tcup_eqn$coefficients[2]*tint_hourly$AmbTemp)
 
-## Calculate VO2 given ambient temp is nest surface temp
-tint_hourly$VO2_Cup <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$TempCup)
+## Calculate VO2 given ambient temp is nest surface temp. First block is for temperatures below TNZ, second is for temps in and above TNZ
+tint_hourly$VO2_Cup <- 0
+for(i in 1:nrow(tint_hourly)) {
+  if(tint_hourly$TempCup[i] < 32) {
+    tint_hourly$VO2_Cup[i] <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$TempCup[i])
+  } 
+}
+
+for(i in 1:nrow(tint_hourly)) {
+  if(tint_hourly$TempCup[i] > 30) {
+  tint_hourly$VO2_Cup[i] <- mean(tint_hourly$VO2_Cup[tint_hourly$TempCup>29 & tint_hourly$TempCup<31])
+  }
+}
+
 
 ## Convert O2 ml/min to kJ/hour
 tint_hourly$kJ_Cup <- tint_hourly$VO2_Cup*((16 + (5.164*tint_hourly$RER))/1000)*60
+
+
+ggplot(tint_hourly, aes(TempCup, VO2_Cup)) + geom_point() + my_theme
+
+
+## Segmented regression model of Costa's
+costas_tnz_seg <- segmented(lm(VO2_ml.g.h~Temperature,data=costas),npsi=2,seg.Z=~Temperature,control=seg.control(n.boot=0))
+plot(costas_tnz_seg)
+summary(costas_tnz_seg)
+coef(costas_tnz_seg)
+slope(costas_tnz_seg)
+
+## For torpor
+torpor_seg <- segmented(lm(VO2_all~Temp_C,data=tnz[tnz$N_T=="T",]),npsi=1,seg.Z=~Temp_C,control=seg.control(n.boot=0))
+plot(torpor_seg)
+plot(x = tnz$Temp_C[tnz$N_T=="T"], y = tnz$VO2_all[tnz$N_T=="T"])
+
+predict(costas_tnz_seg$coefficients, newdata = tnz$Temp_C, interval = "confidence")
+
+## Using the slope from this for the BBLH upper CT line (30.851)
+lm(VO2_ml.g.h~Temperature, costas[costas$Temperature>36.055,]) ## Upper TNZ costa's line
+
+
+lm(VO2_ml.g.h~Temperature, costas[costas$Temperature<30.851,]) ## Lower TNZ costa's line
+
+
+
 
 ### Torpor calculations
 tor_int <- 0.46
@@ -101,6 +227,9 @@ tor2 <- 0.0016
 
 ## Create columns to add torpor MR measurements
 tint_hourly$TorporAmb <- 0
+tint_hourly$TorporSideA <- 0
+tint_hourly$TorporSideD <- 0
+tint_hourly$TorporSideAvg <- 0
 tint_hourly$TorporNestTs <- 0
 tint_hourly$TorporCup <- 0
 
@@ -108,6 +237,9 @@ tint_hourly$TorporCup <- 0
 for(i in 1:nrow(tint_hourly)) {
   if(tint_hourly$Hour_Elapsed[i]<14 & tint_hourly$Hour_Elapsed[i]>6) {
     tint_hourly$TorporAmb[i] <- (tor_int - tor_slope*(tint_hourly$AmbTemp[i]) + tor2*((tint_hourly$AmbTemp[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
+    tint_hourly$TorporSideA[i] <- (tor_int - tor_slope*(tint_hourly$SideA[i]) + tor2*((tint_hourly$SideA[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
+    tint_hourly$TorporSideD[i] <- (tor_int - tor_slope*(tint_hourly$SideD[i]) + tor2*((tint_hourly$SideD[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
+    tint_hourly$TorporSideAvg[i] <- (tor_int - tor_slope*(tint_hourly$SideAvg[i]) + tor2*((tint_hourly$SideAvg[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
     tint_hourly$TorporNestTs[i] <- (tor_int - tor_slope*(tint_hourly$NestTs[i]) + tor2*((tint_hourly$NestTs[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
     tint_hourly$TorporCup[i] <- (tor_int - tor_slope*(tint_hourly$TempCup[i]) + tor2*((tint_hourly$TempCup[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
   } 
@@ -118,16 +250,31 @@ for(i in 1:nrow(tint_hourly)) {
 
 ## Melt metabolic rates in kJ
 m.tint <- melt(tint_hourly,id.vars = c("Night_ID", "Nest_ID", "Hour_Elapsed"), 
-               measure.vars = c("kJ_amb", "kJ_NestTs", "kJ_Cup",
-                                "TorporAmb", "TorporNestTs", "TorporCup"))
+               measure.vars = c("kJ_amb", "kJ_SideA", "kJ_SideD", "kJ_SideAvg", "kJ_NestTs", "kJ_Cup",
+                                "TorporAmb","TorporSideA", "TorporSideD", "TorporSideAvg", "TorporNestTs", "TorporCup"))
 
-## Column to specific normo vs. torpor
-m.tint$Tornor <- ifelse(m.tint$variable=="kJ_amb"|m.tint$variable=="kJ_NestTs"|m.tint$variable=="kJ_Cup","N","T")
+## Column to specify normo vs. torpor
+#m.tint$Tornor <- ifelse(m.tint$variable=="kJ_amb"|m.tint$variable=="kJ_NestTs"|m.tint$variable=="kJ_Cup","N","T")
 
 ## Making column with hourly MR assuming 7 hours of torpor use, and the rest normo
 tint_hourly$Tor_Nor_merged_Amb <- tint_hourly$TorporAmb
 for(i in 1:nrow(tint_hourly)) {if(tint_hourly$Tor_Nor_merged_Amb[i]==0) {
   tint_hourly$Tor_Nor_merged_Amb[i] <- tint_hourly$kJ_amb[i]}
+}
+
+tint_hourly$Tor_Nor_merged_SideA <- tint_hourly$TorporSideA
+for(i in 1:nrow(tint_hourly)) {if(tint_hourly$Tor_Nor_merged_SideA[i]==0) {
+  tint_hourly$Tor_Nor_merged_SideA[i] <- tint_hourly$kJ_SideA[i]}
+}
+
+tint_hourly$Tor_Nor_merged_SideD <- tint_hourly$TorporSideD
+for(i in 1:nrow(tint_hourly)) {if(tint_hourly$Tor_Nor_merged_SideD[i]==0) {
+  tint_hourly$Tor_Nor_merged_SideD[i] <- tint_hourly$kJ_SideD[i]}
+}
+
+tint_hourly$Tor_Nor_merged_SideAvg <- tint_hourly$TorporSideAvg
+for(i in 1:nrow(tint_hourly)) {if(tint_hourly$Tor_Nor_merged_SideAvg[i]==0) {
+  tint_hourly$Tor_Nor_merged_SideAvg[i] <- tint_hourly$kJ_SideAvg[i]}
 }
 
 tint_hourly$Tor_Nor_merged_NestTs <- tint_hourly$TorporNestTs
@@ -143,17 +290,30 @@ for(i in 1:nrow(tint_hourly)) {if(tint_hourly$Tor_Nor_merged_Cup[i]==0) {
 
 ## Calculating NEE, first three normo, and next 3 cols with 7 hours of torpor
 tint_nee <- as.data.frame(tint_hourly %>%
-                            group_by(Night_ID, Nest_ID) %>%
-                            summarize(Nor_kJ_Amb = sum(kJ_amb, na.rm = T),
+                            dplyr::group_by(Night_ID, Nest_ID) %>%
+                            dplyr::summarize(Nor_kJ_Amb = sum(kJ_amb, na.rm = T),
+                                      Nor_kJ_SideA = sum(kJ_SideA, na.rm = T),
+                                      Nor_kJ_SideD = sum(kJ_SideD, na.rm = T),
+                                      Nor_kJ_SideAvg = sum(kJ_SideAvg, na.rm = T),
                                       Nor_kJ_NestTs = sum(kJ_NestTs, na.rm = T),
                                       Nor_kJ_Cup = sum(kJ_Cup, na.rm = T),
                                       Tor_kJ_Amb = sum(Tor_Nor_merged_Amb, na.rm = T),
+                                      Tor_kJ_SideA = sum(Tor_Nor_merged_SideA, na.rm = T),
+                                      Tor_kJ_SideD = sum(Tor_Nor_merged_SideD, na.rm = T),
+                                      Tor_kJ_SideAvg = sum(Tor_Nor_merged_SideAvg, na.rm = T),
                                       Tor_kJ_NestTs = sum(Tor_Nor_merged_NestTs, na.rm = T),
                                       Tor_kJ_Cup = sum(Tor_Nor_merged_Cup, na.rm = T)))
 
 m.nee <- melt(tint_nee, id.vars = c("Night_ID", "Nest_ID"), 
-              measure.vars = c("Nor_kJ_Amb", "Nor_kJ_NestTs", "Nor_kJ_Cup",
-                               "Tor_kJ_Amb", "Tor_kJ_NestTs", "Tor_kJ_Cup"))
+              measure.vars = c("Nor_kJ_Amb", "Nor_kJ_SideA", "Nor_kJ_SideD", "Nor_kJ_SideAvg", "Nor_kJ_NestTs", "Nor_kJ_Cup",
+                               "Tor_kJ_Amb", "Tor_kJ_SideA", "Tor_kJ_SideD", "Tor_kJ_SideAvg", "Tor_kJ_NestTs", "Tor_kJ_Cup"))
+
+m.nee <- m.nee %>% separate(variable, c("Tornor", NA, "Side"), sep = "_", remove=F)
+m.nee$Tornor <- plyr::revalue(m.nee$Tornor, c("Nor"="Normothermic", "Tor"="Torpor_7hr"))
+
+## Order sides
+m.nee$Side <- factor(m.nee$Side, levels = c("Amb", "SideA", "SideD", "SideAvg", "NestTs", "Cup"))
+
 
 ## Plots
 ggplot(morpho, aes(variable, value)) + my_theme + 
@@ -173,44 +333,37 @@ ggplot(m.long[m.long$Variable=="EqbTemp",], aes(Temp,value)) + my_theme +
 
 ## Temperature at cooled equilibrium when heated sphere was removed from nest
 ggplot(m.long[m.long$Variable=="Cooled_EqbTemp",], aes(Temp,value)) + my_theme + 
-  geom_point(aes(col=Side)) + facet_grid(.~Species) +
+  geom_point(aes(col=Side)) + #facet_grid(.~Species) +
   geom_smooth(method="lm", stat="smooth", aes(group=Side, col=Side)) +
   scale_color_viridis_d()
 
-
-convec <- m.long %>% filter(
-  Variable %in% "Convec_EqbTemp", 
-  !Side %in% c("NestTs-Amb", "Tcup-Amb")
-)
-
+## Temperature of each thermocouple plotted against Percival's set temperature (using convection temperature measurements)
 ggplot(convec, aes(Temp,value)) + my_theme + 
-  geom_point(aes(col=Side)) + facet_grid(.~Species) +
+  geom_point(aes(col=Side)) + #facet_grid(.~Species) +
   geom_smooth(method="lm", stat="smooth", aes(group=Side, col=Side)) +
-  scale_color_viridis_d()
+  scale_color_viridis_d() + ylab(Thermocouple.lab) + xlab(Percival.lab)
+
+
+## Checking what convection vs. eqb vs. cooled equilibrium temperatures look like
+ggplot(m.long[m.long$Measure==c("Convec_EqbTemp", "Cooled_EqbTemp", "EqbTemp"),], aes(Temp, value)) + my_theme + 
+  geom_point(aes(col=Side)) + facet_grid(.~Measure) +
+  geom_smooth(method="lm", stat="smooth", aes(group=Side, col=Side)) +
+  scale_color_viridis_d() + ylab(Thermocouple.lab) + xlab(Percival.lab)
 
 
 ## Time to warmed equilibrium when heated sphere was put into the nest
 ## Equilibrium time was variable, usually less than 30 minutes
 ggplot(m.long[m.long$Variable=="EqbTime",], aes(Temp, value)) + my_theme + 
-  geom_point(aes(col=Side)) + facet_grid(.~Species) +
+  geom_point(aes(col=Side)) + #facet_grid(.~Species) +
   #geom_smooth(method="lm", stat="smooth", aes(group=Side, col=Side)) +
   scale_color_viridis_d()
 
 ## Time to cooled equilibrium when heated sphere was removed
 ggplot(m.long[m.long$Variable=="Cooled_EqbTime",], aes(Temp, value)) + my_theme + 
-  geom_point(aes(col=Side)) + facet_grid(.~Species) +
+  geom_point(aes(col=Side)) + #facet_grid(.~Species) +
   #geom_smooth(method="lm", stat="smooth", aes(group=Side, col=Side)) +
   scale_color_viridis_d()
 
-deltas <- m.long %>% filter(
-  Variable %in% "Convec_EqbTemp", 
-  Side %in% c("NestTs_Amb", "Tcup_Amb", "Amb")
-)
-
-NestSurfTemp <- m.long %>% filter(
-  Variable %in% "Convec_EqbTemp", 
-  Side %in% c("Nest_Ts")
-)
 
 ggplot(NestSurfTemp, aes(Temp,value)) + my_theme + 
   geom_point() + #facet_grid(.~Species) +
@@ -269,18 +422,27 @@ ggplot(data=m.tint[m.tint$variable != "AmbTemp",], aes(variable, value)) + my_th
 ggplot(data=m.nee_normo, aes(variable, value)) + my_theme +
   geom_boxplot(aes(col=variable)) + ylab ("kJ/hour")
 
+
+## TO DO: need to update Cup Temp TNZ equation to include lines above the LCT
 ## Total NEE, comparing normo and max torpor
-ggplot(data=m.nee, aes(variable, value)) + my_theme +
-  geom_boxplot(aes(col=variable)) + ylab ("kJ/hour") +
+ggplot(data=m.nee, aes(Side, value)) + my_theme + facet_grid(.~Tornor) +
+  geom_boxplot(aes(col=Side), size=1.5) + ylab ("NEE (kJ)") + geom_point() +
+  theme(axis.text.x = element_text(angle=30, vjust=0.1)) +
   scale_color_viridis_d()
 
+## TNZ's for BBLH and Costas
+ggplot(m.tnz, aes(Temp_C, value)) + my_theme + geom_point(aes(col=Species_NT)) +
+  geom_smooth(data=m.tnz[m.tnz$Species_NT=="bblh_N",], aes(col=Species_NT), method="lm") +
+  geom_smooth(data=m.tnz[m.tnz$Species_NT=="bblh_T"|m.tnz$Species_NT=="costas_N",], aes(col=Species_NT), method="loess") +
+  xlab(Temp.lab) + ylab("VO2 ml/min")
 
 
+## Did these when m.long had both species. Now it just has BBLH
 
-lm(deltas$value[deltas$Side=="NestTs_Amb" & deltas$Species=="BBLH"]~deltas$value[deltas$Side=="Amb" & deltas$Species=="BBLH"])
+lm(deltas$value[deltas$Side=="NestTs_Amb"]~deltas$value[deltas$Side=="Amb"])
 ## Nest Ts = 8.4325 - 0.2334(Ta) for BBLH
 
-lm(deltas$value[deltas$Side=="Tcup_Amb" & deltas$Species=="BBLH"]~deltas$value[deltas$Side=="Amb"& deltas$Species=="BBLH"])
+lm(deltas$value[deltas$Side=="Tcup_Amb"]~deltas$value[deltas$Side=="Amb"& deltas$Species=="BBLH"])
 ## Tcup = 50.425 - 1.166(Ta) for BBLH
 
 lm(deltas$value[deltas$Side=="NestTs_Amb" & deltas$Species=="BCHU"]~deltas$value[deltas$Side=="Amb" & deltas$Species=="BCHU"])
