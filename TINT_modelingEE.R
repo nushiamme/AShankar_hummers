@@ -52,32 +52,47 @@ m.long$Temp <- as.numeric(as.character(m.long$Temp))
 
 ## Making new data frames for convection, split by sides differently
 
-convec_ABCD <- m.long %>% filter(
-  Measure %in% "Convec_EqbTemp", 
+
+temp_ABCD <- m.long %>% filter(
+  Measure %in% "EqbTemp", 
   Side %in% c("A", "B", "C", "D")
 )
 
-avgs <- as.data.frame(convec_ABCD %>% 
+avgs <- as.data.frame(temp_ABCD %>% 
                         dplyr::group_by(Nest_ID, Measure, Temp) %>%
     dplyr::summarize(value = mean(value, na.rm = T)))
 Side <- "SideAvg"
 avgs <- add_column(avgs, Side, .after = "Measure")
 
 deltas <- m.long %>% filter(
-  Measure %in% "Convec_EqbTemp", 
-  Side %in% c("A", "D", "NestTs_Amb", "Tcup_Amb", "Amb")
+  Measure %in% "EqbTemp", 
+  Side %in% c("A", "B", "C", "D")
 )
 deltas <- rbind(deltas, avgs)
 
-NestSurfTemp <- m.long %>% filter(
-  Measure %in% "Convec_EqbTemp", 
-  Side %in% c("Nest_Ts")
-)
 
-convec <- m.long %>% filter(
+deltas <- rbind(deltas, m.long %>% filter(
   Measure %in% "Convec_EqbTemp", 
-  !Side %in% c("NestTs-Amb", "Tcup-Amb")
-)
+  Side %in% c("Amb")
+))
+
+
+ggplot(deltas, aes(Temp, value)) + geom_smooth(aes(group=Side, col=Side)) + geom_point() + my_theme +
+  geom_abline(slope=1)
+
+#ggplot(m.long[m.long$Measure=="Convec_EqbTemp",], aes(Temp, value)) + geom_smooth(aes(group=Side, col=Side)) + geom_point() + my_theme +
+ # geom_abline(slope=1)
+
+
+# NestSurfTemp <- m.long %>% filter(
+#   Measure %in% "Convec_EqbTemp", 
+#   Side %in% c("Nest_Ts")
+# )
+
+# convec <- m.long %>% filter(
+#   Measure %in% "Convec_EqbTemp", 
+#   !Side %in% c("NestTs-Amb", "Tcup-Amb")
+# )
 
 #Adding "Day" column to TINT data frame
 tint$Date <- tint$Date_Time
@@ -141,9 +156,25 @@ tint_hourly$VO2_SideA <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint
 ## Convert O2 ml/min to kJ/hour
 tint_hourly$kJ_SideA <- tint_hourly$VO2_SideA*((16 + (5.164*tint_hourly$RER))/1000)*60
 
+### For Side B
+SideB_eqn <- lm(deltas$value[deltas$Side=="B"]~deltas$value[deltas$Side=="Amb"])
+tint_hourly$SideB <- SideB_eqn$coefficients[1] + (SideB_eqn$coefficients[2]*tint_hourly$AmbTemp)
+## Calculate VO2 given ambient temp is nest surface temp
+tint_hourly$VO2_SideB <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$SideB)
+## Convert O2 ml/min to kJ/hour
+tint_hourly$kJ_SideB <- tint_hourly$VO2_SideB*((16 + (5.164*tint_hourly$RER))/1000)*60
+
+### For Side C
+SideC_eqn <- lm(deltas$value[deltas$Side=="C"]~deltas$value[deltas$Side=="Amb"])
+tint_hourly$SideC <- SideC_eqn$coefficients[1] + (SideC_eqn$coefficients[2]*tint_hourly$AmbTemp)
+## Calculate VO2 given ambient temp is nest surface temp
+tint_hourly$VO2_SideC <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$SideC)
+## Convert O2 ml/min to kJ/hour
+tint_hourly$kJ_SideC <- tint_hourly$VO2_SideC*((16 + (5.164*tint_hourly$RER))/1000)*60
+
 
 ### For Side D
-SideD_eqn <- lm(deltas$value[deltas$Side=="NestTs_Amb"]~deltas$value[deltas$Side=="Amb"])
+SideD_eqn <- lm(deltas$value[deltas$Side=="D"]~deltas$value[deltas$Side=="Amb"])
 tint_hourly$SideD <- SideD_eqn$coefficients[1] + (SideD_eqn$coefficients[2]*tint_hourly$AmbTemp)
 ## Calculate VO2 given ambient temp is nest surface temp
 tint_hourly$VO2_SideD <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$SideD)
@@ -160,63 +191,63 @@ tint_hourly$VO2_SideAvg <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*ti
 tint_hourly$kJ_SideAvg <- tint_hourly$VO2_SideAvg*((16 + (5.164*tint_hourly$RER))/1000)*60
 
 
-### For Nest Ts
-NestTs_eqn <- lm(deltas$value[deltas$Side=="NestTs_Amb"]~deltas$value[deltas$Side=="Amb"])
-## Nest Ts = 8.4325 - 0.2334(Ta) for BBLH
-tint_hourly$NestTs <- NestTs_eqn$coefficients[1] + (NestTs_eqn$coefficients[2]*tint_hourly$AmbTemp)
-## Calculate VO2 given ambient temp is nest surface temp
-tint_hourly$VO2_NestTs <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$NestTs)
-## Convert O2 ml/min to kJ/hour
-tint_hourly$kJ_NestTs <- tint_hourly$VO2_NestTs*((16 + (5.164*tint_hourly$RER))/1000)*60
+# ### For Nest Ts
+# NestTs_eqn <- lm(deltas$value[deltas$Side=="NestTs_Amb"]~deltas$value[deltas$Side=="Amb"])
+# ## Nest Ts = 8.4325 - 0.2334(Ta) for BBLH
+# tint_hourly$NestTs <- NestTs_eqn$coefficients[1] + (NestTs_eqn$coefficients[2]*tint_hourly$AmbTemp)
+# ## Calculate VO2 given ambient temp is nest surface temp
+# tint_hourly$VO2_NestTs <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$NestTs)
+# ## Convert O2 ml/min to kJ/hour
+# tint_hourly$kJ_NestTs <- tint_hourly$VO2_NestTs*((16 + (5.164*tint_hourly$RER))/1000)*60
 
 
 ### For Cup
-Tcup_eqn <- lm(deltas$value[deltas$Side=="Tcup_Amb"]~deltas$value[deltas$Side=="Amb"])
+#Tcup_eqn <- lm(deltas$value[deltas$Side=="Tcup_Amb"]~deltas$value[deltas$Side=="Amb"])
 ## Tcup = 50.425 - 1.166(Ta) for BBLH
-tint_hourly$TempCup <- Tcup_eqn$coefficients[1] + (Tcup_eqn$coefficients[2]*tint_hourly$AmbTemp)
+#tint_hourly$TempCup <- Tcup_eqn$coefficients[1] + (Tcup_eqn$coefficients[2]*tint_hourly$AmbTemp)
 
-## Calculate VO2 given ambient temp is nest surface temp. First block is for temperatures below TNZ, second is for temps in and above TNZ
-tint_hourly$VO2_Cup <- 0
-for(i in 1:nrow(tint_hourly)) {
-  if(tint_hourly$TempCup[i] < 32) {
-    tint_hourly$VO2_Cup[i] <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$TempCup[i])
-  } 
-}
-
-for(i in 1:nrow(tint_hourly)) {
-  if(tint_hourly$TempCup[i] > 30) {
-  tint_hourly$VO2_Cup[i] <- mean(tint_hourly$VO2_Cup[tint_hourly$TempCup>29 & tint_hourly$TempCup<31])
-  }
-}
-
-
-## Convert O2 ml/min to kJ/hour
-tint_hourly$kJ_Cup <- tint_hourly$VO2_Cup*((16 + (5.164*tint_hourly$RER))/1000)*60
-
-
-ggplot(tint_hourly, aes(TempCup, VO2_Cup)) + geom_point() + my_theme
+# # ## Calculate VO2 given ambient temp is nest surface temp. First block is for temperatures below TNZ, second is for temps in and above TNZ
+# # tint_hourly$VO2_Cup <- 0
+# # for(i in 1:nrow(tint_hourly)) {
+# #   if(tint_hourly$TempCup[i] < 32) {
+# #     tint_hourly$VO2_Cup[i] <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$TempCup[i])
+# #   } 
+# # }
+# # 
+# # for(i in 1:nrow(tint_hourly)) {
+# #   if(tint_hourly$TempCup[i] > 30) {
+# #   tint_hourly$VO2_Cup[i] <- mean(tint_hourly$VO2_Cup[tint_hourly$TempCup>29 & tint_hourly$TempCup<31])
+# #   }
+# # }
+# 
+# 
+# ## Convert O2 ml/min to kJ/hour
+# tint_hourly$kJ_Cup <- tint_hourly$VO2_Cup*((16 + (5.164*tint_hourly$RER))/1000)*60
+# 
+# 
+# ggplot(tint_hourly, aes(TempCup, VO2_Cup)) + geom_point() + my_theme
 
 
 ## Segmented regression model of Costa's
-costas_tnz_seg <- segmented(lm(VO2_ml.g.h~Temperature,data=costas),npsi=2,seg.Z=~Temperature,control=seg.control(n.boot=0))
-plot(costas_tnz_seg)
-summary(costas_tnz_seg)
-coef(costas_tnz_seg)
-slope(costas_tnz_seg)
-
-## For torpor
-torpor_seg <- segmented(lm(VO2_all~Temp_C,data=tnz[tnz$N_T=="T",]),npsi=1,seg.Z=~Temp_C,control=seg.control(n.boot=0))
-plot(torpor_seg)
-plot(x = tnz$Temp_C[tnz$N_T=="T"], y = tnz$VO2_all[tnz$N_T=="T"])
-
-predict(costas_tnz_seg$coefficients, newdata = tnz$Temp_C, interval = "confidence")
-
-## Using the slope from this for the BBLH upper CT line (30.851)
-lm(VO2_ml.g.h~Temperature, costas[costas$Temperature>36.055,]) ## Upper TNZ costa's line
-
-
-lm(VO2_ml.g.h~Temperature, costas[costas$Temperature<30.851,]) ## Lower TNZ costa's line
-
+# costas_tnz_seg <- segmented(lm(VO2_ml.g.h~Temperature,data=costas),npsi=2,seg.Z=~Temperature,control=seg.control(n.boot=0))
+# plot(costas_tnz_seg)
+# summary(costas_tnz_seg)
+# coef(costas_tnz_seg)
+# slope(costas_tnz_seg)
+# 
+# ## For torpor
+# torpor_seg <- segmented(lm(VO2_all~Temp_C,data=tnz[tnz$N_T=="T",]),npsi=1,seg.Z=~Temp_C,control=seg.control(n.boot=0))
+# plot(torpor_seg)
+# plot(x = tnz$Temp_C[tnz$N_T=="T"], y = tnz$VO2_all[tnz$N_T=="T"])
+# 
+# predict(costas_tnz_seg$coefficients, newdata = tnz$Temp_C, interval = "confidence")
+# 
+# ## Using the slope from this for the BBLH upper CT line (30.851)
+# lm(VO2_ml.g.h~Temperature, costas[costas$Temperature>36.055,]) ## Upper TNZ costa's line
+# 
+# 
+# lm(VO2_ml.g.h~Temperature, costas[costas$Temperature<30.851,]) ## Lower TNZ costa's line
+# 
 
 
 
@@ -240,8 +271,8 @@ for(i in 1:nrow(tint_hourly)) {
     tint_hourly$TorporSideA[i] <- (tor_int - tor_slope*(tint_hourly$SideA[i]) + tor2*((tint_hourly$SideA[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
     tint_hourly$TorporSideD[i] <- (tor_int - tor_slope*(tint_hourly$SideD[i]) + tor2*((tint_hourly$SideD[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
     tint_hourly$TorporSideAvg[i] <- (tor_int - tor_slope*(tint_hourly$SideAvg[i]) + tor2*((tint_hourly$SideAvg[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
-    tint_hourly$TorporNestTs[i] <- (tor_int - tor_slope*(tint_hourly$NestTs[i]) + tor2*((tint_hourly$NestTs[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
-    tint_hourly$TorporCup[i] <- (tor_int - tor_slope*(tint_hourly$TempCup[i]) + tor2*((tint_hourly$TempCup[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
+    #tint_hourly$TorporNestTs[i] <- (tor_int - tor_slope*(tint_hourly$NestTs[i]) + tor2*((tint_hourly$NestTs[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
+    #tint_hourly$TorporCup[i] <- (tor_int - tor_slope*(tint_hourly$TempCup[i]) + tor2*((tint_hourly$TempCup[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
   } 
   #if(tint_hourly$Hour_Elapsed[i]<14 & tint_hourly$Hour_Elapsed[i]>6 & tint_hourly$TempCup[i] <31) {
    # tint_hourly$TorporCup[i] <- (tor_int - tor_slope*(tint_hourly$TempCup[i]) + tor2*((tint_hourly$TempCup[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
