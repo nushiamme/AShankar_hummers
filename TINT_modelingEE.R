@@ -30,7 +30,7 @@ my_theme <- theme_classic(base_size = 15) +
 my_theme2 <- theme_classic(base_size = 30) + 
   theme(panel.border = element_rect(colour = "black", fill=NA))
 
-my_gradient <- c("#4CB5AE","#F2B880","#b7adcf","#db2763","#588157","#372772","#69306d","#4f646f")
+my_gradient <- c("#372772", "#4CB5AE","#F2B880","#b7adcf","#db2763","#588157","#69306d","#4f646f")
 
 ## Axis labels
 Temp.lab <- expression(atop(paste("Temperature (", degree,"C)")))
@@ -311,6 +311,11 @@ for(i in 1:nrow(tint_hourly)) {if(tint_hourly$Tor_Nor_merged_NestTs[i]==0) {
 #   tint_hourly$Tor_Nor_merged_Cup[i] <- tint_hourly$kJ_Cup[i]}
 # }
 
+## Temperatures from TINT data
+m.tint_temp <- melt(tint_hourly, id.vars = c("Night_ID", "Nest_ID"), 
+              measure.vars = c("AmbTemp", "SideA", "SideB", "SideC", "SideD", "SideAvg", "NestTs"))
+## Rename columns
+names(m.tint_temp) <- c("Night_ID", "Nest_ID", "Side", "value")
 
 ## Calculating NEE, first three normo, and next 3 cols with 7 hours of torpor
 tint_nee <- as.data.frame(tint_hourly %>%
@@ -376,7 +381,42 @@ m.nee_diff2$Tornor <- plyr::revalue(m.nee_diff2$Tornor, c("Nor"="Normothermic", 
 
 
 # Standardize NEE by nightlength
-m.nee_std <- 
+m.nee_diff_std <- m.nee_diff <- data.frame(Night_ID = m.nee$Night_ID[m.nee$Side=='Amb'],
+                                      Nest_ID = m.nee$Nest_ID[m.nee$Side=='Amb'],
+                                      variable = m.nee$variable[m.nee$Side=='Amb'],
+                                      Tornor = m.nee$Tornor[m.nee$Side=='Amb'],
+                                      Amb_SideA = m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideA'],
+                                      Amb_SideB = m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideB'],
+                                      Amb_SideC = m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideC'],
+                                      Amb_SideD = m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideD'],
+                                      Amb_SideAvg = m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideAvg'],
+                                      Amb_NestTs = m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'NestTs']
+)
+m.nee_diff_std <- m.nee_diff_std %>% separate(variable, c("Tornor", NA, NA), sep = "_", remove=F)
+m.nee_diff_std <- melt(m.nee_diff_std, id.vars = c("Night_ID", "Nest_ID", "Tornor"), measure.vars = c("Amb_SideA", "Amb_SideB",
+                                                                                               "Amb_SideC", "Amb_SideD", "Amb_SideAvg",
+                                                                                               "Amb_NestTs"))
+m.nee_diff_std$Tornor <- plyr::revalue(m.nee_diff_std$Tornor, c("Nor"="Normothermic", "Tor"="Torpor_7hr"))
+
+
+## Proportional change in NEE depending on side temperature
+m.nee_prop_std <- data.frame(Night_ID = m.nee$Night_ID[m.nee$Side=='Amb'],
+                         Nest_ID = m.nee$Nest_ID[m.nee$Side=='Amb'],
+                         variable = m.nee$variable[m.nee$Side=='Amb'],
+                         Tornor = m.nee$Tornor[m.nee$Side=='Amb'],
+                         Amb_SideA = ((m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideA'])/m.nee$stdNEE[m.nee$Side=='Amb'])*100,
+                         Amb_SideB = ((m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideB'])/m.nee$stdNEE[m.nee$Side=='Amb'])*100,
+                         Amb_SideC = ((m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideC'])/m.nee$stdNEE[m.nee$Side=='Amb'])*100,
+                         Amb_SideD = ((m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideD'])/m.nee$stdNEE[m.nee$Side=='Amb'])*100,
+                         Amb_SideAvg = ((m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideAvg'])/m.nee$stdNEE[m.nee$Side=='Amb'])*100,
+                         Amb_NestTs = ((m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'NestTs'])/m.nee$stdNEE[m.nee$Side=='Amb'])*100
+)
+m.nee_prop_std <- m.nee_prop_std %>% separate(variable, c("Tornor", NA, NA), sep = "_", remove=F)
+m.nee_prop_std <- melt(m.nee_prop_std, id.vars = c("Night_ID", "Nest_ID", "Tornor"), measure.vars = c("Amb_SideA", "Amb_SideB",
+                                                                                               "Amb_SideC", "Amb_SideD", "Amb_SideAvg",
+                                                                                               "Amb_NestTs"))
+m.nee_prop_std$Tornor <- plyr::revalue(m.nee_prop_std$Tornor, c("Nor"="Normothermic", "Tor"="Torpor_7hr"))
+
 
 ## Plots
 ggplot(morpho, aes(variable, value)) + my_theme + 
@@ -489,53 +529,74 @@ ggplot(data=m.nee_normo, aes(variable, value)) + my_theme +
 ## Main plot
 ## Total NEE, comparing normo and max torpor
 nee.plot <- ggplot(data=m.nee, aes(Side, value)) + my_theme2 + facet_grid(.~Tornor) +
-  geom_boxplot(aes(col=Side), size=1.5, show.legend=F) + ylab ("NEE (kJ)") + geom_point() +
+  geom_point(size=2) + geom_boxplot(aes(col=Side), size=1.2, show.legend=F) + ylab ("NEE (kJ)") +
   theme(axis.text.x = element_text(angle=90, size=15, vjust=0.5)) +
   scale_color_manual(values = my_gradient)
 nee.plot
 
+## Temp plot to mirror this NEE plot; from Don's nest data
+# temp.plot <- ggplot(data=deltas, aes(Side, value)) + my_theme2 + #facet_grid(.~Tornor) +
+#   geom_boxplot(aes(col=Side), size=1.2) + geom_point() + ylab(Temp.lab) +
+#   theme(axis.text.x = element_text(angle=90, vjust=0.5, size=15)) +
+#   scale_color_manual(values = my_gradient)
+
+## Temp plot to mirror this NEE plot; from TINT data
+temp.plot_tint <- ggplot(data=m.tint_temp, aes(Side, value)) + my_theme2 + #facet_grid(.~Tornor) +
+  geom_point(size=2) + geom_boxplot(aes(col=Side), size=1.2) + ylab(Temp.lab) +
+  theme(axis.text.x = element_text(angle=90, size=15)) +
+  scale_color_manual(values = my_gradient)
+
+grid.arrange(nee.plot, temp.plot_tint, nrow=1, ncol=2)
+
 nee.std.plot <- ggplot(data=m.nee, aes(Side, stdNEE)) + my_theme2 + facet_grid(.~Tornor) +
-  geom_boxplot(aes(col=Side), size=1.5, show.legend=F) + ylab ("NEE (kJ) standardized to 12h night") + geom_point() +
+  geom_point(size=2) + geom_boxplot(aes(col=Side), size=1.2, show.legend=F) + ylab ("NEE (kJ) standardized to 12h night") +
   theme(axis.text.x = element_text(angle=90, size=15, vjust=0.5)) +
   scale_color_manual(values = my_gradient)
 nee.std.plot
 
+grid.arrange(nee.std.plot, temp.plot_tint, nrow=1, ncol=2)
+
+
 ## Difference between Ambient and side temperatures
 ggplot(data=m.nee_diff2, aes(variable, value)) + my_theme2 + facet_grid(.~Tornor) + 
-  geom_point(aes(col=variable), show.legend = F) +
-    geom_boxplot(aes(col=variable), fill=NA, show.legend = F, size=1.2) +
+  geom_point(size=2, show.legend = F) +
+    geom_boxplot(aes(col=variable), show.legend = F, size=1.2) +
   theme(axis.text.x = element_text(angle=90, size=15)) +
-  scale_color_viridis_d() + ylab("NEE (kJ) difference Ambient-sides")
-  
+  scale_color_manual(values=my_gradient[2:9]) + ylab("NEE (kJ) difference Ambient-sides") ## using my_gradient[2:9] to match other graphs
+
+## Difference between Ambient and side temperatures NEE, with standardized night lengths
+ggplot(data=m.nee_diff_std, aes(variable, value)) + my_theme2 + facet_grid(.~Tornor) + 
+  geom_point(size=2, show.legend = F) +
+  geom_boxplot(aes(col=variable), show.legend = F, size=1.2) +
+  theme(axis.text.x = element_text(angle=90, size=15)) +
+  scale_color_manual(values=my_gradient[2:9]) + ylab("NEE (kJ)/12h difference Ambient-sides")
+
+## Percent difference between Ambient and side temperatures NEE, with standardized night lengths
+ggplot(data=m.nee_prop_std, aes(variable, value)) + my_theme2 + facet_grid(.~Tornor) + 
+  geom_point(size=2, show.legend = F) +
+  geom_boxplot(aes(col=variable), show.legend = F, size=1.2) +
+  theme(axis.text.x = element_text(angle=90, size=15)) +
+  scale_color_manual(values=my_gradient[2:9]) + ylab("NEE (kJ) percent difference Ambient-sides")
+
+
 ggplot(data=m.nee, aes(Side, value)) + my_theme2 + facet_grid(.~Tornor) +
-  geom_boxplot(aes(col=Side), size=1.5, show.legend=F) + ylab ("NEE (kJ)") + geom_point() +
+  geom_boxplot(aes(col=Side), size=1.2, show.legend=F) + ylab ("NEE (kJ)") + geom_point() +
   theme(axis.text.x = element_text(angle=90, size=15, vjust=0.5)) +
-  scale_color_viridis_d()
+  scale_color_manual(values=my_gradient)
 range(m.nee_diff2$value[m.nee_diff2$Tornor=="Normothermic"])
 range(m.nee_diff2$value[m.nee_diff2$Tornor!="Normothermic"])
 
 
 
 # ggplot(data=tint_hourly, aes(AmbTemp, SideA)) + my_theme + #facet_grid(.~Tornor) +
-#   geom_point(aes(y=SideA), col="red", size=1.5, show.legend=F) +
-#   geom_point(aes(y=SideB), col="black", size=1.5, show.legend=F) +
-#   geom_point(aes(y=SideC), col="blue", size=1.5, show.legend=F) +
-#   geom_point(aes(y=SideD), col="orange", size=1.5, show.legend=F) +
-#   geom_point(aes(y=SideAvg), col="green", size=1.5, show.legend=F) +
+#   geom_point(aes(y=SideA), col="red", size=1.2, show.legend=F) +
+#   geom_point(aes(y=SideB), col="black", size=1.2, show.legend=F) +
+#   geom_point(aes(y=SideC), col="blue", size=1.2, show.legend=F) +
+#   geom_point(aes(y=SideD), col="orange", size=1.2, show.legend=F) +
+#   geom_point(aes(y=SideAvg), col="green", size=1.2, show.legend=F) +
 #   ylab (Temp.lab) #geom_point(aes(col=Side))
   
-## Temp plot to mirror this NEE plot
-temp.plot <- ggplot(data=deltas, aes(Side, value)) + my_theme2 + #facet_grid(.~Tornor) +
-  geom_boxplot(aes(col=Side), size=1.5) + geom_point() + ylab(Temp.lab) +
-  theme(axis.text.x = element_text(angle=90, vjust=0.5, size=15)) +
-  scale_color_manual(values = my_gradient)
 
-# temp.plot_tint <- ggplot(data=m.tint_temp, aes(Sides, Temp)) + my_theme + #facet_grid(.~Tornor) +
-#   geom_boxplot(aes(col=Sides), size=1.5) + geom_point() + ylab(Temp.lab) +
-#   theme(axis.text.x = element_text(angle=30, vjust=0.1)) +
-#   scale_color_viridis_d()
-
-grid.arrange(nee.plot, temp.plot, nrow=1, ncol=2)
 
 ## TNZ's for BBLH and Costas
 ggplot(m.tnz, aes(Temp_C, value)) + my_theme + geom_point(aes(col=Species_NT)) +
