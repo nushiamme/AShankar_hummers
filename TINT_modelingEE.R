@@ -15,10 +15,10 @@ library(gridExtra) ## To put NEE and temp plots side by side
 ## read in files
 nest <- read.csv("DPowers_Nest_data.csv") #Nest insulation and convection measurements
 tint <- read.csv("final_data_Apr2020.csv") #LA nest measurements
-model <- read.csv("TINT_Model_template.csv") #model columns
+#model <- read.csv("TINT_Model_template.csv") #model columns
 nest_long <- read.csv("nest_longform.csv")
 tnz <- read.csv("JAvBiol_BroadBill.csv") ## For TNZ modelling
-costas <- read.csv("FuncEcol_Costa1986_DonVO2.csv")  ## For above UCT TNZ modelling
+#costas <- read.csv("FuncEcol_Costa1986_DonVO2.csv")  ## For above UCT TNZ modelling
 
 ## Subset BBLH nest data from all of Don's nest temperature measurements
 nest_bblh <- nest_long[nest_long$Species=="BBLH",]
@@ -38,9 +38,9 @@ Percival.lab <- expression(atop(paste("Percival Temperature (", degree,"C)")))
 Thermocouple.lab <- expression(atop(paste("Thermocouple Temperature (", degree,"C)")))
 
 ## Organize data frames
-morpho <- melt(nest, id.vars="Nest_ID", 
-               measure.vars=c("Wall_AC_outer_diameter_mm","Wall_BD_outer_diameter_mm",
-                              "Wall_AC_cup_diameter_mm", "A_cup_height_mm"))
+# morpho <- melt(nest, id.vars="Nest_ID", 
+#                measure.vars=c("Wall_AC_outer_diameter_mm","Wall_BD_outer_diameter_mm",
+#                               "Wall_AC_cup_diameter_mm", "A_cup_height_mm"))
 
 m.long <- melt(nest_bblh, id.vars=c("Nest_ID", "Measure", "Side"),
                measure.vars=c("Temp_05C", "Temp_10C", "Temp_15C", "Temp_20C",
@@ -52,24 +52,6 @@ m.long <- m.long %>%
 m.long <- m.long %>% separate(TempVar, c(NA, "Temp", NA), sep = "([_ C])")
 
 m.long$Temp <- as.numeric(as.character(m.long$Temp))
-
-
-#### To Dos #####
-# [x] Figure out why SideAvg temperatures seem higher than either Side A or Side D. Maybe just include all sides
-# [x] Take out Cup temperatures
-# 
-# [] Night length ranged 11-13h probably. (11-14)
-# [] Standardize or account for night length somehow
-# 
-# [] Why is ambient NEE so much higher than Side A?
-# [] Diff NEE Tamb - Tsideavg, normothermic and torpid
-# [] Temperature plots mirroring NEE plot
-# 
-# [] Use Eqb instead of convec
-# 
-# Test variability in relationship between A,B,C,D,Cup,Bottom and Ta, between broad-bills and BCHU
-# 
-# And plot out morpho measurements
 
 
 ## Making new data frames for convection, split by sides differently
@@ -103,7 +85,7 @@ deltas <- rbind(deltas, avgs, m.long %>% filter(
 
 deltas$Side <- factor(deltas$Side, levels = c("Amb", "A", "B", "C", "D", "SideAvg", "Nest_Ts"))
 
-ggplot(deltas[deltas$Side==c("SideAvg"),], aes(Temp, value)) + geom_smooth(aes(group=Side, col=Side), method="lm") + 
+ggplot(deltas, aes(Temp, value)) + geom_smooth(aes(group=Side, col=Side), method="lm") + 
   geom_point() + my_theme + geom_abline(slope=1, intercept=0) + 
   ylab("Thermocouple measurements") + scale_color_viridis_d()
 
@@ -113,10 +95,10 @@ ggplot(deltas[deltas$Side==c("SideAvg"),], aes(Temp, value)) + geom_smooth(aes(g
 #ggplot(m.long[m.long$Measure=="Convec_EqbTemp",], aes(Temp, value)) + geom_smooth(aes(group=Side, col=Side)) + geom_point() + my_theme +
  # geom_abline(slope=1)
 
-NestSurfTemp <- m.long %>% filter(
-  Measure %in% "Convec_EqbTemp",
-  Side %in% c("Nest_Ts")
-)
+# NestSurfTemp <- m.long %>% filter(
+#   Measure %in% "Convec_EqbTemp",
+#   Side %in% c("Nest_Ts")
+# )
 
 # convec <- m.long %>% filter(
 #   Measure %in% "Convec_EqbTemp", 
@@ -134,23 +116,23 @@ tint$DayMonth <- paste0(tint$Day, "/", tint$Month)
 tnz_eqn <- lm(VO2_Normothermic~Temp_C, tnz)
 
 ## Costas and broadbills TNZ merged
-m.tnz_costas <- melt(costas, id.vars = "Temperature", measure.vars="VO2_ml.g.h")
-m.tnz_costas$Species <- "costas"
-m.tnz_costas$N_T <- "N"
+# m.tnz_costas <- melt(costas, id.vars = "Temperature", measure.vars="VO2_ml.g.h")
+# m.tnz_costas$Species <- "costas"
+# m.tnz_costas$N_T <- "N"
 
 m.tnz_bblh <- melt(tnz, id.vars = c("Temp_C", "N_T"), measure.vars = "VO2_all")
 m.tnz_bblh$Species <- "bblh"
 
 
-m.tnz_costas <- m.tnz_costas %>% 
-  rename(
-    Temp_C = Temperature
-    )
-
-gam(VO2_all~s(Temp_C) + s())
-
-m.tnz <- rbind(m.tnz_bblh, m.tnz_costas)
-m.tnz$Species_NT <- paste0(m.tnz$Species, "_", m.tnz$N_T) 
+# m.tnz_costas <- m.tnz_costas %>% 
+#   rename(
+#     Temp_C = Temperature
+#     )
+# 
+# gam(VO2_all~s(Temp_C) + s())
+# 
+# m.tnz <- rbind(m.tnz_bblh, m.tnz_costas)
+# m.tnz$Species_NT <- paste0(m.tnz$Species, "_", m.tnz$N_T) 
 
 ## Get average hourly Amb and eye temp per night
 tint_hourly <- as.data.frame(tint %>%
@@ -361,7 +343,6 @@ m.nee$Side <- factor(m.nee$Side, levels = c("Amb", "SideA", "SideB", "SideC", "S
 m.nee$stdNEE <- (m.nee$value/m.nee$NightLength)*12
 
 ## Difference in NEE between different sides
-## Difference between normo and torpid NEE 
 m.nee_diff <- data.frame(Night_ID = m.nee$Night_ID[m.nee$Side=='Amb'],
                          Nest_ID = m.nee$Nest_ID[m.nee$Side=='Amb'],
                          variable = m.nee$variable[m.nee$Side=='Amb'],
@@ -416,6 +397,18 @@ m.nee_prop_std <- melt(m.nee_prop_std, id.vars = c("Night_ID", "Nest_ID", "Torno
                                                                                                "Amb_SideC", "Amb_SideD", "Amb_SideAvg",
                                                                                                "Amb_NestTs"))
 m.nee_prop_std$Tornor <- plyr::revalue(m.nee_prop_std$Tornor, c("Nor"="Normothermic", "Tor"="Torpor_7hr"))
+
+
+## Difference between normo and torpid NEE 
+m.nee_Nor_tor <- data.frame(Night_ID = m.nee$Night_ID[m.nee$Tornor=='Normothermic'],
+                         Nest_ID = m.nee$Nest_ID[m.nee$Tornor=='Normothermic'],
+                         variable = m.nee$variable[m.nee$Tornor=='Normothermic'],
+                         Nor_Tor = m.nee$value[m.nee$Tornor=='Normothermic'] - m.nee$value[m.nee$Tornor == 'Torpor_7hr'],
+                         Nor_Tor_std = m.nee$stdNEE[m.nee$Tornor=='Normothermic'] - m.nee$stdNEE[m.nee$Tornor == 'Torpor_7hr']
+)
+m.nee_Nor_tor <- m.nee_Nor_tor %>% separate(variable, c(NA, NA, "Side"), sep = "_", remove=F)
+m.nee_Nor_tor <- melt(m.nee_Nor_tor, id.vars = c("Night_ID", "Nest_ID", "Side"), measure.vars = c("Nor_Tor", "Nor_Tor_std"))
+m.nee_Nor_tor$variable <- plyr::revalue(m.nee_Nor_tor$variable, c("Nor_Tor"="Normo-Torpor NEE", "Nor_Tor_std"="Nor-Tor NEE Standardized"))
 
 
 ## Plots
@@ -522,11 +515,11 @@ ggplot(data=m.tint[m.tint$variable != "AmbTemp",], aes(Hour_Elapsed, value)) + m
 ggplot(data=m.tint[m.tint$variable != "AmbTemp",], aes(variable, value)) + my_theme +
   geom_boxplot(aes(col=variable)) + ylab("kJ_hour")
 
-## Total NEE, just normo
-ggplot(data=m.nee_normo, aes(variable, value)) + my_theme +
-  geom_boxplot(aes(col=variable)) + ylab ("kJ/hour")
+# ## Total NEE, just normo
+# ggplot(data=m.nee_normo, aes(variable, value)) + my_theme +
+#   geom_boxplot(aes(col=variable)) + ylab ("kJ/hour")
 
-## Main plot
+#### Main plots ####
 ## Total NEE, comparing normo and max torpor
 nee.plot <- ggplot(data=m.nee, aes(Side, value)) + my_theme2 + facet_grid(.~Tornor) +
   geom_point(size=2) + geom_boxplot(aes(col=Side), size=1.2, show.legend=F) + ylab ("NEE (kJ)") +
@@ -554,6 +547,13 @@ nee.std.plot <- ggplot(data=m.nee, aes(Side, stdNEE)) + my_theme2 + facet_grid(.
   scale_color_manual(values = my_gradient)
 nee.std.plot
 
+nee.tor_std.plot <- ggplot(data=m.nee[m.nee$Tornor=="Torpor_7hr",], aes(Side, stdNEE)) + my_theme2 + facet_grid(.~Tornor) +
+  geom_boxplot(aes(col=Side), size=1.2) + ylab ("NEE (kJ) standardized to 12h night") +
+  theme(axis.text.x = element_text(angle=90, size=15, vjust=0.5)) +
+  geom_point(aes(col=as.factor(Night_ID)), size=2, show.legend = F) +
+  scale_color_manual(values=c(my_gradient[2:9], cc))
+nee.tor_std.plot 
+
 grid.arrange(nee.std.plot, temp.plot_tint, nrow=1, ncol=2)
 
 
@@ -571,12 +571,22 @@ ggplot(data=m.nee_diff_std, aes(variable, value)) + my_theme2 + facet_grid(.~Tor
   theme(axis.text.x = element_text(angle=90, size=15)) +
   scale_color_manual(values=my_gradient[2:9]) + ylab("NEE (kJ)/12h difference Ambient-sides")
 
-## Percent difference between Ambient and side temperatures NEE, with standardized night lengths
-ggplot(data=m.nee_prop_std, aes(variable, value)) + my_theme2 + facet_grid(.~Tornor) + 
+## Difference between all-Normo and normo+7h torpor NEE, with original and standardized night lengths
+ggplot(data=m.nee_Nor_tor, aes(Side, value)) + my_theme2 + facet_grid(.~variable) + 
   geom_point(size=2, show.legend = F) +
-  geom_boxplot(aes(col=variable), show.legend = F, size=1.2) +
+  geom_boxplot(aes(col=Side), show.legend = F, size=1.2) +
   theme(axis.text.x = element_text(angle=90, size=15)) +
-  scale_color_manual(values=my_gradient[2:9]) + ylab("NEE (kJ) percent difference Ambient-sides")
+  scale_color_manual(values=my_gradient) + ylab("NEE (kJ)/12h difference Normo-Torpor")
+
+## Percent difference between Ambient and side temperatures NEE, with standardized night lengths
+cc <- scales::seq_gradient_pal("blue", "yellow", "Lab")(seq(0,1,length.out=length(unique(as.factor(m.nee_prop_std$Night_ID)))))
+ggplot(data=m.nee_prop_std, aes(variable, value)) + my_theme2 + facet_grid(.~Tornor) + 
+  geom_boxplot(aes(col=variable), show.legend = F, size=1.2) +
+  #scale_color_manual(values=my_gradient[2:9]) +
+  geom_point(aes(col=as.factor(Night_ID)), size=2, show.legend = F) +
+  scale_color_manual(values=c(my_gradient[2:9], cc)) +
+  theme(axis.text.x = element_text(angle=90, size=15)) +
+  ylab("NEE (kJ) percent difference Ambient-sides")
 
 
 ggplot(data=m.nee, aes(Side, value)) + my_theme2 + facet_grid(.~Tornor) +
@@ -595,7 +605,6 @@ range(m.nee_diff2$value[m.nee_diff2$Tornor!="Normothermic"])
 #   geom_point(aes(y=SideD), col="orange", size=1.2, show.legend=F) +
 #   geom_point(aes(y=SideAvg), col="green", size=1.2, show.legend=F) +
 #   ylab (Temp.lab) #geom_point(aes(col=Side))
-  
 
 
 ## TNZ's for BBLH and Costas
