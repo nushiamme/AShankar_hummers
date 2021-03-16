@@ -10,6 +10,7 @@ library(viridis)
 library(mgcv) ## To fit gam to costas tnz data
 library(segmented) # To fit piecewise, segmented, regression lines to TNZ data
 library(tibble) # to use add_column
+library(gridExtra) ## To put NEE and temp plots side by side
 
 ## read in files
 nest <- read.csv("DPowers_Nest_data.csv") #Nest insulation and convection measurements
@@ -50,44 +51,70 @@ m.long <- m.long %>% separate(TempVar, c(NA, "Temp", NA), sep = "([_ C])")
 
 m.long$Temp <- as.numeric(as.character(m.long$Temp))
 
+
+#### To Dos #####
+# [] Figure out why SideAvg temperatures seem higher than either Side A or Side D. Maybe just include all sides
+# [x] Take out Cup temperatures
+# 
+# [] Night length ranged 11-13h probably. (11-14)
+# [] Standardize or account for night length somehow
+# 
+# [] Why is ambient NEE so much higher than Side A?
+# [] Diff NEE Tamb - Tsideavg, normothermic and torpid
+# [] Temperature plots mirroring NEE plot
+# 
+# [] Use Eqb instead of convec
+# 
+# Test variability in relationship between A,B,C,D,Cup,Bottom and Ta, between broad-bills and BCHU
+# 
+# And plot out morpho measurements
+
+
 ## Making new data frames for convection, split by sides differently
-
-
 temp_ABCD <- m.long %>% filter(
   Measure %in% "EqbTemp", 
   Side %in% c("A", "B", "C", "D")
 )
 
-avgs <- as.data.frame(temp_ABCD %>% 
-                        dplyr::group_by(Nest_ID, Measure, Temp) %>%
-    dplyr::summarize(value = mean(value, na.rm = T)))
-Side <- "SideAvg"
-avgs <- add_column(avgs, Side, .after = "Measure")
+# avgs <- as.data.frame(temp_ABCD %>% 
+#                         dplyr::group_by(Nest_ID, Measure, Temp) %>%
+#     dplyr::summarize(value = mean(value)))
+# Side <- "SideAvg"
+# avgs <- add_column(avgs, Side, .after = "Measure")
 
 deltas <- m.long %>% filter(
   Measure %in% "EqbTemp", 
   Side %in% c("A", "B", "C", "D")
 )
-deltas <- rbind(deltas, avgs)
+#deltas <- rbind(deltas, avgs)
 
+avgs <- as.data.frame(deltas %>% 
+                        dplyr::group_by(Nest_ID, Measure, Temp) %>%
+                        dplyr::summarize(value = mean(value, na.rm=T)))
+Side <- "SideAvg"
+avgs <- add_column(avgs, Side, .after = "Measure")
 
-deltas <- rbind(deltas, m.long %>% filter(
+deltas <- rbind(deltas, avgs, m.long %>% filter(
   Measure %in% "Convec_EqbTemp", 
-  Side %in% c("Amb")
+  Side %in% c("Amb", "Nest_Ts")
 ))
 
+deltas$Side <- factor(deltas$Side, levels = c("Amb", "A", "B", "C", "D", "SideAvg", "Nest_Ts"))
 
-ggplot(deltas, aes(Temp, value)) + geom_smooth(aes(group=Side, col=Side)) + geom_point() + my_theme +
-  geom_abline(slope=1)
+ggplot(deltas[deltas$Side==c("SideAvg"),], aes(Temp, value)) + geom_smooth(aes(group=Side, col=Side), method="lm") + 
+  geom_point() + my_theme + geom_abline(slope=1, intercept=0) + 
+  ylab("Thermocouple measurements") + scale_color_viridis_d()
+
+# ggplot(deltas[deltas$Side==c("A", "SideAvg", "D"),], aes(Temp, value)) + geom_smooth(aes(group=Side, col=Side), method = "lm") + geom_point() + my_theme +
+#   geom_abline(slope=1, intercept=0)
 
 #ggplot(m.long[m.long$Measure=="Convec_EqbTemp",], aes(Temp, value)) + geom_smooth(aes(group=Side, col=Side)) + geom_point() + my_theme +
  # geom_abline(slope=1)
 
-
-# NestSurfTemp <- m.long %>% filter(
-#   Measure %in% "Convec_EqbTemp", 
-#   Side %in% c("Nest_Ts")
-# )
+NestSurfTemp <- m.long %>% filter(
+  Measure %in% "Convec_EqbTemp",
+  Side %in% c("Nest_Ts")
+)
 
 # convec <- m.long %>% filter(
 #   Measure %in% "Convec_EqbTemp", 
@@ -149,7 +176,7 @@ tint_hourly$kJ_amb <- tint_hourly$VO2_amb*((16 + (5.164*tint_hourly$RER))/1000)*
 ## Equations for Side A, D, NestTs, and Cup
 
 ### For Side A
-SideA_eqn <- lm(deltas$value[deltas$Side=="A"]~deltas$value[deltas$Side=="Amb"])
+SideA_eqn <- lm(deltas$value[deltas$Side=="A"]~deltas$Temp[deltas$Side=="A"])
 tint_hourly$SideA <- SideA_eqn$coefficients[1] + (SideA_eqn$coefficients[2]*tint_hourly$AmbTemp)
 ## Calculate VO2 given ambient temp is nest surface temp
 tint_hourly$VO2_SideA <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$SideA)
@@ -157,7 +184,7 @@ tint_hourly$VO2_SideA <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint
 tint_hourly$kJ_SideA <- tint_hourly$VO2_SideA*((16 + (5.164*tint_hourly$RER))/1000)*60
 
 ### For Side B
-SideB_eqn <- lm(deltas$value[deltas$Side=="B"]~deltas$value[deltas$Side=="Amb"])
+SideB_eqn <- lm(deltas$value[deltas$Side=="B"]~deltas$Temp[deltas$Side=="B"])
 tint_hourly$SideB <- SideB_eqn$coefficients[1] + (SideB_eqn$coefficients[2]*tint_hourly$AmbTemp)
 ## Calculate VO2 given ambient temp is nest surface temp
 tint_hourly$VO2_SideB <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$SideB)
@@ -165,7 +192,7 @@ tint_hourly$VO2_SideB <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint
 tint_hourly$kJ_SideB <- tint_hourly$VO2_SideB*((16 + (5.164*tint_hourly$RER))/1000)*60
 
 ### For Side C
-SideC_eqn <- lm(deltas$value[deltas$Side=="C"]~deltas$value[deltas$Side=="Amb"])
+SideC_eqn <- lm(deltas$value[deltas$Side=="C"]~deltas$Temp[deltas$Side=="C"])
 tint_hourly$SideC <- SideC_eqn$coefficients[1] + (SideC_eqn$coefficients[2]*tint_hourly$AmbTemp)
 ## Calculate VO2 given ambient temp is nest surface temp
 tint_hourly$VO2_SideC <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$SideC)
@@ -174,7 +201,7 @@ tint_hourly$kJ_SideC <- tint_hourly$VO2_SideC*((16 + (5.164*tint_hourly$RER))/10
 
 
 ### For Side D
-SideD_eqn <- lm(deltas$value[deltas$Side=="D"]~deltas$value[deltas$Side=="Amb"])
+SideD_eqn <- lm(deltas$value[deltas$Side=="D"]~deltas$Temp[deltas$Side=="D"])
 tint_hourly$SideD <- SideD_eqn$coefficients[1] + (SideD_eqn$coefficients[2]*tint_hourly$AmbTemp)
 ## Calculate VO2 given ambient temp is nest surface temp
 tint_hourly$VO2_SideD <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$SideD)
@@ -183,22 +210,23 @@ tint_hourly$kJ_SideD <- tint_hourly$VO2_SideD*((16 + (5.164*tint_hourly$RER))/10
 
 
 ## For average of A, B, C D
-SideAvg_eqn <- lm(deltas$value[deltas$Side=="SideAvg"]~deltas$value[deltas$Side=="Amb"])
-tint_hourly$SideAvg_eqn <- SideAvg_eqn$coefficients[1] + (SideAvg_eqn$coefficients[2]*tint_hourly$AmbTemp)
+SideAvg_eqn <- lm(deltas$value[deltas$Side=="SideAvg"]~deltas$Temp[deltas$Side=="SideAvg"])
+tint_hourly$SideAvg <- SideAvg_eqn$coefficients[1] + (SideAvg_eqn$coefficients[2]*tint_hourly$AmbTemp)
 ## Calculate VO2 given ambient temp is nest surface temp
 tint_hourly$VO2_SideAvg <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$SideAvg)
 ## Convert O2 ml/min to kJ/hour
 tint_hourly$kJ_SideAvg <- tint_hourly$VO2_SideAvg*((16 + (5.164*tint_hourly$RER))/1000)*60
 
 
-# ### For Nest Ts
-# NestTs_eqn <- lm(deltas$value[deltas$Side=="NestTs_Amb"]~deltas$value[deltas$Side=="Amb"])
-# ## Nest Ts = 8.4325 - 0.2334(Ta) for BBLH
-# tint_hourly$NestTs <- NestTs_eqn$coefficients[1] + (NestTs_eqn$coefficients[2]*tint_hourly$AmbTemp)
-# ## Calculate VO2 given ambient temp is nest surface temp
-# tint_hourly$VO2_NestTs <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$NestTs)
-# ## Convert O2 ml/min to kJ/hour
-# tint_hourly$kJ_NestTs <- tint_hourly$VO2_NestTs*((16 + (5.164*tint_hourly$RER))/1000)*60
+### For Nest Ts
+NestTs_eqn <- lm(deltas$value[deltas$Side=="Nest_Ts"]~deltas$Temp[deltas$Side=="Nest_Ts"])
+## Nest Ts = 8.4325 - 0.2334(Ta) for BBLH
+tint_hourly$NestTs <- NestTs_eqn$coefficients[1] + (NestTs_eqn$coefficients[2]*tint_hourly$AmbTemp)
+## Calculate VO2 given ambient temp is nest surface temp
+tint_hourly$VO2_NestTs <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$NestTs)
+## Convert O2 ml/min to kJ/hour
+tint_hourly$kJ_NestTs <- tint_hourly$VO2_NestTs*((16 + (5.164*tint_hourly$RER))/1000)*60
+
 
 
 ### For Cup
@@ -249,29 +277,31 @@ tint_hourly$kJ_SideAvg <- tint_hourly$VO2_SideAvg*((16 + (5.164*tint_hourly$RER)
 # lm(VO2_ml.g.h~Temperature, costas[costas$Temperature<30.851,]) ## Lower TNZ costa's line
 # 
 
-
-
 ### Torpor calculations
-tor_int <- 0.46
-tor_slope <- 0.053
-tor2 <- 0.0016
+tor_int <- 0.46 ## from BBLH(?), torpor intercept
+tor_slope <- 0.053 ##  from BBLH(?), torpor slope
+tor2 <- 0.0016  ## from BBLH(?), for quadratic
 
 ## Create columns to add torpor MR measurements
 tint_hourly$TorporAmb <- 0
 tint_hourly$TorporSideA <- 0
+tint_hourly$TorporSideB <- 0
+tint_hourly$TorporSideC <- 0
 tint_hourly$TorporSideD <- 0
 tint_hourly$TorporSideAvg <- 0
 tint_hourly$TorporNestTs <- 0
-tint_hourly$TorporCup <- 0
+#tint_hourly$TorporCup <- 0
 
 ## Calculating torpor MR in kJ for each type of temperature measurement
 for(i in 1:nrow(tint_hourly)) {
   if(tint_hourly$Hour_Elapsed[i]<14 & tint_hourly$Hour_Elapsed[i]>6) {
     tint_hourly$TorporAmb[i] <- (tor_int - tor_slope*(tint_hourly$AmbTemp[i]) + tor2*((tint_hourly$AmbTemp[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
     tint_hourly$TorporSideA[i] <- (tor_int - tor_slope*(tint_hourly$SideA[i]) + tor2*((tint_hourly$SideA[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
+    tint_hourly$TorporSideB[i] <- (tor_int - tor_slope*(tint_hourly$SideB[i]) + tor2*((tint_hourly$SideB[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
+    tint_hourly$TorporSideC[i] <- (tor_int - tor_slope*(tint_hourly$SideC[i]) + tor2*((tint_hourly$SideC[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
     tint_hourly$TorporSideD[i] <- (tor_int - tor_slope*(tint_hourly$SideD[i]) + tor2*((tint_hourly$SideD[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
     tint_hourly$TorporSideAvg[i] <- (tor_int - tor_slope*(tint_hourly$SideAvg[i]) + tor2*((tint_hourly$SideAvg[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
-    #tint_hourly$TorporNestTs[i] <- (tor_int - tor_slope*(tint_hourly$NestTs[i]) + tor2*((tint_hourly$NestTs[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
+    tint_hourly$TorporNestTs[i] <- (tor_int - tor_slope*(tint_hourly$NestTs[i]) + tor2*((tint_hourly$NestTs[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
     #tint_hourly$TorporCup[i] <- (tor_int - tor_slope*(tint_hourly$TempCup[i]) + tor2*((tint_hourly$TempCup[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
   } 
   #if(tint_hourly$Hour_Elapsed[i]<14 & tint_hourly$Hour_Elapsed[i]>6 & tint_hourly$TempCup[i] <31) {
@@ -281,8 +311,8 @@ for(i in 1:nrow(tint_hourly)) {
 
 ## Melt metabolic rates in kJ
 m.tint <- melt(tint_hourly,id.vars = c("Night_ID", "Nest_ID", "Hour_Elapsed"), 
-               measure.vars = c("kJ_amb", "kJ_SideA", "kJ_SideD", "kJ_SideAvg", "kJ_NestTs", "kJ_Cup",
-                                "TorporAmb","TorporSideA", "TorporSideD", "TorporSideAvg", "TorporNestTs", "TorporCup"))
+               measure.vars = c("kJ_amb", "kJ_SideA", "kJ_SideB","kJ_SideC", "kJ_SideD", "kJ_SideAvg",  "kJ_NestTs",
+                                "TorporAmb","TorporSideA", "TorporSideB", "TorporSideC", "TorporSideD", "TorporSideAvg", "TorporNestTs"))
 
 ## Column to specify normo vs. torpor
 #m.tint$Tornor <- ifelse(m.tint$variable=="kJ_amb"|m.tint$variable=="kJ_NestTs"|m.tint$variable=="kJ_Cup","N","T")
@@ -296,6 +326,16 @@ for(i in 1:nrow(tint_hourly)) {if(tint_hourly$Tor_Nor_merged_Amb[i]==0) {
 tint_hourly$Tor_Nor_merged_SideA <- tint_hourly$TorporSideA
 for(i in 1:nrow(tint_hourly)) {if(tint_hourly$Tor_Nor_merged_SideA[i]==0) {
   tint_hourly$Tor_Nor_merged_SideA[i] <- tint_hourly$kJ_SideA[i]}
+}
+
+tint_hourly$Tor_Nor_merged_SideB <- tint_hourly$TorporSideB
+for(i in 1:nrow(tint_hourly)) {if(tint_hourly$Tor_Nor_merged_SideB[i]==0) {
+  tint_hourly$Tor_Nor_merged_SideB[i] <- tint_hourly$kJ_SideB[i]}
+}
+
+tint_hourly$Tor_Nor_merged_SideC <- tint_hourly$TorporSideC
+for(i in 1:nrow(tint_hourly)) {if(tint_hourly$Tor_Nor_merged_SideC[i]==0) {
+  tint_hourly$Tor_Nor_merged_SideC[i] <- tint_hourly$kJ_SideC[i]}
 }
 
 tint_hourly$Tor_Nor_merged_SideD <- tint_hourly$TorporSideD
@@ -312,11 +352,11 @@ tint_hourly$Tor_Nor_merged_NestTs <- tint_hourly$TorporNestTs
 for(i in 1:nrow(tint_hourly)) {if(tint_hourly$Tor_Nor_merged_NestTs[i]==0) {
   tint_hourly$Tor_Nor_merged_NestTs[i] <- tint_hourly$kJ_NestTs[i]}
 }
-
-tint_hourly$Tor_Nor_merged_Cup <- tint_hourly$TorporCup
-for(i in 1:nrow(tint_hourly)) {if(tint_hourly$Tor_Nor_merged_Cup[i]==0) {
-  tint_hourly$Tor_Nor_merged_Cup[i] <- tint_hourly$kJ_Cup[i]}
-}
+ 
+# tint_hourly$Tor_Nor_merged_Cup <- tint_hourly$TorporCup
+# for(i in 1:nrow(tint_hourly)) {if(tint_hourly$Tor_Nor_merged_Cup[i]==0) {
+#   tint_hourly$Tor_Nor_merged_Cup[i] <- tint_hourly$kJ_Cup[i]}
+# }
 
 
 ## Calculating NEE, first three normo, and next 3 cols with 7 hours of torpor
@@ -324,26 +364,33 @@ tint_nee <- as.data.frame(tint_hourly %>%
                             dplyr::group_by(Night_ID, Nest_ID) %>%
                             dplyr::summarize(Nor_kJ_Amb = sum(kJ_amb, na.rm = T),
                                       Nor_kJ_SideA = sum(kJ_SideA, na.rm = T),
+                                      Nor_kJ_SideB = sum(kJ_SideB, na.rm = T),
+                                      Nor_kJ_SideC = sum(kJ_SideC, na.rm = T),
                                       Nor_kJ_SideD = sum(kJ_SideD, na.rm = T),
                                       Nor_kJ_SideAvg = sum(kJ_SideAvg, na.rm = T),
                                       Nor_kJ_NestTs = sum(kJ_NestTs, na.rm = T),
-                                      Nor_kJ_Cup = sum(kJ_Cup, na.rm = T),
+                                      #Nor_kJ_Cup = sum(kJ_Cup, na.rm = T),
                                       Tor_kJ_Amb = sum(Tor_Nor_merged_Amb, na.rm = T),
                                       Tor_kJ_SideA = sum(Tor_Nor_merged_SideA, na.rm = T),
+                                      Tor_kJ_SideB = sum(Tor_Nor_merged_SideB, na.rm = T),
+                                      Tor_kJ_SideC = sum(Tor_Nor_merged_SideC, na.rm = T),
                                       Tor_kJ_SideD = sum(Tor_Nor_merged_SideD, na.rm = T),
                                       Tor_kJ_SideAvg = sum(Tor_Nor_merged_SideAvg, na.rm = T),
                                       Tor_kJ_NestTs = sum(Tor_Nor_merged_NestTs, na.rm = T),
-                                      Tor_kJ_Cup = sum(Tor_Nor_merged_Cup, na.rm = T)))
+                                      #Tor_kJ_Cup = sum(Tor_Nor_merged_Cup, na.rm = T)
+                                      ))
 
 m.nee <- melt(tint_nee, id.vars = c("Night_ID", "Nest_ID"), 
-              measure.vars = c("Nor_kJ_Amb", "Nor_kJ_SideA", "Nor_kJ_SideD", "Nor_kJ_SideAvg", "Nor_kJ_NestTs", "Nor_kJ_Cup",
-                               "Tor_kJ_Amb", "Tor_kJ_SideA", "Tor_kJ_SideD", "Tor_kJ_SideAvg", "Tor_kJ_NestTs", "Tor_kJ_Cup"))
+              measure.vars = c("Nor_kJ_Amb", "Nor_kJ_SideA", "Nor_kJ_SideB", "Nor_kJ_SideC", "Nor_kJ_SideD", "Nor_kJ_SideAvg", "Nor_kJ_NestTs",# "Nor_kJ_Cup",
+                               "Tor_kJ_Amb", "Tor_kJ_SideA", "Tor_kJ_SideB", "Tor_kJ_SideC", "Tor_kJ_SideD", "Tor_kJ_SideAvg", "Tor_kJ_NestTs" #, "Tor_kJ_Cup"
+                               ))
 
 m.nee <- m.nee %>% separate(variable, c("Tornor", NA, "Side"), sep = "_", remove=F)
 m.nee$Tornor <- plyr::revalue(m.nee$Tornor, c("Nor"="Normothermic", "Tor"="Torpor_7hr"))
 
 ## Order sides
-m.nee$Side <- factor(m.nee$Side, levels = c("Amb", "SideA", "SideD", "SideAvg", "NestTs", "Cup"))
+m.nee$Side <- factor(m.nee$Side, levels = c("Amb", "SideA", "SideB", "SideC", "SideD", "SideAvg", "NestTs" #, "Cup"
+                                            ))
 
 
 ## Plots
@@ -354,11 +401,12 @@ ggplot(nest, aes(Wall_AC_outer_diameter_mm,Wall_AC_cup_diameter_mm)) + my_theme 
   geom_point() + geom_smooth(method = "lm", stat="smooth")
 
 ## Temperature at warmed equilibrium when heated sphere was put into the nest
-ggplot(m.long[m.long$Variable=="EqbTemp" & m.long$Side=="Cup",], aes(Temp,value)) + my_theme + 
-  geom_point(aes(col=Species))
+# ggplot(m.long[m.long$Variable=="EqbTemp" & m.long$Side=="Cup",], aes(Temp,value)) + my_theme + 
+#   geom_point(aes(col=Species))
 
-ggplot(m.long[m.long$Variable=="EqbTemp",], aes(Temp,value)) + my_theme + 
-  geom_point(aes(col=Side)) + facet_grid(.~Species) +
+## Old exploratory plot, when all species were included
+ggplot(m.long[m.long$Measure=="EqbTemp",], aes(Temp,value)) + my_theme + 
+  geom_point(aes(col=Side)) + #facet_grid(.~Species) +
   geom_smooth(method="lm", stat="smooth", aes(group=Side, col=Side)) +
   scale_color_viridis_d()
 
@@ -368,11 +416,11 @@ ggplot(m.long[m.long$Variable=="Cooled_EqbTemp",], aes(Temp,value)) + my_theme +
   geom_smooth(method="lm", stat="smooth", aes(group=Side, col=Side)) +
   scale_color_viridis_d()
 
-## Temperature of each thermocouple plotted against Percival's set temperature (using convection temperature measurements)
-ggplot(convec, aes(Temp,value)) + my_theme + 
-  geom_point(aes(col=Side)) + #facet_grid(.~Species) +
-  geom_smooth(method="lm", stat="smooth", aes(group=Side, col=Side)) +
-  scale_color_viridis_d() + ylab(Thermocouple.lab) + xlab(Percival.lab)
+# ## Temperature of each thermocouple plotted against Percival's set temperature (using convection temperature measurements)
+# ggplot(convec, aes(Temp,value)) + my_theme + 
+#   geom_point(aes(col=Side)) + #facet_grid(.~Species) +
+#   geom_smooth(method="lm", stat="smooth", aes(group=Side, col=Side)) +
+#   scale_color_viridis_d() + ylab(Thermocouple.lab) + xlab(Percival.lab)
 
 
 ## Checking what convection vs. eqb vs. cooled equilibrium temperatures look like
@@ -420,7 +468,7 @@ ggplot(tint[tint$Day==20 & tint$Month==4,], aes(Hour_Elapsed,Nest_ID)) + my_them
 # Hourly ambient temps per nest and night, heat map
 ggplot(tint_hourly, aes(Hour_Elapsed, Night_ID)) + my_theme + 
   geom_tile(aes(fill=AmbTemp)) + scale_x_continuous(breaks =seq(0,15,1)) +
-  scale_fill_viridis()
+  scale_fill_viridis() + theme(axis.text.y = element_text(size=10))
 
 # Hourly eye temps per nest and night, heat map. Why so similar to Amb plot?
 ggplot(tint_hourly, aes(Hour_Elapsed, Night_ID)) + my_theme +
@@ -453,13 +501,55 @@ ggplot(data=m.tint[m.tint$variable != "AmbTemp",], aes(variable, value)) + my_th
 ggplot(data=m.nee_normo, aes(variable, value)) + my_theme +
   geom_boxplot(aes(col=variable)) + ylab ("kJ/hour")
 
-
-## TO DO: need to update Cup Temp TNZ equation to include lines above the LCT
+## Main plot
 ## Total NEE, comparing normo and max torpor
-ggplot(data=m.nee, aes(Side, value)) + my_theme + facet_grid(.~Tornor) +
-  geom_boxplot(aes(col=Side), size=1.5) + ylab ("NEE (kJ)") + geom_point() +
-  theme(axis.text.x = element_text(angle=30, vjust=0.1)) +
+nee.plot <- ggplot(data=m.nee, aes(Side, value)) + my_theme2 + facet_grid(.~Tornor) +
+  geom_boxplot(aes(col=Side), size=1.5, show.legend=F) + ylab ("NEE (kJ)") + geom_point() +
+  theme(axis.text.x = element_text(angle=90, size=15, vjust=0.5)) +
   scale_color_viridis_d()
+nee.plot
+
+## Plotting NEE and temp together
+ggplot(data=m.nee_temp, aes(Side, value)) + my_theme + facet_grid(.~Tornor) +
+  geom_boxplot(aes(col=Side), size=1.5, show.legend=F) +
+  ylab ("NEE (kJ)") + #geom_point(aes(col=Side)) +
+  theme(axis.text.x = element_text(angle=30, vjust=0.1)) +
+  scale_color_viridis_d() +
+  geom_rug(aes(x = 0, y = Temp), alpha=0.3, position = position_jitter(height = 0))
+
+ggplot(data=trial_kJ, aes(variable, value)) + my_theme + #facet_grid(.~Tornor) +
+  geom_boxplot(aes(col=variable), size=1.5, show.legend=F) +
+  ylab ("NEE (kJ)") + #geom_point(aes(col=Side)) +
+  theme(axis.text.x = element_text(angle=90)) +
+  scale_color_viridis_d() # +
+  #geom_rug(aes(x = 0, y = Temp), alpha=0.3, position = position_jitter(height = 0))
+  
+ggplot(data=trial_temp, aes(variable, value)) + my_theme + #facet_grid(.~Tornor) +
+  geom_boxplot(aes(col=variable), size=1.5, show.legend=F) +
+  ylab (Temp.lab) + #geom_point(aes(col=Side)) +
+  theme(axis.text.x = element_text(angle=90)) +
+  scale_color_viridis_d()
+
+# ggplot(data=tint_hourly, aes(AmbTemp, SideA)) + my_theme + #facet_grid(.~Tornor) +
+#   geom_point(aes(y=SideA), col="red", size=1.5, show.legend=F) +
+#   geom_point(aes(y=SideB), col="black", size=1.5, show.legend=F) +
+#   geom_point(aes(y=SideC), col="blue", size=1.5, show.legend=F) +
+#   geom_point(aes(y=SideD), col="orange", size=1.5, show.legend=F) +
+#   geom_point(aes(y=SideAvg), col="green", size=1.5, show.legend=F) +
+#   ylab (Temp.lab) #geom_point(aes(col=Side))
+  
+## Temp plot to mirror this NEE plot
+temp.plot <- ggplot(data=deltas, aes(Side, value)) + my_theme2 + #facet_grid(.~Tornor) +
+  geom_boxplot(aes(col=Side), size=1.5) + geom_point() + ylab(Temp.lab) +
+  theme(axis.text.x = element_text(angle=90, vjust=0.5, size=15)) +
+  scale_color_viridis_d()
+
+# temp.plot_tint <- ggplot(data=m.tint_temp, aes(Sides, Temp)) + my_theme + #facet_grid(.~Tornor) +
+#   geom_boxplot(aes(col=Sides), size=1.5) + geom_point() + ylab(Temp.lab) +
+#   theme(axis.text.x = element_text(angle=30, vjust=0.1)) +
+#   scale_color_viridis_d()
+
+grid.arrange(nee.plot, temp.plot, nrow=1, ncol=2)
 
 ## TNZ's for BBLH and Costas
 ggplot(m.tnz, aes(Temp_C, value)) + my_theme + geom_point(aes(col=Species_NT)) +
@@ -467,6 +557,19 @@ ggplot(m.tnz, aes(Temp_C, value)) + my_theme + geom_point(aes(col=Species_NT)) +
   geom_smooth(data=m.tnz[m.tnz$Species_NT=="bblh_T"|m.tnz$Species_NT=="costas_N",], aes(col=Species_NT), method="loess") +
   xlab(Temp.lab) + ylab("VO2 ml/min")
 
+ggplot(m.tint[m.tint$Night_ID=="N11_3.3.2017",], aes(Hour_Elapsed, value)) + my_theme + #facet_grid(.~Nest_ID) +
+  geom_point(aes(col=variable)) + geom_line(aes(col=variable)) + ylab("kJ/hr") #+ #scale_x_continuous(breaks =seq(0,15,1)) 
+
+
+### DELETE once I figure out side Avg ####
+## Trying out SideAvg
+trial_kJ <- melt(tint_hourly, id.vars = c("Night_ID", "Nest_ID"), measure.vars = c("kJ_amb", "kJ_SideA", "kJ_SideD", "kJ_SideAvg", "TorporAmb", 
+                                                                                   "TorporSideA", "TorporSideD", "TorporSideAvg", "Tor_Nor_merged_Amb",
+                                                                       "Tor_Nor_merged_SideA", "Tor_Nor_merged_SideD", "Tor_Nor_merged_SideAvg"))
+
+trial_temp <- melt(tint_hourly, id.vars = c("Night_ID", "Nest_ID"), measure.vars = c("AmbTemp", "SideA", "SideD", "SideAvg"))
+
+#### Delete till here ####
 
 ## Did these when m.long had both species. Now it just has BBLH
 
