@@ -574,7 +574,7 @@ ggplot(data=m.nee_diff_std, aes(variable, value)) + my_theme2 + facet_grid(.~Tor
 ## Difference between all-Normo and normo+7h torpor NEE, with original and standardized night lengths
 ggplot(data=m.nee_Nor_tor, aes(Side, value)) + my_theme2 + facet_grid(.~variable) + 
   geom_point(size=2, show.legend = F) +
-  geom_boxplot(aes(col=Side), show.legend = F, size=1.2) +
+  geom_boxplot(aes(col=Side),  show.legend = F, size=1.2) +
   theme(axis.text.x = element_text(angle=90, size=15)) +
   scale_color_manual(values=my_gradient) + ylab("NEE (kJ)/12h difference Normo-Torpor")
 
