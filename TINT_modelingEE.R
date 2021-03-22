@@ -89,21 +89,9 @@ ggplot(deltas, aes(Temp, value)) + geom_smooth(aes(group=Side, col=Side), method
   geom_point() + my_theme + geom_abline(slope=1, intercept=0) + 
   ylab("Thermocouple measurements") + scale_color_viridis_d()
 
-# ggplot(deltas[deltas$Side==c("A", "SideAvg", "D"),], aes(Temp, value)) + geom_smooth(aes(group=Side, col=Side), method = "lm") + geom_point() + my_theme +
-#   geom_abline(slope=1, intercept=0)
+## Erich wants just Amb and SideAvg so using this from now on. Mar 22, 2021
+Temp_Amb_SideAvg <- deltas[deltas$Side==c("Amb", "SideAvg"),]
 
-#ggplot(m.long[m.long$Measure=="Convec_EqbTemp",], aes(Temp, value)) + geom_smooth(aes(group=Side, col=Side)) + geom_point() + my_theme +
- # geom_abline(slope=1)
-
-# NestSurfTemp <- m.long %>% filter(
-#   Measure %in% "Convec_EqbTemp",
-#   Side %in% c("Nest_Ts")
-# )
-
-# convec <- m.long %>% filter(
-#   Measure %in% "Convec_EqbTemp", 
-#   !Side %in% c("NestTs-Amb", "Tcup-Amb")
-# )
 
 #Adding "Day" column to TINT data frame
 tint$Date <- tint$Date_Time
@@ -115,24 +103,10 @@ tint$DayMonth <- paste0(tint$Day, "/", tint$Month)
 ## Calculate Lower TNZ slope equation for broad-bills
 tnz_eqn <- lm(VO2_Normothermic~Temp_C, tnz)
 
-## Costas and broadbills TNZ merged
-# m.tnz_costas <- melt(costas, id.vars = "Temperature", measure.vars="VO2_ml.g.h")
-# m.tnz_costas$Species <- "costas"
-# m.tnz_costas$N_T <- "N"
 
 m.tnz_bblh <- melt(tnz, id.vars = c("Temp_C", "N_T"), measure.vars = "VO2_all")
 m.tnz_bblh$Species <- "bblh"
 
-
-# m.tnz_costas <- m.tnz_costas %>% 
-#   rename(
-#     Temp_C = Temperature
-#     )
-# 
-# gam(VO2_all~s(Temp_C) + s())
-# 
-# m.tnz <- rbind(m.tnz_bblh, m.tnz_costas)
-# m.tnz$Species_NT <- paste0(m.tnz$Species, "_", m.tnz$N_T) 
 
 ## Get average hourly Amb and eye temp per night
 tint_hourly <- as.data.frame(tint %>%
@@ -157,40 +131,40 @@ tint_hourly$VO2_amb <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_h
 tint_hourly$kJ_amb <- tint_hourly$VO2_amb*((16 + (5.164*tint_hourly$RER))/1000)*60
 
 
-## Equations for Side A, D, NestTs, and Cup
+## Equations for the relationship between a side's temp and the amb temp.
 
-### For Side A
-SideA_eqn <- lm(deltas$value[deltas$Side=="A"]~deltas$Temp[deltas$Side=="A"])
-tint_hourly$SideA <- SideA_eqn$coefficients[1] + (SideA_eqn$coefficients[2]*tint_hourly$AmbTemp)
-## Calculate VO2 given ambient temp is nest surface temp
-tint_hourly$VO2_SideA <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$SideA)
-## Convert O2 ml/min to kJ/hour
-tint_hourly$kJ_SideA <- tint_hourly$VO2_SideA*((16 + (5.164*tint_hourly$RER))/1000)*60
-
-### For Side B
-SideB_eqn <- lm(deltas$value[deltas$Side=="B"]~deltas$Temp[deltas$Side=="B"])
-tint_hourly$SideB <- SideB_eqn$coefficients[1] + (SideB_eqn$coefficients[2]*tint_hourly$AmbTemp)
-## Calculate VO2 given ambient temp is nest surface temp
-tint_hourly$VO2_SideB <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$SideB)
-## Convert O2 ml/min to kJ/hour
-tint_hourly$kJ_SideB <- tint_hourly$VO2_SideB*((16 + (5.164*tint_hourly$RER))/1000)*60
-
-### For Side C
-SideC_eqn <- lm(deltas$value[deltas$Side=="C"]~deltas$Temp[deltas$Side=="C"])
-tint_hourly$SideC <- SideC_eqn$coefficients[1] + (SideC_eqn$coefficients[2]*tint_hourly$AmbTemp)
-## Calculate VO2 given ambient temp is nest surface temp
-tint_hourly$VO2_SideC <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$SideC)
-## Convert O2 ml/min to kJ/hour
-tint_hourly$kJ_SideC <- tint_hourly$VO2_SideC*((16 + (5.164*tint_hourly$RER))/1000)*60
-
-
-### For Side D
-SideD_eqn <- lm(deltas$value[deltas$Side=="D"]~deltas$Temp[deltas$Side=="D"])
-tint_hourly$SideD <- SideD_eqn$coefficients[1] + (SideD_eqn$coefficients[2]*tint_hourly$AmbTemp)
-## Calculate VO2 given ambient temp is nest surface temp
-tint_hourly$VO2_SideD <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$SideD)
-## Convert O2 ml/min to kJ/hour
-tint_hourly$kJ_SideD <- tint_hourly$VO2_SideD*((16 + (5.164*tint_hourly$RER))/1000)*60
+# ### For Side A
+# SideA_eqn <- lm(deltas$value[deltas$Side=="A"]~deltas$Temp[deltas$Side=="A"])
+# tint_hourly$SideA <- SideA_eqn$coefficients[1] + (SideA_eqn$coefficients[2]*tint_hourly$AmbTemp)
+# ## Calculate VO2 given ambient temp is nest surface temp
+# tint_hourly$VO2_SideA <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$SideA)
+# ## Convert O2 ml/min to kJ/hour
+# tint_hourly$kJ_SideA <- tint_hourly$VO2_SideA*((16 + (5.164*tint_hourly$RER))/1000)*60
+# 
+# ### For Side B
+# SideB_eqn <- lm(deltas$value[deltas$Side=="B"]~deltas$Temp[deltas$Side=="B"])
+# tint_hourly$SideB <- SideB_eqn$coefficients[1] + (SideB_eqn$coefficients[2]*tint_hourly$AmbTemp)
+# ## Calculate VO2 given ambient temp is nest surface temp
+# tint_hourly$VO2_SideB <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$SideB)
+# ## Convert O2 ml/min to kJ/hour
+# tint_hourly$kJ_SideB <- tint_hourly$VO2_SideB*((16 + (5.164*tint_hourly$RER))/1000)*60
+# 
+# ### For Side C
+# SideC_eqn <- lm(deltas$value[deltas$Side=="C"]~deltas$Temp[deltas$Side=="C"])
+# tint_hourly$SideC <- SideC_eqn$coefficients[1] + (SideC_eqn$coefficients[2]*tint_hourly$AmbTemp)
+# ## Calculate VO2 given ambient temp is nest surface temp
+# tint_hourly$VO2_SideC <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$SideC)
+# ## Convert O2 ml/min to kJ/hour
+# tint_hourly$kJ_SideC <- tint_hourly$VO2_SideC*((16 + (5.164*tint_hourly$RER))/1000)*60
+# 
+# 
+# ### For Side D
+# SideD_eqn <- lm(deltas$value[deltas$Side=="D"]~deltas$Temp[deltas$Side=="D"])
+# tint_hourly$SideD <- SideD_eqn$coefficients[1] + (SideD_eqn$coefficients[2]*tint_hourly$AmbTemp)
+# ## Calculate VO2 given ambient temp is nest surface temp
+# tint_hourly$VO2_SideD <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$SideD)
+# ## Convert O2 ml/min to kJ/hour
+# tint_hourly$kJ_SideD <- tint_hourly$VO2_SideD*((16 + (5.164*tint_hourly$RER))/1000)*60
 
 
 ## For average of A, B, C D
