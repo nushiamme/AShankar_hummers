@@ -31,6 +31,7 @@ my_theme2 <- theme_classic(base_size = 30) +
   theme(panel.border = element_rect(colour = "black", fill=NA))
 
 my_gradient <- c("#372772", "#4CB5AE","#F2B880","#b7adcf","#db2763","#588157","#69306d","#4f646f")
+erich_col <- c("#23988aff", "#F38BA8", "#440558ff", "#9ed93aff")
 
 ## Axis labels
 Temp.lab <- expression(atop(paste("Temperature (", degree,"C)")))
@@ -115,9 +116,7 @@ tint_hourly <- as.data.frame(tint %>%
                                          EyeTemp = mean(Peye_Temp_FINAL, na.rm=T)))
 
 
-## Extract just Hours and RER columns
-#m.model <- model %>%
-# select(Hours_elapsed_sunset, RER)
+## Set RER (Respiratory Exchange Ratio) depending on the hour
 tint_hourly$RER <- 0
 tint_hourly$RER <- ifelse(tint_hourly$Hour_Elapsed<3,1,0.71)
 
@@ -131,42 +130,8 @@ tint_hourly$VO2_amb <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_h
 tint_hourly$kJ_amb <- tint_hourly$VO2_amb*((16 + (5.164*tint_hourly$RER))/1000)*60
 
 
-## Equations for the relationship between a side's temp and the amb temp.
-
-# ### For Side A
-# SideA_eqn <- lm(deltas$value[deltas$Side=="A"]~deltas$Temp[deltas$Side=="A"])
-# tint_hourly$SideA <- SideA_eqn$coefficients[1] + (SideA_eqn$coefficients[2]*tint_hourly$AmbTemp)
-# ## Calculate VO2 given ambient temp is nest surface temp
-# tint_hourly$VO2_SideA <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$SideA)
-# ## Convert O2 ml/min to kJ/hour
-# tint_hourly$kJ_SideA <- tint_hourly$VO2_SideA*((16 + (5.164*tint_hourly$RER))/1000)*60
-# 
-# ### For Side B
-# SideB_eqn <- lm(deltas$value[deltas$Side=="B"]~deltas$Temp[deltas$Side=="B"])
-# tint_hourly$SideB <- SideB_eqn$coefficients[1] + (SideB_eqn$coefficients[2]*tint_hourly$AmbTemp)
-# ## Calculate VO2 given ambient temp is nest surface temp
-# tint_hourly$VO2_SideB <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$SideB)
-# ## Convert O2 ml/min to kJ/hour
-# tint_hourly$kJ_SideB <- tint_hourly$VO2_SideB*((16 + (5.164*tint_hourly$RER))/1000)*60
-# 
-# ### For Side C
-# SideC_eqn <- lm(deltas$value[deltas$Side=="C"]~deltas$Temp[deltas$Side=="C"])
-# tint_hourly$SideC <- SideC_eqn$coefficients[1] + (SideC_eqn$coefficients[2]*tint_hourly$AmbTemp)
-# ## Calculate VO2 given ambient temp is nest surface temp
-# tint_hourly$VO2_SideC <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$SideC)
-# ## Convert O2 ml/min to kJ/hour
-# tint_hourly$kJ_SideC <- tint_hourly$VO2_SideC*((16 + (5.164*tint_hourly$RER))/1000)*60
-# 
-# 
-# ### For Side D
-# SideD_eqn <- lm(deltas$value[deltas$Side=="D"]~deltas$Temp[deltas$Side=="D"])
-# tint_hourly$SideD <- SideD_eqn$coefficients[1] + (SideD_eqn$coefficients[2]*tint_hourly$AmbTemp)
-# ## Calculate VO2 given ambient temp is nest surface temp
-# tint_hourly$VO2_SideD <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$SideD)
-# ## Convert O2 ml/min to kJ/hour
-# tint_hourly$kJ_SideD <- tint_hourly$VO2_SideD*((16 + (5.164*tint_hourly$RER))/1000)*60
-
-
+## Equations for the relationship between a side's temp and the amb temp. Removed individual sides' and
+# NestTs eqns on Mar 22, 2021.
 ## For average of A, B, C D
 SideAvg_eqn <- lm(deltas$value[deltas$Side=="SideAvg"]~deltas$Temp[deltas$Side=="SideAvg"])
 tint_hourly$SideAvg <- SideAvg_eqn$coefficients[1] + (SideAvg_eqn$coefficients[2]*tint_hourly$AmbTemp)
@@ -176,41 +141,32 @@ tint_hourly$VO2_SideAvg <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*ti
 tint_hourly$kJ_SideAvg <- tint_hourly$VO2_SideAvg*((16 + (5.164*tint_hourly$RER))/1000)*60
 
 
-### For Nest Ts
-NestTs_eqn <- lm(deltas$value[deltas$Side=="Nest_Ts"]~deltas$Temp[deltas$Side=="Nest_Ts"])
-## Nest Ts = 8.4325 - 0.2334(Ta) for BBLH
-tint_hourly$NestTs <- NestTs_eqn$coefficients[1] + (NestTs_eqn$coefficients[2]*tint_hourly$AmbTemp)
-## Calculate VO2 given ambient temp is nest surface temp
-tint_hourly$VO2_NestTs <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$NestTs)
-## Convert O2 ml/min to kJ/hour
-tint_hourly$kJ_NestTs <- tint_hourly$VO2_NestTs*((16 + (5.164*tint_hourly$RER))/1000)*60
-
-
 ### Torpor calculations
 tor_int <- 0.46 ## from BBLH(?), torpor intercept
 tor_slope <- 0.053 ##  from BBLH(?), torpor slope
 tor2 <- 0.0016  ## from BBLH(?), for quadratic
 
 ## Create columns to add torpor MR measurements
+## Assuming 0h, 2h, 6h, and 10h of torpor
 tint_hourly$TorporAmb <- 0
-tint_hourly$TorporSideA <- 0
-tint_hourly$TorporSideB <- 0
-tint_hourly$TorporSideC <- 0
-tint_hourly$TorporSideD <- 0
+# tint_hourly$TorporSideA <- 0
+# tint_hourly$TorporSideB <- 0
+# tint_hourly$TorporSideC <- 0
+# tint_hourly$TorporSideD <- 0
 tint_hourly$TorporSideAvg <- 0
-tint_hourly$TorporNestTs <- 0
+# tint_hourly$TorporNestTs <- 0
 #tint_hourly$TorporCup <- 0
 
 ## Calculating torpor MR in kJ for each type of temperature measurement
 for(i in 1:nrow(tint_hourly)) {
   if(tint_hourly$Hour_Elapsed[i]<14 & tint_hourly$Hour_Elapsed[i]>6) {
     tint_hourly$TorporAmb[i] <- (tor_int - tor_slope*(tint_hourly$AmbTemp[i]) + tor2*((tint_hourly$AmbTemp[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
-    tint_hourly$TorporSideA[i] <- (tor_int - tor_slope*(tint_hourly$SideA[i]) + tor2*((tint_hourly$SideA[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
-    tint_hourly$TorporSideB[i] <- (tor_int - tor_slope*(tint_hourly$SideB[i]) + tor2*((tint_hourly$SideB[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
-    tint_hourly$TorporSideC[i] <- (tor_int - tor_slope*(tint_hourly$SideC[i]) + tor2*((tint_hourly$SideC[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
-    tint_hourly$TorporSideD[i] <- (tor_int - tor_slope*(tint_hourly$SideD[i]) + tor2*((tint_hourly$SideD[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
+    # tint_hourly$TorporSideA[i] <- (tor_int - tor_slope*(tint_hourly$SideA[i]) + tor2*((tint_hourly$SideA[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
+    # tint_hourly$TorporSideB[i] <- (tor_int - tor_slope*(tint_hourly$SideB[i]) + tor2*((tint_hourly$SideB[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
+    # tint_hourly$TorporSideC[i] <- (tor_int - tor_slope*(tint_hourly$SideC[i]) + tor2*((tint_hourly$SideC[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
+    # tint_hourly$TorporSideD[i] <- (tor_int - tor_slope*(tint_hourly$SideD[i]) + tor2*((tint_hourly$SideD[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
     tint_hourly$TorporSideAvg[i] <- (tor_int - tor_slope*(tint_hourly$SideAvg[i]) + tor2*((tint_hourly$SideAvg[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
-    tint_hourly$TorporNestTs[i] <- (tor_int - tor_slope*(tint_hourly$NestTs[i]) + tor2*((tint_hourly$NestTs[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
+    # tint_hourly$TorporNestTs[i] <- (tor_int - tor_slope*(tint_hourly$NestTs[i]) + tor2*((tint_hourly$NestTs[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
     #tint_hourly$TorporCup[i] <- (tor_int - tor_slope*(tint_hourly$TempCup[i]) + tor2*((tint_hourly$TempCup[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
   } 
   #if(tint_hourly$Hour_Elapsed[i]<14 & tint_hourly$Hour_Elapsed[i]>6 & tint_hourly$TempCup[i] <31) {
@@ -219,9 +175,14 @@ for(i in 1:nrow(tint_hourly)) {
 }
 
 ## Melt metabolic rates in kJ
+# m.tint <- melt(tint_hourly,id.vars = c("Night_ID", "Nest_ID", "Hour_Elapsed"), 
+#                measure.vars = c("kJ_amb", "kJ_SideA", "kJ_SideB","kJ_SideC", "kJ_SideD", "kJ_SideAvg",  "kJ_NestTs",
+#                                 "TorporAmb","TorporSideA", "TorporSideB", "TorporSideC", "TorporSideD", "TorporSideAvg", "TorporNestTs"))
+
+## Melt metabolic rates in kJ
 m.tint <- melt(tint_hourly,id.vars = c("Night_ID", "Nest_ID", "Hour_Elapsed"), 
-               measure.vars = c("kJ_amb", "kJ_SideA", "kJ_SideB","kJ_SideC", "kJ_SideD", "kJ_SideAvg",  "kJ_NestTs",
-                                "TorporAmb","TorporSideA", "TorporSideB", "TorporSideC", "TorporSideD", "TorporSideAvg", "TorporNestTs"))
+               measure.vars = c("kJ_amb", "kJ_SideAvg", "TorporAmb", "TorporSideAvg"))
+
 
 ## Column to specify normo vs. torpor
 #m.tint$Tornor <- ifelse(m.tint$variable=="kJ_amb"|m.tint$variable=="kJ_NestTs"|m.tint$variable=="kJ_Cup","N","T")
@@ -232,44 +193,49 @@ for(i in 1:nrow(tint_hourly)) {if(tint_hourly$Tor_Nor_merged_Amb[i]==0) {
   tint_hourly$Tor_Nor_merged_Amb[i] <- tint_hourly$kJ_amb[i]}
 }
 
-tint_hourly$Tor_Nor_merged_SideA <- tint_hourly$TorporSideA
-for(i in 1:nrow(tint_hourly)) {if(tint_hourly$Tor_Nor_merged_SideA[i]==0) {
-  tint_hourly$Tor_Nor_merged_SideA[i] <- tint_hourly$kJ_SideA[i]}
-}
-
-tint_hourly$Tor_Nor_merged_SideB <- tint_hourly$TorporSideB
-for(i in 1:nrow(tint_hourly)) {if(tint_hourly$Tor_Nor_merged_SideB[i]==0) {
-  tint_hourly$Tor_Nor_merged_SideB[i] <- tint_hourly$kJ_SideB[i]}
-}
-
-tint_hourly$Tor_Nor_merged_SideC <- tint_hourly$TorporSideC
-for(i in 1:nrow(tint_hourly)) {if(tint_hourly$Tor_Nor_merged_SideC[i]==0) {
-  tint_hourly$Tor_Nor_merged_SideC[i] <- tint_hourly$kJ_SideC[i]}
-}
-
-tint_hourly$Tor_Nor_merged_SideD <- tint_hourly$TorporSideD
-for(i in 1:nrow(tint_hourly)) {if(tint_hourly$Tor_Nor_merged_SideD[i]==0) {
-  tint_hourly$Tor_Nor_merged_SideD[i] <- tint_hourly$kJ_SideD[i]}
-}
+# tint_hourly$Tor_Nor_merged_SideA <- tint_hourly$TorporSideA
+# for(i in 1:nrow(tint_hourly)) {if(tint_hourly$Tor_Nor_merged_SideA[i]==0) {
+#   tint_hourly$Tor_Nor_merged_SideA[i] <- tint_hourly$kJ_SideA[i]}
+# }
+# 
+# tint_hourly$Tor_Nor_merged_SideB <- tint_hourly$TorporSideB
+# for(i in 1:nrow(tint_hourly)) {if(tint_hourly$Tor_Nor_merged_SideB[i]==0) {
+#   tint_hourly$Tor_Nor_merged_SideB[i] <- tint_hourly$kJ_SideB[i]}
+# }
+# 
+# tint_hourly$Tor_Nor_merged_SideC <- tint_hourly$TorporSideC
+# for(i in 1:nrow(tint_hourly)) {if(tint_hourly$Tor_Nor_merged_SideC[i]==0) {
+#   tint_hourly$Tor_Nor_merged_SideC[i] <- tint_hourly$kJ_SideC[i]}
+# }
+# 
+# tint_hourly$Tor_Nor_merged_SideD <- tint_hourly$TorporSideD
+# for(i in 1:nrow(tint_hourly)) {if(tint_hourly$Tor_Nor_merged_SideD[i]==0) {
+#   tint_hourly$Tor_Nor_merged_SideD[i] <- tint_hourly$kJ_SideD[i]}
+# }
 
 tint_hourly$Tor_Nor_merged_SideAvg <- tint_hourly$TorporSideAvg
 for(i in 1:nrow(tint_hourly)) {if(tint_hourly$Tor_Nor_merged_SideAvg[i]==0) {
   tint_hourly$Tor_Nor_merged_SideAvg[i] <- tint_hourly$kJ_SideAvg[i]}
 }
-
-tint_hourly$Tor_Nor_merged_NestTs <- tint_hourly$TorporNestTs
-for(i in 1:nrow(tint_hourly)) {if(tint_hourly$Tor_Nor_merged_NestTs[i]==0) {
-  tint_hourly$Tor_Nor_merged_NestTs[i] <- tint_hourly$kJ_NestTs[i]}
-}
  
+# tint_hourly$Tor_Nor_merged_NestTs <- tint_hourly$TorporNestTs
+# for(i in 1:nrow(tint_hourly)) {if(tint_hourly$Tor_Nor_merged_NestTs[i]==0) {
+#   tint_hourly$Tor_Nor_merged_NestTs[i] <- tint_hourly$kJ_NestTs[i]}
+# }
+
 # tint_hourly$Tor_Nor_merged_Cup <- tint_hourly$TorporCup
 # for(i in 1:nrow(tint_hourly)) {if(tint_hourly$Tor_Nor_merged_Cup[i]==0) {
 #   tint_hourly$Tor_Nor_merged_Cup[i] <- tint_hourly$kJ_Cup[i]}
 # }
 
+# ## Temperatures from TINT data
+# m.tint_temp <- melt(tint_hourly, id.vars = c("Night_ID", "Nest_ID"), 
+#               measure.vars = c("AmbTemp", "SideA", "SideB", "SideC", "SideD", "SideAvg", "NestTs"))
+
 ## Temperatures from TINT data
 m.tint_temp <- melt(tint_hourly, id.vars = c("Night_ID", "Nest_ID"), 
-              measure.vars = c("AmbTemp", "SideA", "SideB", "SideC", "SideD", "SideAvg", "NestTs"))
+                    measure.vars = c("AmbTemp", "SideAvg"))
+
 ## Rename columns
 names(m.tint_temp) <- c("Night_ID", "Nest_ID", "Side", "value")
 
@@ -277,20 +243,20 @@ names(m.tint_temp) <- c("Night_ID", "Nest_ID", "Side", "value")
 tint_nee <- as.data.frame(tint_hourly %>%
                             dplyr::group_by(Night_ID, Nest_ID) %>%
                             dplyr::summarize(Nor_kJ_Amb = sum(kJ_amb, na.rm = T),
-                                      Nor_kJ_SideA = sum(kJ_SideA, na.rm = T),
-                                      Nor_kJ_SideB = sum(kJ_SideB, na.rm = T),
-                                      Nor_kJ_SideC = sum(kJ_SideC, na.rm = T),
-                                      Nor_kJ_SideD = sum(kJ_SideD, na.rm = T),
+                                      # Nor_kJ_SideA = sum(kJ_SideA, na.rm = T),
+                                      # Nor_kJ_SideB = sum(kJ_SideB, na.rm = T),
+                                      # Nor_kJ_SideC = sum(kJ_SideC, na.rm = T),
+                                      # Nor_kJ_SideD = sum(kJ_SideD, na.rm = T),
                                       Nor_kJ_SideAvg = sum(kJ_SideAvg, na.rm = T),
-                                      Nor_kJ_NestTs = sum(kJ_NestTs, na.rm = T),
+                                      # Nor_kJ_NestTs = sum(kJ_NestTs, na.rm = T),
                                       #Nor_kJ_Cup = sum(kJ_Cup, na.rm = T),
                                       Tor_kJ_Amb = sum(Tor_Nor_merged_Amb, na.rm = T),
-                                      Tor_kJ_SideA = sum(Tor_Nor_merged_SideA, na.rm = T),
-                                      Tor_kJ_SideB = sum(Tor_Nor_merged_SideB, na.rm = T),
-                                      Tor_kJ_SideC = sum(Tor_Nor_merged_SideC, na.rm = T),
-                                      Tor_kJ_SideD = sum(Tor_Nor_merged_SideD, na.rm = T),
+                                      # Tor_kJ_SideA = sum(Tor_Nor_merged_SideA, na.rm = T),
+                                      # Tor_kJ_SideB = sum(Tor_Nor_merged_SideB, na.rm = T),
+                                      # Tor_kJ_SideC = sum(Tor_Nor_merged_SideC, na.rm = T),
+                                      # Tor_kJ_SideD = sum(Tor_Nor_merged_SideD, na.rm = T),
                                       Tor_kJ_SideAvg = sum(Tor_Nor_merged_SideAvg, na.rm = T),
-                                      Tor_kJ_NestTs = sum(Tor_Nor_merged_NestTs, na.rm = T),
+                                      # Tor_kJ_NestTs = sum(Tor_Nor_merged_NestTs, na.rm = T),
                                       #Tor_kJ_Cup = sum(Tor_Nor_merged_Cup, na.rm = T)
                                       ))
 
@@ -301,17 +267,24 @@ night_length <- as.data.frame(tint_hourly %>%
 tint_nee <- merge(tint_nee, night_length)
 
 
+# m.nee <- melt(tint_nee, id.vars = c("Night_ID", "Nest_ID", "NightLength"), 
+#               measure.vars = c("Nor_kJ_Amb", "Nor_kJ_SideA", "Nor_kJ_SideB", "Nor_kJ_SideC", "Nor_kJ_SideD", "Nor_kJ_SideAvg", "Nor_kJ_NestTs",# "Nor_kJ_Cup",
+#                                "Tor_kJ_Amb", "Tor_kJ_SideA", "Tor_kJ_SideB", "Tor_kJ_SideC", "Tor_kJ_SideD", "Tor_kJ_SideAvg", "Tor_kJ_NestTs" #, "Tor_kJ_Cup"
+#                                ))
+
 m.nee <- melt(tint_nee, id.vars = c("Night_ID", "Nest_ID", "NightLength"), 
-              measure.vars = c("Nor_kJ_Amb", "Nor_kJ_SideA", "Nor_kJ_SideB", "Nor_kJ_SideC", "Nor_kJ_SideD", "Nor_kJ_SideAvg", "Nor_kJ_NestTs",# "Nor_kJ_Cup",
-                               "Tor_kJ_Amb", "Tor_kJ_SideA", "Tor_kJ_SideB", "Tor_kJ_SideC", "Tor_kJ_SideD", "Tor_kJ_SideAvg", "Tor_kJ_NestTs" #, "Tor_kJ_Cup"
-                               ))
+              measure.vars = c("Nor_kJ_Amb", "Nor_kJ_SideAvg",
+                               "Tor_kJ_Amb", "Tor_kJ_SideAvg"))
 
 m.nee <- m.nee %>% separate(variable, c("Tornor", NA, "Side"), sep = "_", remove=F)
 m.nee$Tornor <- plyr::revalue(m.nee$Tornor, c("Nor"="Normothermic", "Tor"="Torpor_7hr"))
 
 ## Order sides
-m.nee$Side <- factor(m.nee$Side, levels = c("Amb", "SideA", "SideB", "SideC", "SideD", "SideAvg", "NestTs" #, "Cup"
-                                            ))
+# m.nee$Side <- factor(m.nee$Side, levels = c("Amb", "SideA", "SideB", "SideC", "SideD", "SideAvg", "NestTs" #, "Cup"
+#                                             ))
+
+m.nee$Side <- factor(m.nee$Side, levels = c("Amb", "SideAvg"))
+
 
 ## Standardize NEE by night length
 m.nee$stdNEE <- (m.nee$value/m.nee$NightLength)*12
@@ -321,18 +294,18 @@ m.nee_diff <- data.frame(Night_ID = m.nee$Night_ID[m.nee$Side=='Amb'],
                          Nest_ID = m.nee$Nest_ID[m.nee$Side=='Amb'],
                          variable = m.nee$variable[m.nee$Side=='Amb'],
                          Tornor = m.nee$Tornor[m.nee$Side=='Amb'],
-                         Amb_SideA = m.nee$value[m.nee$Side=='Amb'] - m.nee$value[m.nee$Side == 'SideA'],
-                         Amb_SideB = m.nee$value[m.nee$Side=='Amb'] - m.nee$value[m.nee$Side == 'SideB'],
-                         Amb_SideC = m.nee$value[m.nee$Side=='Amb'] - m.nee$value[m.nee$Side == 'SideC'],
-                         Amb_SideD = m.nee$value[m.nee$Side=='Amb'] - m.nee$value[m.nee$Side == 'SideD'],
-                         Amb_SideAvg = m.nee$value[m.nee$Side=='Amb'] - m.nee$value[m.nee$Side == 'SideAvg'],
-                         Amb_NestTs = m.nee$value[m.nee$Side=='Amb'] - m.nee$value[m.nee$Side == 'NestTs']
+                         # Amb_SideA = m.nee$value[m.nee$Side=='Amb'] - m.nee$value[m.nee$Side == 'SideA'],
+                         # Amb_SideB = m.nee$value[m.nee$Side=='Amb'] - m.nee$value[m.nee$Side == 'SideB'],
+                         # Amb_SideC = m.nee$value[m.nee$Side=='Amb'] - m.nee$value[m.nee$Side == 'SideC'],
+                         # Amb_SideD = m.nee$value[m.nee$Side=='Amb'] - m.nee$value[m.nee$Side == 'SideD'],
+                         Amb_SideAvg = m.nee$value[m.nee$Side=='Amb'] - m.nee$value[m.nee$Side == 'SideAvg']
+                         # Amb_NestTs = m.nee$value[m.nee$Side=='Amb'] - m.nee$value[m.nee$Side == 'NestTs']
 )
 m.nee_diff <- m.nee_diff %>% separate(variable, c("Tornor", NA, NA), sep = "_", remove=F)
-m.nee_diff2 <- melt(m.nee_diff, id.vars = c("Night_ID", "Nest_ID", "Tornor"), measure.vars = c("Amb_SideA", "Amb_SideB",
-                                                                                               "Amb_SideC", "Amb_SideD", "Amb_SideAvg",
-                                                                                               "Amb_NestTs"))
-m.nee_diff2$Tornor <- plyr::revalue(m.nee_diff2$Tornor, c("Nor"="Normothermic", "Tor"="Torpor_7hr"))
+# m.nee_diff2 <- melt(m.nee_diff, id.vars = c("Night_ID", "Nest_ID", "Tornor"), measure.vars = c("Amb_SideA", "Amb_SideB",
+#                                                                                                "Amb_SideC", "Amb_SideD", "Amb_SideAvg",
+#                                                                                                "Amb_NestTs"))
+m.nee_diff$Tornor <- plyr::revalue(m.nee_diff$Tornor, c("Nor"="Normothermic", "Tor"="Torpor_7hr"))
 
 
 # Standardize NEE by nightlength
@@ -340,17 +313,17 @@ m.nee_diff_std <- m.nee_diff <- data.frame(Night_ID = m.nee$Night_ID[m.nee$Side=
                                       Nest_ID = m.nee$Nest_ID[m.nee$Side=='Amb'],
                                       variable = m.nee$variable[m.nee$Side=='Amb'],
                                       Tornor = m.nee$Tornor[m.nee$Side=='Amb'],
-                                      Amb_SideA = m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideA'],
-                                      Amb_SideB = m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideB'],
-                                      Amb_SideC = m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideC'],
-                                      Amb_SideD = m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideD'],
-                                      Amb_SideAvg = m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideAvg'],
-                                      Amb_NestTs = m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'NestTs']
+                                      # Amb_SideA = m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideA'],
+                                      # Amb_SideB = m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideB'],
+                                      # Amb_SideC = m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideC'],
+                                      # Amb_SideD = m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideD'],
+                                      # Amb_NestTs = m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'NestTs']
+                                      Amb_SideAvg = m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideAvg']
 )
 m.nee_diff_std <- m.nee_diff_std %>% separate(variable, c("Tornor", NA, NA), sep = "_", remove=F)
-m.nee_diff_std <- melt(m.nee_diff_std, id.vars = c("Night_ID", "Nest_ID", "Tornor"), measure.vars = c("Amb_SideA", "Amb_SideB",
-                                                                                               "Amb_SideC", "Amb_SideD", "Amb_SideAvg",
-                                                                                               "Amb_NestTs"))
+# m.nee_diff_std <- melt(m.nee_diff_std, id.vars = c("Night_ID", "Nest_ID", "Tornor"), measure.vars = c("Amb_SideA", "Amb_SideB",
+#                                                                                                "Amb_SideC", "Amb_SideD", "Amb_SideAvg",
+#                                                                                                "Amb_NestTs"))
 m.nee_diff_std$Tornor <- plyr::revalue(m.nee_diff_std$Tornor, c("Nor"="Normothermic", "Tor"="Torpor_7hr"))
 
 
@@ -359,17 +332,16 @@ m.nee_prop_std <- data.frame(Night_ID = m.nee$Night_ID[m.nee$Side=='Amb'],
                          Nest_ID = m.nee$Nest_ID[m.nee$Side=='Amb'],
                          variable = m.nee$variable[m.nee$Side=='Amb'],
                          Tornor = m.nee$Tornor[m.nee$Side=='Amb'],
-                         Amb_SideA = ((m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideA'])/m.nee$stdNEE[m.nee$Side=='Amb'])*100,
-                         Amb_SideB = ((m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideB'])/m.nee$stdNEE[m.nee$Side=='Amb'])*100,
-                         Amb_SideC = ((m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideC'])/m.nee$stdNEE[m.nee$Side=='Amb'])*100,
-                         Amb_SideD = ((m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideD'])/m.nee$stdNEE[m.nee$Side=='Amb'])*100,
-                         Amb_SideAvg = ((m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideAvg'])/m.nee$stdNEE[m.nee$Side=='Amb'])*100,
-                         Amb_NestTs = ((m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'NestTs'])/m.nee$stdNEE[m.nee$Side=='Amb'])*100
-)
+                         # Amb_SideA = ((m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideA'])/m.nee$stdNEE[m.nee$Side=='Amb'])*100,
+                         # Amb_SideB = ((m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideB'])/m.nee$stdNEE[m.nee$Side=='Amb'])*100,
+                         # Amb_SideC = ((m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideC'])/m.nee$stdNEE[m.nee$Side=='Amb'])*100,
+                         # Amb_SideD = ((m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideD'])/m.nee$stdNEE[m.nee$Side=='Amb'])*100,
+                         # Amb_NestTs = ((m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'NestTs'])/m.nee$stdNEE[m.nee$Side=='Amb'])*100
+                         Amb_SideAvg = ((m.nee$stdNEE[m.nee$Side=='Amb'] - m.nee$stdNEE[m.nee$Side == 'SideAvg'])/m.nee$stdNEE[m.nee$Side=='Amb'])*100)
 m.nee_prop_std <- m.nee_prop_std %>% separate(variable, c("Tornor", NA, NA), sep = "_", remove=F)
-m.nee_prop_std <- melt(m.nee_prop_std, id.vars = c("Night_ID", "Nest_ID", "Tornor"), measure.vars = c("Amb_SideA", "Amb_SideB",
-                                                                                               "Amb_SideC", "Amb_SideD", "Amb_SideAvg",
-                                                                                               "Amb_NestTs"))
+# m.nee_prop_std <- melt(m.nee_prop_std, id.vars = c("Night_ID", "Nest_ID", "Tornor"), measure.vars = c("Amb_SideA", "Amb_SideB",
+#                                                                                                "Amb_SideC", "Amb_SideD", "Amb_SideAvg",
+#                                                                                                "Amb_NestTs"))
 m.nee_prop_std$Tornor <- plyr::revalue(m.nee_prop_std$Tornor, c("Nor"="Normothermic", "Tor"="Torpor_7hr"))
 
 
