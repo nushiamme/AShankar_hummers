@@ -11,9 +11,11 @@ library(mgcv) ## To fit gam to costas tnz data
 library(segmented) # To fit piecewise, segmented, regression lines to TNZ data
 library(tibble) # to use add_column
 library(gridExtra) ## To put NEE and temp plots side by side
+library(rstatix) ## For multiple pairwise comparisons
+library(ggpubr) ## For multiple pairwise comparisons plot
 
 ## read in files
-nest <- read.csv("DPowers_Nest_data.csv") #Nest insulation and convection measurements
+#nest <- read.csv("DPowers_Nest_data.csv") #Nest insulation and convection measurements
 tint <- read.csv("final_data_Apr2020.csv") #LA nest measurements
 #model <- read.csv("TINT_Model_template.csv") #model columns
 nest_long <- read.csv("nest_longform.csv")
@@ -383,12 +385,171 @@ m.nee_Nor_tor$Torpor_dur <- plyr::revalue(m.nee_Nor_tor$Torpor_dur, c("Tor2h"="2
 m.nee_Nor_tor$Torpor_dur <- factor(m.nee_Nor_tor$Torpor_dur, levels = c("2", "6", "10")) ## define order
 
 
+### Summarize NEE values in different scenarios
+NEE_summ <- data.frame("Torpor_dur" = c("0", "2", "6", "10"),
+                       "NEE_Ambient_min" = c(min(m.nee$stdNEE[m.nee$Torpor_dur=="0" & m.nee$Side=="Ambient"]), 
+                                             min(m.nee$stdNEE[m.nee$Torpor_dur=="2" & m.nee$Side=="Ambient"]), 
+                                             min(m.nee$stdNEE[m.nee$Torpor_dur=="6" & m.nee$Side=="Ambient"]), 
+                                             min(m.nee$stdNEE[m.nee$Torpor_dur=="10" & m.nee$Side=="Ambient"])),
+                       "NEE_Ambient_mean" = c(mean(m.nee$stdNEE[m.nee$Torpor_dur=="0" & m.nee$Side=="Ambient"]), 
+                                             mean(m.nee$stdNEE[m.nee$Torpor_dur=="2" & m.nee$Side=="Ambient"]), 
+                                             mean(m.nee$stdNEE[m.nee$Torpor_dur=="6" & m.nee$Side=="Ambient"]), 
+                                             mean(m.nee$stdNEE[m.nee$Torpor_dur=="10" & m.nee$Side=="Ambient"])),
+                       "NEE_Ambient_max" = c(max(m.nee$stdNEE[m.nee$Torpor_dur=="0" & m.nee$Side=="Ambient"]), 
+                                             max(m.nee$stdNEE[m.nee$Torpor_dur=="2" & m.nee$Side=="Ambient"]), 
+                                             max(m.nee$stdNEE[m.nee$Torpor_dur=="6" & m.nee$Side=="Ambient"]), 
+                                             max(m.nee$stdNEE[m.nee$Torpor_dur=="10" & m.nee$Side=="Ambient"])),
+                       "NEE_Ambient_sd" = c(sd(m.nee$stdNEE[m.nee$Torpor_dur=="0" & m.nee$Side=="Ambient"]), 
+                                            sd(m.nee$stdNEE[m.nee$Torpor_dur=="2" & m.nee$Side=="Ambient"]), 
+                                            sd(m.nee$stdNEE[m.nee$Torpor_dur=="6" & m.nee$Side=="Ambient"]), 
+                                            sd(m.nee$stdNEE[m.nee$Torpor_dur=="10" & m.nee$Side=="Ambient"])),
+                       "NEE_Nest_min" = c(min(m.nee$stdNEE[m.nee$Torpor_dur=="0" & m.nee$Side=="Nest"]), 
+                                          min(m.nee$stdNEE[m.nee$Torpor_dur=="2" & m.nee$Side=="Nest"]), 
+                                          min(m.nee$stdNEE[m.nee$Torpor_dur=="6" & m.nee$Side=="Nest"]), 
+                                          min(m.nee$stdNEE[m.nee$Torpor_dur=="10" & m.nee$Side=="Nest"])),
+                       "NEE_Nest_mean" = c(mean(m.nee$stdNEE[m.nee$Torpor_dur=="0" & m.nee$Side=="Nest"]), 
+                                          mean(m.nee$stdNEE[m.nee$Torpor_dur=="2" & m.nee$Side=="Nest"]), 
+                                          mean(m.nee$stdNEE[m.nee$Torpor_dur=="6" & m.nee$Side=="Nest"]), 
+                                          mean(m.nee$stdNEE[m.nee$Torpor_dur=="10" & m.nee$Side=="Nest"])),
+                       "NEE_Nest_max" = c(max(m.nee$stdNEE[m.nee$Torpor_dur=="0" & m.nee$Side=="Nest"]), 
+                                          max(m.nee$stdNEE[m.nee$Torpor_dur=="2" & m.nee$Side=="Nest"]), 
+                                          max(m.nee$stdNEE[m.nee$Torpor_dur=="6" & m.nee$Side=="Nest"]), 
+                                          max(m.nee$stdNEE[m.nee$Torpor_dur=="10" & m.nee$Side=="Nest"])),
+                       "NEE_Nest_sd" = c(sd(m.nee$stdNEE[m.nee$Torpor_dur=="0" & m.nee$Side=="Nest"]), 
+                                         sd(m.nee$stdNEE[m.nee$Torpor_dur=="2" & m.nee$Side=="Nest"]), 
+                                         sd(m.nee$stdNEE[m.nee$Torpor_dur=="6" & m.nee$Side=="Nest"]), 
+                                         sd(m.nee$stdNEE[m.nee$Torpor_dur=="10" & m.nee$Side=="Nest"])),
+                       "NEE_sample"=c(rep(length(unique(m.nee$Night_ID, 4)))))
+
+write.csv(NEE_summ, "TINT_NEE_kJ_Summary.csv")
+
+NEEamb_mean_sd <- data.frame("Nest_Amb"="Ambient", "Torpor_dur"=NEE_summ$Torpor_dur, "sample"=NEE_summ$NEE_sample, "NEE_mean"=NEE_summ$NEE_Ambient_mean, 
+                          "NEE_sd"=NEE_summ$NEE_Ambient_sd)
+NEEnest_mean_sd <- data.frame("Nest_Amb"="Nest", "Torpor_dur"=NEE_summ$Torpor_dur, "sample"=NEE_summ$NEE_sample,                            
+                          "NEE_mean"=NEE_summ$NEE_Nest_mean, "NEE_sd"=NEE_summ$NEE_Nest_sd)
+NEE_mean_sd <- rbind(NEEamb_mean_sd, NEEnest_mean_sd)
+NEE_mean_sd$Temp_dur <- paste0(NEE_mean_sd$Nest_Amb, "_", NEE_mean_sd$Torpor_dur)
 
 ## Plots
-ggplot(morpho, aes(variable, value)) + my_theme + 
-  geom_line(aes(group=Nest_ID, col=Nest_ID))
+# ## Total NEE, just normo
+# ggplot(data=m.nee_normo, aes(variable, value)) + my_theme +
+#   geom_boxplot(aes(col=variable)) + ylab ("kJ/hour")
 
-ggplot(nest, aes(Wall_AC_outer_diameter_mm,Wall_AC_cup_diameter_mm)) + my_theme + 
+#### Main plots ####
+## Total NEE, comparing normo and max torpor
+# Change ticks on kJ plots to be every 1kJ, and labels every 2kJ
+breaks_nee <- seq(0,15,1)
+labels_nee <- as.character(breaks_nee)
+labels_nee[!(breaks_nee %% 2 == 0)] <- ''
+#tick.sizes <- rep(.5, length(breaks_nee))
+#tick.sizes[(breaks_nee %% 2 == 0)] <- 1
+nee.plot <- ggplot(data=m.nee, aes(Torpor_dur, value)) + my_theme2 + facet_grid(.~Side) +
+  geom_point(size=2) + geom_boxplot(aes(col=Torpor_dur), size=1.2, show.legend=F) + ylab ("NEE (kJ)") +
+  theme(axis.text.x = element_text(size=20, vjust=0.5)) + #ylim(0,14) +
+  scale_y_continuous(breaks = breaks_nee, labels = labels_nee) +
+  scale_color_manual(values = torpor_gradient) + xlab("Torpor duration (hours)")
+nee.plot
+
+
+## Temp plot to mirror this NEE plot; from Don's nest data
+# temp.plot <- ggplot(data=deltas, aes(Side, value)) + my_theme2 + #facet_grid(.~Torpor_dur) +
+#   geom_boxplot(aes(col=Side), size=1.2) + geom_point() + ylab(Temp.lab) +
+#   theme(axis.text.x = element_text(angle=90, vjust=0.5, size=15)) +
+#   scale_color_manual(values = my_gradient)
+
+## Temp plot to mirror this NEE plot; from TINT data
+temp.plot_tint <- ggplot(data=m.tint_temp, aes(Side, value)) + my_theme2 + #facet_grid(.~Torpor_dur) +
+  geom_point(size=2) + geom_boxplot(size=1.2) + ylab(Temp.lab) +
+  scale_y_continuous(breaks = seq(0,30,5)) +
+  theme(axis.text.x = element_text(size=20)) +
+  xlab("Temperature")
+
+grid.arrange(nee.plot, temp.plot_tint, nrow=1, ncol=2, widths = c(2, 1))
+
+
+#cc <- scales::seq_gradient_pal("blue", "yellow", "Lab")(seq(0,1,length.out=length(unique(as.factor(m.nee_prop_std$Night_ID)))))
+
+## Nighttime energy expenditure (kJ) standardized to 12 hour night length
+nee.std.plot <- ggplot(data=m.nee, aes(Torpor_dur, stdNEE)) + my_theme2 + facet_grid(.~Side) +
+  geom_point(size=2) + geom_boxplot(aes(col=Torpor_dur), size=1.2, show.legend=F) +
+  theme(axis.text.x = element_text(size=20)) + xlab("Torpor duration (hours)") + #ylim(0,15) +
+  scale_y_continuous(breaks = breaks_nee, labels = labels_nee) +
+  scale_color_manual(values = torpor_gradient) + ylab ("NEE (kJ) standardized to 12h night")
+nee.std.plot
+
+
+# ## Nighttime energy expenditure (kJ) for just torpor scenarios standardized to 12 hour night length
+# nee.tor_std.plot <- ggplot(data=m.nee[m.nee$Tornor!="Nor",], aes(Torpor_dur, stdNEE)) + my_theme2 + facet_grid(.~Side) +
+#   geom_boxplot(aes(col=Torpor_dur), size=1.2) + ylab ("NEE (kJ) standardized to 12h night") +
+#   theme(axis.text.x = element_text(size=15, vjust=0.5)) +
+#   #geom_point(aes(col=as.factor(Night_ID)), size=2, show.legend = F) +
+#   scale_color_manual(values=c(torpor_gradient))
+# nee.tor_std.plot
+
+grid.arrange(nee.std.plot, temp.plot_tint, nrow=1, ncol=2, widths = c(2, 1))
+
+# 
+# ## Difference between Ambient and side temperatures
+# ggplot(data=m.nee_diff, aes(Torpor_dur, value)) + my_theme2 + #facet_grid(.~Side) + 
+#   geom_point(size=2, show.legend = F) + geom_boxplot(aes(col=Torpor_dur), show.legend = F, size=1.2) +
+#   theme(axis.text.x = element_text(size=20)) + xlab("Torpor duration (hours)") +
+#   scale_color_manual(values=torpor_gradient) + ylab("NEE (kJ) difference Ambient-Nest")
+# 
+# ## Difference between Ambient and side temperatures NEE, with standardized night lengths
+# ggplot(data=m.nee_diff_std, aes(Torpor_dur, value)) + my_theme2 + #facet_grid(.~Side) + 
+#   geom_point(size=2, show.legend = F) +
+#   geom_boxplot(aes(col=variable), show.legend = F, size=1.2) +
+#   theme(axis.text.x = element_text(size=15)) + xlab("Torpor duration (hours)") +
+#   scale_color_manual(values=torpor_gradient) + ylab("NEE (kJ)/12h difference Ambient-Nest") +
+#   xlab("Torpor duration (hours)")
+
+## Difference between all-Normo and normo+7h torpor NEE, with raw night length and standardized night lengths
+## No difference between Ambient and Nest here, because this is diff between normo and torpor, so just plotting raw vs. std
+ggplot(data=m.nee_Nor_tor[m.nee_Nor_tor$Std=="std",], aes(Torpor_dur, value)) + my_theme2 + facet_grid(.~Side) +
+  geom_point(size=2, show.legend = F) +
+  geom_boxplot(aes(col=Torpor_dur),  show.legend = F, size=1.2) +
+  theme(axis.text.x = element_text(size=20)) + xlab("Torpor duration (hours)") +
+  scale_color_manual(values=torpor_gradient[2:5]) + ylab("NEE (kJ)/12h difference Normo-Torpor")
+
+# ## Percent difference between Ambient and side temperatures NEE, with standardized night lengths
+# ggplot(data=m.nee_prop_std, aes(variable, Amb_SideAvg)) + my_theme2 + #facet_grid(.~Side) + 
+#   geom_boxplot(aes(col=variable), show.legend = F, size=1.2) +
+#   #scale_color_manual(values=torpor_gradient[2:9]) +
+#   geom_point(aes(col=as.factor(Night_ID)), size=2, show.legend = F) +
+#   scale_color_manual(values=c(torpor_gradient[2:9], cc)) +
+#   theme(axis.text.x = element_text(angle=90, size=15)) +
+#   ylab("NEE (kJ) percent difference Ambient-sides")
+
+
+# ggplot(data=m.nee, aes(Torpor_dur, value)) + my_theme2 + facet_grid(.~Side) +
+#   geom_boxplot(aes(col=Torpor_dur), size=1.2, show.legend=F) + ylab ("NEE (kJ)") + geom_point() +
+#   theme(axis.text.x = element_text(angle=90, size=15, vjust=0.5)) +
+#   scale_color_manual(values=torpor_gradient)
+
+
+
+
+# ggplot(data=tint_hourly, aes(AmbTemp, SideA)) + my_theme + #facet_grid(.~Torpor_dur) +
+#   geom_point(aes(y=SideA), col="red", size=1.2, show.legend=F) +
+#   geom_point(aes(y=SideB), col="black", size=1.2, show.legend=F) +
+#   geom_point(aes(y=SideC), col="blue", size=1.2, show.legend=F) +
+#   geom_point(aes(y=SideD), col="orange", size=1.2, show.legend=F) +
+#   geom_point(aes(y=SideAvg), col="green", size=1.2, show.legend=F) +
+#   ylab (Temp.lab) #geom_point(aes(col=Side))
+
+
+#### Old exploratory plots #####
+
+## TNZ's for BBLH and Costas
+ggplot(m.tnz, aes(Temp_C, value)) + my_theme + geom_point(aes(col=Species_NT)) +
+  geom_smooth(data=m.tnz[m.tnz$Species_NT=="bblh_N",], aes(col=Species_NT), method="lm") +
+  geom_smooth(data=m.tnz[m.tnz$Species_NT=="bblh_T"|m.tnz$Species_NT=="costas_N",], aes(col=Species_NT), method="loess") +
+  xlab(Temp.lab) + ylab("VO2 ml/min")
+
+# ggplot(morpho, aes(variable, value)) + my_theme + 
+#   geom_line(aes(group=Nest_ID, col=Nest_ID))
+
+ggplot(nest, aes(Wall_AC_outer_diameter_mm,Wall_BD_cup_diameter_mm)) + my_theme + 
   geom_point() + geom_smooth(method = "lm", stat="smooth")
 
 ## Temperature at warmed equilibrium when heated sphere was put into the nest
@@ -481,131 +642,41 @@ ggplot(data=tint, aes(Hour_Elapsed, Amb_Temp_FINAL)) + my_theme + facet_wrap(.~N
   scale_color_viridis(discrete = T)
 
 
-# ## Total NEE, just normo
-# ggplot(data=m.nee_normo, aes(variable, value)) + my_theme +
-#   geom_boxplot(aes(col=variable)) + ylab ("kJ/hour")
 
-#### Main plots ####
-## Total NEE, comparing normo and max torpor
-nee.plot <- ggplot(data=m.nee, aes(Torpor_dur, value)) + my_theme2 + facet_grid(.~Side) +
-  geom_point(size=2) + geom_boxplot(aes(col=Torpor_dur), size=1.2, show.legend=F) + ylab ("NEE (kJ)") +
-  theme(axis.text.x = element_text(size=20, vjust=0.5)) + ylim(0,14) +
-  scale_color_manual(values = torpor_gradient) + xlab("Torpor duration (hours)")
-nee.plot
+#### Modeling ####
 
-## Temp plot to mirror this NEE plot; from Don's nest data
-# temp.plot <- ggplot(data=deltas, aes(Side, value)) + my_theme2 + #facet_grid(.~Torpor_dur) +
-#   geom_boxplot(aes(col=Side), size=1.2) + geom_point() + ylab(Temp.lab) +
-#   theme(axis.text.x = element_text(angle=90, vjust=0.5, size=15)) +
-#   scale_color_manual(values = my_gradient)
+# Multiple pairwise comparisons
+#https://www.datanovia.com/en/blog/how-to-perform-t-test-for-multiple-groups-in-r/
+#https://www.datanovia.com/en/blog/how-to-add-p-values-to-ggplot-facets/
+res.aov <- m.nee %>% anova_test(stdNEE ~ Var_merge)
+get_anova_table(res.aov)
 
-## Temp plot to mirror this NEE plot; from TINT data
-temp.plot_tint <- ggplot(data=m.tint_temp, aes(Side, value)) + my_theme2 + #facet_grid(.~Torpor_dur) +
-  geom_point(size=2) + geom_boxplot(size=1.2) + ylab(Temp.lab) +
-  theme(axis.text.x = element_text(size=20)) +
-  xlab("Temperature")
+pwc <- m.nee %>%
+  pairwise_t_test(stdNEE ~ Var_merge, p.adjust.method = "bonferroni")
+write.csv(as.data.frame(pwc), file="Anova_Bonferroni_results.csv")
+pwc <- pwc %>% add_xy_position(fun = "mean_sd", x = "supp")
 
-grid.arrange(nee.plot, temp.plot_tint, nrow=1, ncol=2, widths = c(2, 1))
+## Plot groups with p values on the plot
+ggboxplot(m.nee, x = "Var_merge", y = "stdNEE") +
+  stat_pvalue_manual(pwc, hide.ns = TRUE, label = "p.adj.signif",y.position = ) +
+  labs(subtitle = get_test_label(res.aov, detailed = TRUE),
+    caption = get_pwc_label(pwc))
 
-
-#cc <- scales::seq_gradient_pal("blue", "yellow", "Lab")(seq(0,1,length.out=length(unique(as.factor(m.nee_prop_std$Night_ID)))))
-
-
-nee.std.plot <- ggplot(data=m.nee, aes(Torpor_dur, stdNEE)) + my_theme2 + facet_grid(.~Side) +
-  geom_point(size=2) + geom_boxplot(aes(col=Torpor_dur), size=1.2, show.legend=F) + ylab ("NEE (kJ) standardized to 12h night") +
-  theme(axis.text.x = element_text(size=20)) + xlab("Torpor duration (hours)") + ylim(0,14) +
-  scale_color_manual(values = torpor_gradient)
-nee.std.plot
-
-NEE_summ <- data.frame("Torpor_dur" = c("0", "2", "6", "10"),
-                          "NEE_Ambient_min" = c(min(m.nee$stdNEE[m.nee$Torpor_dur=="0" & m.nee$Side=="Ambient"]), 
-                                        min(m.nee$stdNEE[m.nee$Torpor_dur=="2" & m.nee$Side=="Ambient"]), 
-                                        min(m.nee$stdNEE[m.nee$Torpor_dur=="6" & m.nee$Side=="Ambient"]), 
-                                        min(m.nee$stdNEE[m.nee$Torpor_dur=="10" & m.nee$Side=="Ambient"])),
-                       "NEE_Ambient_max" = c(max(m.nee$stdNEE[m.nee$Torpor_dur=="0" & m.nee$Side=="Ambient"]), 
-                                         max(m.nee$stdNEE[m.nee$Torpor_dur=="2" & m.nee$Side=="Ambient"]), 
-                                         max(m.nee$stdNEE[m.nee$Torpor_dur=="6" & m.nee$Side=="Ambient"]), 
-                                         max(m.nee$stdNEE[m.nee$Torpor_dur=="10" & m.nee$Side=="Ambient"])),
-                          "NEE_Nest_min" = c(min(m.nee$stdNEE[m.nee$Torpor_dur=="0" & m.nee$Side=="Nest"]), 
-                                         min(m.nee$stdNEE[m.nee$Torpor_dur=="2" & m.nee$Side=="Nest"]), 
-                                         min(m.nee$stdNEE[m.nee$Torpor_dur=="6" & m.nee$Side=="Nest"]), 
-                                         min(m.nee$stdNEE[m.nee$Torpor_dur=="10" & m.nee$Side=="Nest"])),
-                       "NEE_Nest_max" = c(max(m.nee$stdNEE[m.nee$Torpor_dur=="0" & m.nee$Side=="Nest"]), 
-                                      max(m.nee$stdNEE[m.nee$Torpor_dur=="2" & m.nee$Side=="Nest"]), 
-                                      max(m.nee$stdNEE[m.nee$Torpor_dur=="6" & m.nee$Side=="Nest"]), 
-                                      max(m.nee$stdNEE[m.nee$Torpor_dur=="10" & m.nee$Side=="Nest"])))
-
-write.csv(NEE_summ, "TINT_NEE_kJ_Summary.csv")
-
-
-nee.tor_std.plot <- ggplot(data=m.nee[m.nee$Tornor!="Nor",], aes(Torpor_dur, stdNEE)) + my_theme2 + facet_grid(.~Side) +
-  geom_boxplot(aes(col=Torpor_dur), size=1.2) + ylab ("NEE (kJ) standardized to 12h night") +
-  theme(axis.text.x = element_text(angle=90, size=15, vjust=0.5)) +
-  geom_point(aes(col=as.factor(Night_ID)), size=2, show.legend = F) +
-  scale_color_manual(values=c(torpor_gradient))
-nee.tor_std.plot
-
-grid.arrange(nee.std.plot, temp.plot_tint, nrow=1, ncol=2, widths = c(2, 1))
-
+#### Old ####
+# library(rpsychi) 
+# m.nee$Var_merge <- paste0(m.nee$Side, "_", m.nee$Torpor_dur)
 # 
-# ## Difference between Ambient and side temperatures
-# ggplot(data=m.nee_diff, aes(Torpor_dur, value)) + my_theme2 + #facet_grid(.~Side) + 
-#   geom_point(size=2, show.legend = F) + geom_boxplot(aes(col=Torpor_dur), show.legend = F, size=1.2) +
-#   theme(axis.text.x = element_text(size=20)) + xlab("Torpor duration (hours)") +
-#   scale_color_manual(values=torpor_gradient) + ylab("NEE (kJ) difference Ambient-Nest")
+# nee_means <- as.numeric(NEE_mean_sd$NEE_mean)
+# nee_sd <-  as.numeric(NEE_mean_sd$NEE_sd)
+# nee_num <- rep(108, length(NEE_mean_sd$sample))
+# ind.oneway(formula = stdNEE~Var_merge, data=m.nee)
 # 
-# ## Difference between Ambient and side temperatures NEE, with standardized night lengths
-# ggplot(data=m.nee_diff_std, aes(Torpor_dur, value)) + my_theme2 + #facet_grid(.~Side) + 
-#   geom_point(size=2, show.legend = F) +
-#   geom_boxplot(aes(col=variable), show.legend = F, size=1.2) +
-#   theme(axis.text.x = element_text(size=15)) + xlab("Torpor duration (hours)") +
-#   scale_color_manual(values=torpor_gradient) + ylab("NEE (kJ)/12h difference Ambient-Nest") +
-#   xlab("Torpor duration (hours)")
-
-## Difference between all-Normo and normo+7h torpor NEE, with raw night length and standardized night lengths
-## No difference between Ambient and Nest here, because this is diff between normo and torpor, so just plotting raw vs. std
-ggplot(data=m.nee_Nor_tor[m.nee_Nor_tor$Std=="std",], aes(Torpor_dur, value)) + my_theme2 + facet_grid(.~Side) +
-  geom_point(size=2, show.legend = F) +
-  geom_boxplot(aes(col=Torpor_dur),  show.legend = F, size=1.2) +
-  theme(axis.text.x = element_text(size=20)) + xlab("Torpor duration (hours)") +
-  scale_color_manual(values=torpor_gradient[2:5]) + ylab("NEE (kJ)/12h difference Normo-Torpor")
-
-# ## Percent difference between Ambient and side temperatures NEE, with standardized night lengths
-# ggplot(data=m.nee_prop_std, aes(variable, Amb_SideAvg)) + my_theme2 + #facet_grid(.~Side) + 
-#   geom_boxplot(aes(col=variable), show.legend = F, size=1.2) +
-#   #scale_color_manual(values=torpor_gradient[2:9]) +
-#   geom_point(aes(col=as.factor(Night_ID)), size=2, show.legend = F) +
-#   scale_color_manual(values=c(torpor_gradient[2:9], cc)) +
-#   theme(axis.text.x = element_text(angle=90, size=15)) +
-#   ylab("NEE (kJ) percent difference Ambient-sides")
-
-
-# ggplot(data=m.nee, aes(Torpor_dur, value)) + my_theme2 + facet_grid(.~Side) +
-#   geom_boxplot(aes(col=Torpor_dur), size=1.2, show.legend=F) + ylab ("NEE (kJ)") + geom_point() +
-#   theme(axis.text.x = element_text(angle=90, size=15, vjust=0.5)) +
-#   scale_color_manual(values=torpor_gradient)
-
-
-
-
-# ggplot(data=tint_hourly, aes(AmbTemp, SideA)) + my_theme + #facet_grid(.~Torpor_dur) +
-#   geom_point(aes(y=SideA), col="red", size=1.2, show.legend=F) +
-#   geom_point(aes(y=SideB), col="black", size=1.2, show.legend=F) +
-#   geom_point(aes(y=SideC), col="blue", size=1.2, show.legend=F) +
-#   geom_point(aes(y=SideD), col="orange", size=1.2, show.legend=F) +
-#   geom_point(aes(y=SideAvg), col="green", size=1.2, show.legend=F) +
-#   ylab (Temp.lab) #geom_point(aes(col=Side))
-
-
-## TNZ's for BBLH and Costas
-ggplot(m.tnz, aes(Temp_C, value)) + my_theme + geom_point(aes(col=Species_NT)) +
-  geom_smooth(data=m.tnz[m.tnz$Species_NT=="bblh_N",], aes(col=Species_NT), method="lm") +
-  geom_smooth(data=m.tnz[m.tnz$Species_NT=="bblh_T"|m.tnz$Species_NT=="costas_N",], aes(col=Species_NT), method="loess") +
-  xlab(Temp.lab) + ylab("VO2 ml/min")
+# ind.oneway.second(m = tapply(m.nee$stdNEE, m.nee$Var_merge, mean),
+#                   sd = tapply(m.nee$stdNEE, m.nee$Var_merge, sd),
+#                   n= tapply(m.nee$stdNEE, m.nee$Var_merge, length))
 
 
 ## Did these when m.long had both species. Now it just has BBLH
-
 lm(deltas$value[deltas$Side=="NestTs_Amb"]~deltas$value[deltas$Side=="Amb"])
 ## Nest Ts = 8.4325 - 0.2334(Ta) for BBLH
 
