@@ -3,14 +3,20 @@ title: "TINT_table"
 author: "Anusha Shankar"
 date: "3/22/2021"
 output:
-  html_document:
-    df_print: paged
+  word_document: default
 ---
 
 Here's a summary of Nighttime energy expenditure given different torpor durations, under Ambient and Nest temperatures
-```{r pressure, echo=FALSE, message=F}
+```{r, echo=FALSE, message=F}
 library(dplyr)
-NEE_summ <- read.csv(file = "E:\\Google Drive\\Erich_paper_TINT\\TINT_NEE_kJ_Summary.csv")
+NEE_summ <- read.csv("C:\\users\\nushi\\OneDrive - Cornell University\\Erich_paper_TINT\\TINT_NEE_kJ_Summary.csv")
 NEE_summ %>% 
-  knitr::kable(caption = "TINT NEE summary")
+  knitr::kable(caption = "TINT NEE summary", digits = 2)
+```
+
+Here's a summary of Nighttime energy expenditure with mean and SD given different torpor durations, under Ambient and Nest temperatures
+```{r, echo=FALSE, message=F}
+NEE_mean_sd <- read.csv("C:\\users\\nushi\\OneDrive - Cornell University\\Erich_paper_TINT\\TINT_NEE_meanSD.csv")
+NEE_mean_sd %>% 
+  knitr::kable(caption = "TINT NEE Mean and sd", digits = 2)
 ```
