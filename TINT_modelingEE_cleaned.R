@@ -9,8 +9,14 @@
 # Read in packages
 # Read in files
 # General functions, theme
-# 
-
+# Organize data frames
+# Format data on the temperatures from the field
+# Metabolic rate data from BBLH under a range of temperatures
+# Now putting together the field temperatures and lab-measured metabolic rates
+# Model nighttime energy expenditures with varying torpor durations
+# Calculating NEE, first assuming normothermy (Ambient and SideAvg temps), and next with various proportions of torpor use
+# Plots
+# Models
   
 #### Reading in packages ####
 library(ggplot2)
@@ -29,17 +35,14 @@ library(ggpubr) ## For multiple pairwise comparisons plot
 
 #### Read in files ####
 # File paths are relative to the directory that the .Rproj file resides in
-#nest <- read.csv("DPowers_Nest_data.csv") #Nest insulation and convection measurements
 tint <- read.csv("final_data_Apr2020.csv") #LA nest measurements
-#model <- read.csv("TINT_Model_template.csv") #model columns
 nest_long <- read.csv("nest_longform.csv")
 tnz <- read.csv("JAvBiol_BroadBill.csv") ## For TNZ modelling
-#costas <- read.csv("FuncEcol_Costa1986_DonVO2.csv")  ## For above UCT TNZ modelling
 ## Subset just BBLH (broad-billed hummingbird) nest data from all of Don's nest temperature measurements
 nest_bblh <- nest_long[nest_long$Species=="BBLH",]
 
 
-#### General functions ####
+#### General functions, theme ####
 my_theme <- theme_classic(base_size = 15) + 
   theme(panel.border = element_rect(colour = "black", fill=NA))
 
@@ -424,7 +427,7 @@ NEE_mean_sd$Temp_dur <- paste0(NEE_mean_sd$Nest_Amb, "_", NEE_mean_sd$Torpor_dur
 ## csv with means and SDs per scenario
 write.csv(NEE_mean_sd, "TINT_NEE_meanSD.csv")
 
-#### Main plots ####
+#### Plots ####
 ## Total NEE, comparing normo and max torpor
 breaks_nee <- seq(0,15,1)
 labels_nee <- as.character(breaks_nee)
@@ -469,7 +472,7 @@ ggplot(data=m.nee_Nor_tor[m.nee_Nor_tor$Std=="std",], aes(Torpor_dur, value)) + 
   scale_color_manual(values=torpor_gradient[2:5]) + ylab("NEE (kJ)/12h difference Normo-Torpor")
 
 
-#### Modeling ####
+#### Models ####
 # Multiple pairwise comparisons
 #https://www.datanovia.com/en/blog/how-to-perform-t-test-for-multiple-groups-in-r/
 #https://www.datanovia.com/en/blog/how-to-add-p-values-to-ggplot-facets/
