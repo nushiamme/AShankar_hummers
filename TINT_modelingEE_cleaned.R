@@ -494,3 +494,4 @@ ggboxplot(m.nee, x = "TorTemp", y = "stdNEE") +
   stat_pvalue_manual(pwc, hide.ns = TRUE, label = "p.adj.signif") +
   labs(subtitle = get_test_label(res.aov, detailed = TRUE),
        caption = get_pwc_label(pwc))
+
