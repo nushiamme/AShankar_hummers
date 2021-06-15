@@ -37,10 +37,13 @@ library(ggpubr) ## For multiple pairwise comparisons plot
 # File paths are relative to the directory that the .Rproj file resides in
 tint <- read.csv("final_data_Apr2020.csv") #LA nest measurements
 nest_long <- read.csv("nest_longform.csv")
-tnz <- read.csv("JAvBiol_BroadBill.csv") ## For TNZ modelling
+tnz_bblh <- read.csv("JAvBiol_BroadBill.csv") ## For TNZ modelling
+
 ## Subset just BBLH (broad-billed hummingbird) nest data from all of Don's nest temperature measurements
 nest_bblh <- nest_long[nest_long$Species=="BBLH",]
 
+## TNZ for Allen's hummingbirds (Selasphorus sasin, or SESA) from Fig. 1, Lasiewski 1963, Physiological Zoology
+tnz_sesa <- read.csv("Lasiewski1963_Allens_TNZ.csv")
 
 #### General functions, theme ####
 my_theme <- theme_classic(base_size = 15) + 
@@ -119,39 +122,35 @@ tint_hourly <- as.data.frame(tint %>%
                                                 EyeTemp = mean(Peye_Temp_FINAL, na.rm=T)))
 
 
-#### Metabolic rate data from BBLH under a range of temperatures ####
-## These data are from Shankar et al. J Avian Biology doi/10.1111/jav.02305
+#### Metabolic rate data from BBLH and from SESA under a range of temperatures ####
+## BBLH data are from Shankar et al. J Avian Biology doi/10.1111/jav.02305
+## SESA data are from Lasiewski 1963 Physiological Zoology
 ## Adding in MR columns
-## Calculate Lower TNZ slope equation for broad-bills
-tnz_eqn <- lm(VO2_Normothermic~Temp_C, tnz)
 
-m.tnz_bblh <- melt(tnz, id.vars = c("Temp_C", "N_T"), measure.vars = "VO2_all")
+## BBLH ##
+## Calculate Lower TNZ slope equation for broad-bills
+tnz_eqn_bblh <- lm(VO2_Normothermic~Temp_C, tnz)
+
+m.tnz_bblh <- melt(tnz_bblh, id.vars = c("Temp_C", "N_T"), measure.vars = "VO2_all")
 m.tnz_bblh$Species <- "bblh"
 
+## SESA ##
+## For SESA, O2 units are in ml g-1 hr-1. Converting to ml/min to match with BBLH
+## SESA in Lasiewski study weighed 2.9-4.6g, but are not individually identified by weight. 
+## So I'm using average weight of 3.7g to convert to whole-body MR.
+tnz_sesa$O2_ml_min <- (tnz_sesa$O2_g_hr/60)*3.7
+tnz_eqn_sesa <- lm(O2_ml_min~Ta_C, tnz_sesa)
+
 #### Now putting together the field temperatures and lab-measured metabolic rates ####
+## For both BBLH and SESA ##
 ## Set RER (Respiratory Exchange Ratio) depending on the hour
 tint_hourly$RER <- 0
 tint_hourly$RER <- ifelse(tint_hourly$Hour_Elapsed<3,1,0.71)
-
-## intercept: tnz_eqn$coefficients[1]
-## slope: tnz_eqn$coefficients[2]
-
-## Calculate VO2 given ambient temp is amb temp
-tint_hourly$VO2_amb <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$AmbTemp)
-
-## Convert O2 ml/min to kJ/hour
-tint_hourly$kJ_amb <- tint_hourly$VO2_amb*((16 + (5.164*tint_hourly$RER))/1000)*60
-
-## Equations for the relationship between a side's temp and the amb temp. Removed individual sides' and
 # NestTs eqns on Mar 22, 2021.
 ## For average of A, B, C D
 SideAvg_eqn <- lm(nestTemps$value[nestTemps$Side=="SideAvg"]~nestTemps$Temp[nestTemps$Side=="SideAvg"])
+## Equations for the relationship between a side's temp and the amb temp for bblh. Removed individual sides' and
 tint_hourly$SideAvg <- SideAvg_eqn$coefficients[1] + (SideAvg_eqn$coefficients[2]*tint_hourly$AmbTemp)
-## Calculate VO2 given ambient temp is nest surface temp
-tint_hourly$VO2_SideAvg <- tnz_eqn$coefficients[1] + (tnz_eqn$coefficients[2]*tint_hourly$SideAvg)
-## Convert O2 ml/min to kJ/hour
-tint_hourly$kJ_SideAvg <- tint_hourly$VO2_SideAvg*((16 + (5.164*tint_hourly$RER))/1000)*60
-
 
 ## Temperatures from TINT data
 m.tint_temp <- melt(tint_hourly, id.vars = c("Night_ID", "Nest_ID"), 
@@ -161,11 +160,47 @@ m.tint_temp <- melt(tint_hourly, id.vars = c("Night_ID", "Nest_ID"),
 names(m.tint_temp) <- c("Night_ID", "Nest_ID", "Side", "value")
 m.tint_temp$Side <- plyr::revalue(m.tint_temp$Side, c("AmbTemp"="Ambient", "SideAvg"="Nest"))
 
+## intercept: tnz_eqn...$coefficients[1]
+## slope: tnz_eqn...$coefficients[2]
+
+## BBLH ##
+## Calculate VO2 for bblh given ambient temp is amb temp
+tint_hourly$VO2_amb_bblh <- tnz_eqn_bblh$coefficients[1] + (tnz_eqn_bblh$coefficients[2]*tint_hourly$AmbTemp)
+
+## Convert O2 ml/min to kJ/hour
+tint_hourly$kJ_amb_bblh <- tint_hourly$VO2_amb*((16 + (5.164*tint_hourly$RER))/1000)*60
+
+## Calculate VO2 given ambient temp is nest surface temp
+tint_hourly$VO2_SideAvg_bblh <- tnz_eqn_bblh$coefficients[1] + (tnz_eqn_bblh$coefficients[2]*tint_hourly$SideAvg)
+## Convert O2 ml/min to kJ/hour
+tint_hourly$kJ_SideAvg_bblh <- tint_hourly$VO2_SideAvg_bblh*((16 + (5.164*tint_hourly$RER))/1000)*60
+
+## SESA ##
+## Calculate VO2 for sesa given ambient temp is amb temp
+tint_hourly$VO2_amb_sesa <- tnz_eqn_sesa$coefficients[1] + (tnz_eqn_sesa$coefficients[2]*tint_hourly$AmbTemp)
+
+## Convert O2 ml/min to kJ/hour
+tint_hourly$kJ_amb_sesa <- tint_hourly$VO2_amb*((16 + (5.164*tint_hourly$RER))/1000)*60
+
+## Calculate VO2 given ambient temp is nest surface temp
+tint_hourly$VO2_SideAvg_sesa <- tnz_eqn_sesa$coefficients[1] + (tnz_eqn_sesa$coefficients[2]*tint_hourly$SideAvg)
+## Convert O2 ml/min to kJ/hour
+tint_hourly$kJ_SideAvg_sesa <- tint_hourly$VO2_SideAvg_sesa*((16 + (5.164*tint_hourly$RER))/1000)*60
+
+
 
 #### Model nighttime energy expenditures with varying torpor durations ####
-tor_int <- 0.46 ## from BBLH(?), torpor intercept
-tor_slope <- 0.053 ##  from BBLH(?), torpor slope
-tor2 <- 0.0016  ## from BBLH(?), for quadratic
+
+## BBLH ##
+## See Figure 3 in Shankar et al. 20202 J Avian Biology for details
+tor_int_bblh <- 0.46 ## from BBLH, torpor intercept
+tor_slope_bblh <- 0.053 ##  from BBLH, torpor slope
+tor2_bblh <- 0.0016  ## from BBLH, for quadratic
+
+## SESA ##
+polyn.formula_sesa <- tnz_sesa$O2_ml_min ~ poly(tnz_sesa$Temp_C, 2, raw = TRUE)
+m_pol_lab <- lm(polyn.formula_lab, bblh_controlled_torpor)
+
 
 ## Calculating night length
 night_length <- as.data.frame(tint_hourly %>%
