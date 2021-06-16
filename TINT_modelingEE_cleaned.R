@@ -129,7 +129,7 @@ tint_hourly <- as.data.frame(tint %>%
 
 ## BBLH ##
 ## Calculate Lower TNZ slope equation for broad-bills
-tnz_eqn_bblh <- lm(VO2_Normothermic~Temp_C, tnz)
+tnz_eqn_bblh <- lm(VO2_Normothermic~Temp_C, tnz_bblh)
 
 m.tnz_bblh <- melt(tnz_bblh, id.vars = c("Temp_C", "N_T"), measure.vars = "VO2_all")
 m.tnz_bblh$Species <- "bblh"
@@ -140,6 +140,7 @@ m.tnz_bblh$Species <- "bblh"
 ## So I'm using average weight of 3.7g to convert to whole-body MR.
 tnz_sesa$O2_ml_min <- (tnz_sesa$O2_g_hr/60)*3.7
 tnz_eqn_sesa <- lm(O2_ml_min~Ta_C, tnz_sesa)
+tnz_eqn_sesa
 
 #### Now putting together the field temperatures and lab-measured metabolic rates ####
 ## For both BBLH and SESA ##
@@ -175,19 +176,20 @@ tint_hourly$VO2_SideAvg_bblh <- tnz_eqn_bblh$coefficients[1] + (tnz_eqn_bblh$coe
 ## Convert O2 ml/min to kJ/hour
 tint_hourly$kJ_SideAvg_bblh <- tint_hourly$VO2_SideAvg_bblh*((16 + (5.164*tint_hourly$RER))/1000)*60
 
-## SESA ##
-## Calculate VO2 for sesa given ambient temp is amb temp
-tint_hourly$VO2_amb_sesa <- tnz_eqn_sesa$coefficients[1] + (tnz_eqn_sesa$coefficients[2]*tint_hourly$AmbTemp)
-
-## Convert O2 ml/min to kJ/hour
-tint_hourly$kJ_amb_sesa <- tint_hourly$VO2_amb*((16 + (5.164*tint_hourly$RER))/1000)*60
-
-## Calculate VO2 given ambient temp is nest surface temp
-tint_hourly$VO2_SideAvg_sesa <- tnz_eqn_sesa$coefficients[1] + (tnz_eqn_sesa$coefficients[2]*tint_hourly$SideAvg)
-## Convert O2 ml/min to kJ/hour
-tint_hourly$kJ_SideAvg_sesa <- tint_hourly$VO2_SideAvg_sesa*((16 + (5.164*tint_hourly$RER))/1000)*60
-
-
+# ## SESA. Commenting this out because we don't have torpor equations for SESA, so ##
+# ## can't do the full night model with varying torpor durations ##
+# ## Calculate VO2 for sesa given ambient temp is amb temp
+# tint_hourly$VO2_amb_sesa <- tnz_eqn_sesa$coefficients[1] + (tnz_eqn_sesa$coefficients[2]*tint_hourly$AmbTemp)
+# 
+# ## Convert O2 ml/min to kJ/hour
+# tint_hourly$kJ_amb_sesa <- tint_hourly$VO2_amb*((16 + (5.164*tint_hourly$RER))/1000)*60
+# 
+# ## Calculate VO2 given ambient temp is nest surface temp
+# tint_hourly$VO2_SideAvg_sesa <- tnz_eqn_sesa$coefficients[1] + (tnz_eqn_sesa$coefficients[2]*tint_hourly$SideAvg)
+# ## Convert O2 ml/min to kJ/hour
+# tint_hourly$kJ_SideAvg_sesa <- tint_hourly$VO2_SideAvg_sesa*((16 + (5.164*tint_hourly$RER))/1000)*60
+# 
+# 
 
 #### Model nighttime energy expenditures with varying torpor durations ####
 
