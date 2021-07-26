@@ -475,11 +475,13 @@ ggplot(therm_all, aes(Amb_Temp, Surf_Temp)) + geom_point(aes(col=Category, shape
 ## Figure 4 tweaking: Surface vs ambient temperature, with one linear model fitted to each category
 #therm_all$Category <- factor(therm_all$Category, levels = c("Normothermic", "Shallow Torpor", "Transition", "Deep Torpor"))
 ## Plot surface vs ambient temperature
+#setEPS(height=6, width=13)                                             # Set postscript arguments
+#postscript("therm_models.eps")
 ggplot(therm_all, aes(Amb_Temp, Surf_Temp)) + 
-  geom_point(aes(col=Indiv_ID, shape=Category), size=2.5) + my_theme2 +
+  geom_point(aes(col=Category, shape=Category), size=2.5) + my_theme2 +
   #scale_y_continuous(breaks = c(5,10,15,20,21,22,23,24,25,26,27,28,29,30,35,40)) +
-  scale_colour_manual(values=c(my_colors, my_gradient2)) +
-  facet_grid(.~Species) +
+  scale_colour_manual(values=my_colors) +
+  #facet_grid(.~Species) +
   #scale_color_manual(values = c(my_colors)) +
   geom_smooth(aes(group=Category, col=Category),method='lm') +
   scale_shape_manual(values = c(15:18)) +
@@ -487,7 +489,8 @@ ggplot(therm_all, aes(Amb_Temp, Surf_Temp)) +
         axis.text.y=element_text(size=15), legend.key.height = unit(1.5, 'lines')) +
   xlab( expression(atop(paste("Ambient Temperature (", degree,"C)")))) + 
   ylab( expression(atop(paste("Surface Temperature (", degree,"C)")))) #+
-#guides(colour = guide_legend(override.aes = list(size=4)))
+#dev.off()
+
 
 ## Figure 4  using model outputs!!
 ## library(sjPlot)
@@ -789,11 +792,15 @@ therm_doubleCateg$Categ2 <- as.factor(therm_doubleCateg$Categ2)
 therm_all$Categ2 <- therm_doubleCateg$Categ2
 therm_all$Categ2 <- factor(therm_all$Categ2, levels=c("Normothermic", "Shallow Torpor", "Transition", "Deep Torpor"))
 
+setEPS(height=6, width=13)                                             # Set postscript arguments
+postscript("our_plot2.eps")                           # Start graphics device driver
 ggplot(therm_all[therm_all$pasted=="RIHU03_052718",], aes(Time2, Surf_Temp)) + my_theme2 + facet_grid(.~pasted, scales="free_x") +
   geom_line(aes(group=Indiv_numeric, col=Categ2), size=0.5) +
   geom_point(aes(col=Category), size=2) +
   geom_line(aes(group=Indiv_numeric, y=Amb_Temp), linetype="dashed") +
-  scale_color_manual(values=my_colors) + ylab(Temp.lab)
+  scale_color_manual(values=my_colors) + ylab(Temp.lab) + theme(axis.text.x = element_text(angle=90))
+dev.off()
+
 
 for(j in 1:length(trial$Categ3)) {
     print(trial$Categ3[j][trial$Categ3[j]=="Transition" & trial$Categ3[j+1] %in% c("Shallow Torpor", "Normothermy")])
@@ -807,3 +814,23 @@ therm_all$Ts_Ta <- therm_all$Surf_Temp-therm_all$Amb_Temp
 ggplot(therm_all, aes(Amb_Temp, Ts_Ta)) + geom_point(aes(col=Category)) + my_theme + 
   scale_color_manual(values=my_colors) + xlab(ATemp.lab) + ylab("Ts - Ta") +
   geom_smooth(aes(col=Category), method='lm')
+
+
+
+## Allometry black plot for TIFR talk
+ggplot(NULL, aes(log(Mass_g), log(kJ_day))) + 
+  theme_jetblack(base_size=40) +
+  geom_point(data=dlw_mean, aes(col=Species), size=6) + 
+  geom_smooth(data=fmr_data, method=lm, alpha=0.3, col='white') + 
+  geom_point(data=fmr_data, aes(col=Species), size=4, alpha=0.5) + 
+  #geom_smooth(data=fmr_data[fmr_data$Lit_data2=="Lit",], method=lm, alpha=0.1, col='red') + 
+  # stat_smooth(data=fmr_data[fmr_data$Lit_data2=="Lit",], 
+  #             method='lm', col='red', alpha=0.3, size=0.5, se=TRUE) +
+  scale_shape_manual(values=c(19, 17), name="Lit/Data") +
+  xlab("Log(Mass (g))") +
+  scale_colour_manual(values = getPalette(colourCount)) +
+  ylab("Log(kJ per day)")  + 
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
+        legend.key.height=unit(1.5,"line"), legend.text = element_text(size=25), 
+        legend.title =  element_text(size=30), legend.key = element_blank(), 
+        axis.ticks = element_line(size=2), axis.ticks.length=unit(.5, "cm"))
