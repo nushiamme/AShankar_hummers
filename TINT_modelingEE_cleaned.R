@@ -1,6 +1,6 @@
 # Trying out a model of energy expenditure in nesting female hummingbirds
 # Given two temperature scenarios- either nest temperatures or ambient temperatures
-# Anusha Shankar wrote this code, with inputs from Erich Eberts and Glenn Tattersall. Nest temperature data from Don Powers
+# Anusha Shankar wrote this script, with inputs from Erich Eberts and Glenn Tattersall. Nest temperature data from Don Powers
 # Data on temperatures experienced by birds in nests under natural conditions from Erich Eberts and his field team
 # Contact Anusha at nushiamme<at>gmail<dot>com, and Erich at ebertser<at>gmail<dot>com
 
@@ -50,6 +50,9 @@ my_theme <- theme_classic(base_size = 15) +
   theme(panel.border = element_rect(colour = "black", fill=NA))
 
 my_theme2 <- theme_classic(base_size = 30) + 
+  theme(panel.border = element_rect(colour = "black", fill=NA))
+
+my_theme3 <- theme_classic(base_size = 20) + 
   theme(panel.border = element_rect(colour = "black", fill=NA))
 
 my_gradient <- c("#372772", "#4CB5AE","#F2B880","#b7adcf","#db2763","#588157","#69306d","#4f646f")
@@ -194,7 +197,7 @@ tint_hourly$kJ_SideAvg_bblh <- tint_hourly$VO2_SideAvg_bblh*((16 + (5.164*tint_h
 #### Model nighttime energy expenditures with varying torpor durations ####
 
 ## BBLH ##
-## See Figure 3 in Shankar et al. 20202 J Avian Biology for details
+## See Figure 3 in Shankar et al. 2020 J Avian Biology for details
 tor_int_bblh <- 0.46 ## from BBLH, torpor intercept
 tor_slope_bblh <- 0.053 ##  from BBLH, torpor slope
 tor2_bblh <- 0.0016  ## from BBLH, for quadratic
@@ -245,8 +248,8 @@ tint_hourly$TorporSideAvg_10h <- 0
 for(i in 1:nrow(tint_hourly)) {
   categ <- torpor_duration[torpor_duration$Night_ID==tint_hourly$Night_ID[i],]
   if(tint_hourly$Hour_Elapsed[i]> categ$start_2h & tint_hourly$Hour_Elapsed[i]<= categ$stop_2h) {
-    tint_hourly$TorporAmb_2h[i] <- (tor_int - tor_slope*(tint_hourly$AmbTemp[i]) + tor2*((tint_hourly$AmbTemp[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
-    tint_hourly$TorporSideAvg_2h[i] <- (tor_int - tor_slope*(tint_hourly$SideAvg[i]) + tor2*((tint_hourly$SideAvg[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
+    tint_hourly$TorporAmb_2h[i] <- (tor_int_bblh - tor_slope_bblh*(tint_hourly$AmbTemp[i]) + tor2_bblh*((tint_hourly$AmbTemp[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
+    tint_hourly$TorporSideAvg_2h[i] <- (tor_int_bblh - tor_slope_bblh*(tint_hourly$SideAvg[i]) + tor2_bblh*((tint_hourly$SideAvg[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
   } 
 }
 
@@ -254,8 +257,8 @@ for(i in 1:nrow(tint_hourly)) {
 for(i in 1:nrow(tint_hourly)) {
   categ <- torpor_duration[torpor_duration$Night_ID==tint_hourly$Night_ID[i],]
   if(tint_hourly$Hour_Elapsed[i]> categ$start_6h & tint_hourly$Hour_Elapsed[i]<= categ$stop_6h) {
-    tint_hourly$TorporAmb_6h[i] <- (tor_int - tor_slope*(tint_hourly$AmbTemp[i]) + tor2*((tint_hourly$AmbTemp[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
-    tint_hourly$TorporSideAvg_6h[i] <- (tor_int - tor_slope*(tint_hourly$SideAvg[i]) + tor2*((tint_hourly$SideAvg[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
+    tint_hourly$TorporAmb_6h[i] <- (tor_int_bblh - tor_slope_bblh*(tint_hourly$AmbTemp[i]) + tor2_bblh*((tint_hourly$AmbTemp[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
+    tint_hourly$TorporSideAvg_6h[i] <- (tor_int_bblh - tor_slope_bblh*(tint_hourly$SideAvg[i]) + tor2_bblh*((tint_hourly$SideAvg[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
   }
 }
 
@@ -263,8 +266,8 @@ for(i in 1:nrow(tint_hourly)) {
 for(i in 1:nrow(tint_hourly)) {
   categ <- torpor_duration[torpor_duration$Night_ID==tint_hourly$Night_ID[i],]
 if(tint_hourly$Hour_Elapsed[i]> categ$start_10h & tint_hourly$Hour_Elapsed[i]<= categ$stop_10h) {
-  tint_hourly$TorporAmb_10h[i] <- (tor_int - tor_slope*(tint_hourly$AmbTemp[i]) + tor2*((tint_hourly$AmbTemp[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
-  tint_hourly$TorporSideAvg_10h[i] <- (tor_int - tor_slope*(tint_hourly$SideAvg[i]) + tor2*((tint_hourly$SideAvg[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
+  tint_hourly$TorporAmb_10h[i] <- (tor_int_bblh - tor_slope_bblh*(tint_hourly$AmbTemp[i]) + tor2_bblh*((tint_hourly$AmbTemp[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
+  tint_hourly$TorporSideAvg_10h[i] <- (tor_int_bblh - tor_slope_bblh*(tint_hourly$SideAvg[i]) + tor2_bblh*((tint_hourly$SideAvg[i])^2))*((16 + (5.164*tint_hourly$RER[i]))/1000)*60
   }
 }
 
@@ -312,8 +315,8 @@ for(i in 1:nrow(tint_hourly)) {if(tint_hourly$Tor10h_Nor_merged_SideAvg[i]=="0")
 #### Calculating NEE, first assuming normothermy (Ambient and SideAvg temps), and next with various proportions of torpor use ####
 tint_nee <- as.data.frame(tint_hourly %>%
                             dplyr::group_by(Night_ID, Nest_ID) %>%
-                            dplyr::summarize(Nor_kJ_Amb = sum(kJ_amb, na.rm = T),
-                                      Nor_kJ_SideAvg = sum(kJ_SideAvg, na.rm = T),
+                            dplyr::summarize(Nor_kJ_Amb = sum(kJ_amb_bblh, na.rm = T),
+                                      Nor_kJ_SideAvg = sum(kJ_SideAvg_bblh, na.rm = T),
                                       Tor2h_kJ_Amb = sum(Tor2h_Nor_merged_Amb, na.rm = T),
                                       Tor2h_kJ_SideAvg = sum(Tor2h_Nor_merged_SideAvg, na.rm = T),
                                       Tor6h_kJ_Amb = sum(Tor6h_Nor_merged_Amb, na.rm = T),
@@ -471,22 +474,31 @@ labels_nee <- as.character(breaks_nee)
 labels_nee[!(breaks_nee %% 2 == 0)] <- ''
 #tick.sizes <- rep(.5, length(breaks_nee))
 #tick.sizes[(breaks_nee %% 2 == 0)] <- 1
-nee.plot <- ggplot(data=m.nee, aes(Torpor_dur, value)) + my_theme2 + facet_grid(.~Side) +
+amb_nee.plot <- ggplot(data=m.nee[m.nee$Side=="Ambient",], aes(Torpor_dur, value)) + my_theme3 + 
   geom_point(size=2) + geom_boxplot(aes(col=Torpor_dur), size=1.2, show.legend=F) + ylab ("NEE (kJ)") +
-  theme(axis.text.x = element_text(size=20, vjust=0.5)) + #ylim(0,14) +
-  scale_y_continuous(breaks = breaks_nee, labels = labels_nee) +
+  #theme(axis.text.x = element_text(size=20, vjust=0.5)) +
+  ylim(0,14) +
+  #scale_y_continuous(breaks = breaks_nee, labels = labels_nee) +
   scale_color_manual(values = torpor_gradient) + xlab("Torpor duration (hours)")
-nee.plot
+amb_nee.plot
+
+nest_nee.plot <- ggplot(data=m.nee[m.nee$Side=="Nest",], aes(Torpor_dur, value)) + my_theme3 + 
+  geom_point(size=2) + geom_boxplot(aes(col=Torpor_dur), size=1.2, show.legend=F) + ylab ("NEE (kJ)") +
+  #theme(axis.text.x = element_text(size=20, vjust=0.5)) + 
+  ylim(0,14) +
+  #scale_y_continuous(breaks = breaks_nee, labels = labels_nee) + 
+  scale_color_manual(values = torpor_gradient) + xlab("Torpor duration (hours)")
+nest_nee.plot
 
 ## Temp plot to mirror this NEE plot; from TINT data
-temp.plot_tint <- ggplot(data=m.tint_temp, aes(Side, value)) + my_theme2 + #facet_grid(.~Torpor_dur) +
+temp.plot_tint <- ggplot(data=m.tint_temp, aes(Side, value)) + my_theme3 + #facet_grid(.~Torpor_dur) +
   geom_point(size=2) + geom_boxplot(size=1.2) + ylab(Temp.lab) +
   scale_y_continuous(breaks = seq(0,30,5)) +
   theme(axis.text.x = element_text(size=20)) +
   xlab("Temperature")
 
 # Side-by-side plots of NEE and temperatures they were modeled on, but not standardized by night length
-grid.arrange(nee.plot, temp.plot_tint, nrow=1, ncol=2, widths = c(2, 1))
+grid.arrange(amb_nee.plot, nest_nee.plot, temp.plot_tint, nrow=1, ncol=3)
 
 
 ## Nighttime energy expenditure (kJ) standardized to 12 hour night length
