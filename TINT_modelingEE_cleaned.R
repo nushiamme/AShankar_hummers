@@ -204,7 +204,7 @@ tor2_bblh <- 0.0016  ## from BBLH, for quadratic
 
 ## SESA ##
 polyn.formula_sesa <- tnz_sesa$O2_ml_min ~ poly(tnz_sesa$Temp_C, 2, raw = TRUE)
-m_pol_lab <- lm(polyn.formula_lab, bblh_controlled_torpor)
+m_pol_lab <- lm(polyn.formula_sesa, bblh_controlled_torpor)
 
 
 ## Calculating night length
@@ -467,6 +467,8 @@ NEE_mean_sd$Temp_dur <- paste0(NEE_mean_sd$Nest_Amb, "_", NEE_mean_sd$Torpor_dur
 ## csv with means and SDs per scenario
 write.csv(NEE_mean_sd, "TINT_NEE_meanSD.csv")
 
+write.csv(m.nee, "TINT_summ.csv")
+
 #### Plots ####
 ## Total NEE, comparing normo and max torpor
 breaks_nee <- seq(0,15,1)
@@ -490,15 +492,29 @@ nest_nee.plot <- ggplot(data=m.nee[m.nee$Side=="Nest",], aes(Torpor_dur, value))
   scale_color_manual(values = torpor_gradient) + xlab("Torpor duration (hours)")
 nest_nee.plot
 
+m.nee$Side2 <- factor(m.nee$Side, levels = c("Nest", "Ambient"))
+amb_nest_nee.plot <- ggplot(data=m.nee, aes(Torpor_dur, value)) + my_theme2 + facet_grid(.~Side) +
+  geom_point(size=2) + geom_boxplot(aes(col=Torpor_dur), size=1.2, show.legend=F) + ylab ("NEE (kJ)") +
+  #theme(axis.text.x = element_text(size=20, vjust=0.5)) +
+  ylim(0,14) +
+  #scale_y_continuous(breaks = breaks_nee, labels = labels_nee) +
+  scale_color_manual(values = torpor_gradient) + xlab("Torpor duration (hours)")
+amb_nest_nee.plot
+
+
 ## Temp plot to mirror this NEE plot; from TINT data
-temp.plot_tint <- ggplot(data=m.tint_temp, aes(Side, value)) + my_theme3 + #facet_grid(.~Torpor_dur) +
+temp.plot_tint <- ggplot(data=m.tint_temp, aes(Side, value)) + my_theme2 + #facet_grid(.~Torpor_dur) +
   geom_point(size=2) + geom_boxplot(size=1.2) + ylab(Temp.lab) +
   scale_y_continuous(breaks = seq(0,30,5)) +
   theme(axis.text.x = element_text(size=20)) +
   xlab("Temperature")
 
-# Side-by-side plots of NEE and temperatures they were modeled on, but not standardized by night length
-grid.arrange(amb_nee.plot, nest_nee.plot, temp.plot_tint, nrow=1, ncol=3)
+# Three panels: Side-by-side plots of NEE and temperatures they were modeled on, but not standardized by night length
+grid.arrange(nest_nee.plot, amb_nee.plot, temp.plot_tint, nrow=1, ncol=3)
+
+# Two Panels, with amb and nest switched
+## Side-by-side plots of NEE and temperatures they were modeled on, but not standardized by night length
+grid.arrange(temp.plot_tint, amb_nest_nee.plot, nrow=1, ncol=2, widths = c(1, 2))
 
 
 ## Nighttime energy expenditure (kJ) standardized to 12 hour night length
@@ -506,11 +522,11 @@ nee.std.plot <- ggplot(data=m.nee, aes(Torpor_dur, stdNEE)) + my_theme2 + facet_
   geom_point(size=2) + geom_boxplot(aes(col=Torpor_dur), size=1.2, show.legend=F) +
   theme(axis.text.x = element_text(size=20)) + xlab("Torpor duration (hours)") + #ylim(0,15) +
   scale_y_continuous(breaks = breaks_nee, labels = labels_nee) +
-  scale_color_manual(values = torpor_gradient) + ylab ("NEE (kJ) standardized to 12h night")
+  scale_color_manual(values = torpor_gradient) + ylab ("NEE (kJ)")
 nee.std.plot
 
 ## Standardized by night length
-grid.arrange(nee.std.plot, temp.plot_tint, nrow=1, ncol=2, widths = c(2, 1))
+grid.arrange(temp.plot_tint, nee.std.plot, nrow=1, ncol=2, widths = c(1, 2))
 
 ## Difference between all-Normo and various durations' torpor NEE, with raw night length and standardized night lengths
 ## No difference between Ambient and Nest here, because this is diff between normo and torpor, so just plotting raw vs. std

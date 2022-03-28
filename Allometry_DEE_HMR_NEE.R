@@ -21,10 +21,12 @@ library(ggpubr)
 ##For cutting HMR temps into bins and making a new binned temperature column
 library(Hmisc)
 library(plyr) ## For renaming factor levels
+library(here)
+library(ggnewscale)
 
 #### Setup ####
 setwd("C:\\Users\\nushi\\Dropbox\\DLW_paper\\Data")
-fmr_data <- read.csv("DLW_TableS1.csv") #Compiled data from this paper and literature. Each row is an individual
+fmr_data <- read.csv("DLW_TableS1_final.csv") #Compiled data from this paper and literature. Each row is an individual
 nee <- read.csv("C:\\Users\\nushi\\Dropbox\\Hummingbird energetics\\July2018\\Data\\Torpor_individual_summaries_2.csv")
 hmr <- read.csv("Groom_et_al_HMR_realtemps_compiled.csv")
 bmr <- read.csv("Londono_BMR.csv")
@@ -38,6 +40,9 @@ tree_hmr<-read.tree("hum294.tre")
 ## General plotting functions
 ## Generic theme
 my_theme <- theme_classic(base_size = 30) + 
+  theme(panel.border = element_rect(colour = "black", fill=NA)) 
+
+my_theme2 <- theme_classic(base_size = 20) + 
   theme(panel.border = element_rect(colour = "black", fill=NA)) 
 
 ## To add linear regression equation to plot
@@ -466,6 +471,24 @@ m.nee2$variable <- revalue(m.nee2$variable, c("NEE_kJ"="NEE", "kJ_rewarming_Befo
                                             "Avg_EE_hourly_normo"="Normothermic", "Avg_EE_hourly_torpid"="Torpid"))
 m.nee2$variable <- ordered(m.nee2$variable, levels =c("NEE", "Normothermic", "Rewarming", "Torpid"))
 
+## Feb 8, 2022
+## DEE allometry by sex - for Ummat paper
+fmr_data$Species <- as.factor(fmr_data$Species)
+fmr_data$Sex <- as.factor(fmr_data$Sex)
+colourCount_fmr <- length(levels(fmr_data$Species))
+getPalette <- colorRampPalette(brewer.pal(9, "Set1"))
+colors_sex <- c("red", "black", "blue")
+#myColors <- c(getPalette(colourCount_fmr), "red", "black", "blue")
+myColors <- getPalette(colourCount_fmr)
+#names(myColors) <- c(levels(fmr_data$Species), levels(fmr_data$Sex))
+custom_colors_sex <- scale_colour_manual(name = "Sex", values = colors_sex)
+custom_colors_spp <- scale_colour_manual(name = "Species Names", values = myColors)
+
+ggplot(fmr_data, aes(log(Mass_g), log(kJ_day))) + my_theme2 + 
+  geom_smooth(aes(group=Sex, col=Sex), method="lm", alpha=0.2, size=2) + custom_colors_sex +
+  ggnewscale::new_scale_colour() +
+  geom_point(aes(col=Species, shape=Sex), size=3) + scale_shape_manual(name=" Sex", values = c(16, 17, 15)) +
+  custom_colors_spp + ylab("log(kiloJoules per day)") + xlab("log(Mass in grams)") 
 
 ## Torpor allometry, just torpid means per indiv
 ggplot(nee, aes(log(Mass), log(Avg_EE_hourly_torpid))) + geom_point() + geom_smooth(method="lm")
