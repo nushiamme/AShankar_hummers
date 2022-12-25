@@ -484,9 +484,9 @@ myColors <- getPalette(colourCount_fmr)
 custom_colors_sex <- scale_colour_manual(name = "Sex", values = colors_sex)
 custom_colors_spp <- scale_colour_manual(name = "Species Names", values = myColors)
 
-ggplot(fmr_data, aes(log(Mass_g), log(kJ_day))) + my_theme2 + 
+ggplot(fmr_data[fmr_data$Sex %in% c("M", "F"),], aes(log(Mass_g), log(kJ_day))) + my_theme2 + 
   geom_smooth(aes(group=Sex, col=Sex), method="lm", alpha=0.2, size=2) + custom_colors_sex +
-  ggnewscale::new_scale_colour() +
+  ggnewscale::new_scale_colour() + facet_grid(.~Sex) +
   geom_point(aes(col=Species, shape=Sex), size=3) + scale_shape_manual(name=" Sex", values = c(16, 17, 15)) +
   custom_colors_spp + ylab("log(kiloJoules per day)") + xlab("log(Mass in grams)") 
 
