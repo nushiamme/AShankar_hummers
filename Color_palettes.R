@@ -23,7 +23,7 @@ my_col_rainbows <- c("#f94144", "#f3722c", "#f8961e", "#f9844a",
 # install.packages("PNWColors")
 
 
-display.brewer.pal(n = 5, name = 'Dark2',)
+#display.brewer.pal(n = 5, name = 'Dark2',)
 par(mfrow=c(5,2))
 pie(rep(1, length(my_colors2)), col = my_colors2)
 # par(mar = rep(0, 4))
